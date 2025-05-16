@@ -373,3 +373,13 @@
 35211	39824	7690791886244141	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/libraries_shared/mtb-device-support-pse8xxgp/pdl/drivers/third_party/COMPONENT_GFXSS/vsi/gcnano/VGLite/vg_lite.o	9a1fec70254aed5
 36204	39958	7690791896743722	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/libraries_shared/mtb-device-support-pse8xxgp/pdl/drivers/third_party/ethernet/src/edd.o	c51a04dea8813b23
 39959	40793	7690791933624315	build/APP_KIT_PSE84_EVAL_EPC2/Debug/proj_cm33_s.elf	cd4b7d9c5e8c35ec
+326	1552	7691030668137319	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg_clocks.o	fbe057295eb41f74
+448	1904	7691030669404178	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg_pins.o	879aca0368fc7e6f
+484	2327	7691030669761989	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg_routing.o	876ba2ef88866075
+123	2796	7691030666045645	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/local/main.o	28d1f2c4b5619f9f
+366	2807	7691030668591725	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg_dmas.o	aec743f200f64d2f
+285	2888	7691030667713935	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg.o	edc12f8dbec9ab6a
+409	2895	7691030668962949	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/config/GeneratedSource/cycfg_peripherals.o	2d9045cdce770b25
+250	2966	7691030667377306	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/local/security_config.o	8f1e72c731a3b7e0
+536	3085	7691030670314961	C:/HMI_B0_Silicon/HMI_B0/proj_cm33_s/build/Debug/bsps/APP_KIT_PSE84_EVAL_EPC2/cybsp.o	ae3dee8f40e54536
+3085	4073	7691030695731934	build/APP_KIT_PSE84_EVAL_EPC2/Debug/proj_cm33_s.elf	cd4b7d9c5e8c35ec
