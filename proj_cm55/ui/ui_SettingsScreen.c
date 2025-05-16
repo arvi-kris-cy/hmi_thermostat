@@ -9,7 +9,7 @@ void ui_SettingsScreen_screen_init(void)
 {
     ui_SettingsScreen = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_SettingsScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_SettingsScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SettingsScreen, lv_color_hex(0x1A1B1A), LV_PART_MAIN | LV_STATE_DEFAULT); //0x08665C
     lv_obj_set_style_bg_opa(ui_SettingsScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Container3 = lv_obj_create(ui_SettingsScreen);

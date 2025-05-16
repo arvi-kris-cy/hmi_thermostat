@@ -12,7 +12,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_remove_flag(ui_ActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     
     #if defined (bg_color)
-    lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x1A1B1A), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     
     #else 
