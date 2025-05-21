@@ -51,7 +51,7 @@
 
 
 #if defined (DISPLAY_F)
-#include "display_driver/mtb_ctp_ft5xx6.h"
+#include "mtb_ctp_ft5xx6.h"
 #elif defined (DISPLAY_P)
 #include "mtb_ctp_p4100tp.h"
 #endif
