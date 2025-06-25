@@ -2329,7 +2329,7 @@
                 <Personality template="pclk_v2" version="1.0">
                     <Block location="peri[0].group[1].div_16[0]" locked="true">
                         <Aliases>
-                            <Alias value="CYBSP_I2C_CONTROLLER_0_CLK_DIV"/>
+                            <Alias value="CYBSP_I2C_CONTROLLER_11_CLK_DIV"/>
                         </Aliases>
                     </Block>
                     <Parameters>
@@ -2497,7 +2497,7 @@
                 <Personality template="i2c" version="4.0">
                     <Block location="scb[0]" locked="true">
                         <Aliases>
-                            <Alias value="CYBSP_I2C_CONTROLLER_0"/>
+                            <Alias value="CYBSP_I2C_CONTROLLER_11"/>
                         </Aliases>
                     </Block>
                     <Parameters>

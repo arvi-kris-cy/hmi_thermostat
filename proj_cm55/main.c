@@ -143,7 +143,7 @@ cy_stc_scb_i2c_context_t disp_touch_i2c_controller_context;
 
 cy_stc_sysint_t disp_touch_i2c_controller_irq_cfg =
 {
-    .intrSrc      = CYBSP_I2C_CONTROLLER_0_IRQ,
+    .intrSrc      = CYBSP_I2C_CONTROLLER_11_IRQ,
     .intrPriority = I2C_CONTROLLER_IRQ_PRIORITY,
 };
 
@@ -159,8 +159,8 @@ mtb_display_st7701s_backlight_config_t st7701s_pwm_cfg =
 	.bl_port = 0 ,
 	.bl_pin = 0 ,
 	.pwm_hw = TCPWM0 ,
-	.pwm_num = tcpwm_0_group_1_cnt_5_NUM ,
-	.pwm_config = &tcpwm_0_group_1_cnt_5_config,
+	.pwm_num = CYBSP_TCPWM_0_GRP_1_PWM_5_NUM,
+	.pwm_config = &CYBSP_TCPWM_0_GRP_1_PWM_5_config,
 };
 
 /* LPTimer HAL object */
@@ -424,7 +424,7 @@ static void gpu_irq_handler(void)
 *******************************************************************************/
 static void disp_touch_i2c_controller_interrupt(void)
 {
-    Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_0_HW, &disp_touch_i2c_controller_context);
+    Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_11_HW, &disp_touch_i2c_controller_context);
 }
 
 
@@ -505,8 +505,8 @@ static void cm55_gfx_task(void *arg)
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
 
         /* Initialize the I2C in controller mode. */
-        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_0_HW,
-                    &CYBSP_I2C_CONTROLLER_0_config, &disp_touch_i2c_controller_context);
+        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_11_HW,
+                    &CYBSP_I2C_CONTROLLER_11_config, &disp_touch_i2c_controller_context);
 
         if (CY_SCB_I2C_SUCCESS != i2c_result)
         {
@@ -528,7 +528,7 @@ static void cm55_gfx_task(void *arg)
         NVIC_EnableIRQ(disp_touch_i2c_controller_irq_cfg.intrSrc);
 
         /* Enable the I2C */
-        Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_0_HW);
+        Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_11_HW);
 
 
         Cy_GPIO_Pin_FastInit(DISP_TEST_PORT,DISP_TEST_PIN ,
