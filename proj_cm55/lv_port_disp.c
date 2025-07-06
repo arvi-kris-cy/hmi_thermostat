@@ -7,7 +7,7 @@
 * Related Document : See README.md
 *
 *******************************************************************************
-* Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -47,37 +47,21 @@
 #include <stdbool.h>
 #include <string.h>
 #include "cy_graphics.h"
-#include "Doraemon_character.h"
-
-/*******************************************************************************
-* Macros
-*******************************************************************************/
-#ifndef MY_DISP_HOR_RES
-    #warning Please define or replace the macro MY_DISP_HOR_RES with the actual
-screen width, default value 320 is used for now.
-    #define MY_DISP_HOR_RES    320
-#endif
-
-#ifndef MY_DISP_VER_RES
-    #warning Please define or replace the macro MY_DISP_HOR_RES with the actual
-screen height, default value 240 is used for now.
-    #define MY_DISP_VER_RES    240
-#endif
 
 
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
-CY_SECTION(".cy_gpu_buf") LV_ATTRIBUTE_MEM_ALIGN uint16_t disp_buf1[MY_DISP_HOR_RES *
-                                               MY_DISP_VER_RES];
-CY_SECTION(".cy_gpu_buf") LV_ATTRIBUTE_MEM_ALIGN uint16_t disp_buf2[MY_DISP_HOR_RES *
-                                               MY_DISP_VER_RES];
-
+CY_SECTION(".cy_gpu_buf") LV_ATTRIBUTE_MEM_ALIGN uint8_t disp_buf1[MY_DISP_HOR_RES *
+                                               MY_DISP_VER_RES * 2];
+CY_SECTION(".cy_gpu_buf") LV_ATTRIBUTE_MEM_ALIGN uint8_t disp_buf2[MY_DISP_HOR_RES *
+                                               MY_DISP_VER_RES * 2];
 /* Frame buffers used by GFXSS to render UI */
 void *frame_buffer1 = &disp_buf1;
 void *frame_buffer2 = &disp_buf2;
 
 cy_stc_gfx_context_t gfx_context;
+
 
 /*******************************************************************************
 * Function Name: disp_flush
@@ -104,12 +88,13 @@ static void LV_ATTRIBUTE_FAST_MEM disp_flush(lv_display_t *disp_drv, const lv_ar
     Cy_GFXSS_Set_FrameBuffer((GFXSS_Type*) GFXSS, (uint32_t*) color_p,
             &gfx_context);
 
-     if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY))
+    if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY))
     {
         /* Inform the graphics library that you are ready with the flushing */
         lv_display_flush_ready(disp_drv);
     }
 }
+
 
 /*******************************************************************************
 * Function Name: lv_port_disp_init
@@ -162,5 +147,6 @@ void lv_port_disp_init(void)
 
     Cy_GFXSS_Clear_DC_Interrupt((GFXSS_Type*) GFXSS, &gfx_context);
 }
+
 
 /* [] END OF FILE */

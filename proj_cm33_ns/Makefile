@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,10 +53,10 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=
+COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS=
+DISABLE_COMPONENTS= 
 
 CORE=CM33
 CORE_NAME=CM33_0
@@ -65,17 +65,30 @@ CORE_NAME=CM33_0
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=
+SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
+SOURCES+=$(wildcard ../shared/source/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+=
+INCLUDES+=../shared/include
+
+# Custom configuration of mbedtls library.
+MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
+DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
+
+# Default configuration of mbedtls library.
+DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
+# PSA configuration of mbedtls library.
+DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
+
+ifeq ($(TOOLCHAIN),LLVM_ARM)
+DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=5*1024
+endif
 
 # Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT+=
+VFP_SELECT=
 
 # Additional / custom C compiler flags.
 #
@@ -99,7 +112,7 @@ ASFLAGS+=
 LDFLAGS+=
 
 # Additional / custom libraries to link in to the application.
-LDLIBS+=
+LDLIBS=
 
 # Path to the linker script to use (if empty, use the default linker script).
 LINKER_SCRIPT=
@@ -113,9 +126,9 @@ PREBUILD=
 ifneq (,$(filter $(TOOLCHAIN),ARM IAR))
 APP_START=0x60340400
 POSTBUILD=$(CY_TOOL_edgeprotecttools_EXE_ABS) bin2hex \
-		--image $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).bin \
-		--output $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).hex \
-		--offset $(APP_START)
+        --image $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).bin \
+        --output $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).hex \
+        --offset $(APP_START)
 endif
 
 ################################################################################
@@ -129,12 +142,11 @@ CY_APP_PATH=
 
 # Relative path to the shared repo location.
 #
-# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> 
-# field begins with $$ASSET_REPO$$, then the repo is deposited in the path 
-# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one 
-# directory level above the current app directory.
-# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the 
-# directory name.
+# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> field 
+# begins with $$ASSET_REPO$$, then the repo is deposited in the path specified by 
+# the CY_GETLIBS_SHARED_PATH variable. The default location is one directory level 
+# above the current app directory.
+# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
 CY_GETLIBS_SHARED_PATH=../..
 
 # Directory name of the shared repo location.

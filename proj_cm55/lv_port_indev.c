@@ -51,7 +51,7 @@
 
 
 #if defined (DISPLAY_F)
-#include "display_driver/mtb_ctp_ft5xx6.h"
+#include "mtb_ctp_ft5xx6.h"
 #elif defined (DISPLAY_P)
 #include "mtb_ctp_p4100tp.h"
 #endif
@@ -82,7 +82,7 @@ lv_indev_t * indev_touchpad;
 /* ft5xx6 touch controller configuration */
 mtb_ctp_ft5xx6_config_t ctp_ft5xx6_cfg =
 {
-  .scb_inst            = CYBSP_I2C_CONTROLLER_0_HW,
+  .scb_inst            = CYBSP_I2C_CONTROLLER_11_HW,
   .i2c_context         = &disp_touch_i2c_controller_context,
   .rst_port            = CTP_RESET_PORT,
   .rst_pin             = CTP_RESET_PIN,
@@ -97,7 +97,7 @@ mtb_ctp_ft5xx6_config_t ctp_ft5xx6_cfg =
 /* p4100tp touch controller configuration */
 mtb_ctp_p4100tp_config_t ctp_p4100tp_cfg =
 {
-  .scb_inst            = CYBSP_I2C_CONTROLLER_0_HW,
+  .scb_inst            = CYBSP_I2C_CONTROLLER_11_HW,
   .i2c_context         = &disp_touch_i2c_controller_context,
   .rst_port            = CTP_RESET_PORT,
   .rst_pin             = CTP_RESET_PIN,

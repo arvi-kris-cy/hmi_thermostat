@@ -19,7 +19,7 @@ GeneratedSource/
 .mtbqueryapi
 
 # ModusToolbox BSP files. Any custom BSP file for code examples is shipped within the 'templates' folder
-bsps/
+# bsps/
 
 # ModusToolbox build system output
 build/
@@ -147,3 +147,15 @@ Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 [Dd]esktop.ini
+
+!/build/
+/build/project_hex
+/build/*
+!/build/app_combined.hex
+
+proj_cm33_ns/.cache/
+proj_cm33_ns/.cache/
+proj_cm33_ns/.cache/
+proj_cm33_ns/.ninja_log
+proj_cm33_s/.ninja_log
+proj_cm55/.ninja_log

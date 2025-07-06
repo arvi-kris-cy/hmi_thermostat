@@ -67,13 +67,21 @@ CORE_NAME=CM55_0
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
 SOURCES+=
+# By default the build system automatically looks in the Makefile's directory
+# tree for source code and builds it. The SOURCES variable can be used to
+# manually add source code to the build process from a location not searched
+# by default, or otherwise not found by the build system.
+SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
+SOURCES+=$(wildcard ../shared/source/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+= 
+
+INCLUDES+=../shared/include
+INCLUDES+=app/include
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0
+DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE
 
 
 # Ignore unused LVGL middleware files from compilation
