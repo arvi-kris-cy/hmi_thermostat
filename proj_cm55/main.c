@@ -64,6 +64,7 @@
 #include "app_common.h"
 #include "thermostat_events.h"
 #include "comm_manager.h"
+#include "app_audio.h"
 
 /*******************************************************************************
 * Macros
@@ -180,6 +181,7 @@ static mtb_hal_lptimer_t lptimer_obj;
 
 lv_obj_t *label;
 uint8_t brightness_level = 100;
+audio_level_t audio_level = AUDIO_MED;
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 /*******************************************************************************
@@ -623,8 +625,9 @@ static void cm55_gfx_task(void *arg)
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
-            ui_init();
+//            ui_init();
             //lv_demo_music();
+            ui_demo_init();
             
         }
         else
@@ -656,6 +659,10 @@ static void cm55_gfx_task(void *arg)
 				update_display_brightness(msg_val);
 				break;
 
+			case IPC_CMD_SET_AUDIO_LEVEL:
+				update_thermostat_volume((audio_level_t)msg_val);
+				break;
+
 			case IPC_CMD_UPDATE_CONN_STATE:
 			{
 				switch((device_connection_state_t)msg_val) {
@@ -672,7 +679,9 @@ static void cm55_gfx_task(void *arg)
 
 				case DEV_ST_CLOUD_CONNECTED:
 					update_device_connection_state((device_connection_state_t)msg_val);
-					lv_obj_add_flag(ui_popupoverlay, LV_OBJ_FLAG_HIDDEN);
+//					lv_obj_add_flag(ui_popupoverlay, LV_OBJ_FLAG_HIDDEN);
+//			        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+
 					request_uid_ipc();
 					break;
 
@@ -689,6 +698,7 @@ static void cm55_gfx_task(void *arg)
 			case IPC_CMD_SET_THERMOSTAT_MODE:
 			{
 				update_thermostat_mode((thermostat_mode_t)msg_val);
+				update_thermostat_mode_timer();
 				break;
 			}
 			case IPC_CMD_SET_TARGET_TEMP:
@@ -743,6 +753,8 @@ static void cm55_gfx_task(void *arg)
     		load_thermostat_config(MODE_ECO);
     		boot_config = false;
     	}
+
+    	app_speaker_clear();
     }
 }
 
@@ -800,6 +812,9 @@ int main(void)
     {
         handle_app_error();
     }
+
+    /* Initialize speaker */
+    app_speaker_init();
 
     /* Create the FreeRTOS Task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,

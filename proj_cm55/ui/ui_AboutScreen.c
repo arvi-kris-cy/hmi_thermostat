@@ -7,7 +7,7 @@
 
 lv_obj_t * ui_AboutScreen;
 lv_obj_t * ui_Container6;
-lv_obj_t * ui_Label14;
+lv_obj_t * ui_aboutscreenlbl;
 lv_obj_t * ui_backgesture2;
 lv_obj_t * ui_Label18;
 lv_obj_t * ui_Panel13;
@@ -25,7 +25,7 @@ void ui_event_backgesture2(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_AboutScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_AboutScreen_screen_init);
+        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SystemSettings_screen_init);
     }
 }
 
@@ -56,16 +56,16 @@ void ui_AboutScreen_screen_init(void)
     lv_obj_set_align(ui_Container6, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_Container6, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label14 = lv_label_create(ui_Container6);
-    lv_obj_set_width(ui_Label14, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label14, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label14, -19);
-    lv_obj_set_y(ui_Label14, -198);
-    lv_obj_set_align(ui_Label14, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label14, "About");
-    lv_obj_set_style_text_color(ui_Label14, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label14, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label14, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_aboutscreenlbl = lv_label_create(ui_Container6);
+    lv_obj_set_width(ui_aboutscreenlbl, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_aboutscreenlbl, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_aboutscreenlbl, -19);
+    lv_obj_set_y(ui_aboutscreenlbl, -198);
+    lv_obj_set_align(ui_aboutscreenlbl, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_aboutscreenlbl, "About");
+    lv_obj_set_style_text_color(ui_aboutscreenlbl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_aboutscreenlbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_aboutscreenlbl, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_backgesture2 = lv_button_create(ui_Container6);
     lv_obj_set_width(ui_backgesture2, 460);
@@ -197,7 +197,7 @@ void ui_AboutScreen_screen_destroy(void)
     // NULL screen variables
     ui_AboutScreen = NULL;
     ui_Container6 = NULL;
-    ui_Label14 = NULL;
+    ui_aboutscreenlbl = NULL;
     ui_backgesture2 = NULL;
     ui_Label18 = NULL;
     ui_Panel13 = NULL;

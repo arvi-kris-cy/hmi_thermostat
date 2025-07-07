@@ -7,7 +7,7 @@
 
 lv_obj_t * ui_Sensor_Settings;
 lv_obj_t * ui_Container8;
-lv_obj_t * ui_Label22;
+lv_obj_t * ui_sensorscreenlbl;
 lv_obj_t * ui_backgesture4;
 lv_obj_t * ui_Panel21;
 lv_obj_t * ui_Panel22;
@@ -54,16 +54,16 @@ void ui_Sensor_Settings_screen_init(void)
     lv_obj_set_align(ui_Container8, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_Container8, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label22 = lv_label_create(ui_Container8);
-    lv_obj_set_width(ui_Label22, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label22, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label22, -19);
-    lv_obj_set_y(ui_Label22, -198);
-    lv_obj_set_align(ui_Label22, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label22, "Sensor Settings");
-    lv_obj_set_style_text_color(ui_Label22, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label22, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label22, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_sensorscreenlbl = lv_label_create(ui_Container8);
+    lv_obj_set_width(ui_sensorscreenlbl, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_sensorscreenlbl, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_sensorscreenlbl, -19);
+    lv_obj_set_y(ui_sensorscreenlbl, -198);
+    lv_obj_set_align(ui_sensorscreenlbl, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_sensorscreenlbl, "Sensor Settings");
+    lv_obj_set_style_text_color(ui_sensorscreenlbl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_sensorscreenlbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_sensorscreenlbl, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_backgesture4 = lv_button_create(ui_Container8);
     lv_obj_set_width(ui_backgesture4, 460);
@@ -171,7 +171,7 @@ void ui_Sensor_Settings_screen_destroy(void)
     // NULL screen variables
     ui_Sensor_Settings = NULL;
     ui_Container8 = NULL;
-    ui_Label22 = NULL;
+    ui_sensorscreenlbl = NULL;
     ui_backgesture4 = NULL;
     ui_Panel21 = NULL;
     ui_Panel22 = NULL;

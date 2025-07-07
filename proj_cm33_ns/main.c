@@ -272,6 +272,8 @@ int main(void)
     /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
     Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 
+    Cy_SysLib_Delay(APP_BOOTUP_DELAY);
+
     ui_rx_thread_init();
 
     /* Initialize WiFi Tasks */

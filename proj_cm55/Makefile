@@ -79,6 +79,7 @@ SOURCES+=$(wildcard ../shared/source/*.c)
 
 INCLUDES+=../shared/include
 INCLUDES+=app/include
+INCLUDES+=app_i2s
 
 # Add additional defines to the build process (without a leading -D).
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE

@@ -207,6 +207,8 @@ extern lv_obj_t * ui_modelbl;
 extern lv_obj_t * ui_commandlbl;
 extern lv_obj_t * ui_connectlbl;
 extern lv_obj_t * ui_settolbl;
+extern lv_obj_t * ui_temperaturearc;
+
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

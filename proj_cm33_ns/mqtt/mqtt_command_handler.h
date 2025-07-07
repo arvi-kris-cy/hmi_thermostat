@@ -71,8 +71,9 @@ typedef enum mqtt_commandId
 	FIRMWARE_UPDATE_STATUS		= 12,
 	DEVICE_PAIRING_DISCONECT	= 13,
 	CURRENT_FIRMWARE_VERSION	= 14,
-	GET_NEW_FIRMWARE_VERSION	= 15,
-	TIME_REMAINING				= 16,
+	TIME_REMAINING				= 15,
+	TEMP_UNIT					= 16,
+	GET_DEVICE_CONFIGURATION    = 17,
 
 	MAX_COMMAND_ID
 } mqtt_commandId_e;
@@ -128,15 +129,14 @@ extern device_state_t device_status;
  */
 mqtt_parser_errors_e parse_mqtt_command(const char *message, size_t message_len);
 
-
 /**
  * @brief Sends a response back over MQTT with the specified command, type, and response value.
  */
-void send_response(mqtt_commandId_e cmd, operation_type_e type, uint32_t response);
+void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t response);
 
 /**
  * @brief Handles the DEVICE_PAIRING_DISCONNECT command to unpair or reset Bluetooth/Wi-Fi pairing.
  */
-void handle_pairingremove_command(void);
+void handle_pairingremove_command(bool only_wifi);
 
 #endif /* MQTT_MQTT_COMMAND_HANDLER_H_ */

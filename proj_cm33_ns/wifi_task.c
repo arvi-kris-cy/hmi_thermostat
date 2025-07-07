@@ -475,10 +475,11 @@ void wifi_task(void * arg)
                 }
                 else
                 {
-                	printf("Stored WiFi credntials in NVM.\n");
+                	printf("Stored WiFi credentials in NVM.\n");
                 }
 
             	update_conn_state(DEV_ST_WIFI_CONNECTED);
+				vTaskDelay(2000);
 
                 /* Update GATT DB about connection */
                 app_custom_service_wifi_control[0] = WIFI_CONTROL_CONNECT;
@@ -569,9 +570,10 @@ void wifi_task(void * arg)
 
                 printf("Successfully disconnected from AP\n");
 				update_conn_state(DEV_ST_WIFI_DISCONNECTED);
-				vTaskDelay(1000);
+				vTaskDelay(2000);
 
                 update_conn_state(DEV_ST_UNPROVISIONED);
+                vTaskDelay(2000);
             }
             else /* Disconnection failed */
             {

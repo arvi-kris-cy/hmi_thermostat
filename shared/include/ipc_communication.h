@@ -98,6 +98,7 @@ typedef struct
     uint8_t     cmd;
     int 		data;
     uint8_t		data_len;
+    device_state_t device_config;
 
     union {
     	wifi_credentials_t	wifi_info;

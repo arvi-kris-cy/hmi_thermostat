@@ -15,7 +15,7 @@ extern void ui_AboutScreen_screen_init(void);
 extern void ui_AboutScreen_screen_destroy(void);
 extern lv_obj_t * ui_AboutScreen;
 extern lv_obj_t * ui_Container6;
-extern lv_obj_t * ui_Label14;
+extern lv_obj_t * ui_aboutscreenlbl;
 extern void ui_event_backgesture2(lv_event_t * e);
 extern lv_obj_t * ui_backgesture2;
 extern lv_obj_t * ui_Label18;

@@ -51,7 +51,6 @@
 
 /***************** MQTT CLIENT CONNECTION CONFIGURATION MACROS *****************/
 /* MQTT Broker/Server address and port used for the MQTT connection. */
-//#define MQTT_BROKER_ADDRESS               "a3t25hrcseg2ba-ats.iot.eu-north-1.amazonaws.com"
 #define MQTT_BROKER_ADDRESS				  "a2pmd6m35psott-ats.iot.eu-north-1.amazonaws.com"
 #define MQTT_PORT                         8883
 
@@ -63,11 +62,6 @@
 /* Configure the user credentials to be sent as part of MQTT CONNECT packet */
 #define MQTT_USERNAME                     "User"
 #define MQTT_PASSWORD                     ""
-
-
-/********************* MQTT MESSAGE CONFIGURATION MACROS **********************/
-/* The MQTT topics to be used by the publisher and subscriber. */
-#define MQTT_PUB_TOPIC                    "ledstatus"
 
 /* Set the QoS that is associated with the MQTT publish, and subscribe messages.
  * Valid choices are 0, 1, and 2. Other values should not be used in this macro.
@@ -89,12 +83,6 @@
     #define MQTT_WILL_MESSAGE             ("MQTT client unexpectedly disconnected!")
 #endif
 
-/* MQTT messages which are published on the MQTT_PUB_TOPIC that controls the
- * device (user LED in this example) state in this code example.
- */
-#define MQTT_DEVICE_ON_MESSAGE            "TURN ON"
-#define MQTT_DEVICE_OFF_MESSAGE           "TURN OFF"
-
 
 /******************* OTHER MQTT CLIENT CONFIGURATION MACROS *******************/
 /* A unique client identifier to be used for every MQTT connection. */
@@ -104,7 +92,7 @@
 #define MQTT_TIMEOUT_MS                   ( 5000 )
 
 /* The keep-alive interval in seconds used for MQTT ping request. */
-#define MQTT_KEEP_ALIVE_SECONDS           ( 60 )
+#define MQTT_KEEP_ALIVE_SECONDS           ( 30 )
 
 /* Every active MQTT connection must have a unique client identifier. If you
  * are using the above 'MQTT_CLIENT_IDENTIFIER' as client ID for multiple MQTT
@@ -155,9 +143,6 @@
  * 'CY_MQTT_MIN_NETWORK_BUFFER_SIZE'.
  */
 #define MQTT_NETWORK_BUFFER_SIZE          ( 2 * CY_MQTT_MIN_NETWORK_BUFFER_SIZE )
-
-/* Maximum MQTT connection re-connection limit. */
-#define MAX_MQTT_CONN_RETRIES            (150u)
 
 /* MQTT re-connection time interval in milliseconds. */
 #define MQTT_CONN_RETRY_INTERVAL_MS      (2000)

@@ -7,7 +7,7 @@
 
 lv_obj_t * ui_DisplaySettings;
 lv_obj_t * ui_Container4;
-lv_obj_t * ui_Label7;
+lv_obj_t * ui_displayscreenlbl;
 lv_obj_t * ui_backgesture;
 lv_obj_t * ui_Label12;
 lv_obj_t * ui_Slider2;
@@ -65,16 +65,16 @@ void ui_DisplaySettings_screen_init(void)
     lv_obj_set_align(ui_Container4, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_Container4, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label7 = lv_label_create(ui_Container4);
-    lv_obj_set_width(ui_Label7, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label7, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label7, -19);
-    lv_obj_set_y(ui_Label7, -198);
-    lv_obj_set_align(ui_Label7, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label7, "Display Settings");
-    lv_obj_set_style_text_color(ui_Label7, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label7, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_displayscreenlbl = lv_label_create(ui_Container4);
+    lv_obj_set_width(ui_displayscreenlbl, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_displayscreenlbl, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_displayscreenlbl, -19);
+    lv_obj_set_y(ui_displayscreenlbl, -198);
+    lv_obj_set_align(ui_displayscreenlbl, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_displayscreenlbl, "Display Settings");
+    lv_obj_set_style_text_color(ui_displayscreenlbl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_displayscreenlbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_displayscreenlbl, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_backgesture = lv_button_create(ui_Container4);
     lv_obj_set_width(ui_backgesture, 460);
@@ -206,7 +206,7 @@ void ui_DisplaySettings_screen_destroy(void)
     // NULL screen variables
     ui_DisplaySettings = NULL;
     ui_Container4 = NULL;
-    ui_Label7 = NULL;
+    ui_displayscreenlbl = NULL;
     ui_backgesture = NULL;
     ui_Label12 = NULL;
     ui_Slider2 = NULL;

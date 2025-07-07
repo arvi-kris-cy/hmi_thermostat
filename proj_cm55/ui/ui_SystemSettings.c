@@ -26,7 +26,7 @@ lv_obj_t * ui_cancelbtn;
 lv_obj_t * ui_cancelbtnlbl;
 lv_obj_t * ui_homebtnimg1;
 lv_obj_t * ui_homebtn1;
-lv_obj_t * ui_Label8;
+lv_obj_t * ui_systemscreenlbl;
 
 // event funtions
 void ui_event_backgesture1(lv_event_t * e)
@@ -54,6 +54,16 @@ void ui_event_Label15(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_factoryresetcontianer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
+}
+
+void ui_event_Label16(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_FWUpdateScreen_screen_init);
+    	fw_update_check_ui(e);
     }
 }
 
@@ -354,19 +364,20 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_bg_color(ui_homebtn1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_homebtn1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label8 = lv_label_create(ui_Container5);
-    lv_obj_set_width(ui_Label8, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label8, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label8, -19);
-    lv_obj_set_y(ui_Label8, -198);
-    lv_obj_set_align(ui_Label8, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label8, "System Settings");
-    lv_obj_set_style_text_color(ui_Label8, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label8, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label8, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_systemscreenlbl = lv_label_create(ui_Container5);
+    lv_obj_set_width(ui_systemscreenlbl, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_systemscreenlbl, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_systemscreenlbl, -19);
+    lv_obj_set_y(ui_systemscreenlbl, -198);
+    lv_obj_set_align(ui_systemscreenlbl, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_systemscreenlbl, "System Settings");
+    lv_obj_set_style_text_color(ui_systemscreenlbl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_systemscreenlbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_systemscreenlbl, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_timeoutslider, ui_event_timeoutslider, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Label15, ui_event_Label15, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Label16, ui_event_Label16, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Label17, ui_event_Label17, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_cancelbtn, ui_event_cancelbtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homebtn1, ui_event_homebtn1, LV_EVENT_ALL, NULL);
@@ -400,6 +411,6 @@ void ui_SystemSettings_screen_destroy(void)
     ui_cancelbtnlbl = NULL;
     ui_homebtnimg1 = NULL;
     ui_homebtn1 = NULL;
-    ui_Label8 = NULL;
+    ui_systemscreenlbl = NULL;
 
 }

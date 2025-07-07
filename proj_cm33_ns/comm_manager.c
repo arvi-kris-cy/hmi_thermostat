@@ -22,12 +22,29 @@ void set_device_mode(thermostat_mode_t value)
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
 
-
 void set_device_temp(uint8_t value)
 {
 	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
 	cm33_msg_data.cmd = IPC_CMD_SET_TARGET_TEMP;
 	cm33_msg_data.data = value;
+	cm33_msg_data.data_len = 1;
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_device_brightness(uint8_t level)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_SET_DISPLAY_BRIGHTNESS;
+	cm33_msg_data.data = level;
+	cm33_msg_data.data_len = 1;
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_device_audio_level(uint8_t level)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_SET_AUDIO_LEVEL;
+	cm33_msg_data.data = level;
 	cm33_msg_data.data_len = 1;
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
@@ -52,12 +69,20 @@ void update_conn_state(uint32_t state)
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
 
-
 void response_uid_req(char *uid)
 {
 	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
 	cm33_msg_data.cmd = IPC_CMD_SET_UID;
 	memcpy(cm33_msg_data.unique_id, (char*)uid, 13);
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_device_audio(audio_level_t value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_SET_AUDIO_LEVEL;
+	cm33_msg_data.data = value;
 
 	cm33_send_msg_cm55(&cm33_msg_data);
 }

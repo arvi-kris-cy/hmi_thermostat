@@ -27,7 +27,8 @@ extern "C" {
 #include "screens/ui_Sensor_Settings.h"
 #include "screens/ui_SystemSettings.h"
 #include "screens/ui_PerformanceSettings.h"
-
+#include "screens/ui_BootScreen.h"
+#include "screens/ui_FWUpdateScreen.h"
 
 
 ///////////////////// VARIABLES ////////////////////
@@ -116,6 +117,8 @@ LV_IMG_DECLARE(ui_img_344061264);    // assets/lowres-House.eps.png
 LV_IMG_DECLARE(ui_img_automode_png_png);    // assets/automode_png.png
 LV_IMG_DECLARE(ui_img_wifidisconn50_png);    // assets/wifidisconn50.png
 LV_IMG_DECLARE(ui_img_wifidisconn120_png);    // assets/wifidisconn120.png
+LV_IMG_DECLARE(ui_img_bootscreenimgb120_png);    // assets/bootscreen.png
+LV_IMG_DECLARE(ui_img_bootimg_cmp_png);    // assets/bootscreen.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Roboto80);
@@ -132,6 +135,8 @@ LV_FONT_DECLARE(ui_font_sans36);
 // UI INIT
 void ui_init(void);
 void ui_destroy(void);
+void ui_demo_init(void);
+
 
 #ifdef __cplusplus
 } /*extern "C"*/

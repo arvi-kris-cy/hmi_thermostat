@@ -11,6 +11,7 @@
 #include "lv_qrcode.h"
 #include "comm_manager.h"
 #include "ui/screens/ui_ActiveScreen.h"
+#include "app_audio.h"
 
 /******************************************************************************
  * Macros
@@ -19,6 +20,7 @@
 #define ECO_MODE_TEMP_TIMER_TIMEOUT		5000U
 #define RAPID_MODE_TEMP_TIMER_TIMEOUT		1000U
 #define AUTO_MODE_TEMP_TIMER_TIMEOUT		2500U
+#define NOTIFICATION_TIMEOUT_MS		1500U
 
 // Timeout in milliseconds (e.g., 2000ms = 2 seconds)
 #define WIFI_ILABEL_TIMER_TIMEOUT_MS 2000
@@ -26,12 +28,17 @@
 #define TEMPERATURE_MAX_VALUE 30
 #define TEMPERATURE_MIN_VALUE 14
 
+#define AUTO_MODE_TARGET_TEMP_DEFAULT	22U
+
 /*******************************************************************************
  * Global Variables
  ******************************************************************************/
 static int temperature = 24;
 static int current_temp = 24;
 static int target_temp;
+
+device_state_t dev_info;
+
 lv_timer_t *temp_timer = NULL;
 
 CY_SECTION_SHAREDMEM static ipc_msg_t cm55_msg_data;
@@ -84,14 +91,28 @@ lv_timer_t *state_update_timer = NULL;
 
 static qr_manager_t qr_manager;
 
+//Notifcation related
+#define MAX_NOTIF_QUEUE 5
+
+typedef struct {
+    notification_type type;
+    notification_status_t status;
+    uint32_t value;
+} notification_data_t;
+
+static notification_data_t notif_queue[MAX_NOTIF_QUEUE];
+static int notif_head = 0;
+static int notif_tail = 0;
+static bool notif_showing = false;
+static lv_timer_t * notif_timer = NULL;
+
 /*****************************************************************************
  * Function Declaration
  *****************************************************************************/
 static int get_deg_delay_sec(thermostat_mode_t mode);
 static uint32_t calculate_remaining_time_sec(thermostat_mode_t mode, int current_temp, int set_temp);
 static void generate_thermostat_time_str(thermostat_mode_t mode, int current_temp, int set_temp, char *out_str, size_t len);
-
-
+static void set_volume(audio_level_t level);
 static void fan_off(void);
 static void fan_high(void);
 static void fan_med(void);
@@ -99,7 +120,8 @@ static void fan_low(void);
 static void update_mode_label(thermostat_mode_t mode);
 static void mic_stop_listening(void);
 static void mic_activate_listening(void);
-static void show_notification_ex(void);
+static void show_next_notification(void);
+static void enqueue_notification(notification_type type, notification_status_t status, uint32_t value);
 
 /*****************************************************************************
  * Function Definitions
@@ -143,7 +165,7 @@ static void generate_thermostat_time_str(thermostat_mode_t mode, int current_tem
     uint32_t delay_min = (delay_sec + 59) / 60;
     if(update_time != delay_min) {
     	update_time = delay_min;
-    	update_remainig_time_ipc(delay_sec);
+//    	update_remainig_time_ipc(delay_sec);
     }
 
     if (temp_diff < 0) {
@@ -154,8 +176,16 @@ static void generate_thermostat_time_str(thermostat_mode_t mode, int current_tem
         snprintf(out_str, len, "%u min until heated to %d°C", (unsigned int)delay_min, set_temp);
     }
 
-//    update_remainig_time_ipc(delay_sec);
+    dev_info.thermostat_settings.time_remains = delay_sec;
 }
+
+void update_setto_label(lv_event_t * e)
+{
+	if (temp_timer){
+        _ui_flag_modify(ui_settolbl, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+	}
+}
+
 
 void increase_temp(lv_event_t * e)
 {
@@ -174,7 +204,6 @@ void increase_temp(lv_event_t * e)
 			red2anim_Animation(ui_red2, 1000);
 			red3anim_Animation(ui_red3, 500);
 			red4anim_Animation(ui_red4, 200);
-			update_fan_mode(dev_fan_mode);
 			current_state = STATE_HEATING;
 
 		   if (temp_timer){
@@ -184,7 +213,8 @@ void increase_temp(lv_event_t * e)
 		   temp_timer=lv_timer_create(increase_temp_step,deg2sec,NULL);
 		   lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Heating . . .");
 
-		   update_target_temp_ipc(target_temp);
+ 	      dev_info.environment.target_temp = target_temp;
+ 	      update_temperature_data_ipc(&dev_info);
 
 		   generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 		   lv_label_set_text(ui_homescreensubmsg, subinfo);
@@ -214,7 +244,6 @@ void increase_temp(lv_event_t * e)
 			blue2anim_Animation(ui_blue2, 500);
 			blue3anim_Animation(ui_blue3, 800);
 			blue4anim_Animation(ui_blue4, 1300);
-			update_fan_mode(dev_fan_mode);
 			current_state = STATE_COOLING;
 			if (temp_timer){
 				lv_timer_del(temp_timer);
@@ -222,7 +251,8 @@ void increase_temp(lv_event_t * e)
 			}
 			temp_timer=lv_timer_create(decrease_temp_step,deg2sec,NULL);
 			lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Cooling . . .");
-			update_target_temp_ipc(target_temp);
+ 	      dev_info.environment.target_temp = target_temp;
+ 	      update_temperature_data_ipc(&dev_info);
 			generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 			lv_label_set_text(ui_homescreensubmsg, subinfo);
 			lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
@@ -244,7 +274,8 @@ void increase_temp_step (lv_timer_t * timer){
 		if (current_temp < target_temp){
 			current_temp++;
 			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
-
+		   lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Heating . . .");
+//			lv_arc_set_value(ui_temperaturearc, current_temp);
 		   generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 		   lv_label_set_text(ui_homescreensubmsg, subinfo);
 		   lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
@@ -253,6 +284,7 @@ void increase_temp_step (lv_timer_t * timer){
 			lv_timer_del(timer);
 			temp_timer=NULL;
 			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+			lv_arc_set_value(ui_temperaturearc, current_temp);
 			lv_obj_add_flag(ui_redcontainer,LV_OBJ_FLAG_HIDDEN);
 
 		   lv_obj_add_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
@@ -260,12 +292,13 @@ void increase_temp_step (lv_timer_t * timer){
 			lv_obj_add_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_add_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
 			update_mode_label(dev_current_mode);
-//			update_notifcation_label(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
+			enqueue_notification(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
+   	        dev_info.thermostat_settings.time_remains = 0;
+
 		}
 
-		update_current_temp_ipc(current_temp);
-//	    uint32_t delay_sec = calculate_remaining_time_sec(dev_current_mode, current_temp, target_temp);
-//	    update_remainig_time_ipc(delay_sec);
+	      dev_info.environment.current_temp = current_temp;
+	      update_temperature_data_ipc(&dev_info);
 	}
 }
 
@@ -275,7 +308,10 @@ void decrease_temp_step (lv_timer_t * timer){
 //		lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
 		if (current_temp > target_temp){
 			current_temp--;
+			lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Cooling . . .");
+
 			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+//			lv_arc_set_value(ui_temperaturearc, current_temp);
 
 		   generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 		   lv_label_set_text(ui_homescreensubmsg, subinfo);
@@ -285,17 +321,18 @@ void decrease_temp_step (lv_timer_t * timer){
 			lv_timer_del(timer);
 			temp_timer=NULL;
 			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+			lv_arc_set_value(ui_temperaturearc, current_temp);
 			lv_obj_add_flag(ui_bluecontainer,LV_OBJ_FLAG_HIDDEN);
   		   lv_obj_add_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_add_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_add_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
 			update_mode_label(dev_current_mode);
-//			update_notifcation_label(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
+			enqueue_notification(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
+			dev_info.thermostat_settings.time_remains = 0;
 		}
 
-		update_current_temp_ipc(current_temp);
-//	    uint32_t delay_sec = calculate_remaining_time_sec(dev_current_mode, current_temp, target_temp);
-//	    update_remainig_time_ipc(delay_sec);
+	      dev_info.environment.current_temp = current_temp;
+	      update_temperature_data_ipc(&dev_info);
 	}
 }
 
@@ -483,12 +520,26 @@ void weatherdown(lv_event_t * e){
 
 void update_display_brightness(uint8_t level)
 {
-    mtb_display_st7701s_set_brightness(brightness_level);
+	lv_slider_set_value(ui_Slider2, level, LV_ANIM_OFF);
+    mtb_display_st7701s_set_brightness(level);
     brightness_level = level;
+	dev_info.preferences.display_brightness = level;
 }
 
 void change_brightness(lv_event_t * e){
-     brightness_level  = lv_slider_get_value(ui_Slider2);
+     uint8_t slider_val  = lv_slider_get_value(ui_Slider2);
+
+     if((slider_val % 10) > 5)
+     {
+    	 brightness_level = ((slider_val/10)*10)+10;
+     }
+     else
+     {
+    	 brightness_level = ((slider_val/10)*10);
+     }
+
+     printf("Brightness Level: %d Actual Level: %d", brightness_level, slider_val);
+     lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
      update_display_brightness(brightness_level);
      update_brightness_ipc(brightness_level);
 }
@@ -728,8 +779,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_homecloudconnected, 255, 0);
 
-            update_notifcation_label(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS,DEV_ST_CLOUD_CONNECTED);
-            show_notification_ex();
+            enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS, DEV_ST_CLOUD_CONNECTED);
             break;
 
         case DEV_ST_CLOUD_CONNECTING:
@@ -774,8 +824,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
 
-            update_notifcation_label(NOTIFY_NETWORK_STATUS, NOTIF_FAIL, DEV_ST_CLOUD_DISCONNECTED);
-            show_notification_ex();
+            enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_FAIL, DEV_ST_CLOUD_DISCONNECTED);
             break;
 
         case DEV_ST_BLE_ADVERTISING:
@@ -839,8 +888,7 @@ void update_device_connection_state(device_connection_state_t state)
             /* home screen icon */
             lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
-            update_notifcation_label(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS, DEV_ST_WIFI_CONNECTED);
-            show_notification_ex();
+            enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS, DEV_ST_WIFI_CONNECTED);
             break;
 
         case DEV_ST_WIFI_DISCONNECTED:
@@ -854,8 +902,8 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_homewifidisconnected, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_homewifidisconnected, 255, 0);
 
-            update_notifcation_label(NOTIFY_NETWORK_STATUS, NOTIF_FAIL,DEV_ST_WIFI_DISCONNECTED);
-            show_notification_ex();
+            enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_FAIL,DEV_ST_WIFI_DISCONNECTED);
+
         	break;
 
         case DEV_ST_BLE_CONNECTED:
@@ -878,7 +926,6 @@ void update_device_connection_state(device_connection_state_t state)
 
     // Update label text
     lv_label_set_text(ui_devstatelabel, state_text);
-//    start_device_state_test_timer();
 }
 
 
@@ -922,6 +969,15 @@ void connect_wifi(lv_event_t * e)
 void hide_notification_ready_cb(lv_anim_t * a)
 {
     lv_obj_add_flag(ui_notification, LV_OBJ_FLAG_HIDDEN);
+
+    // ✅ Move to next message
+    notif_head = (notif_head + 1) % MAX_NOTIF_QUEUE;
+    notif_showing = false;
+
+    // Clear old message (optional)
+    memset(&notif_queue[notif_head], 0, sizeof(notification_data_t));
+
+    show_next_notification();
 }
 
 void hide_notification(lv_timer_t * timer)
@@ -929,35 +985,86 @@ void hide_notification(lv_timer_t * timer)
     lv_anim_t a;
     lv_anim_init(&a);
     lv_anim_set_var(&a, ui_notification);
-    lv_anim_set_values(&a, -197, -297);  // Slide up again
+    lv_anim_set_values(&a, -197, -297);
     lv_anim_set_time(&a, 300);
     lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
-
-    lv_anim_set_ready_cb(&a, hide_notification_ready_cb);  // Callback to hide
-
+    lv_anim_set_ready_cb(&a, hide_notification_ready_cb);
     lv_anim_start(&a);
+
+    lv_timer_del(timer);
+    notif_timer = NULL;
 }
 
-static void show_notification_ex(void)
+
+
+static bool is_duplicate(notification_type type, notification_status_t status, uint32_t value)
 {
-//    lv_label_set_text(ui_notificationlabel, msg_text);
+    int i = notif_head;
+    while (i != notif_tail) {
+        if (notif_queue[i].type == type &&
+            notif_queue[i].status == status &&
+            notif_queue[i].value == value) {
+            return true;
+        }
+        i = (i + 1) % MAX_NOTIF_QUEUE;
+    }
+    return false;
+}
+
+static void enqueue_notification(notification_type type, notification_status_t status, uint32_t value)
+{
+    if (is_duplicate(type, status, value)) return;
+
+    int next_tail = (notif_tail + 1) % MAX_NOTIF_QUEUE;
+    if (next_tail == notif_head) {
+        // Queue full, drop notification
+        return;
+    }
+
+    notif_queue[notif_tail].type = type;
+    notif_queue[notif_tail].status = status;
+    notif_queue[notif_tail].value = value;
+    notif_tail = next_tail;
+
+    if (!notif_showing) {
+        show_next_notification();
+    }
+}
+
+static void show_next_notification()
+{
+    if (notif_head == notif_tail) {
+        notif_showing = false;
+        return;  // Queue empty
+    }
+
+    notification_data_t *n = &notif_queue[notif_head];
+    update_notifcation_label(n->type, n->status, n->value);
+
     lv_obj_clear_flag(ui_notification, LV_OBJ_FLAG_HIDDEN);
 
     lv_anim_t a;
     lv_anim_init(&a);
     lv_anim_set_var(&a, ui_notification);
-    lv_anim_set_values(&a, -297, -197);  // Slide down only 100 px
+    lv_anim_set_values(&a, -297, -197);
     lv_anim_set_time(&a, 300);
     lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
     lv_anim_start(&a);
 
-    // Start timer to hide after 5 seconds
-    lv_timer_create(hide_notification, 2000, NULL);
+    notif_showing = true;
+
+    if (notif_timer) {
+        lv_timer_del(notif_timer);
+    }
+    notif_timer = lv_timer_create(hide_notification, NOTIFICATION_TIMEOUT_MS, NULL);
+
+    app_speaker_play();
 }
+
 
 void update_notifcation_label(notification_type type, notification_status_t status, uint32_t value)
 {
-	if (status == 1)
+	if (status == NOTIF_FAIL)
 	{
 		/* Set image in notification label */
         lv_img_set_src(ui_notificationlblimg, &ui_img_incorrect_img_png);
@@ -993,7 +1100,7 @@ void update_notifcation_label(notification_type type, notification_status_t stat
 				break;
 		}
 	}
-	else if (status == 0)
+	else if (status == NOTIF_SUCCESS)
 	{
 		/* Set image in notification label */
         lv_img_set_src(ui_notificationlblimg, &ui_img_correct_img_png);
@@ -1017,7 +1124,8 @@ void update_notifcation_label(notification_type type, notification_status_t stat
 				}
 				break;
 			case NOTIFY_TEMP_UPDATE:
-				lv_label_set_text_fmt(ui_notificationlabel, "Temperature set to %lu°C.", value);
+//				lv_label_set_text_fmt(ui_notificationlabel, "Temperature set to %lu°C.", value);
+				lv_label_set_text_fmt(ui_notificationlabel, "Temperature set-point reached %lu°C.", value);
 				break;
 			case NOTIFY_MODE_UPDATE:
 				lv_label_set_text_fmt(ui_notificationlabel, "Mode set to %lu.", value);  // You may map value to text
@@ -1187,12 +1295,29 @@ void set_thermostat_mode(thermostat_mode_t mode)
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             printf("Mode set to AUTO\n");
+        	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT);
             break;
 
         case MODE_OFF:
             lv_img_set_src(ui_mode, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             printf("Mode set to FAN\n");
+
+            /* If temperature increaase decrease timer running, stop it */
+    		if (temp_timer){
+    			lv_timer_del(temp_timer);
+    			temp_timer=NULL;
+    		}
+
+    		target_temp = current_temp;
+    		temperature = current_temp;
+
+			lv_obj_add_flag(ui_bluecontainer,LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_redcontainer, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+			lv_arc_set_value(ui_temperaturearc, current_temp);
             break;
 
         default:
@@ -1200,8 +1325,8 @@ void set_thermostat_mode(thermostat_mode_t mode)
     }
 
     update_mode_label(mode);
-
     update_device_mode_ipc(mode);
+    update_thermostat_mode_timer();
 }
 
 void toggle_mode(lv_event_t * e)
@@ -1281,6 +1406,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             printf("Mode set to AUTO\n");
+        	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT);
             break;
 
         case MODE_OFF:
@@ -1303,6 +1429,7 @@ void update_device_temp(uint8_t temp)
 	if(dev_current_mode != MODE_OFF) {
 	    target_temp = temp;
 	    temperature = target_temp;
+	    dev_info.environment.target_temp = target_temp;
 
 	    lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
 	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",temperature);
@@ -1325,7 +1452,6 @@ void update_device_temp(uint8_t temp)
 		    red2anim_Animation(ui_red2, 1000);
 		    red3anim_Animation(ui_red3, 500);
 		    red4anim_Animation(ui_red4, 200);
-		    update_fan_mode(dev_fan_mode);
 		    current_state = STATE_HEATING;
 			   lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Heating . . .");
 
@@ -1333,7 +1459,7 @@ void update_device_temp(uint8_t temp)
 			   lv_label_set_text(ui_homescreensubmsg, subinfo);
 			   lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
 	   }
-	   else
+	   else if(target_temp < current_temp)
 	   {
 			lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xC6FFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
 			lv_obj_add_flag(ui_redcontainer,LV_OBJ_FLAG_HIDDEN);
@@ -1345,7 +1471,6 @@ void update_device_temp(uint8_t temp)
 			blue2anim_Animation(ui_blue2, 500);
 			blue3anim_Animation(ui_blue3, 800);
 			blue4anim_Animation(ui_blue4, 1300);
-		    update_fan_mode(dev_fan_mode);
 		    current_state = STATE_COOLING;
 		   temp_timer=lv_timer_create(decrease_temp_step,deg2sec,NULL);
 
@@ -1360,6 +1485,8 @@ void update_device_temp(uint8_t temp)
 	{
 		printf("Increase temperature error. Device in Off mode.\n");
 	}
+
+    update_temperature_data_ipc(&dev_info);
 }
 
 void display_ble_pairing_window(bool hide, char *code)
@@ -1414,15 +1541,124 @@ void load_thermostat_config(thermostat_mode_t mode)
 	case MODE_AUTO:
 	case MODE_OFF:
 		update_thermostat_mode(mode);
+		lv_arc_set_value(ui_temperaturearc, current_temp);
+		target_temp = current_temp;
+		temperature = current_temp;
 		break;
 
 	default:
 		break;
 	}
 
+	dev_current_mode = mode;
+	dev_info.environment.current_temp 			= dev_info.environment.target_temp = temperature;
+	dev_info.environment.current_co2_level 		= 315;
+	dev_info.environment.current_humidity 		= 51;
+	dev_info.thermostat_settings.fan_speed 		= dev_fan_mode;
+	dev_info.thermostat_settings.mode 			= dev_current_mode;
+	dev_info.thermostat_settings.time_remains	= 55;
+	dev_info.preferences.display_brightness		= brightness_level = lv_slider_get_value(ui_Slider2);
+	dev_info.preferences.audio_level			= audio_level = AUDIO_MED;
+
+	send_device_config(dev_info);
+
+	/* Set default audio config */
+	update_thermostat_volume(AUDIO_MED);
 }
 
 void change_idle_timeout(lv_event_t * e)
 {
 	// Your code here
 }
+
+void update_temperature(lv_event_t * e)
+{
+	int temperature = lv_arc_get_value(ui_temperaturearc);
+	printf("Temperature arc value: %d°C\n", temperature);
+
+	update_device_temp((uint8_t)temperature);
+}
+
+void update_thermostat_mode_timer(void)
+{
+	if(dev_current_mode != MODE_OFF)
+	{
+		if(current_temp != target_temp) {
+			if (temp_timer){
+				lv_timer_del(temp_timer);
+				temp_timer=NULL;
+			}
+
+			if (current_temp > target_temp){
+				temp_timer=lv_timer_create(decrease_temp_step,deg2sec,NULL);
+			} else {
+				temp_timer=lv_timer_create(increase_temp_step,deg2sec,NULL);
+			}
+		}
+	}
+}
+
+static void fw_update_spinner_done_cb(lv_timer_t * timer)
+{
+    // Unhide the "Latest firmware" label
+    lv_obj_clear_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
+
+    // Hide the spinner and its label
+    lv_obj_add_flag(ui_FWUpdatespinner, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fwupdatespinrlabel, LV_OBJ_FLAG_HIDDEN);
+
+    // Optional: Delete timer after use
+    lv_timer_del(timer);
+}
+
+void fw_update_check_ui(lv_event_t * e)
+{
+    // Unhide the "Latest firmware" label
+	lv_obj_add_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
+
+    // Hide the spinner and its label
+    lv_obj_clear_flag(ui_FWUpdatespinner, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_Fwupdatespinrlabel, LV_OBJ_FLAG_HIDDEN);
+
+    // Create a one-shot timer to update UI after delay (e.g. 1.5 seconds)
+    lv_timer_create(fw_update_spinner_done_cb, 5000, NULL);
+}
+
+static void set_volume(audio_level_t level)
+{
+    switch(level) {
+    case AUDIO_OFF:
+    	app_speaker_audio_lvl_ctrl(AUDIO_LVL_OFF);
+    	break;
+
+    case AUDIO_LOW:
+    	app_speaker_audio_lvl_ctrl(AUDIO_LVL_LOW);
+    	break;
+
+    case AUDIO_MED:
+    	app_speaker_audio_lvl_ctrl(AUDIO_LVL_MED);
+    	break;
+
+    case AUDIO_HIGH:
+    	app_speaker_audio_lvl_ctrl(AUDIO_LVL_HIGH);
+    	break;
+    }
+
+    audio_level = level;
+}
+
+void change_volume(lv_event_t * e){
+	audio_level_t level = lv_dropdown_get_selected(ui_audoleveldropdown);
+    printf("Selected Volume:%d\n", level);
+    set_volume(level);
+    update_audio_level_ipc(level);
+	dev_info.preferences.audio_level = level;
+}
+
+void update_thermostat_volume(audio_level_t level)
+{
+	set_volume(level);
+	lv_dropdown_set_selected(ui_audoleveldropdown, (uint16_t)level);
+	dev_info.preferences.audio_level = level;
+}
+

@@ -23,7 +23,7 @@ void ui_event_perfomrancesetcontainergest(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_PerformanceSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_PerformanceSettings_screen_init);
+        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SettingsScreen_screen_init);
     }
 }
 

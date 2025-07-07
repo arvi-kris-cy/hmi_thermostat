@@ -26,6 +26,7 @@ extern lv_obj_t * ui_Label15;
 extern lv_obj_t * ui_Panel10;
 extern lv_obj_t * ui_Panel11;
 extern lv_obj_t * ui_Panel12;
+extern void ui_event_Label16(lv_event_t * e);
 extern lv_obj_t * ui_Label16;
 extern void ui_event_Label17(lv_event_t * e);
 extern lv_obj_t * ui_Label17;
@@ -40,7 +41,7 @@ extern lv_obj_t * ui_cancelbtnlbl;
 extern lv_obj_t * ui_homebtnimg1;
 extern void ui_event_homebtn1(lv_event_t * e);
 extern lv_obj_t * ui_homebtn1;
-extern lv_obj_t * ui_Label8;
+extern lv_obj_t * ui_systemscreenlbl;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

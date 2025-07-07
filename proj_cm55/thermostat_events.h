@@ -40,6 +40,7 @@ typedef enum {
 } provisioning_method_t;
 
 extern uint8_t brightness_level;
+extern uint8_t audio_level;
 extern char device_unique_id[13];
 
 void decrease_temp_step (lv_timer_t * timer);
@@ -60,3 +61,9 @@ int get_current_temperature(void);
 uint8_t get_target_temperature(void);
 void update_notifcation_label(notification_type type, notification_status_t status, uint32_t value);
 void load_thermostat_config(thermostat_mode_t mode);
+void change_idle_timeout(lv_event_t * e);
+void update_temperature(lv_event_t * e);
+void update_thermostat_mode_timer(void);
+void fw_update_check_ui(lv_event_t * e);
+void change_volume(lv_event_t * e);
+void update_thermostat_volume(audio_level_t level);

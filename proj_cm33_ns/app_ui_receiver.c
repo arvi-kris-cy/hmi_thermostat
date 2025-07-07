@@ -39,7 +39,6 @@ volatile uint32_t msg_cmd = 0;
 
 extern ipc_msg_t *ipc_recv_msg;
 
-
 /*******************************************************************************
  *                             STATIC VARIAUI_RXS
  ******************************************************************************/
@@ -123,41 +122,74 @@ static void ui_rx_task(void *arg) {
 
 				case IPC_CMD_SET_DISPLAY_BRIGHTNESS:
 					printf("Rx Brightness : %ld\n", msg_val);
-					send_response(DEVICE_BRIGHTNESS, OPERATION_READ, (uint32_t)msg_val);
+					send_response_numeric(DEVICE_BRIGHTNESS, OPERATION_READ, (uint32_t)msg_val);
 					break;
 
 				case IPC_CMD_RESET_WIFI_SSID_PASS:
 					printf("Rx Wi-Fi credential erase request.\n");
-					handle_pairingremove_command();
+					handle_pairingremove_command(true);
 					break;
 
 				case IPC_CMD_SET_FAN_SPEED:
 					device_status.thermostat_settings.fan_speed = msg_val;
-					send_response(FAN_SPEED, OPERATION_READ, (uint32_t)device_status.thermostat_settings.fan_speed);
+					send_response_numeric(FAN_SPEED, OPERATION_READ, (uint32_t)device_status.thermostat_settings.fan_speed);
 					printf("Rx Fan Mode : %ld\n", msg_val);
 					break;
 
 				case IPC_CMD_SET_THERMOSTAT_MODE:
 					device_status.thermostat_settings.mode = msg_val;
-					send_response(DEVICE_MODE, OPERATION_READ, (uint32_t)device_status.thermostat_settings.mode);
+					send_response_numeric(DEVICE_MODE, OPERATION_READ, (uint32_t)device_status.thermostat_settings.mode);
 					printf("Rx Thermostat Mode : %ld\n", msg_val);
 					break;
 
 				case IPC_CMD_SET_CURRENT_TEMP:
 					device_status.environment.current_temp = msg_val;
-					send_response(CURRENT_TEMP, OPERATION_READ, (uint32_t)device_status.environment.current_temp);
+					send_response_numeric(CURRENT_TEMP, OPERATION_READ, (uint32_t)device_status.environment.current_temp);
 					printf("Rx Current temp : %ld\n", msg_val);
 					break;
 
 				case IPC_CMD_SET_TARGET_TEMP:
 					device_status.environment.target_temp = msg_val;
-					send_response(TARGETED_TEMP, OPERATION_READ, (uint32_t)device_status.environment.target_temp);
+					send_response_numeric(TARGETED_TEMP, OPERATION_READ, (uint32_t)device_status.environment.target_temp);
 					printf("Rx Target temp : %ld\n", msg_val);
+					break;
+
+				case IPC_CMD_SET_TEMPERATURE_DATA:
+					printf("Rx IPC_CMD_SET_TEMPERATURE_DATA.\n");
+
+					static device_state_t temp_data = {0};
+
+					temp_data.environment.current_temp = ipc_recv_msg->device_config.environment.current_temp;
+					temp_data.environment.target_temp = ipc_recv_msg->device_config.environment.target_temp;
+					temp_data.thermostat_settings.time_remains = ipc_recv_msg->device_config.thermostat_settings.time_remains;
+
+					printf("Current T: %ld, Target T: %ld, RS: %ld\n",
+							temp_data.environment.current_temp,
+							temp_data.environment.target_temp,
+							temp_data.thermostat_settings.time_remains);
+
+					if(temp_data.environment.current_temp != device_status.environment.current_temp)
+					{
+						device_status.environment.current_temp = temp_data.environment.current_temp;
+						send_response_numeric(CURRENT_TEMP, OPERATION_READ, (uint32_t)device_status.environment.current_temp);
+					}
+
+					if(temp_data.environment.target_temp != device_status.environment.target_temp)
+					{
+						device_status.environment.target_temp = temp_data.environment.target_temp;
+						send_response_numeric(TARGETED_TEMP, OPERATION_READ, (uint32_t)device_status.environment.target_temp);
+					}
+
+					if(temp_data.thermostat_settings.time_remains != device_status.thermostat_settings.time_remains)
+					{
+						device_status.thermostat_settings.time_remains = temp_data.thermostat_settings.time_remains;
+						send_response_numeric(TIME_REMAINING, OPERATION_READ, (uint32_t)device_status.thermostat_settings.time_remains);
+					}
 					break;
 
 				case IPC_CMD_SET_REMAINING_TIME:
 					device_status.thermostat_settings.time_remains = msg_val;
-					send_response(TIME_REMAINING, OPERATION_READ, (uint32_t)device_status.thermostat_settings.time_remains);
+					send_response_numeric(TIME_REMAINING, OPERATION_READ, (uint32_t)device_status.thermostat_settings.time_remains);
 					printf("Rx Remaining time : %ld\n", msg_val);
 					break;
 
@@ -166,7 +198,7 @@ static void ui_rx_task(void *arg) {
 					{
 					case DEV_ST_BLE_ADVERTISING:
 						printf("Rx DEV_ST_BLE_ADVERTISING. Staring BLE ADV.\n");
-						ble_init();
+						ble_start_advertising(BTM_BLE_ADVERT_UNDIRECTED_HIGH);
 						break;
 
 					case DEV_ST_WIFI_CONNECTING:
@@ -219,6 +251,15 @@ static void ui_rx_task(void *arg) {
 					default:
 						break;
 					}
+					break;
+
+				case IPC_CMD_DEVICE_CONFIG:
+					device_status = ipc_recv_msg->device_config;
+					break;
+
+				case IPC_CMD_SET_AUDIO_LEVEL:
+					printf("Rx Audio level : %ld\n", msg_val);
+					send_response_numeric(DEVICE_AUDIO, OPERATION_READ, (uint32_t)msg_val);
 					break;
 
 				default:

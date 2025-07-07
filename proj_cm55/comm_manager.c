@@ -63,6 +63,28 @@ void update_remainig_time_ipc(uint32_t time_s)
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
+void update_temperature_data_ipc(device_state_t *data)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_SET_TEMPERATURE_DATA;
+
+	memset(&(cm55_msg_data.device_config), 0, sizeof(cm55_msg_data.device_config));
+	memcpy(&(cm55_msg_data.device_config), data, sizeof(cm55_msg_data.device_config));
+
+	cm55_send_msg_cm33(&cm55_msg_data);
+}
+
+void update_audio_level_ipc(uint16_t level)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_SET_AUDIO_LEVEL;
+	cm55_msg_data.data = level;
+
+	cm55_send_msg_cm33(&cm55_msg_data);
+}
+
 void update_ble_adv_ipc(device_connection_state_t state)
 {
 	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
@@ -111,3 +133,14 @@ void request_wifi_delete_ipc(void)
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
+
+void send_device_config(device_state_t config)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_DEVICE_CONFIG;
+	cm55_msg_data.data = 0;
+	cm55_msg_data.device_config = config;
+
+	cm55_send_msg_cm33(&cm55_msg_data);
+}

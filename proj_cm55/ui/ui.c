@@ -752,9 +752,48 @@ void ui_init(void)
     lv_disp_load_scr(ui_ActiveScreen);
 }
 
+void switch_to_LPScreen_cb(lv_timer_t * timer)
+{
+	lv_disp_load_scr(ui_ActiveScreen);
+//    lv_disp_load_scr(ui_LPScreen);
+//    colonanim_Animation(ui_TimeColonactive, 0);
+//    colonanimLP_Animation(ui_TimeColonLP, 0);
+//    colomanimLP2_Animation(ui_TimeColonLP2, 0);
+
+    lv_timer_del(timer);  // optional
+}
+
+void ui_demo_init(void)
+{
+    lv_disp_t * dispp = lv_display_get_default();
+    lv_theme_t * theme = lv_theme_default_init(dispp,
+                                               lv_palette_main(LV_PALETTE_BLUE),
+                                               lv_palette_main(LV_PALETTE_RED),
+                                               false,
+                                               LV_FONT_DEFAULT);
+    lv_disp_set_theme(dispp, theme);
+
+    // Initialize all screens
+    ui_BootScreen_screen_init();
+    ui_ActiveScreen_screen_init();
+    ui_LPScreen_screen_init();
+    ui_DisplaySettings_screen_init();
+    ui_SettingsScreen_screen_init();
+    ui_AudioSettings_screen_init();
+
+    // Show the boot screen first
+    lv_disp_load_scr(ui_BootScreen);
+
+    // Create a timer to switch to LP screen after boot
+    lv_timer_create(switch_to_LPScreen_cb, 5000, NULL);
+}
+
+
 void ui_destroy(void)
 {
     ui_ActiveScreen_screen_destroy();
     ui_LPScreen_screen_destroy();
     ui_SettingsScreen_screen_destroy();
+    ui_BootScreen_screen_destroy();
+    ui_AudioSettings_screen_destroy();
 }

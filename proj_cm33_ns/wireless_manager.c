@@ -47,6 +47,8 @@ uint8_t ble_name[MAX_LEN_GAP_DEVICE_NAME+1] = {0};
 
 bool manualdisconnect_ble = false;
 static bool ble_stack_init_state = false;
+bool device_provisioned = false;
+static bool ble_adv_state = false;
 
 /*****************************************************************************
  * Static Function Prototype
@@ -756,6 +758,25 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
             printf("Advertisement state changed to %s\n", get_bt_advert_mode_name(
                                            p_event_data->ble_advert_state_changed));
 
+            if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF)
+            {
+                printf("BLE ADV Off, Conn Id: %d\n", device_provisioned);
+
+                if(device_provisioned == false)
+                {
+                	printf("Device not provisioned. Device in unprovisioned state\n ");
+                	update_conn_state(DEV_ST_UNPROVISIONED);
+                }
+                else
+                {
+                	printf("Device in provisioned state\n ");
+                }
+            }
+            else if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_UNDIRECTED_LOW)
+            {
+                printf("BLE ADV Low, Conn Id: %d\n", device_provisioned);
+            }
+
             break;
 
         default:
@@ -809,14 +830,13 @@ static void application_init(void)
         printf("Set ADV data failed\n");
     }
 
-    result = wiced_bt_start_advertisements(BTM_BLE_ADVERT_UNDIRECTED_HIGH,
-                                           BLE_ADDR_PUBLIC, NULL);
-    if(WICED_SUCCESS != result)
-    {
-        printf("Start ADV failed");
-    }
+//    result = wiced_bt_start_advertisements(BTM_BLE_ADVERT_UNDIRECTED_HIGH,
+//                                           BLE_ADDR_PUBLIC, NULL);
+//    if(WICED_SUCCESS != result)
+//    {
+//        printf("Start ADV failed");
+//    }
 
-	update_conn_state(DEV_ST_BLE_ADVERTISING);
 }
 
 /*****************************************************************************
@@ -833,28 +853,12 @@ cy_rslt_t wirelessdevice_init(void)
 		return result;
 	}
 
-//	application_init();
-//    printf("Data present in NVM\n");
-
-    /* Set the WiFi Connection parameters structure to 0 before copying
-     * data */
-//    memset(&wifi_conn_param, CRED_INIT_VALUE, sizeof(cy_wcm_connect_params_t));
-//
-//    /* Copy the WiFi credentials to the global variable */
-//    memcpy(wifi_conn_param.ap_credentials.SSID, "H1CPLock", 8);
-//
-//    memcpy(wifi_conn_param.ap_credentials.password, "Infineon1234", 12);
-//
-//    /* Unblock WiFi task with notification */
-//    xTaskNotify(wifi_task_handle, (NOTIF_SCAN | NOTIF_CONNECT),
-//                eSetValueWithOverwrite);
-
-//	result = ble_init();
-//	if(CY_RSLT_SUCCESS != result)
-//	{
-//		printf("\nUnable to init BLE module with error: %lu\n", result);
-//		return result;
-//	}
+	result = ble_init();
+	if(CY_RSLT_SUCCESS != result)
+	{
+		printf("\nUnable to init BLE module with error: %lu\n", result);
+		return result;
+	}
 
     wifi_get_macaddr((uint8_t *)wifi_mac);
 
@@ -947,20 +951,22 @@ void ble_disconnect(void)
 {
 	if(true == ble_stack_init_state)
 	{
-		manualdisconnect_ble = true;
+		if(true == ble_adv_state)
+		{
+			manualdisconnect_ble = true;
 
-	    wiced_bt_start_advertisements(BTM_BLE_ADVERT_OFF,
-	                                           false, NULL);
-	    wiced_bt_gatt_disconnect(conn_id);
-
-		wiced_bt_stack_deinit();
-
-		ble_stack_init_state = false;
+		    wiced_bt_start_advertisements(BTM_BLE_ADVERT_OFF,
+		                                           false, NULL);
+		    wiced_bt_gatt_disconnect(conn_id);
+		    ble_adv_state = false;
+		}
 	}
 }
 
 wiced_result_t ble_start_advertising(wiced_bt_ble_advert_mode_t mode)
 {
+	ble_adv_state = true;
+	update_conn_state(DEV_ST_BLE_ADVERTISING);
 	return wiced_bt_start_advertisements(mode, false, NULL);
 }
 

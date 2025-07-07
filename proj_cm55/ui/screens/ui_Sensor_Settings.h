@@ -15,7 +15,7 @@ extern void ui_Sensor_Settings_screen_init(void);
 extern void ui_Sensor_Settings_screen_destroy(void);
 extern lv_obj_t * ui_Sensor_Settings;
 extern lv_obj_t * ui_Container8;
-extern lv_obj_t * ui_Label22;
+extern lv_obj_t * ui_sensorscreenlbl;
 extern void ui_event_backgesture4(lv_event_t * e);
 extern lv_obj_t * ui_backgesture4;
 extern lv_obj_t * ui_Panel21;

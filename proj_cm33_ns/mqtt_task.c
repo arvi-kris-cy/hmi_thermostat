@@ -134,6 +134,7 @@ uint8_t *mqtt_network_buffer = NULL;
 mqtttopic_t mqtt_topics[NUMBERS_OF_SUBSCRIBE_TOPIC] = {0};
 
 extern TaskHandle_t wifi_task_handle;
+extern bool device_provisioned;
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -415,7 +416,8 @@ static cy_rslt_t mqtt_connect(void)
            broker_info.hostname_len,
            broker_info.hostname);
 
-    for (uint32_t retry_count = 0; retry_count < MAX_MQTT_CONN_RETRIES; retry_count++)
+    mqtt_conn_status = false;
+    while(false == mqtt_conn_status)
     {
         if (cy_wcm_is_connected_to_ap() == 0)
         {
@@ -430,17 +432,14 @@ static cy_rslt_t mqtt_connect(void)
             }
         }
 
-        mqtt_conn_status = false;
-
-//        connection_info.will_info->topic = mqtt_topics[1];
-//        connection_info.will_info->topic_len = MQTT_TOPIC_SIZE;
-
         /* Establish the MQTT connection. */
         result = cy_mqtt_connect(mqtt_connection, &connection_info);
 
         if (CY_RSLT_SUCCESS == result)
         {
             printf("MQTT connection successful.\r\n");
+
+        	update_conn_state(DEV_ST_CLOUD_CONNECTED);
 
             /* Set the appropriate bit in the status_flag to denote successful
              * MQTT connection, and return the result to the calling function.
@@ -450,16 +449,9 @@ static cy_rslt_t mqtt_connect(void)
             break;
         }
 
-        printf("\nMQTT connection failed with error code 0x%0X. \nRetrying in %d ms. Retries left: %d\n",
-               (int)result, MQTT_CONN_RETRY_INTERVAL_MS, (int)(MAX_MQTT_CONN_RETRIES - retry_count - 1));
-        vTaskDelay(pdMS_TO_TICKS(MQTT_CONN_RETRY_INTERVAL_MS));
-    }
-
-    if(!mqtt_conn_status)
-    {
-        printf("\nExceeded maximum MQTT connection attempts\n");
-        printf("MQTT connection failed after retrying for %d mins\n\n",
-               (int)(MQTT_CONN_RETRY_INTERVAL_MS * MAX_MQTT_CONN_RETRIES) / TIME_DIV_MS);
+        printf("\nMQTT connection failed with error code 0x%0X.\n",
+               (int)result);
+        vTaskDelay(MQTT_CONN_RETRY_INTERVAL_MS);
     }
     return result;
 }
@@ -589,6 +581,9 @@ void mqtt_client_task(void *pvParameters)
                         printf("\nInitiating Wi-Fi Reconnection...\n");
                         if (CY_RSLT_SUCCESS == wifi_connect())
                         {
+                        	update_conn_state(DEV_ST_WIFI_CONNECTED);
+            				vTaskDelay(2000);
+
                             printf("\nInitiating MQTT Reconnection...\n");
                             if (CY_RSLT_SUCCESS == mqtt_connect())
                             {
@@ -606,6 +601,21 @@ void mqtt_client_task(void *pvParameters)
                         	update_conn_state(DEV_ST_WIFI_DISCONNECTED);
                         }
                     }
+                    else
+                    {
+                        printf("\nInitiating MQTT Reconnection...\n");
+						if (CY_RSLT_SUCCESS == mqtt_connect())
+						{
+							/* Initiate MQTT subscribe post the reconnection. */
+							subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
+							xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
+
+							/* Initialize Publisher post the reconnection. */
+							publisher_q_data.cmd = PUBLISHER_INIT;
+							xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+						}
+                    }
+
                     break;
                 }
 
@@ -639,9 +649,10 @@ void mqtt_client_task(void *pvParameters)
 						xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
 
 						/* Send the connection status to end device */
-						send_response(DEVICE_STATUS, OPERATION_READ, 1);
+						send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
 
 			        	vTaskDelay(1000);
+			        	device_provisioned = true;
 			        	ble_disconnect();
 
 	                	update_conn_state(DEV_ST_CLOUD_CONNECTED);
@@ -669,7 +680,7 @@ void mqtt_client_task(void *pvParameters)
 						 */
 						cy_mqtt_disconnect(mqtt_connection);
 						update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
-						vTaskDelay(1000);
+						vTaskDelay(2000);
                 	}
 
                     xTaskNotify(wifi_task_handle, NOTIF_DISCONNECT | NOTIF_ERASE_DATA,

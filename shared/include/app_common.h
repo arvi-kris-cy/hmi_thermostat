@@ -9,9 +9,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ipc_communication.h"
+#include "cy_device.h"
 
 #ifndef SHARED_INCLUDE_APP_COMMON_H_
 #define SHARED_INCLUDE_APP_COMMON_H_
+
+/*******************************************************************************
+ *                                Macros
+ *******************************************************************************/
+#define APP_BOOTUP_DELAY	4000U
+
+#define APP_RRAM_NVM_MAIN_NS_START        0x22000000
 
 /*******************************************************************************
  *                                Data Types
@@ -125,6 +133,7 @@ typedef enum {
     IPC_CMD_GET_CURRENT_CO2_LEVEL,          // Get current CO2 reading
     IPC_CMD_SET_TARGET_TEMP,                // Set user-defined target temperature
 	IPC_CMD_SET_CURRENT_TEMP,                // Set current temperature
+	IPC_CMD_SET_TEMPERATURE_DATA,			//Set Current,Target and remaing time data
 
 	//TIME
 	IPC_CMD_SET_REMAINING_TIME,               // Set remainig time to reach target temp.
@@ -146,8 +155,17 @@ typedef enum {
     IPC_CMD_OTA_PROGRESS,               	// Query OTA progress
     IPC_CMD_OTA_STATUS,                  	// Query OTA active status (in progress or not)
 
+    IPC_CMD_DEVICE_CONFIG,                 	// Device Config
+
     IPC_CMD_MAX
 } ipc_command_e;
+
+typedef enum  {
+    AUDIO_OFF = 0,
+	AUDIO_LOW,
+	AUDIO_MED,
+	AUDIO_HIGH,
+}audio_level_t;
 
 /* Structure to hold WiFi details */
 typedef struct {
@@ -188,7 +206,7 @@ typedef struct {
 
 typedef struct {
     uint8_t display_brightness;
-    uint8_t audio_level;
+    audio_level_t audio_level;
 } user_preferences_t;
 
 typedef struct {
@@ -204,6 +222,31 @@ typedef struct {
     user_preferences_t preferences;
     ota_status_t ota;
 } device_state_t;
+
+
+typedef struct {
+	uint8_t brightness; 	/* UI brightness */
+} display_settings_t;
+
+typedef struct {
+	audio_level_t level;	/* audio level */
+} audio_settings_t;
+
+typedef struct {
+	fan_speed_t fan_mode;	/* fan mode */
+	thermostat_mode_t mode; 	/* thermostat mode */
+} thermostat_settings_t;
+
+typedef struct {
+	uint8_t idle_timeout;	/* idle timeout */
+} system_settings_t;
+
+typedef __PACKED_STRUCT {
+	display_settings_t  display_setting;			/* Display setting */
+	thermostat_settings_t thermostat_setting; 	/* Thermostat setting */
+	audio_settings_t	audio;					/* Audio settings */
+	system_settings_t	system;					/* System setting */
+} device_settings_t;
 
 
 #endif /* SHARED_INCLUDE_APP_COMMON_H_ */

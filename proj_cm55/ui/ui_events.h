@@ -29,6 +29,7 @@ void mic_icon_click_handler(lv_event_t * e);
 void change_brightness(lv_event_t * e);
 void fan_clicked(lv_event_t * e);
 void update_display_brightness(uint8_t level);
+void update_setto_label(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

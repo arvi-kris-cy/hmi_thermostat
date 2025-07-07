@@ -60,21 +60,18 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
-/* Interrupt priority for User Button Input. */
-#define BTN1_INTERRUPT_PRIORITY         (7U)
-
 /* The maximum number of times each PUBLISH in this example will be retried. */
-#define PUBLISH_RETRY_LIMIT             (10U)
+#define PUBLISH_RETRY_LIMIT             (3U)
 
 /* A PUBLISH message is retried if no response is received within this 
  * time (in milliseconds).
  */
-#define PUBLISH_RETRY_MS                (1000U)
+#define PUBLISH_RETRY_MS                (100U)
 
 /* Queue length of a message queue that is used to communicate with the 
  * publisher task.
  */
-#define PUBLISHER_TASK_QUEUE_LENGTH     (3U)
+#define PUBLISHER_TASK_QUEUE_LENGTH     (15U)
 
 /******************************************************************************
 * Function Prototypes
@@ -156,9 +153,6 @@ static void publisher_deinit(void)
  ******************************************************************************/
 void publisher_task(void *pvParameters)
 {
-    /* Status variable */
-    cy_rslt_t result;
-
     publisher_data_t publisher_q_data;
 
     /* Command to the MQTT client task */
@@ -193,6 +187,9 @@ void publisher_task(void *pvParameters)
 
                 case PUBLISH_MQTT_MSG:
                 {
+                    /* Status variable */
+                    cy_rslt_t result = !CY_RSLT_SUCCESS;
+
                     /* Publish the data received over the message queue. */
                     publish_info.payload = publisher_q_data.data;
                     publish_info.payload_len = strlen(publish_info.payload);
@@ -200,7 +197,11 @@ void publisher_task(void *pvParameters)
                     printf("\nPublisher: Publishing '%s' on the topic '%s'\n",
                            (char *) publish_info.payload, publish_info.topic);
 
-                    result = cy_mqtt_publish(mqtt_connection, &publish_info);
+                    for(int retry = 0; ((retry < PUBLISH_RETRY_LIMIT) && (result != CY_RSLT_SUCCESS)); retry++)
+                    {
+                    	result = cy_mqtt_publish(mqtt_connection, &publish_info);
+                    	vTaskDelay(PUBLISH_RETRY_MS);
+                    }
 
                     if (result != CY_RSLT_SUCCESS)
                     {
