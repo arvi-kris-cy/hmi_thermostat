@@ -653,6 +653,7 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
     wiced_bt_dev_ble_io_caps_req_t *pairing_io_caps = &(p_event_data->
                                            pairing_io_capabilities_ble_request);
     static bool conn_state = false;
+    (void) conn_state;
 
     printf("Bluetooth Management Event: %s\n", get_btm_event_name(event));
 
