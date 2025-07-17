@@ -20,12 +20,20 @@
 #define APP_BOOTUP_DELAY	4000U
 
 #define APP_RRAM_NVM_MAIN_NS_START        0x22000000
+#define APP_NVM_DEVICE_SETTINGS_OFFSET	  0x00002000
 
 /*******************************************************************************
  *                                Data Types
  *******************************************************************************/
 /* Function pointer for event handler */
 typedef void (*EventHandler)(void*);
+
+/* Application State */
+typedef enum {
+	APP_ST_ACTIVE,				/* Both CM33 and CM55 active */
+	APP_ST_IDLE,				/* Both CM33 and CM55 active, with UI displaying Idle screen */
+	APP_ST_STANDBY				/* Only CM33 active */
+} application_state_t;
 
 /* CM55 to CM33 */
 typedef enum {
@@ -144,6 +152,9 @@ typedef enum {
     IPC_CMD_SET_THERMOSTAT_MODE,            // Set operating mode
     IPC_CMD_GET_THERMOSTAT_MODE,            // Get operating mode
 
+    IPC_CMD_SET_TEMP_UNIT,                 	// Temperature unit
+    IPC_CMD_GET_TEMP_UNIT,                 	// Temperature unit
+
     // User preferences
     IPC_CMD_SET_DISPLAY_BRIGHTNESS,         // Set brightness level
 	IPC_CMD_GET_DISPLAY_BRIGHTNESS,         // Get brightness level
@@ -166,6 +177,27 @@ typedef enum  {
 	AUDIO_MED,
 	AUDIO_HIGH,
 }audio_level_t;
+
+typedef enum {
+	UNIT_DEG_C = 0,
+	UNIT_DEG_F,
+} system_unit_t;
+
+typedef enum {
+	TIMEOUT_3S = 0,
+	TIMEOUT_5S,
+	TIMEOUT_10S,
+	TIMEOUT_20S,
+	TIMEOUT_30S,
+	TIMEOUT_NEVER
+} idle_timeout_t;
+
+typedef enum  {
+	TEMP_UNIT_CELSIUS = 0,
+	TEMP_UNIT_FAHRENHEIT = 1,
+
+	TEMP_UNIT_MAX,
+}temp_unit_t;
 
 /* Structure to hold WiFi details */
 typedef struct {
@@ -202,6 +234,7 @@ typedef struct {
 	uint32_t time_remains;
 	fan_speed_t fan_speed;
     thermostat_mode_t mode;
+	temp_unit_t temp_unit;
 } thermostate_settings_t;
 
 typedef struct {
@@ -239,14 +272,17 @@ typedef struct {
 
 typedef struct {
 	uint8_t idle_timeout;	/* idle timeout */
+	uint8_t temperature_unit;	/* Unit selection for temperature */
 } system_settings_t;
 
-typedef __PACKED_STRUCT {
+typedef struct {
 	display_settings_t  display_setting;			/* Display setting */
 	thermostat_settings_t thermostat_setting; 	/* Thermostat setting */
 	audio_settings_t	audio;					/* Audio settings */
 	system_settings_t	system;					/* System setting */
+	uint8_t is_available;						/* Flag to check if settings are available */
 } device_settings_t;
 
+uint32_t get_timeout_ms(idle_timeout_t timeout);
 
 #endif /* SHARED_INCLUDE_APP_COMMON_H_ */

@@ -1,8 +1,6 @@
 /*
  * communication.h
  *
- *  Created on: 20-Jun-2025
- *      Author: Tejas.Patel
  */
 
 #ifndef COMM_MANAGER_H_

@@ -75,6 +75,16 @@ void update_temperature_data_ipc(device_state_t *data)
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
+void update_system_unit_ipc(system_unit_t unit)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_SET_TEMP_UNIT;
+	cm55_msg_data.data = unit;
+
+	cm55_send_msg_cm33(&cm55_msg_data);
+}
+
 void update_audio_level_ipc(uint16_t level)
 {
 	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;

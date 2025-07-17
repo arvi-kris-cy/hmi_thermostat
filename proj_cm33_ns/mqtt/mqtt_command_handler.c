@@ -163,6 +163,11 @@ static void handle_timerremaining_command(void);
 static void handle_getdeviceconfig_command(void);
 
 /**
+ * @brief Processes the temp unit command.
+ */
+static void handle_tempunit_command(operation_type_e type, temp_unit_t unit);
+
+/**
  * @brief Main dispatcher for incoming MQTT commands; routes them to appropriate handlers.
  */
 static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type, uint32_t value);
@@ -472,6 +477,12 @@ static void handle_getdeviceconfig_command(void)
 			return;
 		}
 
+		snprintf(temp, sizeof(temp), "%d",TEMP_UNIT);
+		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.thermostat_settings.temp_unit))
+		{
+			return;
+		}
+
 		snprintf(temp, sizeof(temp), "%d",CURRENT_FIRMWARE_VERSION);
 		if(NULL == cJSON_AddStringToObject(json, (const char *)temp, "V1.0.0"))
 		{
@@ -489,6 +500,20 @@ static void handle_getdeviceconfig_command(void)
 		cJSON_Delete(json);
 
 		xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+	}
+}
+
+void handle_tempunit_command(operation_type_e type, temp_unit_t unit)
+{
+	if(OPERATION_READ == type)
+	{
+		send_response_numeric(TEMP_UNIT, OPERATION_READ, (uint32_t)device_status.thermostat_settings.temp_unit);
+	}
+	else if(OPERATION_WRITE == type)
+	{
+		device_status.thermostat_settings.temp_unit = (temp_unit_t)unit;
+		send_response_numeric(TEMP_UNIT, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_SUCCESS);
+		set_device_temp_unit(unit);
 	}
 }
 
@@ -620,6 +645,11 @@ static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type,
         case CURRENT_FIRMWARE_VERSION:
             printf("Handling CURRENT_FIRMWARE_VERSION...\n");
         	handle_currentfirmwareversion_command();
+        	break;
+
+        case TEMP_UNIT:
+        	printf("Handling TEMP_UNIT...\n");
+        	handle_tempunit_command(type, value);
         	break;
 
         case GET_DEVICE_CONFIGURATION:

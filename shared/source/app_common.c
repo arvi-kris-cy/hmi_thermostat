@@ -7,6 +7,19 @@
 #include "app_common.h"
 #include "ipc_communication.h"
 
+uint32_t get_timeout_ms(idle_timeout_t timeout)
+{
+    switch (timeout) {
+        case TIMEOUT_3S:     return 3000;
+        case TIMEOUT_5S:     return 5000;
+        case TIMEOUT_10S:    return 10000;
+        case TIMEOUT_20S:    return 20000;
+        case TIMEOUT_30S:    return 30000;
+        case TIMEOUT_NEVER:  return 0; // Or 0 or some sentinel value
+        default:             return 0;
+    }
+}
+
 
 void handle_ipc_command(ipc_msg_t *msg, device_state_t *state)
 {

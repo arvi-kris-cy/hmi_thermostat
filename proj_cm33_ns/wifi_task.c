@@ -218,6 +218,57 @@ static void host_wake_interrupt_handler(void)
     mtb_hal_gpio_process_interrupt(&wcm_config.wifi_host_wake_pin);
 }
 
+static void wifi_event_callback(cy_wcm_event_t event, cy_wcm_event_data_t *event_data)
+{
+	switch (event)
+	{
+	    case CY_WCM_EVENT_CONNECTING:
+            if (cy_wcm_is_connected_to_ap() != 0)
+            {
+    	    	update_conn_state(DEV_ST_WIFI_CONNECTING);
+    	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connecting to AP...\n");
+            }
+	        break;
+
+	    case CY_WCM_EVENT_CONNECTED:
+	    	update_conn_state(DEV_ST_WIFI_CONNECTED);
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connected to AP.\n");
+	        break;
+
+	    case CY_WCM_EVENT_CONNECT_FAILED:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connection to AP failed.\n");
+	        break;
+
+	    case CY_WCM_EVENT_RECONNECTED:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Reconnected to AP.\n");
+	        break;
+
+	    case CY_WCM_EVENT_DISCONNECTED:
+	    	update_conn_state(DEV_ST_WIFI_DISCONNECTED);
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Disconnected from AP.\n");
+	        break;
+
+	    case CY_WCM_EVENT_IP_CHANGED:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: IP address changed.\n");
+	        break;
+
+	    case CY_WCM_EVENT_INITIATED_RETRY:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Retrying connection to AP...\n");
+	        break;
+
+	    case CY_WCM_EVENT_STA_JOINED_SOFTAP:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station joined the SoftAP.\n");
+	        break;
+
+	    case CY_WCM_EVENT_STA_LEFT_SOFTAP:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station left the SoftAP.\n");
+	        break;
+
+	    default:
+	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Unknown WCM event: %d\n", event);
+	        break;
+	}
+}
 /*******************************************************************************
 * Function Name: app_sdio_init
 ********************************************************************************
@@ -310,6 +361,13 @@ cy_rslt_t wcm_init()
     {
         handle_app_error();
     }
+
+    result = cy_wcm_register_event_callback(&wifi_event_callback);
+    if (CY_RSLT_SUCCESS != result)
+    {
+        handle_app_error();
+    }
+
     return result;
 }
 
@@ -511,6 +569,8 @@ void wifi_task(void * arg)
                 app_custom_service_wifi_control[0] = WIFI_CONTROL_DISCONNECT;
 
             	update_conn_state(DEV_ST_WIFI_DISCONNECTED);
+				vTaskDelay(3000);
+            	update_conn_state(DEV_ST_UNPROVISIONED);
 
                 /* Send notification for unsuccessful connection */
                 /* Check if the connection is active and notifications are
@@ -532,13 +592,6 @@ void wifi_task(void * arg)
                 }
 
                 printf("Failed to join Wi-Fi network\n");
-
-                /* Disconnect BLE device if connected */
-                ble_disconnect();
-
-				vTaskDelay(5000);
-                update_conn_state(DEV_ST_UNPROVISIONED);
-
             }
         }
         /* Task notification for disconnection */

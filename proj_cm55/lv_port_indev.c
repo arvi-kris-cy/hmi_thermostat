@@ -46,7 +46,7 @@
 #include "cy_utils.h"
 #include "cybsp.h"
 
-//#define DISPLAY_P
+// #define DISPLAY_P
 #define DISPLAY_F
 
 
@@ -108,7 +108,7 @@ mtb_ctp_p4100tp_config_t ctp_p4100tp_cfg =
 };
 #endif
 
-
+volatile bool touch_detected = false;
 /*******************************************************************************
 * Function Name: touchpad_init
 ********************************************************************************
@@ -183,6 +183,7 @@ static void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
     if (CY_RSLT_SUCCESS == result)
     {
         data->state = LV_INDEV_STATE_PR;
+        touch_detected = true;
     }
 
     /* Set the last pressed coordinates */
