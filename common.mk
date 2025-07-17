@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,13 +33,13 @@ TARGET=KIT_PSE84_HMI
 
 # Name of toolchain to use. Options include:
 #
-# GCC_ARM 	-- GCC provided with ModusToolbox software
-# ARM     	-- ARM Compiler (must be installed separately)
-# IAR     	-- IAR Compiler (must be installed separately)
-# LLVM_ARM	-- LLVM Embedded Toolchain (must be installed separately)
+# GCC_ARM   -- GCC provided with ModusToolbox software
+# ARM       -- ARM Compiler (must be installed separately)
+# IAR       -- IAR Compiler (must be installed separately)
+# LLVM_ARM  -- LLVM Embedded Toolchain (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
-TOOLCHAIN=GCC_ARM
+TOOLCHAIN=ARM
 
 # Default build configuration. Options include:
 #
@@ -47,9 +47,10 @@ TOOLCHAIN=GCC_ARM
 # Release -- build with full optimizations
 # Custom -- build with custom configuration, set the optimization flag in CFLAGS
 # 
-# If CONFIG is manually edited, ensure to update or regenerate 
+# If CONFIG is manually edited, ensure to update or regenerate  
 # launch configurations for your IDE.
 CONFIG=Debug
+
 
 ############################# Display module ###################################
 # Option to choose the display module to realize the graphics application.
@@ -83,8 +84,9 @@ COMPONENTS+=GFXSS
 # Remap the System SRAM (SOCMEM) to accomodate graphics frame buffers in it
 ifeq ($(filter GFXSS,$(COMPONENTS)),GFXSS)
 DEFINES+=APP_SOCMEMSRAM_CM55NS_APP_SIZE=0x00060800  # 386 KB 
-DEFINES+=APP_SOCMEMSRAM_GPUBUF_SIZE=0x00300000      # 3 MB 
+DEFINES+=APP_SOCMEMSRAM_GPUBUF_SIZE=0x00300000      # 3.5 MB 
 DEFINES+=APP_SOCMEMSRAM_SHARED_SIZE=0x0001F800      # 126 KB 
 endif
+
 
 include ../common_app.mk

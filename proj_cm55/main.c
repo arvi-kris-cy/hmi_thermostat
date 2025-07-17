@@ -52,6 +52,7 @@
 #include "cyabs_rtos_impl.h"
 
 #include "lvgl.h"
+#include "lv_qrcode.h"
 
 #include "display_driver/mtb_display_st7701s.h"
 
@@ -59,10 +60,18 @@
 #include "lv_port_indev.h"
 #include "demos/lv_demos.h"
 #include "ui/ui.h"
+#include "ipc_communication.h"
+#include "app_common.h"
+#include "thermostat_events.h"
+#include "comm_manager.h"
+#include "app_audio.h"
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
+#define CM55_APP_DELAY_MS           (50U)
+#define RESET_VAL                   (0U)
+
 #define GPU_INT_PRIORITY                    (3U)
 #define DC_INT_PRIORITY                     (3U)
 
@@ -114,11 +123,15 @@
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
+static bool cm55_pipe2_msg_received = false;
+static ipc_msg_t *ipc_recv_msg;
+
+static volatile uint32_t msg_val = RESET_VAL;
+static volatile uint32_t msg_cmd = RESET_VAL;
+
 /* Heap memory for VGLite to allocate memory for buffers, command, and
  * tessellation buffers 
  */
-
-
 CY_SECTION(".cy_gpu_buf") uint8_t contiguous_mem[VGLITE_HEAP_SIZE] = { 0xFF };
 
 volatile void *vglite_heap_base = &contiguous_mem;
@@ -159,7 +172,7 @@ mtb_display_st7701s_backlight_config_t st7701s_pwm_cfg =
 	.bl_port = 0 ,
 	.bl_pin = 0 ,
 	.pwm_hw = TCPWM0 ,
-	.pwm_num = CYBSP_TCPWM_0_GRP_1_PWM_5_NUM,
+	.pwm_num = CYBSP_TCPWM_0_GRP_1_PWM_5_NUM ,
 	.pwm_config = &CYBSP_TCPWM_0_GRP_1_PWM_5_config,
 };
 
@@ -168,6 +181,9 @@ static mtb_hal_lptimer_t lptimer_obj;
 
 lv_obj_t *label;
 uint8_t brightness_level = 100;
+audio_level_t audio_level = AUDIO_MED;
+
+
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 /*******************************************************************************
@@ -263,6 +279,35 @@ uint32_t calculate_idle_percentage(void)
     return idle_percent;
 }
 #endif
+
+
+/*******************************************************************************
+* Function Name: cm33_msg_callback
+********************************************************************************
+* Summary:
+*  Callback function called when endpoint-2 (CM55) has received a message
+*
+* Parameters:
+*  msg_data: Message data received throuig IPC
+*
+* Return :
+*  void
+*
+*******************************************************************************/
+void cm55_msg_callback(uint32_t * msgData)
+{
+    if (msgData != NULL)
+    {
+        /* Cast the message received to the IPC structure */
+        ipc_recv_msg = (ipc_msg_t *) msgData;
+
+        /* Extract the command to be processed in the main loop */
+        msg_val = ipc_recv_msg->data;
+        msg_cmd = ipc_recv_msg->cmd;
+    }
+
+    cm55_pipe2_msg_received = true;
+}
 
 /*******************************************************************************
 * Function Name: lptimer_interrupt_handler
@@ -454,6 +499,7 @@ static void disp_touch_i2c_controller_interrupt(void)
 static void cm55_gfx_task(void *arg)
 {
     CY_UNUSED_PARAMETER(arg);
+    static bool boot_config = true;
 
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
@@ -465,9 +511,13 @@ static void cm55_gfx_task(void *arg)
     cy_en_mipidsi_status_t mipi_status = CY_MIPIDSI_SUCCESS;
     cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
 
+    memset(frame_buffer1, 0, (MY_DISP_HOR_RES * MY_DISP_VER_RES * 2));
+    memset(frame_buffer2, 0, (MY_DISP_HOR_RES * MY_DISP_VER_RES * 2));
+
     /* Set frame buffer address to the GFXSS configuration structure */
     GFXSS_config.dc_cfg->gfx_layer_config->buffer_address    = frame_buffer1;
     GFXSS_config.dc_cfg->gfx_layer_config->uv_buffer_address = frame_buffer1;
+
 
     /* Initialize Graphics subsystem as per the configuration */
     gfx_status = Cy_GFXSS_Init(GFXSS, &GFXSS_config, &gfx_context);
@@ -581,8 +631,9 @@ static void cm55_gfx_task(void *arg)
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
-            ui_init();
+//            ui_init();
             //lv_demo_music();
+            ui_demo_init();
             
         }
         else
@@ -602,15 +653,116 @@ static void cm55_gfx_task(void *arg)
 
     for (;;)
     {
+        if(cm55_pipe2_msg_received)
+        {
+			switch (msg_cmd) {
+			case IPC_CMD_SET_UID:
+				printf("Rx UID: %s\n", ipc_recv_msg->unique_id);
+				memcpy(device_unique_id, ipc_recv_msg->unique_id, 13);
+				break;
+
+			case IPC_CMD_SET_DISPLAY_BRIGHTNESS:
+				update_display_brightness(msg_val);
+				break;
+
+			case IPC_CMD_SET_AUDIO_LEVEL:
+				update_thermostat_volume((audio_level_t)msg_val);
+				break;
+
+			case IPC_CMD_UPDATE_CONN_STATE:
+			{
+				switch((device_connection_state_t)msg_val) {
+				case DEV_ST_CLOUD_CONNECTING:
+				case DEV_ST_CLOUD_DISCONNECTED:
+				case DEV_ST_WIFI_CONNECTING:
+				case DEV_ST_WIFI_CONNECTED:
+				case DEV_ST_BLE_ADVERTISING:
+				case DEV_ST_BLE_CONNECTED:
+				case DEV_ST_UNPROVISIONED:
+				case DEV_ST_WIFI_DISCONNECTED:
+					update_device_connection_state((device_connection_state_t)msg_val);
+					break;
+
+				case DEV_ST_CLOUD_CONNECTED:
+					update_device_connection_state((device_connection_state_t)msg_val);
+//					lv_obj_add_flag(ui_popupoverlay, LV_OBJ_FLAG_HIDDEN);
+//			        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+
+					request_uid_ipc();
+					break;
+
+				default:
+					break;
+				}
+				break;
+			}
+			case IPC_CMD_SET_FAN_SPEED:
+				{
+					update_fan_mode((fan_speed_t)msg_val);
+					break;
+				}
+			case IPC_CMD_SET_THERMOSTAT_MODE:
+			{
+				update_thermostat_mode((thermostat_mode_t)msg_val);
+				update_thermostat_mode_timer();
+				break;
+			}
+			case IPC_CMD_SET_TARGET_TEMP:
+			{
+				update_device_temp((uint8_t)msg_val);
+				break;
+			}
+			case IPC_CMD_CURRENT_EVENT:
+			{
+				char pin[7] = {0};
+				snprintf(pin, sizeof(pin), "%lu", (unsigned long)msg_val);
+				if(msg_val > 1)
+				{
+					display_ble_pairing_window(0,pin);
+				}
+				else
+				{
+					display_ble_pairing_window(1,pin);
+				}
+				break;
+			}
+
+			case IPC_CMD_GET_CURRENT_TEMP:
+				update_current_temp_ipc(get_current_temperature());
+				break;
+
+			case IPC_CMD_GET_DISPLAY_BRIGHTNESS:
+				update_brightness_ipc(get_current_brigthness());
+				break;
+
+			case IPC_CMD_GET_FAN_SPEED:
+				update_fan_speed_ipc(get_current_fan_mode());
+				break;
+
+			case IPC_CMD_GET_THERMOSTAT_MODE:
+				update_device_mode_ipc(get_current_device_mode());
+				break;
+
+			default:
+				break;
+			}
+			cm55_pipe2_msg_received = false;
+        }
         /* LVGL's timer handler function, to be called periodically to handle
          * LVGL tasks.
          */
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
         
+    	if(boot_config)
+    	{
+    		load_thermostat_config(MODE_ECO);
+    		boot_config = false;
+    	}
+
+    	app_speaker_clear();
     }
 }
-
 
 /*******************************************************************************
 * Function Name: main
@@ -633,9 +785,11 @@ int main(void)
 {
     cy_rslt_t result       = CY_RSLT_SUCCESS;
     BaseType_t task_return = pdFAIL;
+    cy_en_ipc_pipe_status_t pipeStatus;
 
     /* Initialize the device and board peripherals */
     result = cybsp_init();
+    // CY_SET_REG32(0x44640018 , 0x00010000); // SET PORT2 Latency 1
 
     /* Board init failed. Stop program execution */
     if (CY_RSLT_SUCCESS != result)
@@ -652,20 +806,29 @@ int main(void)
     /* Initialize retarget-io middleware */
     init_retarget_io();
 
+    /* Setup IPC communication for CM55*/
+    cm55_ipc_communication_setup();
+
+    Cy_SysLib_Delay(CM55_APP_DELAY_MS);
+
+    /* Register a callback function to handle events on the CM55 IPC pipe */
+    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM55_IPC_PIPE_EP_ADDR, &cm55_msg_callback,
+                                                      (uint32_t)CM55_IPC_PIPE_CLIENT_ID);
+
+    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
+    {
+        handle_app_error();
+    }
+
+    /* Initialize speaker */
+    app_speaker_init();
+
     /* Create the FreeRTOS Task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
                               GFX_TASK_STACK_SIZE, NULL,
                               GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
-
-    /* ANSI ESC sequence for clear screen */
-    printf("\x1b[2J\x1b[;H");
-
     if (pdPASS == task_return)
     {
-        printf("****************** "
-               "PSOC Edge MCU: Thermostat Demo "
-               "****************** \r\n\n");
-
         /* Start the RTOS Scheduler */
         vTaskStartScheduler();
 

@@ -133,8 +133,8 @@ static void LV_ATTRIBUTE_FAST_MEM disp_flush(lv_display_t *disp_drv, const lv_ar
 *******************************************************************************/
 void lv_port_disp_init(void)
 {
-    memset(disp_buf1, 0, sizeof(disp_buf1));
-    memset(disp_buf2, 0, sizeof(disp_buf2));
+    // memset(disp_buf1, 0, sizeof(disp_buf1));
+    // memset(disp_buf2, 0, sizeof(disp_buf2));
 
     lv_display_t * disp = lv_display_create(MY_DISP_HOR_RES, MY_DISP_VER_RES);
 

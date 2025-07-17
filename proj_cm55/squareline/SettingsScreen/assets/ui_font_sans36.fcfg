@@ -1,0 +1,16 @@
+{
+  "codename": "sans36",
+  "ttf_path": "/assets/SourceSans3-SemiBold.ttf",
+  "bin_path": "/assets\\ui_font_sans36.bin",
+  "c_path": "/assets\\ui_font_sans36.c",
+  "cfg_path": "/assets\\ui_font_sans36.fcfg",
+  "size": 36,
+  "bpp": 4,
+  "letters": 0,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "123456789°",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}

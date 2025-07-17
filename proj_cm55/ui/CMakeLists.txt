@@ -7,6 +7,7 @@ SET(SOURCES ui_ActiveScreen.c
     ui_events.c
     ui_img_screenbackground_png.c
     ui_img_background_png.c
+    ui_img_background_png_0.c
     ui_img_cloudy_png.c
     ui_img_sun_png.c
     ui_img_rain_png.c
