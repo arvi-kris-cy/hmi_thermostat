@@ -71,7 +71,7 @@
 /* Queue length of a message queue that is used to communicate with the 
  * publisher task.
  */
-#define PUBLISHER_TASK_QUEUE_LENGTH     (15U)
+#define PUBLISHER_TASK_QUEUE_LENGTH     (20U)
 
 /******************************************************************************
 * Function Prototypes
@@ -86,7 +86,7 @@ TaskHandle_t publisher_task_handle;
 /* Handle of the queue holding the commands for the publisher task */
 QueueHandle_t publisher_task_q;
 
-extern mqtttopic_t mqtt_topics[NUMBERS_OF_SUBSCRIBE_TOPIC];
+extern mqtttopic_t mqtt_topics[NUMBERS_OF_TOPIC];
 
 /* Structure to store publish message information. */
 cy_mqtt_publish_info_t publish_info =

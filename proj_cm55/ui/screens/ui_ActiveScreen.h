@@ -208,6 +208,28 @@ extern lv_obj_t * ui_commandlbl;
 extern lv_obj_t * ui_connectlbl;
 extern lv_obj_t * ui_settolbl;
 extern lv_obj_t * ui_temperaturearc;
+extern void ui_event_voicecmdoverlaycontainer(lv_event_t * e);
+extern lv_obj_t * ui_voicecmdoverlaycontainer;
+extern lv_obj_t * ui_voicecmdoverlaysubcontainer;
+extern lv_obj_t * ui_voicecmdlistbox;
+extern lv_obj_t * ui_vccmd1;
+extern lv_obj_t * ui_vccmd2;
+extern lv_obj_t * ui_vccmd3;
+extern lv_obj_t * ui_vccmd4;
+extern lv_obj_t * ui_vccmd5;
+extern lv_obj_t * ui_vccmd6;
+extern lv_obj_t * ui_vccmd7;
+extern lv_obj_t * ui_vccmd8;
+extern lv_obj_t * ui_vccmd9;
+extern lv_obj_t * ui_vccmd10;
+extern lv_obj_t * ui_vccmd11;
+extern lv_obj_t * ui_vccmd12;
+extern lv_obj_t * ui_vccmd13;
+extern lv_obj_t * ui_vccmd14;
+extern lv_obj_t * ui_vccmd15;
+extern void start_active_state_timer(uint32_t timeout_ms);
+extern void stop_active_state_timer(void);
+
 
 // CUSTOM VARIABLES
 

@@ -74,7 +74,7 @@
 /* Queue length of a message queue that is used to communicate with the 
  * subscriber task.
  */
-#define SUBSCRIBER_TASK_QUEUE_LENGTH            (10U)
+#define SUBSCRIBER_TASK_QUEUE_LENGTH            (20U)
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -89,7 +89,7 @@ QueueHandle_t subscriber_task_q;
  */
 uint32_t current_device_state = DEVICE_OFF_STATE;
 
-extern mqtttopic_t mqtt_topics[NUMBERS_OF_SUBSCRIBE_TOPIC];
+extern mqtttopic_t mqtt_topics[NUMBERS_OF_TOPIC];
 /* Configure the subscription information structure. */
 cy_mqtt_subscribe_info_t subscribe_info =
 {

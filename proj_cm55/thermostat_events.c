@@ -12,6 +12,7 @@
 #include "comm_manager.h"
 #include "ui/screens/ui_ActiveScreen.h"
 #include "app_audio.h"
+#include "app_eeprom.h"
 
 /******************************************************************************
  * Macros
@@ -25,19 +26,35 @@
 // Timeout in milliseconds (e.g., 2000ms = 2 seconds)
 #define WIFI_ILABEL_TIMER_TIMEOUT_MS 2000
 
-#define TEMPERATURE_MAX_VALUE 30
-#define TEMPERATURE_MIN_VALUE 14
+#define TEMPERATURE_DEG_C_MAX_VALUE 30
+#define TEMPERATURE_DEG_C_MIN_VALUE 14
 
-#define AUTO_MODE_TARGET_TEMP_DEFAULT	22U
+#define TEMPERATURE_DEG_F_MAX_VALUE  ((30 * 9 / 5) + 32)  // 86°F
+#define TEMPERATURE_DEG_F_MIN_VALUE  ((14 * 9 / 5) + 32)  // 57.2°F ≈ 57°F
+
+
+#define TEMP_CONVERSION_CORRECTION_FACTOR 0.5
+
+#define CELSIUS_TO_FAHRENHEIT(c)  ((int)((((float)(c) * 9.0 / 5.0) + 32.0) + TEMP_CONVERSION_CORRECTION_FACTOR))
+#define FAHRENHEIT_TO_CELSIUS(f)  ((int)((((float)(f) - 32.0) * 5.0 / 9.0) + TEMP_CONVERSION_CORRECTION_FACTOR))
+
+#define AUTO_MODE_TARGET_TEMP_DEFAULT_C	22
+#define AUTO_MODE_TARGET_TEMP_DEFAULT_F	CELSIUS_TO_FAHRENHEIT(AUTO_MODE_TARGET_TEMP_DEFAULT_C)
 
 /*******************************************************************************
  * Global Variables
  ******************************************************************************/
+volatile bool popup_overlay_visible = false;
+
 static int temperature = 24;
 static int current_temp = 24;
-static int target_temp;
+static int target_temp = 24;
 
+volatile application_state_t app_state = APP_ST_ACTIVE;
 device_state_t dev_info;
+
+uint8_t current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
+uint8_t current_min_temp = TEMPERATURE_DEG_C_MIN_VALUE;
 
 lv_timer_t *temp_timer = NULL;
 
@@ -47,6 +64,7 @@ CY_SECTION_SHAREDMEM static app_event_t cm55_app_evt;
 static mic_state_t current_mic_state = MIC_DISABLED;
 static thermostat_mode_t  dev_current_mode  = MODE_ECO;
 static fan_speed_t  dev_fan_mode  = FAN_OFF;
+static system_unit_t dev_unit = UNIT_DEG_C;
 static volatile uint32_t deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;	/**/
 
 // Timer handle (must be global or static)
@@ -63,17 +81,8 @@ lv_timer_t *stop_listening_timer = NULL;
 static provisioning_method_t prov_method  = PROV_MAPP_BLE;
 static animation_state_t current_state = STATE_NONE;
 
-// Declare state array for cycling (without DEV_ST_IDLE but including cloud and wifi disconnects)
-static const device_connection_state_t ble_prov_states[] = {
-    DEV_ST_BLE_ADVERTISING,
-	DEV_ST_BLE_PAIRING,
-    DEV_ST_BLE_CONNECTED,
-    DEV_ST_WIFI_CONNECTING,
-    DEV_ST_WIFI_CONNECTED,
-	DEV_ST_CLOUD_CONNECTING,
-    DEV_ST_CLOUD_CONNECTED,
-};
-#define BLE_STATE_COUNT (sizeof(ble_prov_states) / sizeof(ble_prov_states[0]))
+static bool person_detected = false;
+static uint8_t person_count = 0;
 
 // Declare state array for cycling (without DEV_ST_IDLE but including cloud and wifi disconnects)
 static const device_connection_state_t kybd_prov_states[] = {
@@ -105,6 +114,18 @@ static int notif_head = 0;
 static int notif_tail = 0;
 static bool notif_showing = false;
 static lv_timer_t * notif_timer = NULL;
+
+static device_settings_t default_config = {
+		.audio.level = AUDIO_MED,
+		.display_setting.brightness = 100,
+		.thermostat_setting.fan_mode = FAN_LOW,
+		.thermostat_setting.mode = MODE_ECO,
+		.system.idle_timeout = TIMEOUT_10S,
+		.system.temperature_unit = UNIT_DEG_C,
+};
+
+device_settings_t current_settings = {0};
+
 
 /*****************************************************************************
  * Function Declaration
@@ -157,7 +178,14 @@ static void generate_thermostat_time_str(thermostat_mode_t mode, int current_tem
 
     int temp_diff = set_temp - current_temp;
     if (temp_diff == 0) {
-        snprintf(out_str, len, "Temperature already at %d°C", set_temp);
+    	if(dev_unit == UNIT_DEG_C)
+    	{
+            snprintf(out_str, len, "Temperature already at %d°c", set_temp);
+    	}
+    	else
+    	{
+            snprintf(out_str, len, "Temperature already at %d°F", set_temp);
+    	}
         return;
     }
 
@@ -170,10 +198,24 @@ static void generate_thermostat_time_str(thermostat_mode_t mode, int current_tem
 
     if (temp_diff < 0) {
         // Cooling
-        snprintf(out_str, len, "%u min until cooled to %d°C", (unsigned int)delay_min, set_temp);
+    	if(dev_unit == UNIT_DEG_C)
+    	{
+            snprintf(out_str, len, "%u min until cooled to %d°c", (unsigned int)delay_min, set_temp);
+    	}
+    	else
+    	{
+            snprintf(out_str, len, "%u min until cooled to %d°F", (unsigned int)delay_min, set_temp);
+    	}
     } else {
         // Heating
-        snprintf(out_str, len, "%u min until heated to %d°C", (unsigned int)delay_min, set_temp);
+    	if(dev_unit == UNIT_DEG_C)
+    	{
+            snprintf(out_str, len, "%u min until heated to %d°c", (unsigned int)delay_min, set_temp);
+    	}
+    	else
+    	{
+            snprintf(out_str, len, "%u min until heated to %d°F", (unsigned int)delay_min, set_temp);
+    	}
     }
 
     dev_info.thermostat_settings.time_remains = delay_sec;
@@ -182,7 +224,9 @@ static void generate_thermostat_time_str(thermostat_mode_t mode, int current_tem
 void update_setto_label(lv_event_t * e)
 {
 	if (temp_timer){
-        _ui_flag_modify(ui_settolbl, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+		if(popup_overlay_visible == false) {
+	        _ui_flag_modify(ui_settolbl, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+		}
 	}
 }
 
@@ -190,14 +234,22 @@ void update_setto_label(lv_event_t * e)
 void increase_temp(lv_event_t * e)
 {
 	if(dev_current_mode != MODE_OFF) {
-		if (temperature < TEMPERATURE_MAX_VALUE) {
+		if (temperature < current_max_temp) {
 			target_temp = ++temperature;
-			lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_currenttemp,"%d°F",temperature);
+	    	}
 			lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xF44336), LV_PART_MAIN | LV_STATE_DEFAULT);
-			lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",temperature);
 			lv_obj_add_flag(ui_bluecontainer,LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			if(popup_overlay_visible == false) {
+				lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
+				lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			}
 			_ui_flag_modify(ui_redcontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 			lv_obj_add_flag(ui_fanspeedcontainer, LV_OBJ_FLAG_HIDDEN);
 			red1anim_Animation(ui_red1, 1500);
@@ -230,14 +282,24 @@ void increase_temp(lv_event_t * e)
  void decrease_temp(lv_event_t * e)
 {
 	 if(dev_current_mode != MODE_OFF) {
-		 if (temperature > TEMPERATURE_MIN_VALUE) {
+		 if (temperature > current_min_temp) {
 			target_temp = --temperature;
-			lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
+
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_currenttemp,"%d°F",temperature);
+	    	}
+
 			lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xC6FFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-			lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",temperature);
 			lv_obj_add_flag(ui_redcontainer,LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			if(popup_overlay_visible == false) {
+				lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
+				lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			}
 			_ui_flag_modify(ui_bluecontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 			lv_obj_add_flag(ui_fanspeedcontainer, LV_OBJ_FLAG_HIDDEN);
 			blue1anim_Animation(ui_blue1, 300);
@@ -273,9 +335,19 @@ void increase_temp_step (lv_timer_t * timer){
 	if(dev_current_mode != MODE_OFF) {
 		if (current_temp < target_temp){
 			current_temp++;
-			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    	}
+
+
 		   lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Heating . . .");
-//			lv_arc_set_value(ui_temperaturearc, current_temp);
 		   generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 		   lv_label_set_text(ui_homescreensubmsg, subinfo);
 		   lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
@@ -283,7 +355,17 @@ void increase_temp_step (lv_timer_t * timer){
 		if (current_temp == target_temp){
 			lv_timer_del(timer);
 			temp_timer=NULL;
-			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+				lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+				lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    	}
+
 			lv_arc_set_value(ui_temperaturearc, current_temp);
 			lv_obj_add_flag(ui_redcontainer,LV_OBJ_FLAG_HIDDEN);
 
@@ -310,8 +392,16 @@ void decrease_temp_step (lv_timer_t * timer){
 			current_temp--;
 			lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Cooling . . .");
 
-			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
-//			lv_arc_set_value(ui_temperaturearc, current_temp);
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    	}
 
 		   generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
 		   lv_label_set_text(ui_homescreensubmsg, subinfo);
@@ -320,10 +410,20 @@ void decrease_temp_step (lv_timer_t * timer){
 		if (current_temp == target_temp){
 			lv_timer_del(timer);
 			temp_timer=NULL;
-			lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
-			lv_arc_set_value(ui_temperaturearc, current_temp);
+	    	if(dev_unit == UNIT_DEG_C)
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    	}
+	    	else
+	    	{
+				lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+			    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    	}
+
+	    	lv_arc_set_value(ui_temperaturearc, current_temp);
 			lv_obj_add_flag(ui_bluecontainer,LV_OBJ_FLAG_HIDDEN);
-  		   lv_obj_add_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+  		    lv_obj_add_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_add_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_add_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
 			update_mode_label(dev_current_mode);
@@ -418,7 +518,6 @@ void update_fan_mode(fan_speed_t mode)
 	}
 
 	dev_fan_mode = mode;
-
 	update_fan_speed_ipc(dev_fan_mode);
 }
 
@@ -429,6 +528,8 @@ void fan_clicked(lv_event_t * e)
 		/* Update fan mode */
 		dev_fan_mode = (dev_fan_mode + 1) % FAN_MODE_MAX;
 		update_fan_mode(dev_fan_mode);
+		current_settings.thermostat_setting.fan_mode = dev_fan_mode;
+	    update_current_device_setting();
 	}
 }
 
@@ -506,16 +607,31 @@ static void fan_low(void){
 
 void weatherup(lv_event_t * e){
     weather_temp++;
-	lv_label_set_text_fmt(ui_container1text, "%d°c",weather_temp);
-    lv_label_set_text_fmt(ui_container2text, "%d°c",weather_temp);
-    lv_label_set_text_fmt(ui_container3text, "%d°c",weather_temp);
+
+    if(dev_unit == UNIT_DEG_C) {
+    	lv_label_set_text_fmt(ui_container1text, "%d°c",weather_temp);
+        lv_label_set_text_fmt(ui_container2text, "%d°c",weather_temp);
+        lv_label_set_text_fmt(ui_container3text, "%d°c",weather_temp);
+
+    } else {
+    	lv_label_set_text_fmt(ui_container1text, "%d°F",weather_temp);
+        lv_label_set_text_fmt(ui_container2text, "%d°F",weather_temp);
+        lv_label_set_text_fmt(ui_container3text, "%d°F",weather_temp);
+    }
+
 }
 
 void weatherdown(lv_event_t * e){
     weather_temp--;
-	lv_label_set_text_fmt(ui_container1text, "%d°c",weather_temp);
-    lv_label_set_text_fmt(ui_container2text, "%d°c",weather_temp);
-    lv_label_set_text_fmt(ui_container3text, "%d°c",weather_temp);
+    if(dev_unit == UNIT_DEG_C) {
+		lv_label_set_text_fmt(ui_container1text, "%d°c",weather_temp);
+		lv_label_set_text_fmt(ui_container2text, "%d°c",weather_temp);
+		lv_label_set_text_fmt(ui_container3text, "%d°c",weather_temp);
+    } else {
+		lv_label_set_text_fmt(ui_container1text, "%d°F",weather_temp);
+		lv_label_set_text_fmt(ui_container2text, "%d°F",weather_temp);
+		lv_label_set_text_fmt(ui_container3text, "%d°F",weather_temp);
+   }
 }
 
 void update_display_brightness(uint8_t level)
@@ -524,6 +640,8 @@ void update_display_brightness(uint8_t level)
     mtb_display_st7701s_set_brightness(level);
     brightness_level = level;
 	dev_info.preferences.display_brightness = level;
+	current_settings.display_setting.brightness = level;
+	update_current_device_setting();
 }
 
 void change_brightness(lv_event_t * e){
@@ -544,6 +662,19 @@ void change_brightness(lv_event_t * e){
      update_brightness_ipc(brightness_level);
 }
 
+
+void update_presence_detection(uint8_t presence_count) {
+	show_presence_icon_and_update_label(presence_count);
+    _ui_opacity_set(ui_presence, 255);
+    person_count = presence_count;
+    person_detected = true;
+}
+
+void show_presence_icon_bubble(void) {
+    _ui_flag_modify(ui_presencecountlabel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    _ui_flag_modify(ui_presencecountcircle, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+}
+
 void show_presence_icon_and_update_label(uint8_t person_count)
 {
     char buf[10];
@@ -554,16 +685,27 @@ void show_presence_icon_and_update_label(uint8_t person_count)
     lv_obj_set_style_opa(ui_presence, LV_OPA_COVER, 0);
 
     if(person_count > 1) {
+    	show_presence_icon_bubble();
         lv_obj_clear_flag(ui_presencecountlabel, LV_OBJ_FLAG_HIDDEN);
-
         lv_label_set_text(ui_presencecountlabel, buf);
     }
+}
+
+void display_presence_detection_status(void) {
+
+	if(person_detected == true)	{
+		update_presence_detection(person_count);
+	} else {
+		hide_presence_icon();
+	}
 }
 
 void hide_presence_icon(void) {
     lv_obj_set_style_opa(ui_presence, 60, 0);
     lv_obj_add_flag(ui_presencecountlabel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_presencecountcircle, LV_OBJ_FLAG_HIDDEN);
+    person_detected = false;
+    person_count = 0;
 }
 
 void mic_stop_listening_cb(lv_timer_t *timer) {
@@ -572,6 +714,7 @@ void mic_stop_listening_cb(lv_timer_t *timer) {
     if (current_mic_state == MIC_ACTIVE) {
         mic_stop_listening();
     }
+    display_mic_state();
 }
 
 void mic_start_listening_cb(lv_timer_t *timer) {
@@ -581,8 +724,25 @@ void mic_start_listening_cb(lv_timer_t *timer) {
         mic_activate_listening();
 
         // Start timer to stop listening after 7 seconds
-        stop_listening_timer = lv_timer_create(mic_stop_listening_cb, 7000, NULL);
+        stop_listening_timer = lv_timer_create(mic_stop_listening_cb, 3000, NULL);
         lv_timer_set_repeat_count(stop_listening_timer, 1);  // One-shot
+    }
+}
+
+void display_mic_state(void)
+{
+    // Show selected state and handle animation if needed
+    switch(current_mic_state)
+    {
+        case MIC_DISABLED:
+        	_ui_opacity_set(ui_micdisabled, 60);
+            break;
+
+        case MIC_IDLE:
+        	_ui_opacity_set(ui_micidle, 255);
+            break;
+        default:
+        	break;
     }
 }
 
@@ -618,8 +778,8 @@ void mic_icon_click_handler(lv_event_t * e) {
 
 	        case MIC_IDLE:
 	            lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-				start_listening_timer = lv_timer_create(mic_start_listening_cb, 3000, NULL);
-				lv_timer_set_repeat_count(start_listening_timer, 1);  // One-shot
+//				start_listening_timer = lv_timer_create(mic_start_listening_cb, 2000, NULL);
+//				lv_timer_set_repeat_count(start_listening_timer, 1);  // One-shot
 	            break;
 	        default:
 	        	break;
@@ -676,34 +836,6 @@ static void mic_stop_listening(void)
     lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
 
     current_mic_state = MIC_IDLE;
-}
-
-
-// Timer callback to cycle through states
-static void device_state_test_cb(lv_timer_t * timer)
-{
-    if (PROV_MAPP_BLE == prov_method) {
-        if (current_test_state_idx < BLE_STATE_COUNT) {
-            update_device_connection_state(ble_prov_states[current_test_state_idx]);
-            current_test_state_idx++;
-        }
-    }
-    else if (PROV_UI_KEYBOARD == prov_method) {
-        if (current_test_state_idx < KYBD_STATE_COUNT) {
-            update_device_connection_state(kybd_prov_states[current_test_state_idx]);
-            current_test_state_idx++;
-        }
-    }
-}
-
-
-
-// Call this function after your screen is initialized
-void start_device_state_test_timer()
-{
-	// Start timer to stop listening after 7 seconds
-	state_update_timer = lv_timer_create(device_state_test_cb, 5000, NULL);
-	lv_timer_set_repeat_count(state_update_timer, 1);  // One-shot
 }
 
 void update_pin_label(const char *pin)
@@ -1125,7 +1257,12 @@ void update_notifcation_label(notification_type type, notification_status_t stat
 				break;
 			case NOTIFY_TEMP_UPDATE:
 //				lv_label_set_text_fmt(ui_notificationlabel, "Temperature set to %lu°C.", value);
-				lv_label_set_text_fmt(ui_notificationlabel, "Temperature set-point reached %lu°C.", value);
+			    if(dev_unit == UNIT_DEG_C) {
+					lv_label_set_text_fmt(ui_notificationlabel, "Temperature set-point reached %lu°C.", value);
+			    } else {
+					lv_label_set_text_fmt(ui_notificationlabel, "Temperature set-point reached %lu°F.", value);
+			    }
+
 				break;
 			case NOTIFY_MODE_UPDATE:
 				lv_label_set_text_fmt(ui_notificationlabel, "Mode set to %lu.", value);  // You may map value to text
@@ -1280,26 +1417,30 @@ void set_thermostat_mode(thermostat_mode_t mode)
     {
         case MODE_ECO:
             lv_img_set_src(ui_mode, &ui_img_eco_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
             printf("Mode set to ECO\n");
             break;
         case MODE_RAPID:
             lv_img_set_src(ui_mode, &ui_img_mode_select_rapid_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
             printf("Mode set to RAPID\n");
             break;
         case MODE_AUTO:
             lv_img_set_src(ui_mode, &ui_img_automode_png_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_automode_png_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             printf("Mode set to AUTO\n");
-        	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT);
+        	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT_C);
             break;
 
         case MODE_OFF:
             lv_img_set_src(ui_mode, &ui_img_mode_select_fan_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             printf("Mode set to FAN\n");
 
@@ -1335,6 +1476,9 @@ void toggle_mode(lv_event_t * e)
 	dev_current_mode = (dev_current_mode + 1) % MODE_MAX;
 	set_thermostat_mode(dev_current_mode);
     lv_obj_set_style_opa(ui_mode, LV_OPA_COVER, 0);
+    current_settings.thermostat_setting.mode = dev_current_mode;
+    current_settings.thermostat_setting.fan_mode = dev_fan_mode;
+    update_current_device_setting();
 }
 
 void open_notifcaiton_ex(void)
@@ -1391,26 +1535,34 @@ void update_thermostat_mode(thermostat_mode_t mode)
     {
         case MODE_ECO:
             lv_img_set_src(ui_mode, &ui_img_eco_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
             printf("Mode set to ECO\n");
             break;
         case MODE_RAPID:
             lv_img_set_src(ui_mode, &ui_img_mode_select_rapid_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
             printf("Mode set to RAPID\n");
             break;
         case MODE_AUTO:
             lv_img_set_src(ui_mode, &ui_img_mode_select_auto_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_auto_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             printf("Mode set to AUTO\n");
-        	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT);
+            if(dev_unit == UNIT_DEG_C) {
+            	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT_C);
+            } else {
+            	update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT_F);
+            }
             break;
 
         case MODE_OFF:
             lv_img_set_src(ui_mode, &ui_img_mode_select_fan_png);
+            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             printf("Mode set to FAN\n");
             break;
@@ -1431,8 +1583,12 @@ void update_device_temp(uint8_t temp)
 	    temperature = target_temp;
 	    dev_info.environment.target_temp = target_temp;
 
-	    lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
-	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",temperature);
+	    if(dev_unit == UNIT_DEG_C) {
+		    lv_label_set_text_fmt(ui_currenttemp,"%d°c",temperature);
+
+	    } else {
+		    lv_label_set_text_fmt(ui_currenttemp,"%d°F",temperature);
+	    }
 
 	   if (temp_timer){
 	     lv_timer_del(temp_timer);
@@ -1444,8 +1600,10 @@ void update_device_temp(uint8_t temp)
 		   lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xF44336), LV_PART_MAIN | LV_STATE_DEFAULT);
 		    temp_timer=lv_timer_create(increase_temp_step,deg2sec,NULL);
 		    lv_obj_add_flag(ui_bluecontainer,LV_OBJ_FLAG_HIDDEN);
-		    lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
-		    lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+		    if(popup_overlay_visible == false) {
+			    lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
+			    lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+		    }
 		    _ui_flag_modify(ui_redcontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 		    lv_obj_add_flag(ui_fanspeedcontainer, LV_OBJ_FLAG_HIDDEN);
 		    red1anim_Animation(ui_red1, 1500);
@@ -1463,8 +1621,10 @@ void update_device_temp(uint8_t temp)
 	   {
 			lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xC6FFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
 			lv_obj_add_flag(ui_redcontainer,LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
-			lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			if(popup_overlay_visible == false) {
+				lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
+				lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+			}
 			_ui_flag_modify(ui_bluecontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 			lv_obj_add_flag(ui_fanspeedcontainer, LV_OBJ_FLAG_HIDDEN);
 			blue1anim_Animation(ui_blue1, 300);
@@ -1534,6 +1694,41 @@ int get_current_temperature(void)
 
 void load_thermostat_config(thermostat_mode_t mode)
 {
+
+	if(current_settings.system.temperature_unit == UNIT_DEG_F)
+	{
+		current_temp = CELSIUS_TO_FAHRENHEIT(current_temp);
+		lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
+		dev_unit = UNIT_DEG_F;
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_container1text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container2text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container3text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, current_temp);
+	    current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_F_MIN_VALUE;
+	       dev_info.environment.current_temp = current_temp;
+
+	}
+	else
+	{
+		current_temp = (current_temp);
+		lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
+		dev_unit = UNIT_DEG_C;
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    lv_label_set_text(ui_container1text, "11°c");
+	    lv_label_set_text(ui_container2text, "11°c");
+	    lv_label_set_text(ui_container3text, "11°c");
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, current_temp);
+	    current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_C_MIN_VALUE;
+	       dev_info.environment.current_temp = current_temp;
+	}
+
 	switch(mode)
 	{
 	case MODE_ECO:
@@ -1550,31 +1745,81 @@ void load_thermostat_config(thermostat_mode_t mode)
 		break;
 	}
 
-	dev_current_mode = mode;
-	dev_info.environment.current_temp 			= dev_info.environment.target_temp = temperature;
-	dev_info.environment.current_co2_level 		= 315;
-	dev_info.environment.current_humidity 		= 51;
-	dev_info.thermostat_settings.fan_speed 		= dev_fan_mode;
-	dev_info.thermostat_settings.mode 			= dev_current_mode;
-	dev_info.thermostat_settings.time_remains	= 55;
-	dev_info.preferences.display_brightness		= brightness_level = lv_slider_get_value(ui_Slider2);
-	dev_info.preferences.audio_level			= audio_level = AUDIO_MED;
-
-	send_device_config(dev_info);
+	update_fan_mode(current_settings.thermostat_setting.fan_mode);
 
 	/* Set default audio config */
-	update_thermostat_volume(AUDIO_MED);
+	update_thermostat_volume(current_settings.audio.level);
+
+	update_display_brightness(current_settings.display_setting.brightness);
+
+	set_idle_timeout(current_settings.system.idle_timeout);
+
+
+}
+
+void set_idle_timeout(idle_timeout_t time)
+{
+	switch (time)
+	{
+	    case TIMEOUT_3S:
+	        printf("Timeout = 3 seconds\n");
+	        // your logic for 3 sec
+	        break;
+
+	    case TIMEOUT_5S:
+	        printf("Timeout = 5 seconds\n");
+	        // your logic for 5 sec
+	        break;
+
+	    case TIMEOUT_10S:
+	        printf("Timeout = 10 seconds\n");
+	        // your logic for 10 sec
+	        break;
+
+	    case TIMEOUT_20S:
+	        printf("Timeout = 20 seconds\n");
+	        // your logic for 20 sec
+	        break;
+
+	    case TIMEOUT_30S:
+	        printf("Timeout = 30 seconds\n");
+	        // your logic for 30 sec
+	        break;
+
+	    case TIMEOUT_NEVER:
+	        printf("Timeout = Never\n");
+	        // logic for no timeout (∞ or disabled)
+	        break;
+
+	    default:
+	        printf("Invalid timeout option\n");
+	        break;
+	}
+
+	current_settings.system.idle_timeout = time;
+	lv_dropdown_set_selected(ui_timeoutdropdown, time);
+	update_current_device_setting();
 }
 
 void change_idle_timeout(lv_event_t * e)
 {
-	// Your code here
+	uint16_t timeout = lv_dropdown_get_selected(ui_timeoutdropdown);
+	printf("Idle Timeout: %d\n", timeout);
+	set_idle_timeout(timeout);
+	stop_active_state_timer();
+	start_inactivity_timer();
 }
+
 
 void update_temperature(lv_event_t * e)
 {
 	int temperature = lv_arc_get_value(ui_temperaturearc);
-	printf("Temperature arc value: %d°C\n", temperature);
+	printf("Temperature arc value: %d°c\n", temperature);
+	if(dev_unit == UNIT_DEG_C) {
+		printf("Temperature arc value: %d°c\n", temperature);
+	} else {
+		printf("Temperature arc value: %d°F\n", temperature);
+	}
 
 	update_device_temp((uint8_t)temperature);
 }
@@ -1645,6 +1890,8 @@ static void set_volume(audio_level_t level)
     }
 
     audio_level = level;
+    current_settings.audio.level = level;
+    update_current_device_setting();
 }
 
 void change_volume(lv_event_t * e){
@@ -1662,3 +1909,199 @@ void update_thermostat_volume(audio_level_t level)
 	dev_info.preferences.audio_level = level;
 }
 
+void set_system_unit(lv_event_t * e) {
+	bool is_checked = lv_obj_has_state(ui_tempunitswitch, LV_STATE_CHECKED);
+	if(is_checked) {
+		printf("System Unit set to deg F.\n");
+		current_settings.system.temperature_unit = UNIT_DEG_F;
+
+		if(dev_unit == UNIT_DEG_C) {
+		current_temp = CELSIUS_TO_FAHRENHEIT(current_temp);
+		target_temp = CELSIUS_TO_FAHRENHEIT(target_temp);
+		temperature = CELSIUS_TO_FAHRENHEIT(temperature);
+		}
+		dev_unit = UNIT_DEG_F;
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_container1text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container2text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container3text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, target_temp);
+	    current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_F_MIN_VALUE;
+
+		lv_label_set_text_fmt(ui_currenttemp,"%d°F",target_temp);
+
+       dev_info.environment.target_temp = target_temp;
+       dev_info.environment.current_temp = current_temp;
+	}
+	else {
+		printf("System Unit set to deg C.\n");
+		current_settings.system.temperature_unit = UNIT_DEG_C;
+
+		if(dev_unit == UNIT_DEG_F) {
+		current_temp = FAHRENHEIT_TO_CELSIUS(current_temp);
+		target_temp = FAHRENHEIT_TO_CELSIUS(target_temp);
+		temperature = FAHRENHEIT_TO_CELSIUS(temperature);
+		}
+		dev_unit = UNIT_DEG_C;
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    lv_label_set_text(ui_container1text, "11°c");
+	    lv_label_set_text(ui_container2text, "11°c");
+	    lv_label_set_text(ui_container3text, "11°c");
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, target_temp);
+	    current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_C_MIN_VALUE;
+		lv_label_set_text_fmt(ui_currenttemp,"%d°C",target_temp);
+	   dev_info.environment.target_temp = target_temp;
+	   dev_info.environment.current_temp = current_temp;
+	}
+
+//    update_system_unit_ipc(dev_unit);
+	update_device_config_ipc();
+	update_current_device_setting();
+}
+
+void update_system_unit(system_unit_t unit) {
+
+	if(unit == UNIT_DEG_F)
+	{
+		if(dev_unit == UNIT_DEG_C) {
+			current_temp = CELSIUS_TO_FAHRENHEIT(current_temp);
+			target_temp = CELSIUS_TO_FAHRENHEIT(target_temp);
+			temperature = CELSIUS_TO_FAHRENHEIT(temperature);
+		}
+
+		lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F",current_temp);
+	    lv_label_set_text_fmt(ui_container1text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container2text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_label_set_text_fmt(ui_container3text, "%d°F",CELSIUS_TO_FAHRENHEIT(11));
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, target_temp);
+	    current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_F_MIN_VALUE;
+		lv_label_set_text_fmt(ui_currenttemp,"%d°F",target_temp);
+	       dev_info.environment.target_temp = target_temp;
+	       dev_info.environment.current_temp = current_temp;
+
+	}
+	else if(unit == UNIT_DEG_C)
+	{
+		if(dev_unit == UNIT_DEG_F) {
+			current_temp = FAHRENHEIT_TO_CELSIUS(current_temp);
+			target_temp = FAHRENHEIT_TO_CELSIUS(target_temp);
+			temperature = FAHRENHEIT_TO_CELSIUS(temperature);
+		}
+
+		lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
+		lv_label_set_text_fmt(ui_MainTempactive, "%d°c",current_temp);
+	    lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c",current_temp);
+	    lv_label_set_text(ui_container1text, "11°c");
+	    lv_label_set_text(ui_container2text, "11°c");
+	    lv_label_set_text(ui_container3text, "11°c");
+	    lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
+	    lv_arc_set_value(ui_temperaturearc, target_temp);
+	    current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
+	    current_min_temp = TEMPERATURE_DEG_C_MIN_VALUE;
+		lv_label_set_text_fmt(ui_currenttemp,"%d°C",target_temp);
+	       dev_info.environment.target_temp = target_temp;
+	       dev_info.environment.current_temp = current_temp;
+
+	}
+	current_settings.system.temperature_unit = unit;
+	dev_unit = unit;
+	update_current_device_setting();
+}
+
+
+void get_default_device_setting(device_settings_t *settings) {
+	memset(settings, 0, sizeof(device_settings_t));
+	memcpy(settings, &default_config, sizeof(device_settings_t));
+}
+
+void get_current_device_setting(device_settings_t *settings) {
+	memset(settings, 0, sizeof(device_settings_t));
+	memcpy(settings, &current_settings, sizeof(device_settings_t));
+}
+
+void set_current_device_setting(device_settings_t *settings) {
+	current_settings.audio.level = settings->audio.level;
+	current_settings.display_setting.brightness = settings->display_setting.brightness;
+	current_settings.thermostat_setting.fan_mode = settings->thermostat_setting.fan_mode;
+	current_settings.thermostat_setting.mode = settings->thermostat_setting.mode;
+	current_settings.is_available = settings->is_available;
+	current_settings.system.idle_timeout = settings->system.idle_timeout;
+	current_settings.system.temperature_unit = settings->system.temperature_unit;
+}
+
+void update_current_device_setting(void) {
+	eeprom_wr_setting = true;
+}
+
+void device_factory_reset(lv_event_t * e) {
+	device_settings_t read_settings = {0};
+
+	/* Restore the device settings to default */
+	get_default_device_setting(&read_settings);
+	set_current_device_setting(&read_settings);
+	update_current_device_setting();
+
+	dev_current_mode = read_settings.thermostat_setting.mode;
+	dev_fan_mode = read_settings.thermostat_setting.fan_mode;
+	brightness_level = read_settings.display_setting.brightness;
+	audio_level = read_settings.audio.level;
+
+	update_thermostat_mode(dev_current_mode);
+
+	/* Set default audio config */
+	update_thermostat_volume(audio_level);
+
+	update_display_brightness(brightness_level);
+
+	set_idle_timeout(read_settings.system.idle_timeout);
+	if(read_settings.system.temperature_unit == UNIT_DEG_F)
+	{
+		lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
+	}
+	else
+	{
+		lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
+	}
+
+    _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+	lv_scr_load(ui_ActiveScreen);
+
+
+	/* Send factory reset command over IPC
+	 * to delete the WiFi credentials */
+	request_wifi_delete_ipc();
+}
+
+
+void update_device_config_ipc(void)
+{
+	dev_info.environment.current_temp 	= current_temp;
+	dev_info.environment.target_temp 	= target_temp;
+	dev_info.environment.current_co2_level 		= 315;
+	dev_info.environment.current_humidity 		= 51;
+	dev_info.thermostat_settings.fan_speed 		= dev_fan_mode;
+	dev_info.thermostat_settings.mode 			= dev_current_mode;
+	dev_info.thermostat_settings.time_remains	= 0;
+	dev_info.preferences.display_brightness		= brightness_level;
+	dev_info.preferences.audio_level			= audio_level;
+	dev_info.thermostat_settings.temp_unit 		= dev_unit;
+
+	send_device_config(dev_info);
+}
+
+void start_inactivity_timer(void) {
+	if(TIMEOUT_NEVER != current_settings.system.idle_timeout) {
+        start_active_state_timer(get_timeout_ms(current_settings.system.idle_timeout));
+	}
+
+}

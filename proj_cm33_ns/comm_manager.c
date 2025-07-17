@@ -86,3 +86,12 @@ void set_device_audio(audio_level_t value)
 
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
+
+void set_device_temp_unit(temp_unit_t value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_SET_TEMP_UNIT;
+	cm33_msg_data.data = value;
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}

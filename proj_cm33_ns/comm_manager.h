@@ -20,6 +20,7 @@ void update_conn_state(uint32_t state);
 void response_uid_req(char *uid);
 void set_device_brightness(uint8_t value);
 void set_device_audio(audio_level_t value);
+void set_device_temp_unit(temp_unit_t value);
 
 
 #endif /* COMM_MANAGER_H_ */

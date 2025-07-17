@@ -51,12 +51,12 @@
 * Macros
 ********************************************************************************/
 /* Task parameters for MQTT Client Task. */
-#define MQTT_CLIENT_TASK_PRIORITY       (2U)
-#define MQTT_CLIENT_TASK_STACK_SIZE     (1024U * 2U)
+#define MQTT_CLIENT_TASK_PRIORITY       	(2U)
+#define MQTT_CLIENT_TASK_STACK_SIZE     	(1024U * 2U)
 
 #define MQTT_TOPIC_SIZE 					(16U)
 
-#define NUMBERS_OF_SUBSCRIBE_TOPIC				(2U)
+#define NUMBERS_OF_TOPIC					(2U)
 
 #define JSON_KEY_FOR_TYPEOFOPERATION			"type"
 #define JSON_KEY_FOR_COMMAND					"cmd_id"

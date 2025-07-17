@@ -4,6 +4,7 @@
 // Project name: Thermostat_HMI
 
 #include "ui.h"
+#include "thermostat_events.h"
 
 lv_obj_t * ui_LPScreen;
 lv_obj_t * ui_Container2;
@@ -17,13 +18,18 @@ lv_obj_t * ui_ecoLP;
 lv_obj_t * ui_DateLP;
 lv_obj_t * ui_changescreenLP;
 
+extern volatile application_state_t app_state;
+
 // event funtions
 void ui_event_changescreenLP(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
+        app_state = APP_ST_ACTIVE;
+//        start_active_state_timer(10000);
+        start_inactivity_timer();
     }
 }
 

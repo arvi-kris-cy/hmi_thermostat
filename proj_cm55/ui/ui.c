@@ -5,6 +5,8 @@
 
 #include "ui.h"
 #include "ui_helpers.h"
+#include "../../shared/include/app_common.h"
+#include "thermostat_events.h"
 
 ///////////////////// VARIABLES ////////////////////
 lv_anim_t * fandrag_Animation(lv_obj_t * TargetObject, int delay);
@@ -755,12 +757,9 @@ void ui_init(void)
 void switch_to_LPScreen_cb(lv_timer_t * timer)
 {
 	lv_disp_load_scr(ui_ActiveScreen);
-//    lv_disp_load_scr(ui_LPScreen);
-//    colonanim_Animation(ui_TimeColonactive, 0);
-//    colonanimLP_Animation(ui_TimeColonLP, 0);
-//    colomanimLP2_Animation(ui_TimeColonLP2, 0);
-
     lv_timer_del(timer);  // optional
+//    start_active_state_timer(10000);
+    start_inactivity_timer();
 }
 
 void ui_demo_init(void)
@@ -780,12 +779,13 @@ void ui_demo_init(void)
     ui_DisplaySettings_screen_init();
     ui_SettingsScreen_screen_init();
     ui_AudioSettings_screen_init();
+    ui_SystemSettings_screen_init();
 
     // Show the boot screen first
     lv_disp_load_scr(ui_BootScreen);
 
     // Create a timer to switch to LP screen after boot
-    lv_timer_create(switch_to_LPScreen_cb, 5000, NULL);
+    lv_timer_create(switch_to_LPScreen_cb, APP_BOOTUP_DELAY, NULL);
 }
 
 
@@ -795,5 +795,7 @@ void ui_destroy(void)
     ui_LPScreen_screen_destroy();
     ui_SettingsScreen_screen_destroy();
     ui_BootScreen_screen_destroy();
+    ui_DisplaySettings_screen_destroy();
     ui_AudioSettings_screen_destroy();
+    ui_SystemSettings_screen_destroy();
 }
