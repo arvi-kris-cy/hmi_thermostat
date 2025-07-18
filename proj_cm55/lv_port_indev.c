@@ -88,7 +88,7 @@ mtb_ctp_ft5xx6_config_t ctp_ft5xx6_cfg =
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_17_IRQn,
+  .irq_num             = ioss_interrupts_gpio_10_IRQn,
   .touch_event         = false,
 };
 #endif
@@ -103,7 +103,7 @@ mtb_ctp_p4100tp_config_t ctp_p4100tp_cfg =
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_17_IRQn,
+  .irq_num             = ioss_interrupts_gpio_10_IRQn,
   .touch_event         = false,
 };
 #endif

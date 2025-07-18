@@ -3543,7 +3543,7 @@
                     <Parameters>
                         <Param id="actPwrMode" value="POWER_PROFILE_HP"/>
                         <Param id="deepsleepLatency" value="20"/>
-                        <Param id="idlePwrMode" value="CY_CFG_PWR_MODE_ACTIVE"/>
+                        <Param id="idlePwrMode" value="CY_CFG_PWR_MODE_DEEPSLEEP"/>
                         <Param id="pd1Enable" value="true"/>
                         <Param id="vddaMv" value="1800"/>
                         <Param id="vdddMv" value="1800"/>
