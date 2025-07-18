@@ -66,6 +66,7 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_background_png);    // assets/background.png
+LV_IMG_DECLARE(ui_img_background_png_0);    // assets/background.png
 LV_IMG_DECLARE(ui_img_cloudy_png);    // assets/cloudy.png
 LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_rain_png);    // assets/rain.png
