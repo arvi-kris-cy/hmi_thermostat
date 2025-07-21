@@ -652,7 +652,6 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
     wiced_bt_device_address_t bda = {0};
     wiced_bt_dev_ble_io_caps_req_t *pairing_io_caps = &(p_event_data->
                                            pairing_io_capabilities_ble_request);
-    static bool conn_state = false;
 
     printf("Bluetooth Management Event: %s\n", get_btm_event_name(event));
 
@@ -708,12 +707,10 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
                 printf("Pairing Complete: SUCCESS\n");
 
                 update_conn_state(DEV_ST_BLE_CONNECTED);
-                conn_state = false;
             }
             else /* Pairing Failed */
             {
                 printf("Pairing Complete: FAILED\n");
-                conn_state = true;
             }
             break;
 
@@ -829,14 +826,6 @@ static void application_init(void)
     {
         printf("Set ADV data failed\n");
     }
-
-//    result = wiced_bt_start_advertisements(BTM_BLE_ADVERT_UNDIRECTED_HIGH,
-//                                           BLE_ADDR_PUBLIC, NULL);
-//    if(WICED_SUCCESS != result)
-//    {
-//        printf("Start ADV failed");
-//    }
-
 }
 
 /*****************************************************************************
@@ -884,8 +873,7 @@ cy_rslt_t wifi_connect()
 	cy_rslt_t result = CY_RSLT_TYPE_ERROR;
 	uint8_t conn_retries = 0;
 
-    while((CY_RSLT_SUCCESS != result) && (conn_retries <
-                                                MAX_CONNECTION_RETRIES))
+    while((CY_RSLT_SUCCESS != result))
     {
         printf("\nTrying to connect SSID: %s, Password: %s\n",
                 wifi_conn_param.ap_credentials.SSID,

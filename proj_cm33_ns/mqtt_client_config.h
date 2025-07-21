@@ -77,12 +77,7 @@
  * If you want to use the last will message, set this macro to 1 and configure
  * the topic and will message, else 0.
  */
-#define ENABLE_LWT_MESSAGE                ( 0 )
-#if ENABLE_LWT_MESSAGE
-    #define MQTT_WILL_TOPIC_NAME          MQTT_PUB_TOPIC "/will"
-    #define MQTT_WILL_MESSAGE             ("MQTT client unexpectedly disconnected!")
-#endif
-
+#define ENABLE_LWT_MESSAGE                ( 1 )
 
 /******************* OTHER MQTT CLIENT CONFIGURATION MACROS *******************/
 /* A unique client identifier to be used for every MQTT connection. */

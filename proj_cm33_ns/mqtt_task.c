@@ -55,7 +55,6 @@
 #include "publisher_task.h"
 
 /* Configuration file for Wi-Fi and MQTT client */
-#include "wifi_config.h"
 #include "mqtt_client_config.h"
 
 /* Middleware libraries */
@@ -131,7 +130,7 @@ uint32_t status_flag;
  */
 uint8_t *mqtt_network_buffer = NULL;
 
-mqtttopic_t mqtt_topics[NUMBERS_OF_SUBSCRIBE_TOPIC] = {0};
+mqtttopic_t mqtt_topics[NUMBERS_OF_TOPIC] = {0};
 
 extern TaskHandle_t wifi_task_handle;
 extern bool device_provisioned;
@@ -416,6 +415,11 @@ static cy_rslt_t mqtt_connect(void)
            broker_info.hostname_len,
            broker_info.hostname);
 
+    connection_info.will_info->topic = mqtt_topics[1];
+    connection_info.will_info->topic_len = MQTT_TOPIC_SIZE;
+    connection_info.will_info->payload = "{\"cmd_id\":0,\"type\":0,\"value\":0}";
+    connection_info.will_info->payload_len = (size_t)(strlen(connection_info.will_info->payload));
+
     mqtt_conn_status = false;
     while(false == mqtt_conn_status)
     {
@@ -591,9 +595,8 @@ void mqtt_client_task(void *pvParameters)
                                 subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
                                 xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
 
-                                /* Initialize Publisher post the reconnection. */
-                                publisher_q_data.cmd = PUBLISHER_INIT;
-                                xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+        						/* Send the connection status to end device */
+        						send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
                             }
                         }
                         else
@@ -610,9 +613,8 @@ void mqtt_client_task(void *pvParameters)
 							subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
 							xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
 
-							/* Initialize Publisher post the reconnection. */
-							publisher_q_data.cmd = PUBLISHER_INIT;
-							xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+							/* Send the connection status to end device */
+							send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
 						}
                     }
 

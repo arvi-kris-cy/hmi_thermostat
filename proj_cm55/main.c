@@ -65,6 +65,7 @@
 #include "thermostat_events.h"
 #include "comm_manager.h"
 #include "app_audio.h"
+#include "app_eeprom.h"
 
 /*******************************************************************************
 * Macros
@@ -182,8 +183,6 @@ static mtb_hal_lptimer_t lptimer_obj;
 lv_obj_t *label;
 uint8_t brightness_level = 100;
 audio_level_t audio_level = AUDIO_MED;
-
-
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 /*******************************************************************************
@@ -518,7 +517,6 @@ static void cm55_gfx_task(void *arg)
     GFXSS_config.dc_cfg->gfx_layer_config->buffer_address    = frame_buffer1;
     GFXSS_config.dc_cfg->gfx_layer_config->uv_buffer_address = frame_buffer1;
 
-
     /* Initialize Graphics subsystem as per the configuration */
     gfx_status = Cy_GFXSS_Init(GFXSS, &GFXSS_config, &gfx_context);
 
@@ -631,7 +629,6 @@ static void cm55_gfx_task(void *arg)
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
-//            ui_init();
             //lv_demo_music();
             ui_demo_init();
             
@@ -655,10 +652,24 @@ static void cm55_gfx_task(void *arg)
     {
         if(cm55_pipe2_msg_received)
         {
+        	/* If device in Idle State, load Active screen */
+        	lv_obj_t *current_screen = lv_scr_act();
+        	if(current_screen == ui_LPScreen)
+        	{
+                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
+                app_state = APP_ST_ACTIVE;
+        		start_inactivity_timer();
+        	}
+
 			switch (msg_cmd) {
 			case IPC_CMD_SET_UID:
 				printf("Rx UID: %s\n", ipc_recv_msg->unique_id);
 				memcpy(device_unique_id, ipc_recv_msg->unique_id, 13);
+				update_device_config_ipc();
+				break;
+
+			case IPC_CMD_DEVICE_CONFIG:
+				update_device_config_ipc();
 				break;
 
 			case IPC_CMD_SET_DISPLAY_BRIGHTNESS:
@@ -669,26 +680,39 @@ static void cm55_gfx_task(void *arg)
 				update_thermostat_volume((audio_level_t)msg_val);
 				break;
 
+			case IPC_CMD_SET_TEMP_UNIT:
+				update_system_unit((system_unit_t)msg_val);
+				update_device_config_ipc();
+				break;
+
 			case IPC_CMD_UPDATE_CONN_STATE:
 			{
 				switch((device_connection_state_t)msg_val) {
-				case DEV_ST_CLOUD_CONNECTING:
-				case DEV_ST_CLOUD_DISCONNECTED:
-				case DEV_ST_WIFI_CONNECTING:
-				case DEV_ST_WIFI_CONNECTED:
 				case DEV_ST_BLE_ADVERTISING:
-				case DEV_ST_BLE_CONNECTED:
+				case DEV_ST_WIFI_CONNECTING:
+					stop_active_state_timer();
+					update_device_connection_state((device_connection_state_t)msg_val);
+					break;
+
 				case DEV_ST_UNPROVISIONED:
+				case DEV_ST_CLOUD_DISCONNECTED:
 				case DEV_ST_WIFI_DISCONNECTED:
+					update_device_connection_state((device_connection_state_t)msg_val);
+		    		start_inactivity_timer();
+					break;
+
+					break;
+
+				case DEV_ST_CLOUD_CONNECTING:
+				case DEV_ST_WIFI_CONNECTED:
+				case DEV_ST_BLE_CONNECTED:
 					update_device_connection_state((device_connection_state_t)msg_val);
 					break;
 
 				case DEV_ST_CLOUD_CONNECTED:
 					update_device_connection_state((device_connection_state_t)msg_val);
-//					lv_obj_add_flag(ui_popupoverlay, LV_OBJ_FLAG_HIDDEN);
-//			        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-
 					request_uid_ipc();
+		    		start_inactivity_timer();
 					break;
 
 				default:
@@ -699,12 +723,17 @@ static void cm55_gfx_task(void *arg)
 			case IPC_CMD_SET_FAN_SPEED:
 				{
 					update_fan_mode((fan_speed_t)msg_val);
+					current_settings.thermostat_setting.fan_mode = (fan_speed_t)msg_val;
+					update_current_device_setting();
 					break;
 				}
 			case IPC_CMD_SET_THERMOSTAT_MODE:
 			{
 				update_thermostat_mode((thermostat_mode_t)msg_val);
+				current_settings.thermostat_setting.mode = (thermostat_mode_t)msg_val;
+				current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
 				update_thermostat_mode_timer();
+				update_current_device_setting();
 				break;
 			}
 			case IPC_CMD_SET_TARGET_TEMP:
@@ -756,8 +785,23 @@ static void cm55_gfx_task(void *arg)
         
     	if(boot_config)
     	{
-    		load_thermostat_config(MODE_ECO);
+    		load_thermostat_config(current_settings.thermostat_setting.mode);
     		boot_config = false;
+    	}
+
+    	/* If eeprom write operation pending */
+    	if(eeprom_wr_setting)
+    	{
+    		device_settings_t settings = {0};
+    		get_current_device_setting(&settings);
+    		app_eeprom_write(&settings);
+    	}
+
+    	/* If touch event detected restart the inactivity timer */
+    	if(true == touch_detected)
+    	{
+    		touch_detected = false;
+    		start_inactivity_timer();
     	}
 
     	app_speaker_clear();
@@ -789,7 +833,6 @@ int main(void)
 
     /* Initialize the device and board peripherals */
     result = cybsp_init();
-    // CY_SET_REG32(0x44640018 , 0x00010000); // SET PORT2 Latency 1
 
     /* Board init failed. Stop program execution */
     if (CY_RSLT_SUCCESS != result)
@@ -820,8 +863,30 @@ int main(void)
         handle_app_error();
     }
 
-    /* Initialize speaker */
+    /* Initialize Speaker */
     app_speaker_init();
+
+    /* Initialize Emulated EEPROM */
+    app_eeprom_init();
+
+    /* Read configuration from Emulated EEPROM */
+    device_settings_t rd_settings = {0};
+    app_eeprom_read(&rd_settings);
+
+    if(rd_settings.is_available != true) {
+
+        device_settings_t settings = {0};
+
+    	/* Load default configuration */
+        get_default_device_setting(&settings);
+        settings.is_available = true;
+
+        app_eeprom_write(&settings);
+    	set_current_device_setting(&rd_settings);
+
+    } else {
+    	set_current_device_setting(&rd_settings);
+    }
 
     /* Create the FreeRTOS Task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,

@@ -262,6 +262,11 @@ static void ui_rx_task(void *arg) {
 					send_response_numeric(DEVICE_AUDIO, OPERATION_READ, (uint32_t)msg_val);
 					break;
 
+				case IPC_CMD_SET_TEMP_UNIT:
+					device_status.thermostat_settings.temp_unit = (temp_unit_t)msg_val;
+					send_response_numeric(TEMP_UNIT, OPERATION_READ, (uint32_t)device_status.thermostat_settings.temp_unit);
+					break;
+
 				default:
 					break;
 				}

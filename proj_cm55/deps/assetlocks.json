@@ -8,6 +8,10 @@
         "locked-commit": "release-v1.0.200"
     },
     {
+        "asset-name": "block-storage",
+        "locked-commit": "release-v1.2.201"
+    },
+    {
         "asset-name": "bt-fw-ifx-cyw55500a1",
         "locked-commit": "release-v2.2.0"
     },

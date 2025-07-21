@@ -81,7 +81,7 @@ CONFIG=Debug
 #
 COMPONENTS+=GFXSS
 
-# Remap the System SRAM (SOCMEM) to accomodate graphics frame buffers in it
+#Remap the System SRAM (SOCMEM) to accomodate graphics frame buffers in it
 ifeq ($(filter GFXSS,$(COMPONENTS)),GFXSS)
 DEFINES+=APP_SOCMEMSRAM_CM55NS_APP_SIZE=0x00060800  # 386 KB 
 DEFINES+=APP_SOCMEMSRAM_GPUBUF_SIZE=0x00300000      # 3.5 MB 
