@@ -255,17 +255,17 @@ void tlv_codec_i2c_init(void)
     cy_rslt_t hal_result;
 
     /* Initialize and enable the I2C in controller mode. */
-    result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_0_HW, &CYBSP_I2C_CONTROLLER_0_config, &MW_I2C_context);
+    result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW, &CYBSP_I2C_CONTROLLER_config, &MW_I2C_context);
     if (result != CY_RSLT_SUCCESS)
     {
     	handle_app_error();
     }
 
     /* Enable I2C hardware. */
-    Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_0_HW);
+    Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
 
     /* I2C HAL init */
-    hal_result = mtb_hal_i2c_setup(&MW_I2C_hal_obj, &CYBSP_I2C_CONTROLLER_0_hal_config, &MW_I2C_context, NULL);
+    hal_result = mtb_hal_i2c_setup(&MW_I2C_hal_obj, &CYBSP_I2C_CONTROLLER_hal_config, &MW_I2C_context, NULL);
     if (hal_result != CY_RSLT_SUCCESS)
     {
     	handle_app_error();

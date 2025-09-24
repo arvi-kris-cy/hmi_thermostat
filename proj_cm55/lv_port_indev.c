@@ -43,29 +43,22 @@
 * Header Files
 *******************************************************************************/
 #include "lv_port_indev.h"
+#include "lv_indev_private.h"
 #include "cy_utils.h"
+
+#if defined(MTB_CTP_FT5446)
+#include "mtb_ctp_ft5446.h"
+#elif defined(MTB_CTP_P4100TP)
+#include "mtb_ctp_p4100tp.h"
+#endif 
 #include "cybsp.h"
 
-// #define DISPLAY_P
-#define DISPLAY_F
 
-
-#if defined (DISPLAY_F)
-#include "mtb_ctp_ft5xx6.h"
-#elif defined (DISPLAY_P)
-#include "mtb_ctp_p4100tp.h"
-#endif
 /*****************************************************************************
 * Macros
 *****************************************************************************/
-#if defined (COMPONENT_MTB_CTP_FT5XX6)
-#define CTP_RESET_PORT       GPIO_PRT16
-#define CTP_RESET_PIN        (6U)
-#define CTP_IRQ_PORT         GPIO_PRT10
-#define CTP_IRQ_PIN          (7U)
-#endif
 
-#if defined (COMPONENT_MTB_CTP_P4100TP)
+#if defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
 #define CTP_RESET_PORT       GPIO_PRT16
 #define CTP_RESET_PIN        (6U)
 #define CTP_IRQ_PORT         GPIO_PRT10
@@ -78,32 +71,30 @@ extern lv_obj_t *label;
 *******************************************************************************/
 lv_indev_t * indev_touchpad;
 
-#if defined (COMPONENT_MTB_CTP_FT5XX6)
-/* ft5xx6 touch controller configuration */
-mtb_ctp_ft5xx6_config_t ctp_ft5xx6_cfg =
+#if defined(MTB_CTP_FT5446)
+mtb_ctp_ft5446_config_t ctp_ft5446_cfg =
 {
-  .scb_inst            = CYBSP_I2C_CONTROLLER_11_HW,
+  .scb_inst            = CYBSP_I2C_CONTROLLER_HW,
   .i2c_context         = &disp_touch_i2c_controller_context,
   .rst_port            = CTP_RESET_PORT,
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_10_IRQn,
+  .irq_num             = ioss_interrupts_gpio_17_IRQn,
   .touch_event         = false,
 };
 #endif
 
-#if defined (COMPONENT_MTB_CTP_P4100TP)
-/* p4100tp touch controller configuration */
+#if defined(MTB_CTP_P4100TP)
 mtb_ctp_p4100tp_config_t ctp_p4100tp_cfg =
 {
-  .scb_inst            = CYBSP_I2C_CONTROLLER_11_HW,
+  .scb_inst            = CYBSP_I2C_CONTROLLER_2_HW,
   .i2c_context         = &disp_touch_i2c_controller_context,
   .rst_port            = CTP_RESET_PORT,
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_10_IRQn,
+  .irq_num             = ioss_interrupts_gpio_17_IRQn,
   .touch_event         = false,
 };
 #endif
@@ -126,10 +117,9 @@ static void touchpad_init(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    #if defined (COMPONENT_MTB_CTP_FT5XX6)
-    result = mtb_ctp_ft5xx6_init(&ctp_ft5xx6_cfg);
-
-    #elif defined (COMPONENT_MTB_CTP_P4100TP)
+    #if defined(MTB_CTP_FT5446)
+    result = mtb_ctp_ft5446_init(&ctp_ft5446_cfg);
+    #elif defined(MTB_CTP_P4100TP)
     result = mtb_ctp_p4100tp_init(&ctp_p4100tp_cfg);
     #endif
 
@@ -173,22 +163,27 @@ static void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 
     data->state = LV_INDEV_STATE_REL;
 
-    #if defined (COMPONENT_MTB_CTP_FT5XX6)
-    result = mtb_ctp_ft5xx6_get_single_touch(&touch_x, &touch_y);
+    #if defined(MTB_CTP_FT5446)
+    result = mtb_ctp_ft5446_get_single_touch(&touch_x, &touch_y);
 
-    #elif defined (COMPONENT_MTB_CTP_P4100TP)
+    if ((CY_RSLT_SUCCESS == result))
+            {
+                  data->state = LV_INDEV_STATE_PR;
+            }
+    #elif defined(MTB_CTP_P4100TP)
     result = mtb_ctp_p4100tp_get_single_touch(&touch_x, &touch_y);
+    if ((CY_RSLT_SUCCESS == result))
+	        {
+	              data->state = LV_INDEV_STATE_PR;
+touch_detected = true;
+	        }   
     #endif
 
-    if (CY_RSLT_SUCCESS == result)
-    {
-        data->state = LV_INDEV_STATE_PR;
-        touch_detected = true;
-    }
-
+    #if defined(MTB_CTP_ILI2511) || defined(MTB_CTP_GT911) || defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
     /* Set the last pressed coordinates */
-    data->point.x = touch_x;
-    data->point.y = touch_y;
+     data->point.x = touch_x;
+     data->point.y = touch_y;
+    #endif
 }
 
 
@@ -214,6 +209,7 @@ void lv_port_indev_init(void)
     lv_indev_t * indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
     lv_indev_set_read_cb(indev, touchpad_read);
+
 }
 
 

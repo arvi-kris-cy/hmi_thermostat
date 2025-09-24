@@ -3,10 +3,10 @@
 # Any edits to this file will be lost the next time the library manager is run or
 # the next time 'make getlibs' is run.
 #
-bsp-assistant capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator edge-protect-configurator power-conversion-configurator :
+bsp-assistant capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator edge-protect-configurator :
 	make -C proj_cm33_s $@
 
-config_bt bt-configurator config_lin lin-configurator config_audio-fe audio-fe-configurator config_ml :
+config_bt bt-configurator config_lin lin-configurator config_ml secure-policy-configurator :
 	$(error $@ configurator cannot be executed at the application level. Run this command from the desired project directory.)
 
-.PHONY: bsp-assistant config_bt bt-configurator capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager config_lin lin-configurator qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator config_audio-fe audio-fe-configurator edge-protect-configurator config_ml power-conversion-configurator
+.PHONY: bsp-assistant config_bt bt-configurator capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager config_lin lin-configurator qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator config_ml secure-policy-configurator edge-protect-configurator

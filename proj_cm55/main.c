@@ -50,35 +50,34 @@
 #include "task.h"
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
+#include "cy_time.h"
 
 #include "lvgl.h"
-#include "lv_qrcode.h"
-
-#include "display_driver/mtb_display_st7701s.h"
+#include "ui.h"
+#if defined(MTB_DISPLAY_WS7P0DSI_RPI)
+#include "mtb_disp_ws7p0dsi_drv.h"
+#elif defined(MTB_DISPLAY_EK79007AD3)
+#include "mtb_display_ek79007ad3.h"
+#elif defined(MTB_DISPLAY_W4P3INCH_RPI)
+#include "mtb_disp_dsi_waveshare_4p3.h"
+#elif defined(MTB_DISPLAY_R4INCH_TFT)
+#include "mtb_display_st7701s.h"
+#endif
 
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
 #include "demos/lv_demos.h"
-#include "ui/ui.h"
-#include "ipc_communication.h"
-#include "app_common.h"
-#include "thermostat_events.h"
-#include "comm_manager.h"
-#include "app_audio.h"
-#include "app_eeprom.h"
+
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#define CM55_APP_DELAY_MS           (50U)
-#define RESET_VAL                   (0U)
-
 #define GPU_INT_PRIORITY                    (3U)
 #define DC_INT_PRIORITY                     (3U)
 
 #define GFX_TASK_NAME                       ("CM55 Gfx Task")
 /* stack size in words */
-#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 32)
+#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 16)
 
 #define GFX_TASK_PRIORITY                   (configMAX_PRIORITIES - 1)
 
@@ -86,9 +85,21 @@
 /* 64 KB */
 #define DEFAULT_GPU_CMD_BUFFER_SIZE         ((64U) * (1024U))
 
-#define DISP_H                              (512U)
+#if defined(MTB_DISPLAY_W4P3INCH_RPI)
+#define DISP_H                              (480U)
+#define DISP_W                              (832U)
+#elif defined(MTB_DISPLAY_EK79007AD3) || defined(MTB_DISPLAY_WS7P0DSI_RPI)
+#define DISP_H                              (600U)
+#define DISP_W                              (1024U)
+#elif defined(MTB_DISPLAY_R4INCH_TFT)
+#define DISP_H                              (480U)
 #define DISP_W                              (512U)
-
+#define DISP_RESET_PORT      GPIO_PRT16
+#define DISP_RESET_PIN       (6U)
+#define PWM_GPIO
+#define BACKLIGHT_PORT						 GPIO_PRT20
+#define BACKLIGHT_PIN 						(6U)
+#endif
 #define GPU_TESSELLATION_BUFFER_SIZE        ((DISP_H) * 128U)
 
 #define VGLITE_HEAP_SIZE                    (((DEFAULT_GPU_CMD_BUFFER_SIZE) * \
@@ -113,23 +124,10 @@
 #define TCPWM_TIMER_INT_PRIORITY            (1U)
 #endif
 
-#define DISP_RESET_PORT      GPIO_PRT16
-#define DISP_RESET_PIN       (6U)
 
-#define DISP_TEST_PORT      GPIO_PRT11
-#define DISP_TEST_PIN      (1U)
-#define PWM_GPIO
-#define BACKLIGHT_PORT						 GPIO_PRT20
-#define BACKLIGHT_PIN 						(6U)
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
-static bool cm55_pipe2_msg_received = false;
-static ipc_msg_t *ipc_recv_msg;
-
-static volatile uint32_t msg_val = RESET_VAL;
-static volatile uint32_t msg_cmd = RESET_VAL;
-
 /* Heap memory for VGLite to allocate memory for buffers, command, and
  * tessellation buffers 
  */
@@ -155,17 +153,31 @@ cy_stc_sysint_t gpu_irq_cfg =
 
 cy_stc_scb_i2c_context_t disp_touch_i2c_controller_context;
 
+#if defined(MTB_DISPLAY_R4INCH_TFT)
 cy_stc_sysint_t disp_touch_i2c_controller_irq_cfg =
 {
-    .intrSrc      = CYBSP_I2C_CONTROLLER_11_IRQ,
+    .intrSrc      = CYBSP_I2C_CONTROLLER_2_IRQ,
     .intrPriority = I2C_CONTROLLER_IRQ_PRIORITY,
 };
+#else
+cy_stc_sysint_t disp_touch_i2c_controller_irq_cfg =
+{
+    .intrSrc      = CYBSP_I2C_CONTROLLER_IRQ,
+    .intrPriority = I2C_CONTROLLER_IRQ_PRIORITY,
+};
+#endif
 
-
+#if defined(MTB_DISPLAY_EK79007AD3)
+mtb_display_ek79007ad3_pin_config_t ek79007ad3_pin_cfg =
+{
+    .reset_port = CYBSP_DISP_RST_PORT,
+    .reset_pin  = CYBSP_DISP_RST_PIN,
+};
+#elif defined(MTB_DISPLAY_R4INCH_TFT)
 mtb_display_st7701s_pin_config_t st7701s_pin_cfg =
 {
-		.reset_port = DISP_RESET_PORT,
-		.reset_pin  = DISP_RESET_PIN,
+    .reset_port = CYBSP_DISP_RST_PORT,
+    .reset_pin  = CYBSP_DISP_RST_PIN,
 };
 
 mtb_display_st7701s_backlight_config_t st7701s_pwm_cfg =
@@ -173,16 +185,16 @@ mtb_display_st7701s_backlight_config_t st7701s_pwm_cfg =
 	.bl_port = 0 ,
 	.bl_pin = 0 ,
 	.pwm_hw = TCPWM0 ,
-	.pwm_num = CYBSP_TCPWM_0_GRP_1_PWM_5_NUM ,
-	.pwm_config = &CYBSP_TCPWM_0_GRP_1_PWM_5_config,
+	.pwm_num = CYBSP_PWM_DISP_BACKLIGHT_NUM ,
+	.pwm_config = &CYBSP_PWM_DISP_BACKLIGHT_config,
 };
+#endif
 
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
-
-lv_obj_t *label;
 uint8_t brightness_level = 100;
-audio_level_t audio_level = AUDIO_MED;
+/* RTC HAL object */
+static mtb_hal_rtc_t rtc_obj;
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 /*******************************************************************************
@@ -202,20 +214,20 @@ audio_level_t audio_level = AUDIO_MED;
 void setup_run_time_stats_timer(void)
 {
     /* Initialze TCPWM block with required timer configuration */
-    if (CY_TCPWM_SUCCESS != Cy_TCPWM_Counter_Init(CYBSP_TCPWM_0_GRP_0_COUNTER_0_HW, 
-        CYBSP_TCPWM_0_GRP_0_COUNTER_0_NUM, 
-        &CYBSP_TCPWM_0_GRP_0_COUNTER_0_config))
+    if (CY_TCPWM_SUCCESS != Cy_TCPWM_Counter_Init(CYBSP_GENERAL_PURPOSE_TIMER_HW, 
+        CYBSP_GENERAL_PURPOSE_TIMER_NUM, 
+        &CYBSP_GENERAL_PURPOSE_TIMER_config))
     {
         handle_app_error();
     }
 
     /* Enable the initialized counter */
-    Cy_TCPWM_Counter_Enable(CYBSP_TCPWM_0_GRP_0_COUNTER_0_HW, 
-                            CYBSP_TCPWM_0_GRP_0_COUNTER_0_NUM);
+    Cy_TCPWM_Counter_Enable(CYBSP_GENERAL_PURPOSE_TIMER_HW, 
+                            CYBSP_GENERAL_PURPOSE_TIMER_NUM);
 
     /* Start the counter */
-    Cy_TCPWM_TriggerStart_Single(CYBSP_TCPWM_0_GRP_0_COUNTER_0_HW, 
-                                 CYBSP_TCPWM_0_GRP_0_COUNTER_0_NUM);
+    Cy_TCPWM_TriggerStart_Single(CYBSP_GENERAL_PURPOSE_TIMER_HW, 
+                                 CYBSP_GENERAL_PURPOSE_TIMER_NUM);
 }
 
 
@@ -235,8 +247,8 @@ void setup_run_time_stats_timer(void)
 *******************************************************************************/
 uint32_t get_run_time_counter_value(void)
 {
-   return (Cy_TCPWM_Counter_GetCounter(CYBSP_TCPWM_0_GRP_0_COUNTER_0_HW, 
-                                       CYBSP_TCPWM_0_GRP_0_COUNTER_0_NUM));
+   return (Cy_TCPWM_Counter_GetCounter(CYBSP_GENERAL_PURPOSE_TIMER_HW, 
+                                       CYBSP_GENERAL_PURPOSE_TIMER_NUM));
 }
 
 
@@ -278,35 +290,6 @@ uint32_t calculate_idle_percentage(void)
     return idle_percent;
 }
 #endif
-
-
-/*******************************************************************************
-* Function Name: cm33_msg_callback
-********************************************************************************
-* Summary:
-*  Callback function called when endpoint-2 (CM55) has received a message
-*
-* Parameters:
-*  msg_data: Message data received throuig IPC
-*
-* Return :
-*  void
-*
-*******************************************************************************/
-void cm55_msg_callback(uint32_t * msgData)
-{
-    if (msgData != NULL)
-    {
-        /* Cast the message received to the IPC structure */
-        ipc_recv_msg = (ipc_msg_t *) msgData;
-
-        /* Extract the command to be processed in the main loop */
-        msg_val = ipc_recv_msg->data;
-        msg_cmd = ipc_recv_msg->cmd;
-    }
-
-    cm55_pipe2_msg_received = true;
-}
 
 /*******************************************************************************
 * Function Name: lptimer_interrupt_handler
@@ -468,7 +451,11 @@ static void gpu_irq_handler(void)
 *******************************************************************************/
 static void disp_touch_i2c_controller_interrupt(void)
 {
-    Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_11_HW, &disp_touch_i2c_controller_context);
+#if defined(MTB_DISPLAY_R4INCH_TFT)
+    Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_2_HW, &disp_touch_i2c_controller_context);
+#else
+	Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_HW, &disp_touch_i2c_controller_context);
+#endif
 }
 
 
@@ -498,29 +485,43 @@ static void disp_touch_i2c_controller_interrupt(void)
 static void cm55_gfx_task(void *arg)
 {
     CY_UNUSED_PARAMETER(arg);
-    static bool boot_config = true;
+
+    uint32_t time_till_next = 0;
 
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
     vg_lite_error_t vglite_status = VG_LITE_SUCCESS;
 
-    /* LVGL's timer handler variable. */
-    uint32_t time_till_next = 0;
-
+#if defined(MTB_DISPLAY_WS7P0DSI_RPI)
+    cy_rslt_t status = CY_RSLT_SUCCESS;
+#elif defined(MTB_DISPLAY_EK79007AD3) || defined(MTB_DISPLAY_R4INCH_TFT)
     cy_en_mipidsi_status_t mipi_status = CY_MIPIDSI_SUCCESS;
+#endif
+
     cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
+
+    /* GFXSS init */
+    /* MIPI-DSI Display specific configs */
+#if defined(MTB_DISPLAY_WS7P0DSI_RPI)
+    GFXSS_config.mipi_dsi_cfg = &mtb_disp_ws7p0dsi_dsi_config;
+#elif defined(MTB_DISPLAY_EK79007AD3)
+    GFXSS_config.mipi_dsi_cfg = &mtb_display_ek79007ad3_mipidsi_config;
+#elif defined(MTB_DISPLAY_W4P3INCH_RPI)
+    GFXSS_config.mipi_dsi_cfg = &mtb_disp_waveshare_4p3_dsi_config;
+#endif
 
     /* Set frame buffer address to the GFXSS configuration structure */
     GFXSS_config.dc_cfg->gfx_layer_config->buffer_address    = frame_buffer1;
     GFXSS_config.dc_cfg->gfx_layer_config->uv_buffer_address = frame_buffer1;
+
+//    GFXSS_config.dc_cfg->gfx_layer_config->width = DISP_W;
+//    GFXSS_config.dc_cfg->gfx_layer_config->height = DISP_H;
 
     /* Initialize Graphics subsystem as per the configuration */
     gfx_status = Cy_GFXSS_Init(GFXSS, &GFXSS_config, &gfx_context);
 
     if (CY_GFX_SUCCESS == gfx_status)
     {
-        /* Prevent CPU to go to DeepSleep */
-        mtb_hal_syspm_lock_deepsleep();
 
         /* Initialize GFXSS DC interrupt */
         sysint_status = Cy_SysInt_Init(&dc_irq_cfg, dc_irq_handler);
@@ -528,7 +529,7 @@ static void cm55_gfx_task(void *arg)
         if (CY_SYSINT_SUCCESS != sysint_status)
         {
             printf("Error in registering DC interrupt: %d\r\n", sysint_status);
-            CY_ASSERT(0);
+            handle_app_error();
         }
 
         /* Enable GFX DC interrupt in NVIC. */
@@ -540,7 +541,7 @@ static void cm55_gfx_task(void *arg)
         if (CY_SYSINT_SUCCESS != sysint_status)
         {
             printf("Error in registering GPU interrupt: %d\r\n", sysint_status);
-            CY_ASSERT(0);
+            handle_app_error();
         }
  
         /* Enable GPU interrupt */
@@ -548,15 +549,19 @@ static void cm55_gfx_task(void *arg)
 
         /* Enable GFX GPU interrupt in NVIC. */
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
-
+#if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Initialize the I2C in controller mode. */
-        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_11_HW,
-                    &CYBSP_I2C_CONTROLLER_11_config, &disp_touch_i2c_controller_context);
+        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
+                    &CYBSP_I2C_CONTROLLER_2_config, &disp_touch_i2c_controller_context);
+#else
+        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW,
+                    &CYBSP_I2C_CONTROLLER_config, &disp_touch_i2c_controller_context);
+#endif
 
         if (CY_SCB_I2C_SUCCESS != i2c_result)
         {
             printf("I2C controller initialization failed !!\n");
-            CY_ASSERT(0);
+            handle_app_error();
         }
 
         /* Initialize the I2C interrupt */
@@ -566,28 +571,25 @@ static void cm55_gfx_task(void *arg)
         if (CY_SYSINT_SUCCESS != sysint_status)
         {
             printf("I2C controller interrupt initialization failed\r\n");
-            CY_ASSERT(0);
+            handle_app_error();
         }
 
         /* Enable the I2C interrupts. */
         NVIC_EnableIRQ(disp_touch_i2c_controller_irq_cfg.intrSrc);
 
+#if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Enable the I2C */
-        Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_11_HW);
+        Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_2_HW);
+#else
+        /* Enable the I2C */
+        Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
+#endif
 
+        vTaskDelay(pdMS_TO_TICKS(500));
 
-        Cy_GPIO_Pin_FastInit(DISP_TEST_PORT,DISP_TEST_PIN ,
-                                    CY_GPIO_DM_STRONG_IN_OFF, 0, HSIOM_SEL_GPIO);
-
-        Cy_SysLib_Delay(120);
-        mipi_status = mtb_display_st7701s_init(GFXSS_GFXSS_MIPIDSI,&st7701s_pin_cfg);
-
-        // GFXSS_GFXSS_MIPIDSI->DWCMIPIDSI.VID_MODE_CFG |= ENABLE_LOW_POWER_CMD;
-        // GFXSS_GFXSS_MIPIDSI->DWCMIPIDSI.VID_MODE_CFG &= ~ ENABLE_LOW_POWER_CMD;
-
-        // mipi_status = mtb_display_st7701s_init(GFXSS_GFXSS_MIPIDSI,
-        // 		                                  &st7701s_pin_cfg);
-        Cy_GPIO_Write(DISP_TEST_PORT, DISP_TEST_PIN, 0);
+#if defined(MTB_DISPLAY_R4INCH_TFT)
+		/* Initialize the R4INCH display */
+		mipi_status =  mtb_display_st7701s_init(GFXSS_GFXSS_MIPIDSI,&st7701s_pin_cfg);
         if(CY_MIPIDSI_SUCCESS != mipi_status)
         {
             printf("st7701s 4-inch display init failed with status = %d\r\n", mipi_status);
@@ -602,8 +604,7 @@ static void cm55_gfx_task(void *arg)
             CY_ASSERT(0);
         }
         mtb_display_st7701s_set_brightness(brightness_level);
-
-    
+#endif
         /* Allocate memory for VGLite from the vglite_heap_base */
         vg_module_parameters_t vg_params;
         vg_params.register_mem_base = (uint32_t)GFXSS_GFXSS_GPU_GCNANO;
@@ -626,9 +627,8 @@ static void cm55_gfx_task(void *arg)
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
-            //lv_demo_music();
             ui_demo_init();
-            
+
         }
         else
         {
@@ -636,173 +636,46 @@ static void cm55_gfx_task(void *arg)
 
             /* Deallocate all the resources and free up all the memory */
             vg_lite_close();
-            CY_ASSERT(0);
+            handle_app_error();
         }
     }
     else
     {
         printf("Graphics subsystem init failed, status: %d\r\n", gfx_status);
-        CY_ASSERT(0);
+        handle_app_error();
     }
 
     for (;;)
     {
-        if(cm55_pipe2_msg_received)
-        {
-        	/* If device in Idle State, load Active screen */
-        	lv_obj_t *current_screen = lv_scr_act();
-        	if(current_screen == ui_LPScreen)
-        	{
-                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
-                app_state = APP_ST_ACTIVE;
-        		start_inactivity_timer();
-        	}
-
-			switch (msg_cmd) {
-			case IPC_CMD_SET_UID:
-				printf("Rx UID: %s\n", ipc_recv_msg->unique_id);
-				memcpy(device_unique_id, ipc_recv_msg->unique_id, 13);
-				update_device_config_ipc();
-				break;
-
-			case IPC_CMD_DEVICE_CONFIG:
-				update_device_config_ipc();
-				break;
-
-			case IPC_CMD_SET_DISPLAY_BRIGHTNESS:
-				update_display_brightness(msg_val);
-				break;
-
-			case IPC_CMD_SET_AUDIO_LEVEL:
-				update_thermostat_volume((audio_level_t)msg_val);
-				break;
-
-			case IPC_CMD_SET_TEMP_UNIT:
-				update_system_unit((system_unit_t)msg_val);
-				update_device_config_ipc();
-				break;
-
-			case IPC_CMD_UPDATE_CONN_STATE:
-			{
-				switch((device_connection_state_t)msg_val) {
-				case DEV_ST_BLE_ADVERTISING:
-				case DEV_ST_WIFI_CONNECTING:
-					stop_active_state_timer();
-					update_device_connection_state((device_connection_state_t)msg_val);
-					break;
-
-				case DEV_ST_UNPROVISIONED:
-				case DEV_ST_CLOUD_DISCONNECTED:
-				case DEV_ST_WIFI_DISCONNECTED:
-					update_device_connection_state((device_connection_state_t)msg_val);
-		    		start_inactivity_timer();
-					break;
-
-					break;
-
-				case DEV_ST_CLOUD_CONNECTING:
-				case DEV_ST_WIFI_CONNECTED:
-				case DEV_ST_BLE_CONNECTED:
-					update_device_connection_state((device_connection_state_t)msg_val);
-					break;
-
-				case DEV_ST_CLOUD_CONNECTED:
-					update_device_connection_state((device_connection_state_t)msg_val);
-					request_uid_ipc();
-		    		start_inactivity_timer();
-					break;
-
-				default:
-					break;
-				}
-				break;
-			}
-			case IPC_CMD_SET_FAN_SPEED:
-				{
-					update_fan_mode((fan_speed_t)msg_val);
-					current_settings.thermostat_setting.fan_mode = (fan_speed_t)msg_val;
-					update_current_device_setting();
-					break;
-				}
-			case IPC_CMD_SET_THERMOSTAT_MODE:
-			{
-				update_thermostat_mode((thermostat_mode_t)msg_val);
-				current_settings.thermostat_setting.mode = (thermostat_mode_t)msg_val;
-				current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
-				update_thermostat_mode_timer();
-				update_current_device_setting();
-				break;
-			}
-			case IPC_CMD_SET_TARGET_TEMP:
-			{
-				update_device_temp((uint8_t)msg_val);
-				break;
-			}
-			case IPC_CMD_CURRENT_EVENT:
-			{
-				char pin[7] = {0};
-				snprintf(pin, sizeof(pin), "%lu", (unsigned long)msg_val);
-				if(msg_val > 1)
-				{
-					display_ble_pairing_window(0,pin);
-				}
-				else
-				{
-					display_ble_pairing_window(1,pin);
-				}
-				break;
-			}
-
-			case IPC_CMD_GET_CURRENT_TEMP:
-				update_current_temp_ipc(get_current_temperature());
-				break;
-
-			case IPC_CMD_GET_DISPLAY_BRIGHTNESS:
-				update_brightness_ipc(get_current_brigthness());
-				break;
-
-			case IPC_CMD_GET_FAN_SPEED:
-				update_fan_speed_ipc(get_current_fan_mode());
-				break;
-
-			case IPC_CMD_GET_THERMOSTAT_MODE:
-				update_device_mode_ipc(get_current_device_mode());
-				break;
-
-			default:
-				break;
-			}
-			cm55_pipe2_msg_received = false;
-        }
         /* LVGL's timer handler function, to be called periodically to handle
          * LVGL tasks.
          */
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
-        
-    	if(boot_config)
-    	{
-    		load_thermostat_config(current_settings.thermostat_setting.mode);
-    		boot_config = false;
-    	}
-
-    	/* If eeprom write operation pending */
-    	if(eeprom_wr_setting)
-    	{
-    		device_settings_t settings = {0};
-    		get_current_device_setting(&settings);
-    		app_eeprom_write(&settings);
-    	}
-
-    	/* If touch event detected restart the inactivity timer */
-    	if(true == touch_detected)
-    	{
-    		touch_detected = false;
-    		start_inactivity_timer();
-    	}
-
-    	app_speaker_clear();
     }
+}
+
+/*******************************************************************************
+* Function Name: setup_clib_support
+********************************************************************************
+* Summary:
+*    1. This function configures and initializes the Real-Time Clock (RTC)).
+*    2. It then initializes the RTC HAL object to enable CLIB support library 
+*       to work with the provided Real-Time Clock (RTC) module.
+*
+* Parameters:
+*  void
+*
+* Return:
+*  void
+*
+*******************************************************************************/
+static void setup_clib_support(void)
+{
+    /* RTC Initialization is done in CM33 non-secure project */
+
+    /* Initialize the ModusToolbox CLIB support library */
+    mtb_clib_support_init(&rtc_obj);
 }
 
 /*******************************************************************************
@@ -826,7 +699,6 @@ int main(void)
 {
     cy_rslt_t result       = CY_RSLT_SUCCESS;
     BaseType_t task_return = pdFAIL;
-    cy_en_ipc_pipe_status_t pipeStatus;
 
     /* Initialize the device and board peripherals */
     result = cybsp_init();
@@ -837,60 +709,31 @@ int main(void)
         handle_app_error();
     }
 
-    /* Enable global interrupts */
-    __enable_irq();
-    
+    /* Setup CLIB support library. */
+    setup_clib_support();
     /* Setup the LPTimer instance for CM55 */
     setup_tickless_idle_timer();
 
     /* Initialize retarget-io middleware */
     init_retarget_io();
 
-    /* Setup IPC communication for CM55*/
-    cm55_ipc_communication_setup();
-
-    Cy_SysLib_Delay(CM55_APP_DELAY_MS);
-
-    /* Register a callback function to handle events on the CM55 IPC pipe */
-    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM55_IPC_PIPE_EP_ADDR, &cm55_msg_callback,
-                                                      (uint32_t)CM55_IPC_PIPE_CLIENT_ID);
-
-    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
-    {
-        handle_app_error();
-    }
-
-    /* Initialize Speaker */
-    app_speaker_init();
-
-    /* Initialize Emulated EEPROM */
-    app_eeprom_init();
-
-    /* Read configuration from Emulated EEPROM */
-    device_settings_t rd_settings = {0};
-    app_eeprom_read(&rd_settings);
-
-    if(rd_settings.is_available != true) {
-
-        device_settings_t settings = {0};
-
-    	/* Load default configuration */
-        get_default_device_setting(&settings);
-        settings.is_available = true;
-
-        app_eeprom_write(&settings);
-    	set_current_device_setting(&rd_settings);
-
-    } else {
-    	set_current_device_setting(&rd_settings);
-    }
+    /* Enable global interrupts */
+    __enable_irq();
 
     /* Create the FreeRTOS Task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
                               GFX_TASK_STACK_SIZE, NULL,
                               GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
+
+    /* ANSI ESC sequence for clear screen */
+    printf("\x1b[2J\x1b[;H");
+
     if (pdPASS == task_return)
     {
+        printf("****************** "
+               "PSOC Edge MCU: Graphics LVGL Demo "
+               "****************** \r\n\n");
+
         /* Start the RTOS Scheduler */
         vTaskStartScheduler();
 

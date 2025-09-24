@@ -252,3 +252,5 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_vg_lite_img(lv_draw_unit_t * draw_unit, const
  **********************/
 
 #endif /*LV_USE_DRAW_VG_LITE*/
+
+/* [] END OF FILE */

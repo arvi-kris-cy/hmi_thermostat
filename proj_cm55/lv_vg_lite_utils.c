@@ -1249,3 +1249,5 @@ static void image_dsc_free_cb(void * dsc, void * user_data)
 }
 
 #endif /*LV_USE_DRAW_VG_LITE*/
+
+/* [] END OF FILE */

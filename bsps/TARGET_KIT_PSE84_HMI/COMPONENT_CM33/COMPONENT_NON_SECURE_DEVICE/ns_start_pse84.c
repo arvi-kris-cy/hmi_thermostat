@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "cy_device_headers.h"
-#include "startup_cat1d.h"
-#include "system_cat1d.h"
+#include "startup_edge.h"
+#include "system_edge.h"
 #include "cy_sysint.h"
 #include "cy_syspm.h"
 #include "cy_syslib.h"
@@ -71,6 +71,9 @@ ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(
 extern unsigned int CSTACK$$Limit;                      /* for (default) One Region model */
 extern unsigned int CSTACK$$Base;
 extern void  __cmain();
+// IAR (and C-SPY debugger) expect that the vector table is defined as __vector_table, so alias the definition upon compilation.
+// If the alias is not done, IAR includes its own default __vector_table definition in the compilation.
+#define __ns_vector_table __vector_table
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".intvec_ram"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #else
     #error "An unsupported toolchain"

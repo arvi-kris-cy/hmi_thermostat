@@ -56,6 +56,19 @@ VERBOSE=
 #
 COMPONENTS+=FREERTOS RTOS_AWARE  
 
+ifeq ($(CONFIG_DISPLAY), R4INCH_DISP)
+DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_P4100TP
+# Ignore unused 10.1-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-tft-ek79007ad3)
+CY_IGNORE += $(SEARCH_touch-ctp-ili2511)
+# Ignore unused 7-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-dsi-waveshare-7-0-lcd-c)
+CY_IGNORE += $(SEARCH_touch-ctp-gt911)
+# Ignore unused 4.3-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-dsi-waveshare-4-3-lcd)
+CY_IGNORE += $(SEARCH_touch-ctp-ft5406)
+endif
+
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
 
@@ -66,17 +79,11 @@ CORE_NAME=CM55_0
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=
-# By default the build system automatically looks in the Makefile's directory
-# tree for source code and builds it. The SOURCES variable can be used to
-# manually add source code to the build process from a location not searched
-# by default, or otherwise not found by the build system.
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
 SOURCES+=$(wildcard ../shared/source/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-
 INCLUDES+=../shared/include
 INCLUDES+=app/include
 INCLUDES+=app_i2s
@@ -86,8 +93,11 @@ DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE
 
 
 # Ignore unused LVGL middleware files from compilation
-CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_vg_lite_utils.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite_img.c
-CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/helium $(SEARCH_lvgl)/src/draw/sw/blend/neon 
+CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests
+CY_IGNORE += $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples 
+CY_IGNORE += $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_vg_lite_utils.c
+CY_IGNORE += $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite_img.c $(SEARCH_lvgl)/src/draw/sw/blend/helium
+CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/neon $(SEARCH_lvgl)/src/core/lv_refr.c 
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=
@@ -147,11 +157,5 @@ CY_GETLIBS_SHARED_PATH=../..
 # Directory name of the shared repo location.
 #
 CY_GETLIBS_SHARED_NAME=mtb_shared
-
-# Absolute path to the compiler's "bin" directory.
-#
-# The default depends on the selected TOOLCHAIN (GCC_ARM uses the ModusToolbox
-# software provided compiler by default).
-CY_COMPILER_PATH?=
 
 include $(CY_TOOLS_DIR)/make/start.mk

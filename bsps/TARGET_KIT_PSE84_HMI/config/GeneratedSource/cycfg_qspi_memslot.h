@@ -4,7 +4,7 @@
  * Description:
  * Provides declarations of the SMIF-driver memory configuration.
  * This file was automatically generated and should not be modified.
- * QSPI Configurator 4.50.0.2481
+ * QSPI Configurator 4.60.0.2742
  *
  *******************************************************************************
  * Copyright 2025 Cypress Semiconductor Corporation (an Infineon company) or
@@ -28,7 +28,7 @@
 #define CYCFG_QSPI_MEMSLOT_H
 #include "cy_smif_memslot.h"
 
-#define CY_SMIF_CFG_TOOL_VERSION           (450)
+#define CY_SMIF_CFG_TOOL_VERSION           (460)
 
 /* Supported QSPI Driver version */
 #define CY_SMIF_DRV_VERSION_REQUIRED       (100)

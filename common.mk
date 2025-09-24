@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,10 +33,10 @@ TARGET=KIT_PSE84_HMI
 
 # Name of toolchain to use. Options include:
 #
-# GCC_ARM   -- GCC provided with ModusToolbox software
-# ARM       -- ARM Compiler (must be installed separately)
-# IAR       -- IAR Compiler (must be installed separately)
-# LLVM_ARM  -- LLVM Embedded Toolchain (must be installed separately)
+# GCC_ARM 	-- GCC is available as part of ModusToolbox Setup program
+# ARM     	-- ARM Compiler (must be installed separately)
+# IAR     	-- IAR Compiler (must be installed separately)
+# LLVM_ARM	-- LLVM Embedded Toolchain (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
 TOOLCHAIN=GCC_ARM
@@ -47,23 +47,27 @@ TOOLCHAIN=GCC_ARM
 # Release -- build with full optimizations
 # Custom -- build with custom configuration, set the optimization flag in CFLAGS
 # 
-# If CONFIG is manually edited, ensure to update or regenerate  
+# If CONFIG is manually edited, ensure to update or regenerate 
 # launch configurations for your IDE.
 CONFIG=Debug
-
 
 ############################# Display module ###################################
 # Option to choose the display module to realize the graphics application.
 # Select one of them as per the required use-case.
-# WF101JTYAHMNB0_DISP	- 10.1 inch 1024 * 600 pixel TFT DSI LCD and it's touch
+# WF101JTYAHMNB0_DISP	- 10.1 inch 1024*600 pixel TFT DSI LCD and it's touch
 #                         driver.
-# WS7P0DSI_RPI_DISP     - Waveshare 7 inch Raspberry-Pi DSI LCD (C) 1024 * 600 pixel
-#                         display and it's touch driver.
+# WS7P0DSI_RPI_DISP     - Waveshare 7 inch Raspberry-Pi DSI LCD (C) 1024*600 pixel
+#
+# W4P3INCH_DISP	- Waveshare 4.3 inch Raspberry-Pi DSI LCD 800*480 pixel
 # Ex:
 #   CONFIG_DISPLAY = WF101JTYAHMNB0_DISP
 #   or
 #   CONFIG_DISPLAY = WS7P0DSI_RPI_DISP
-#CONFIG_DISPLAY = WS7P0DSI_RPI_DISP
+#   or
+#   CONFIG_DISPLAY = W4P3INCH_DISP
+#   or
+#   CONFIG_DISPLAY = R4INCH_DISP
+CONFIG_DISPLAY = R4INCH_DISP
 
 ################################################################################
 # Advanced Configuration
@@ -81,12 +85,7 @@ CONFIG=Debug
 #
 COMPONENTS+=GFXSS
 
-# Remap the System SRAM (SOCMEM) to accomodate graphics frame buffers in it
-ifeq ($(filter GFXSS,$(COMPONENTS)),GFXSS)
-DEFINES+=APP_SOCMEMSRAM_CM55NS_APP_SIZE=0x00060800  # 386 KB 
-DEFINES+=APP_SOCMEMSRAM_GPUBUF_SIZE=0x00300000      # 3.5 MB 
-DEFINES+=APP_SOCMEMSRAM_SHARED_SIZE=0x0001F800      # 126 KB 
-endif
-
+# NOTE: Check the JSON file for the command parameters
+COMBINE_SIGN_JSON?=configs/boot_with_extended_boot.json
 
 include ../common_app.mk

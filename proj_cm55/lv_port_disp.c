@@ -93,6 +93,7 @@ static void LV_ATTRIBUTE_FAST_MEM disp_flush(lv_display_t *disp_drv, const lv_ar
         /* Inform the graphics library that you are ready with the flushing */
         lv_display_flush_ready(disp_drv);
     }
+
 }
 
 

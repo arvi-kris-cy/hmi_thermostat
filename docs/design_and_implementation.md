@@ -1,31 +1,34 @@
 [Click here](../README.md) to view the README.
 
-## Design and implementation <TODO>
+## Design and implementation
 
-The design of this application is kept straightforward to help the user get started with code examples on PSOC&trade; Edge MCU devices. All PSOC&trade; Edge E84 MCU applications have a dual-CPU three-project structure to develop code for the CM33 and CM55 cores. The CM33 core has two separate projects for the Secure Processing Environment (SPE) and Non-secure Processing Environment (NSPE). A project folder consists of various subfolders – each denoting a specific aspect of the project. The three project folders are as follows:
+This project supports three displays :
 
-**Table 1. Application Projects**
+   **[Waveshare 4.3-inch Raspberry Pi DSI LCD display](https://www.waveshare.com/4.3inch-DSI-LCD.htm):** The LCD houses a Chipone ICN6211 display controller and uses the MIPI DSI interface
+
+   **[Waveshare 7-inch Raspberry Pi DSI LCD C display](https://www.waveshare.com/7inch-dsi-lcd-c.htm)**: The LCD houses a Chipone ICN6211 display controller and uses the MIPI DSI interface
+
+   **[10.1 inch WF101JTYAHMNB0](https://www.winstar.com.tw/products/tft-lcd/ips-tft/ips-touch.html):** The TFT LCD houses a [EK79007AD3](https://www.crystalfontz.com/controllers/Fitipower/EK79007AD3/505/) display controller and uses the MIPI DSI interface. This display is supported by default
+
+The design of this application is minimalistic to get started with code examples on PSOC&trade; Edge MCU devices. All PSOC&trade; Edge E84 MCU applications have a dual-CPU three-project structure to develop code for the CM33 and CM55 cores. The CM33 core has two separate projects for the secure processing environment (SPE) and non-secure processing environment (NSPE). A project folder consists of various subfolders, each denoting a specific aspect of the project. The three project folders are as follows:
+
+**Table 1. Application projects**
 
 Project | Description
 --------|------------------------
-proj_cm33_s | Project for CM33 Secure Processing Environment (SPE)
-proj_cm33_ns | Project for CM33 Non-secure Processing Environment (NSPE)
-proj_cm55 | CM55 Project
+*proj_cm33_s* | Project for CM33 secure processing environment (SPE)
+*proj_cm33_ns* | Project for CM33 non-secure processing environment (NSPE)
+*proj_cm55* | CM55 project
 
-In this code example, at device reset, the secured boot process starts from the ROM boot with the Secured Enclave as the Root of Trust. From the Secured Enclave, the boot flow is passed on to the System CPU Subsystem where the secure CM33 application is first started. After all necessary secure configurations, the flow is passed on to the non-secure CM33 application. Resource initialization for this example is performed by this CM33 non-secure project. It configures the system clocks, pins, clock to peripheral connections, and other platform resources. It then enables the CM55 core using the Cy_SysEnableCM55() function and the CM55 core is subsequently put to deepsleep.
+<br>
 
-This example implements three RTOS tasks: MQTT client, publisher, and subscriber. The main function initializes the BSP and the retarget-io library, and creates the MQTT client task.
+In this code example, at device reset, the secure boot process starts from the ROM boot with the secure enclave (SE) as the root of trust (RoT). From the secure enclave, the boot flow is passed on to the system CPU subsystem where the secure CM33 application starts. After all necessary secure configurations, the flow is passed on to the non-secure CM33 application. Resource initialization for this example is performed by this CM33 non-secure project. It configures the system clocks, pins, clock to peripheral connections, and other platform resources. It then enables the CM55 core using the `Cy_SysEnableCM55()` function and the CM33 core is subsequently put to Deep Sleep mode.
 
-The MQTT client task initializes the Wi-Fi connection manager (WCM) and connects to a Wi-Fi access point (AP) using the Wi-Fi network credentials that are configured in *wifi_config.h*. Upon a successful Wi-Fi connection, the task initializes the MQTT library and establishes a connection with the MQTT broker/server.
+The CM55 application drives the LCD and renders the image using the PSOC&trade; Edge graphics subsystem, which houses an independent 2.5D GPU, a display controller (DC), and a MIPI DSI host controller with a MIPI D-PHY physical layer interface.
 
-The MQTT connection is configured to be secure by default; the secure connection requires a client certificate, a private key, and the Root CA certificate of the MQTT broker that are configured in *mqtt_client_config.h*.
+**cm55_gfx_task** initializes the Graphics subsystem and configures the DC and GPU interrupts. After that it initializes the LCD panel based on selection through _<application\>/proj_cm55/Makefile_. Once the panel is initialized, the required amount of memory is allocated for VGLite draw/blit functions to be consumed by LVGL library. The `lv_init()` function is used to initialize LVGL and set up the essential components required for LVGL to work correctly. The display and touch drivers are initialized using `lv_port_disp_init()` and `lv_port_indev_init()` functions, respectively. The LVGL demo music player is displayed on the display by calling the LVGL demo widget API `lv_demo_music()`. In order to switch to other available LVGL demos, user need to enable the `LV_USE_DEMO_<demo_name>` macro in `lv_conf.h` file and call the corresponding `lv_demo_<demo_name>()` API in place of `lv_demo_music()`.
 
-After a successful MQTT connection, the subscriber and publisher tasks are created. The MQTT client task then waits for commands from the other two tasks and callbacks to handle events like unexpected disconnections.
-
-The subscriber task initializes the user LED GPIO and subscribes to messages on the topic specified by the `MQTT_SUB_TOPIC` macro that can be configured in *mqtt_client_config.h*. When the subscriber task receives a message from the broker, it turns the user LED ON or OFF depending on whether the received message is "TURN ON" or "TURN OFF" (configured using the `MQTT_DEVICE_ON_MESSAGE` and `MQTT_DEVICE_OFF_MESSAGE` macros).
-
-The publisher task sets up the user button GPIO and configures an interrupt for the button. The ISR notifies the Publisher task upon a button press. The publisher task then publishes messages (*TURN ON* / *TURN OFF*) on the topic specified by the `MQTT_PUB_TOPIC` macro. When the publish operation fails, a message is sent over a queue to the MQTT client task.
-
-An MQTT event callback function `mqtt_event_callback()` invoked by the MQTT library for events like MQTT disconnection and incoming MQTT subscription messages from the MQTT broker. In the case of an MQTT disconnection, the MQTT client task is informed about the disconnection using a message queue. When an MQTT subscription message is received, the subscriber callback function implemented in *subscriber_task.c* is invoked to handle the incoming MQTT message.
-
-The MQTT client task handles unexpected disconnections in the MQTT or Wi-Fi connections by initiating reconnection to restore the Wi-Fi and/or MQTT connections. Upon failure, the publisher and subscriber tasks are deleted, cleanup operations of various libraries are performed, and then the MQTT client task is terminated.
+This application allows user to evaluate the performance of PSOC&trade; Edge's graphics subsystem using the built-in system monitor component of LVGL. In order to enable the system monitor component, user needs to perform the following steps:
+   1. Set `LV_USE_SYSMON` in `lv_conf.h`
+   2. Set `configGENERATE_RUN_TIME_STATS` in `FreeRTOSConfig.h`
+   3. Build and program the application and observe the performance data (FPS, CPU usage) in bottom-right corner of the display

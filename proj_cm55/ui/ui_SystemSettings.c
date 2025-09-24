@@ -82,7 +82,7 @@ void ui_event_tempunitswitch(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        set_system_unit(e);
+        //set_system_unit(e);
     }
 }
 
@@ -91,7 +91,7 @@ void ui_event_timeoutdropdown(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        change_idle_timeout(e);
+        //change_idle_timeout(e);
     }
 }
 
@@ -100,7 +100,7 @@ void ui_event_confirmbtn(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        device_factory_reset(e);
+        //device_factory_reset(e);
     }
     if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_factoryresetcontianer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);

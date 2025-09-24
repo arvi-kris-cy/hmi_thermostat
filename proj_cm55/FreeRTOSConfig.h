@@ -102,16 +102,23 @@ extern uint32_t SystemCoreClock;
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS           0
+#define configGENERATE_RUN_TIME_STATS           1
 #define configUSE_TRACE_FACILITY                1
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
-extern void setup_run_time_stats_timer(void);
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() setup_run_time_stats_timer()
-extern uint32_t get_run_time_counter_value(void);
-#define portGET_RUN_TIME_COUNTER_VALUE() get_run_time_counter_value()
-#endif
+    #ifndef RUN_TIME_STATS_PROTOTYPES_ADDED
+    #define RUN_TIME_STATS_PROTOTYPES_ADDED
+        /* Skip C-only declarations when assembling */
+        #ifndef __IASMARM__
+            extern void setup_run_time_stats_timer(void);
+            #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() setup_run_time_stats_timer()
+            extern uint32_t get_run_time_counter_value(void);
+            #define portGET_RUN_TIME_COUNTER_VALUE() get_run_time_counter_value()
+        #endif /* __IASMARM__ */
+    #endif /* RUN_TIME_STATS_PROTOTYPES_ADDED */
+#endif /* configGENERATE_RUN_TIME_STATS */
+
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0

@@ -4,71 +4,86 @@
 # the next time 'make getlibs' is run.
 #
 # List of local libraries
-SEARCH_lvgl=./libs/lvgl
+SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
 
 
 # Path to the current BSP
 SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
-SEARCH_display-dsi-waveshare-7-0-lcd-c=../../mtb_shared/display-dsi-waveshare-7-0-lcd-c/release-v0.6.0
-SEARCH_display-tft-ek79007ad3=../../mtb_shared/display-tft-ek79007ad3/release-v0.6.0
+SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/release-v1.0.0
+SEARCH_display-dsi-waveshare-7-0-lcd-c=../../mtb_shared/display-dsi-waveshare-7-0-lcd-c/release-v1.0.0
+SEARCH_display-tft-ek79007ad3=../../mtb_shared/display-tft-ek79007ad3/release-v1.0.0
 SEARCH_emeeprom=../../mtb_shared/emeeprom/release-v2.60.0
-SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.290
-SEARCH_lvgl=./libs/lvgl
-SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v2.0.200
-SEARCH_touch-ctp-gt911=../../mtb_shared/touch-ctp-gt911/release-v0.6.0
-SEARCH_touch-ctp-ili2511=../../mtb_shared/touch-ctp-ili2511/release-v0.6.0
-SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.200
-SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.200
-SEARCH_block-storage=../../mtb_shared/block-storage/release-v1.2.201
-SEARCH_bt-fw-ifx-cyw55500a1=../../mtb_shared/bt-fw-ifx-cyw55500a1/release-v2.2.0
-SEARCH_clib-support=../../mtb_shared/clib-support/release-v2.0.200
-SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.200
-SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.4.200
-SEARCH_core-make=../../mtb_shared/core-make/release-v3.6.100
-SEARCH_mtb-device-support-pse8xxgp=../../mtb_shared/mtb-device-support-pse8xxgp/release-v1.0.200
+SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.2
+SEARCH_lvgl=../../mtb_shared/lvgl/release-v9.2.0
+SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
+SEARCH_touch-ctp-ft5406=../../mtb_shared/touch-ctp-ft5406/release-v1.0.0
+SEARCH_touch-ctp-gt911=../../mtb_shared/touch-ctp-gt911/release-v1.0.0
+SEARCH_touch-ctp-ili2511=../../mtb_shared/touch-ctp-ili2511/release-v1.0.0
+SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.0
+SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
+SEARCH_block-storage=../../mtb_shared/block-storage/release-v1.3.1
+SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
+SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.7.0
+SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
+SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
+SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
+SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.0.0
+SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.0.0
+SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
+SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
 
 # Search libraries added to build
+SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-4-3-lcd)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-7-0-lcd-c)
 SEARCH_MTB_MK+=$(SEARCH_display-tft-ek79007ad3)
 SEARCH_MTB_MK+=$(SEARCH_emeeprom)
 SEARCH_MTB_MK+=$(SEARCH_freertos)
 SEARCH_MTB_MK+=$(SEARCH_lvgl)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
+SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ft5406)
 SEARCH_MTB_MK+=$(SEARCH_touch-ctp-gt911)
 SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ili2511)
 SEARCH_MTB_MK+=$(SEARCH_abstraction-rtos)
 SEARCH_MTB_MK+=$(SEARCH_async-transfer)
 SEARCH_MTB_MK+=$(SEARCH_block-storage)
-SEARCH_MTB_MK+=$(SEARCH_bt-fw-ifx-cyw55500a1)
+SEARCH_MTB_MK+=$(SEARCH_bt-fw-mur-cyw55513)
 SEARCH_MTB_MK+=$(SEARCH_clib-support)
 SEARCH_MTB_MK+=$(SEARCH_cmsis)
 SEARCH_MTB_MK+=$(SEARCH_core-lib)
 SEARCH_MTB_MK+=$(SEARCH_core-make)
-SEARCH_MTB_MK+=$(SEARCH_mtb-device-support-pse8xxgp)
+SEARCH_MTB_MK+=$(SEARCH_mtb-dsl-pse8xxgp)
+SEARCH_MTB_MK+=$(SEARCH_mtb-ipc)
+SEARCH_MTB_MK+=$(SEARCH_mtb-srf)
+SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
 
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
+COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_4_3_LCD
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_7_0_LCD_C
 COMPONENTS += MW_DISPLAY_TFT_EK79007AD3
 COMPONENTS += MW_EMEEPROM
 COMPONENTS += MW_FREERTOS
 COMPONENTS += MW_LVGL
 COMPONENTS += MW_RETARGET_IO
+COMPONENTS += MW_TOUCH_CTP_FT5406
 COMPONENTS += MW_TOUCH_CTP_GT911
 COMPONENTS += MW_TOUCH_CTP_ILI2511
 COMPONENTS += MW_ABSTRACTION_RTOS
 COMPONENTS += MW_ASYNC_TRANSFER
 COMPONENTS += MW_BLOCK_STORAGE
-COMPONENTS += MW_BT_FW_IFX_CYW55500A1
+COMPONENTS += MW_BT_FW_MUR_CYW55513
 COMPONENTS += MW_CLIB_SUPPORT
 COMPONENTS += MW_CMSIS
 COMPONENTS += MW_CORE_LIB
 COMPONENTS += MW_CORE_MAKE
-COMPONENTS += MW_MTB_DEVICE_SUPPORT_PSE8XXGP
+COMPONENTS += MW_MTB_DSL_PSE8XXGP
+COMPONENTS += MW_MTB_IPC
+COMPONENTS += MW_MTB_SRF
+COMPONENTS += MW_SE_RT_SERVICES_UTILS
 
 # Register map file
-DEVICE_PSE846GPS2DBZC4A_SVD=$(SEARCH_mtb-device-support-pse8xxgp)/pdl/svd/pse84.svd
+DEVICE_PSE846GPS2DBZC4A_SVD=$(SEARCH_mtb-dsl-pse8xxgp)/pdl/svd/pse84.svd
 
 
 #
@@ -79,8 +94,8 @@ bsp-assistant:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bsp-assistant
 .PHONY: bsp-assistant
 
-CY_HELP_bsp-assistant=Launches the BSP Assistant 1.40 GUI
-CY_HELP_bsp-assistant_VERBOSE=Launches the BSP Assistant 1.40 GUI. Check the BSP Assistant 1.40 User Guide for more information.
+CY_HELP_bsp-assistant=Launches the BSP Assistant 1.50 GUI
+CY_HELP_bsp-assistant_VERBOSE=Launches the BSP Assistant 1.50 GUI. Check the BSP Assistant 1.50 User Guide for more information.
 mtb_help_tool_bsp-assistant:
 	@:
 	$(info $(MTB__SPACE)bsp-assistant       $(CY_HELP_bsp-assistant))
@@ -93,8 +108,8 @@ config_bt:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bt-configurator
 .PHONY: config_bt
 
-CY_HELP_config_bt=Launches the Bluetooth® Configurator 3.30 GUI for the target's cybt file
-CY_HELP_config_bt_VERBOSE=Launches the Bluetooth® Configurator 3.30 GUI. Check the Bluetooth® Configurator 3.30 User Guide for more information.
+CY_HELP_config_bt=Launches the Bluetooth® Configurator 3.40 GUI for the target's cybt file
+CY_HELP_config_bt_VERBOSE=Launches the Bluetooth® Configurator 3.40 GUI. Check the Bluetooth® Configurator 3.40 User Guide for more information.
 mtb_help_tool_config_bt:
 	@:
 	$(info $(MTB__SPACE)config_bt           $(CY_HELP_config_bt))
@@ -107,8 +122,8 @@ bt-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bt-configurator
 .PHONY: bt-configurator
 
-CY_HELP_bt-configurator=Launches the Bluetooth® Configurator 3.30 GUI for the target's cybt file
-CY_HELP_bt-configurator_VERBOSE=Launches the Bluetooth® Configurator 3.30 GUI. Check the Bluetooth® Configurator 3.30 User Guide for more information.
+CY_HELP_bt-configurator=Launches the Bluetooth® Configurator 3.40 GUI for the target's cybt file
+CY_HELP_bt-configurator_VERBOSE=Launches the Bluetooth® Configurator 3.40 GUI. Check the Bluetooth® Configurator 3.40 User Guide for more information.
 mtb_help_tool_bt-configurator:
 	@:
 	$(info $(MTB__SPACE)bt-configurator     $(CY_HELP_bt-configurator))
@@ -121,8 +136,8 @@ config:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name device-configurator
 .PHONY: config
 
-CY_HELP_config=Launches the Device Configurator 5.30 GUI for the target's modus file
-CY_HELP_config_VERBOSE=Launches the Device Configurator 5.30 GUI. Check the Device Configurator 5.30 User Guide for more information.
+CY_HELP_config=Launches the Device Configurator 5.50 GUI for the target's modus file
+CY_HELP_config_VERBOSE=Launches the Device Configurator 5.50 GUI. Check the Device Configurator 5.50 User Guide for more information.
 mtb_help_tool_config:
 	@:
 	$(info $(MTB__SPACE)config              $(CY_HELP_config))
@@ -135,8 +150,8 @@ device-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name device-configurator
 .PHONY: device-configurator
 
-CY_HELP_device-configurator=Launches the Device Configurator 5.30 GUI for the target's modus file
-CY_HELP_device-configurator_VERBOSE=Launches the Device Configurator 5.30 GUI. Check the Device Configurator 5.30 User Guide for more information.
+CY_HELP_device-configurator=Launches the Device Configurator 5.50 GUI for the target's modus file
+CY_HELP_device-configurator_VERBOSE=Launches the Device Configurator 5.50 GUI. Check the Device Configurator 5.50 User Guide for more information.
 mtb_help_tool_device-configurator:
 	@:
 	$(info $(MTB__SPACE)device-configurator $(CY_HELP_device-configurator))
@@ -149,8 +164,8 @@ modlibs:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name library-manager
 .PHONY: modlibs
 
-CY_HELP_modlibs=Launches the Library Manager 2.40 GUI
-CY_HELP_modlibs_VERBOSE=Launches the Library Manager 2.40 GUI. Check the Library Manager 2.40 User Guide for more information.
+CY_HELP_modlibs=Launches the Library Manager 2.50 GUI
+CY_HELP_modlibs_VERBOSE=Launches the Library Manager 2.50 GUI. Check the Library Manager 2.50 User Guide for more information.
 mtb_help_tool_modlibs:
 	@:
 	$(info $(MTB__SPACE)modlibs             $(CY_HELP_modlibs))
@@ -163,8 +178,8 @@ library-manager:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name library-manager
 .PHONY: library-manager
 
-CY_HELP_library-manager=Launches the Library Manager 2.40 GUI
-CY_HELP_library-manager_VERBOSE=Launches the Library Manager 2.40 GUI. Check the Library Manager 2.40 User Guide for more information.
+CY_HELP_library-manager=Launches the Library Manager 2.50 GUI
+CY_HELP_library-manager_VERBOSE=Launches the Library Manager 2.50 GUI. Check the Library Manager 2.50 User Guide for more information.
 mtb_help_tool_library-manager:
 	@:
 	$(info $(MTB__SPACE)library-manager     $(CY_HELP_library-manager))
@@ -177,8 +192,8 @@ qspi-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name qspi-configurator
 .PHONY: qspi-configurator
 
-CY_HELP_qspi-configurator=Launches the QSPI Configurator 4.50 GUI for the target's cyqspi file
-CY_HELP_qspi-configurator_VERBOSE=Launches the QSPI Configurator 4.50 GUI. Check the QSPI Configurator 4.50 User Guide for more information.
+CY_HELP_qspi-configurator=Launches the QSPI Configurator 4.60 GUI for the target's cyqspi file
+CY_HELP_qspi-configurator_VERBOSE=Launches the QSPI Configurator 4.60 GUI. Check the QSPI Configurator 4.60 User Guide for more information.
 mtb_help_tool_qspi-configurator:
 	@:
 	$(info $(MTB__SPACE)qspi-configurator   $(CY_HELP_qspi-configurator))
@@ -191,8 +206,8 @@ smartio-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name smartio-configurator
 .PHONY: smartio-configurator
 
-CY_HELP_smartio-configurator=Launches the Smart I/O Configurator 4.40 GUI for the target's modus file
-CY_HELP_smartio-configurator_VERBOSE=Launches the Smart I/O Configurator 4.40 GUI. Check the Smart I/O Configurator 4.40 User Guide for more information.
+CY_HELP_smartio-configurator=Launches the Smart I/O Configurator 4.50 GUI for the target's modus file
+CY_HELP_smartio-configurator_VERBOSE=Launches the Smart I/O Configurator 4.50 GUI. Check the Smart I/O Configurator 4.50 User Guide for more information.
 mtb_help_tool_smartio-configurator:
 	@:
 	$(info $(MTB__SPACE)smartio-configurator $(CY_HELP_smartio-configurator))
@@ -200,48 +215,6 @@ mtb_help_tool_smartio-configurator:
 mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
-
-config_audio-fe:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
-.PHONY: config_audio-fe
-
-CY_HELP_config_audio-fe=Launches the Audio FE Configurator 1.40 GUI for the target's mtbafe file
-CY_HELP_config_audio-fe_VERBOSE=Launches the Audio FE Configurator 1.40 GUI. Check the Audio FE Configurator 1.40 User Guide for more information.
-mtb_help_tool_config_audio-fe:
-	@:
-	$(info $(MTB__SPACE)config_audio-fe     $(CY_HELP_config_audio-fe))
-
-mtb_help_tools_end: mtb_help_tool_config_audio-fe
-mtb_help_tool_config_audio-fe: mtb_help_tools_start
-.PHONY: mtb_help_tool_config_audio-fe
-
-audio-fe-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
-.PHONY: audio-fe-configurator
-
-CY_HELP_audio-fe-configurator=Launches the Audio FE Configurator 1.40 GUI for the target's mtbafe file
-CY_HELP_audio-fe-configurator_VERBOSE=Launches the Audio FE Configurator 1.40 GUI. Check the Audio FE Configurator 1.40 User Guide for more information.
-mtb_help_tool_audio-fe-configurator:
-	@:
-	$(info $(MTB__SPACE)audio-fe-configurator $(CY_HELP_audio-fe-configurator))
-
-mtb_help_tools_end: mtb_help_tool_audio-fe-configurator
-mtb_help_tool_audio-fe-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_audio-fe-configurator
-
-edge-protect-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator
-.PHONY: edge-protect-configurator
-
-CY_HELP_edge-protect-configurator=Launches the Edge Protect Configurator 1.10 GUI for the target's edgeprotect file
-CY_HELP_edge-protect-configurator_VERBOSE=Launches the Edge Protect Configurator 1.10 GUI. Check the Edge Protect Configurator 1.10 User Guide for more information.
-mtb_help_tool_edge-protect-configurator:
-	@:
-	$(info $(MTB__SPACE)edge-protect-configurator $(CY_HELP_edge-protect-configurator))
-
-mtb_help_tools_end: mtb_help_tool_edge-protect-configurator
-mtb_help_tool_edge-protect-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_edge-protect-configurator
 
 config_ml:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
@@ -270,5 +243,19 @@ mtb_help_tool_ml-configurator:
 mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
+
+edge-protect-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator
+.PHONY: edge-protect-configurator
+
+CY_HELP_edge-protect-configurator=Launches the Edge Protect Configurator 1.20 GUI for the target's edgeprotect file
+CY_HELP_edge-protect-configurator_VERBOSE=Launches the Edge Protect Configurator 1.20 GUI. Check the Edge Protect Configurator 1.20 User Guide for more information.
+mtb_help_tool_edge-protect-configurator:
+	@:
+	$(info $(MTB__SPACE)edge-protect-configurator $(CY_HELP_edge-protect-configurator))
+
+mtb_help_tools_end: mtb_help_tool_edge-protect-configurator
+mtb_help_tool_edge-protect-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_edge-protect-configurator
 
 .PHONY: mtb_help_tools_start mtb_help_tools_end

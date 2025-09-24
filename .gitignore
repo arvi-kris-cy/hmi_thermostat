@@ -8,13 +8,13 @@
 # code into a VCS, you can ignore the .gitignore file.
 
 # ModusToolbox library repos or information about library dependencies
-# libs/
+libs/
 
 # Uncomment below line if you don't want to lock the library versions for your application
 # assetlocks.json
 
 # ModusToolbox Configurator generated code and lock file
-# GeneratedSource/
+GeneratedSource/
 *.lock
 .mtbqueryapi
 
@@ -26,6 +26,9 @@ build/
 Debug/
 Release/
 *_build/
+
+# Ninja build artefacts
+.ninja_*
 
 # Eclipse IDE for ModusToolbox files. Comment those files if you want to track them
 .metadata/
@@ -147,16 +150,3 @@ Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 [Dd]esktop.ini
-
-!/build/
-/build/project_hex
-/build/*
-!/build/app_combined.hex
-
-proj_cm33_ns/.cache/
-proj_cm33_ns/.cache/
-proj_cm33_ns/.cache/
-proj_cm33_ns/.ninja_log
-proj_cm33_s/.ninja_log
-proj_cm55/.ninja_log
-*.lnk

@@ -4,9 +4,9 @@
  * Description:
  * DMA configuration
  * This file was automatically generated and should not be modified.
- * Configurator Backend 3.50.0
- * device-db 4.5.30.8214
- * mtb-device-support-pse8xxgp 1.0.200.195
+ * Configurator Backend 3.60.0
+ * device-db 4.29.0.9102
+ * mtb-dsl-pse8xxgp 1.0.0.744
  *
  *******************************************************************************
  * Copyright 2025 Cypress Semiconductor Corporation (an Infineon company) or
@@ -28,7 +28,7 @@
 
 #include "cycfg_dmas.h"
 
-const cy_stc_dma_descriptor_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0_config =
+const cy_stc_dma_descriptor_config_t CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0_config =
 {
     .retrigger = CY_DMA_RETRIG_IM,
     .interruptType = CY_DMA_DESCR,
@@ -47,9 +47,9 @@ const cy_stc_dma_descriptor_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descript
     .srcYincrement = 0,
     .dstYincrement = 0,
     .yCount = 1,
-    .nextDescriptor = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0,
+    .nextDescriptor = &CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0,
 };
-cy_stc_dma_descriptor_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0 =
+CY_SECTION(".cy_socmem_data") CY_ALIGN(8) cy_stc_dma_descriptor_t CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0 =
 {
     .ctl = 0UL,
     .src = 0UL,
@@ -58,15 +58,15 @@ cy_stc_dma_descriptor_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0 =
     .yCtl = 0UL,
     .nextPtr = 0UL,
 };
-const cy_stc_dma_channel_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_channelConfig =
+const cy_stc_dma_channel_config_t CYBSP_DMA_TX_SPI_CONTROLLER_channelConfig =
 {
-    .descriptor = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0,
+    .descriptor = &CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0,
     .preemptable = false,
     .priority = 3,
     .enable = false,
     .bufferable = false,
 };
-const cy_stc_dma_crc_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_crcConfig =
+const cy_stc_dma_crc_config_t CYBSP_DMA_TX_SPI_CONTROLLER_crcConfig =
 {
     .dataReverse = false,
     .dataXor = 0,
@@ -75,34 +75,12 @@ const cy_stc_dma_crc_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_crcConfig =
     .polynomial = 79764919,
 };
 
-#if defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE)
-const cyhal_resource_inst_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_obj =
-{
-    .type = CYHAL_RSC_DW,
-    .block_num = 0U,
-    .channel_num = CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_CHANNEL,
-};
-const cyhal_dma_configurator_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_hal_config =
-{
-    .resource = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_obj,
-    .dw_channel_config = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_channelConfig,
-    .dw_descriptor_config = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0_config,
-};
-#endif /* defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE) */
-
 #if defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_DMA)
-const mtb_hal_dma_configurator_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_hal_config =
+const mtb_hal_dma_configurator_t CYBSP_DMA_TX_SPI_CONTROLLER_hal_config =
 {
     .dma_type = MTB_HAL_DMA_DW,
-    .channel = CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_CHANNEL,
-    .dw_base = CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_HW,
-    .dw_descriptor = &CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0,
+    .channel = CYBSP_DMA_TX_SPI_CONTROLLER_CHANNEL,
+    .dw_base = CYBSP_DMA_TX_SPI_CONTROLLER_HW,
+    .dw_descriptor = &CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0,
 };
 #endif /* defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_DMA) */
-
-void reserve_cycfg_dmas(void)
-{
-#if defined (CY_USING_HAL)
-    cyhal_hwmgr_reserve(&CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_obj);
-#endif /* defined (CY_USING_HAL) */
-}

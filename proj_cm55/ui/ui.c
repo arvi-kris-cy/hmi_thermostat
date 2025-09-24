@@ -756,10 +756,10 @@ void ui_init(void)
 
 void switch_to_LPScreen_cb(lv_timer_t * timer)
 {
-	lv_disp_load_scr(ui_ActiveScreen);
+    lv_disp_load_scr(ui_LPScreen);
     lv_timer_del(timer);  // optional
 //    start_active_state_timer(10000);
-    start_inactivity_timer();
+//    start_inactivity_timer();
 }
 
 void ui_demo_init(void)

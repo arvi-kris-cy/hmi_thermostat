@@ -4,7 +4,7 @@
 
 #include "ui/ui_events.h"
 #include "ui/ui.h"
-#include "display_driver/mtb_display_st7701s.h"
+#include "display-tft-st7701s/mtb_display_st7701s.h"
 #include "app_common.h"
 
 typedef enum {
@@ -81,3 +81,5 @@ void update_current_device_setting(void);
 void device_factory_reset(lv_event_t * e);
 void update_device_config_ipc(void);
 void start_inactivity_timer(void);
+void show_presence_icon_and_update_label(uint8_t person_count);
+void hide_presence_icon(void);

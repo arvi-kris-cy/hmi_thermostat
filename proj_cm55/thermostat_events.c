@@ -1888,7 +1888,7 @@ static void set_volume(audio_level_t level)
     	app_speaker_audio_lvl_ctrl(AUDIO_LVL_HIGH);
     	break;
     }
-
+    uint8_t audio_level;
     audio_level = level;
     current_settings.audio.level = level;
     update_current_device_setting();
@@ -1897,7 +1897,7 @@ static void set_volume(audio_level_t level)
 void change_volume(lv_event_t * e){
 	audio_level_t level = lv_dropdown_get_selected(ui_audoleveldropdown);
     printf("Selected Volume:%d\n", level);
-    set_volume(level);
+    //set_volume(level);
     update_audio_level_ipc(level);
 	dev_info.preferences.audio_level = level;
 }

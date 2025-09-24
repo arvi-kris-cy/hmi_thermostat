@@ -4,9 +4,9 @@
  * Description:
  * DMA configuration
  * This file was automatically generated and should not be modified.
- * Configurator Backend 3.50.0
- * device-db 4.5.30.8214
- * mtb-device-support-pse8xxgp 1.0.200.195
+ * Configurator Backend 3.60.0
+ * device-db 4.29.0.9102
+ * mtb-dsl-pse8xxgp 1.0.0.744
  *
  *******************************************************************************
  * Copyright 2025 Cypress Semiconductor Corporation (an Infineon company) or
@@ -32,14 +32,6 @@
 #include "cycfg_notices.h"
 #include "cy_dma.h"
 
-#if defined (CY_USING_HAL)
-#include "cyhal_hwmgr.h"
-#endif /* defined (CY_USING_HAL) */
-
-#if defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE)
-#include "cyhal_dma.h"
-#endif /* defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE) */
-
 #if defined (COMPONENT_MTB_HAL)
 #include "mtb_hal.h"
 #endif /* defined (COMPONENT_MTB_HAL) */
@@ -48,26 +40,19 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
-#define CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_ENABLED 1U
-#define CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_HW DW0
-#define CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_CHANNEL 1U
-#define CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_IRQ cpuss_interrupts_dw0_1_IRQn
+#define CYBSP_DMA_TX_SPI_CONTROLLER_ENABLED 1U
+#define CYBSP_DMA_TX_SPI_CONTROLLER_HW DW0
+#define CYBSP_DMA_TX_SPI_CONTROLLER_CHANNEL 1U
+#define CYBSP_DMA_TX_SPI_CONTROLLER_IRQ cpuss_interrupts_dw0_1_IRQn
 
-extern const cy_stc_dma_descriptor_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0_config;
-extern cy_stc_dma_descriptor_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_Descriptor_0;
-extern const cy_stc_dma_channel_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_channelConfig;
-extern const cy_stc_dma_crc_config_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_crcConfig;
-
-#if defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE)
-extern const cyhal_resource_inst_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_obj;
-extern const cyhal_dma_configurator_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_hal_config;
-#endif /* defined (CY_USING_HAL) || defined (CY_USING_HAL_LITE) */
+extern const cy_stc_dma_descriptor_config_t CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0_config;
+extern CY_SECTION(".cy_socmem_data") CY_ALIGN(8) cy_stc_dma_descriptor_t CYBSP_DMA_TX_SPI_CONTROLLER_Descriptor_0;
+extern const cy_stc_dma_channel_config_t CYBSP_DMA_TX_SPI_CONTROLLER_channelConfig;
+extern const cy_stc_dma_crc_config_t CYBSP_DMA_TX_SPI_CONTROLLER_crcConfig;
 
 #if defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_DMA)
-extern const mtb_hal_dma_configurator_t CYBSP_SPI_CONTROLLER_TX_DMA_0_CH_1_hal_config;
+extern const mtb_hal_dma_configurator_t CYBSP_DMA_TX_SPI_CONTROLLER_hal_config;
 #endif /* defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_DMA) */
-
-void reserve_cycfg_dmas(void);
 
 #if defined(__cplusplus)
 }

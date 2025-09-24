@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include "cy_syslib.h"
 #include "cy_device_headers.h"
-#include "startup_cat1d.h"
+#include "startup_edge.h"
 #include "partition_ARMCM33.h"
 CY_MISRA_FP_BLOCK_START('MISRA C-2012 Rule 8.6', 3, \
 'Checked manually. The definition is a part of linker script or application.')
@@ -47,6 +47,9 @@ void S_InterruptHandler(void);
     ExecFuncPtrRw __s_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".ram_vectors"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined (__ICCARM__)
     extern void  __cmain();
+    // IAR (and C-SPY debugger) expect that the vector table is defined as __vector_table, so alias the definition upon compilation.
+    // If the alias is not done, IAR includes its own default __vector_table definition in the compilation.
+    #define __s_vector_table __vector_table
     ExecFuncPtrRw __s_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".intvec_ram"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #else
     #error "An unsupported toolchain"
@@ -377,6 +380,18 @@ ExecFuncPtr __s_vector_table[] __VECTOR_TABLE_ATTRIBUTE = {
     (ExecFuncPtr)S_InterruptHandler
 };
 
+#define DEAD_LOOP() \
+    do {\
+        __ASM volatile("1: wfi \n"\
+            "           b 1b \n"\
+            "           b 1b \n"\
+            "           b 1b \n"\
+            "           b 1b \n"\
+            "           b 1b \n"\
+            "           b 1b \n"\
+            "           b 1b");\
+    } while (true)
+
 // Reset Handler
 void S_Reset_Handler(void)
 {
@@ -393,15 +408,50 @@ void S_Reset_Handler(void)
 
     __disable_irq();
 
+    uint32_t reverse_count = VECTORTABLE_SIZE;
+
+    /* Fill vector table in SRAM in the secure way */
     for (uint32_t count = 0; count < VECTORTABLE_SIZE; count++)
     {
-        __s_vector_table_rw[count] =__s_vector_table[count];
+        __s_vector_table_rw[count] = __s_vector_table[VECTORTABLE_SIZE - reverse_count];
+
+        /* Detect Fault Injections for loop counters */
+        if ((count + reverse_count) != VECTORTABLE_SIZE)
+        {
+            DEAD_LOOP();
+        }
+
+        /* Detect Fault Injections for vector table values */
+        if ( __s_vector_table_rw[VECTORTABLE_SIZE - reverse_count] != __s_vector_table[count])
+        {
+            DEAD_LOOP();
+        }
+
+        /* Decrement reverse count */
+        reverse_count--;
     }
 
+    /* Make sure the compiler will not optimize the final loop */
+    __COMPILER_BARRIER();
+
+    /* Set to vector table address in SRAM. Change VTOR register securely. */
     SCB->VTOR = (uint32_t)__s_vector_table_rw;
     __DMB();
 
+    /* Detect Fault Injection */
+    if ((uint32_t)__s_vector_table_rw != SCB->VTOR)
+    {
+        DEAD_LOOP();
+    }
+
     __set_MSPLIM((uint32_t)(&__STACK_LIMIT));
+    __DMB();
+
+    /* Detect Fault Injection */
+    if ((uint32_t)(&__STACK_LIMIT) != __get_MSPLIM())
+    {
+        DEAD_LOOP();
+    }
 
     SystemInit();
 

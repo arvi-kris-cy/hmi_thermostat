@@ -3,15 +3,14 @@
 // LVGL version: 9.1.0
 // Project name: SquareLine_Project
 
-#include "../ui.h"
+#include "ui.h"
 
 lv_obj_t * ui_BootScreen;
 lv_obj_t * ui_bootcontainer1;
 lv_obj_t * ui_bootupimg;
 lv_obj_t * ui_bootlabel;
-
 // event funtions
-
+static void anim_set_opa_cb(void * obj, int32_t opa);
 // build funtions
 
 void ui_BootScreen_screen_init(void)
@@ -44,13 +43,16 @@ void ui_BootScreen_screen_init(void)
     lv_anim_init(&fade_in);
     lv_anim_set_var(&fade_in, ui_bootupimg);
     lv_anim_set_values(&fade_in, LV_OPA_TRANSP, LV_OPA_COVER);  // 0 → 255
-    lv_anim_set_time(&fade_in, 3500); // 4 seconds
-    lv_anim_set_exec_cb(&fade_in, (lv_anim_exec_xcb_t)lv_obj_set_style_opa);
+    lv_anim_set_time(&fade_in, 3000); // 4 seconds
+    lv_anim_set_exec_cb(&fade_in,anim_set_opa_cb);
     lv_anim_set_path_cb(&fade_in, lv_anim_path_ease_in); // optional smooth fade
     lv_anim_start(&fade_in);
 
+}
 
-
+void anim_set_opa_cb(void * obj, int32_t opa)
+{
+    lv_obj_set_style_opa((lv_obj_t *)obj, opa, LV_PART_MAIN);
 }
 
 void ui_BootScreen_screen_destroy(void)

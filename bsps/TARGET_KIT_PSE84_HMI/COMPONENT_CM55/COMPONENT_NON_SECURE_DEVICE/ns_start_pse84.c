@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "startup_cat1d.h"
+#include "startup_edge.h"
 #include "cy_sysint.h"
 #include "cy_syspm.h"
 #include "cy_syslib.h"
@@ -31,8 +31,8 @@ extern uint32_t Region$$Table$$Limit;
 typedef  void(*pGenericFunction)(uint8_t *pSrc, uint8_t* pDst, uint32_t len);     /* typedef for the generic function pointers */
 #endif
 
-#define CY_SYSINT_EWIC_CTL            (0xE0047000U)   /**< EWIC control register */
-#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U)          /**< EWIC enable mask */
+#define CY_SYSINT_EWIC_CTL            (0xE0047000U)	  /**< EWIC control register */
+#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U) 		  /**< EWIC enable mask */
 
 __WEAK void Reset_Handler(void);
 void MemManage_Handler(void);
@@ -59,23 +59,23 @@ void Cy_RuntimeInit(void);
 extern void _start(void);
 extern unsigned int __stack;
 extern uint32_t __stack_limit;
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".ram_vectors"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined(__ARMCC_VERSION)
 extern unsigned int Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern unsigned int Image$$ARM_LIB_STACK$$ZI$$Base;
 extern void __main(void);
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE] __attribute__( ( section(".bss.noinit.RESET_RAM"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined (__GNUC__)
 extern unsigned int __StackTop;
 extern uint32_t __StackLimit;
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".ram_vectors"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined (__ICCARM__)
 extern unsigned int CSTACK$$Limit;
 extern unsigned int CSTACK$$Base;
 extern void  __cmain();
+// IAR (and C-SPY debugger) expect that the vector table is defined as __vector_table, so alias the definition upon compilation.
+// If the alias is not done, IAR includes its own default __vector_table definition in the compilation.
+#define __ns_vector_table __vector_table
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".intvec_ram"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #else
     #error "An unsupported toolchain"
@@ -413,43 +413,6 @@ ExecFuncPtr __ns_vector_table[] __VECTOR_TABLE_ATTRIBUTE = {
     (ExecFuncPtr)InterruptHandler
 };
 
-#define MPU_SRAM1_SHARED_MEM_REG_ID     0x1
-#define MPU_SRAM1_SHARED_MEM_ATTR_IDX   0x1
-
-#define MPU_SOCMEM_SHARED_MEM_REG_ID     0x2
-#define MPU_SOCMEM_SHARED_MEM_ATTR_IDX   0x2
-
-#define MPU_GPU_BUF_MEM_ATTR_IDX        0x3
-#define MPU_GPU_BUF_MEM_REG_ID          0x3
-void config_noncacheable_region(void)
-{
-    ARM_MPU_Disable();
-
-    /* Program MAIR0 and MAIR1 */
-    ARM_MPU_SetMemAttr  (   MPU_SRAM1_SHARED_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_SRAM1_SHARED_MEM_REG_ID,
-                            ARM_MPU_RBAR(SRAM1_NS_SAHB_SHARED_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SRAM1_NS_SAHB_SHARED_START + SRAM1_SHARED_SIZE - 1UL), MPU_SRAM1_SHARED_MEM_ATTR_IDX));
-
-    /* socmem shared mem */
-    ARM_MPU_SetMemAttr  (   MPU_SOCMEM_SHARED_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_SOCMEM_SHARED_MEM_REG_ID,
-                            ARM_MPU_RBAR(SOCMEM_NS_SAHB_SHARED_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SOCMEM_NS_SAHB_SHARED_START + SOCMEM_SHARED_MEM_SIZE - 1UL), MPU_SOCMEM_SHARED_MEM_ATTR_IDX));
-    ARM_MPU_SetMemAttr  (   MPU_GPU_BUF_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_GPU_BUF_MEM_REG_ID,
-                            ARM_MPU_RBAR(SOCMEM_GPUBUF_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SOCMEM_GPUBUF_START + SOCMEM_GPUBUF_SIZE - 1UL), MPU_GPU_BUF_MEM_ATTR_IDX));
-
-    ARM_MPU_Enable(4);
-}
-
 #if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 /* GCC: newlib crt0 _start executes software_init_hook.
    The cy_toolchain_init hook provided by clib-support library must execute
@@ -499,8 +462,6 @@ __WEAK void Reset_Handler(void)
     *ptr |= (uint32_t)CY_SYSINT_EWIC_ENABLE_MSK;
 
     __disable_irq();
-
-    config_noncacheable_region();
 
     for (uint32_t count = 0; count < VECTORTABLE_SIZE; count++)
     {

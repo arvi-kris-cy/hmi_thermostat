@@ -6,6 +6,8 @@
 #include "ui.h"
 #include "thermostat_events.h"
 
+#define bg_color 0
+
 lv_obj_t * ui_ActiveScreen;
 lv_obj_t * ui_backgroundimage;
 lv_obj_t * ui_Container1;
@@ -708,14 +710,14 @@ void ui_ActiveScreen_screen_init(void)
     // lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-	#if 0 // use color gradient for bg 
+	#if (bg_color)
 	lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x18AB9B), LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_bg_main_stop(ui_ActiveScreen, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
-	#else // use image for bg
+	#else
 	ui_backgroundimage = lv_image_create(ui_ActiveScreen);
 	lv_image_set_src(ui_backgroundimage, &ui_img_background_png);
 	lv_obj_set_width(ui_backgroundimage, LV_SIZE_CONTENT);   /// 480
@@ -786,7 +788,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_x(ui_Dateactive, -143);
     lv_obj_set_y(ui_Dateactive, -204);
     lv_obj_set_align(ui_Dateactive, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Dateactive, "Wed 05 Mar");
+    lv_label_set_text(ui_Dateactive, "Wed 20 Aug");
     lv_obj_set_style_text_color(ui_Dateactive, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Dateactive, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Dateactive, &ui_font_sans30, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -36,7 +36,7 @@ uint8_t *eeprom_storage = (uint8_t *)CY_RRAM_ADDRESS;
 
 /* RAM arrays for holding EEPROM read and write data respectively. */
 uint8_t eeprom_read_array[LOGICAL_EEPROM_SIZE];
-uint8_t eeprom_write_array[LOGICAL_EEPROM_SIZE] = {'P', 'o', 'w', 'e', 'r', ' ', 'C', 'y', 'c', 'l', 'e', '#', ' ', '0', '0'};
+uint8_t eeprom_write_array[LOGICAL_EEPROM_SIZE] = {'P', 'o', 'w', 'e', 'r', '0', '0'};
 
 
 bool eeprom_wr_setting = false;

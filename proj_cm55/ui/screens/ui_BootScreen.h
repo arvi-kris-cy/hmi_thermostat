@@ -13,6 +13,8 @@ extern "C" {
 // SCREEN: ui_Screen1
 extern void ui_Screen1_screen_init(void);
 extern void ui_Screen1_screen_destroy(void);
+extern void ui_BootScreen_screen_init(void);
+extern void ui_BootScreen_screen_destroy(void);
 extern lv_obj_t * ui_BootScreen;
 extern lv_obj_t * ui_bootcontainer1;
 extern lv_obj_t * ui_bootupimg;
