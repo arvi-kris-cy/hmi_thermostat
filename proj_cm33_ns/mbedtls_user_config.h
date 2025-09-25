@@ -449,7 +449,7 @@
 /**
  * \def MBEDTLS_SSL_EXPORT_KEYS
  *
- * Enable support for exporting key block and master secret.
+ * Enable support for exporting key block and private secret key.
  * This is required for certain users of TLS, e.g. EAP-TLS.
  *
  * Comment this macro to disable support for key export
@@ -779,7 +779,7 @@
  * Module:  library/psa_crypto_storage.c
  *
  * Requires: MBEDTLS_PSA_CRYPTO_C,
- *           either MBEDTLS_PSA_ITS_FILE_C or a native implementation of
+ *           either MBEDTLS_PSA_ITS_FILE_C or a implementation of
  *           the PSA ITS interface
  */
 #undef MBEDTLS_PSA_CRYPTO_STORAGE_C

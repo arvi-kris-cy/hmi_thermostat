@@ -12,36 +12,36 @@
 *
 *
 *******************************************************************************
-* * Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
-* * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
-* *
-* * This software, including source code, documentation and related
-* * materials ("Software") is owned by Cypress Semiconductor Corporation
-* * or one of its affiliates ("Cypress") and is protected by and subject to
-* * worldwide patent protection (United States and foreign),
-* * United States copyright laws and international treaty provisions.
-* * Therefore, you may use this Software only as provided in the license
-* * agreement accompanying the software package from which you
-* * obtained this Software ("EULA").
-* * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
-* * non-transferable license to copy, modify, and compile the Software
-* * source code solely for use in connection with Cypress's
-* * integrated circuit products.  Any reproduction, modification, translation,
-* * compilation, or representation of this Software except as specified
-* * above is prohibited without the express written permission of Cypress.
-* *
-* * Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
-* * EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
-* * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
-* * reserves the right to make changes to the Software without notice. Cypress
-* * does not assume any liability arising out of the application or use of the
-* * Software or any product or circuit described in the Software. Cypress does
-* * not authorize its products for use in any products where a malfunction or
-* * failure of the Cypress product may reasonably be expected to result in
-* * significant property damage, injury or death ("High Risk Product"). By
-* * including Cypress's product in a High Risk Product, the manufacturer
-* * of such system or application assumes all risk of such use and in doing
-* * so agrees to indemnify Cypress against all liability.
+* Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
+* an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
+*
+* This software, including source code, documentation and related
+* materials ("Software") is owned by Cypress Semiconductor Corporation
+* or one of its affiliates ("Cypress") and is protected by and subject to
+* worldwide patent protection (United States and foreign),
+* United States copyright laws and international treaty provisions.
+* Therefore, you may use this Software only as provided in the license
+* agreement accompanying the software package from which you
+* obtained this Software ("EULA").
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
+* non-transferable license to copy, modify, and compile the Software
+* source code solely for use in connection with Cypress's
+* integrated circuit products.  Any reproduction, modification, translation,
+* compilation, or representation of this Software except as specified
+* above is prohibited without the express written permission of Cypress.
+*
+* Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
+* reserves the right to make changes to the Software without notice. Cypress
+* does not assume any liability arising out of the application or use of the
+* Software or any product or circuit described in the Software. Cypress does
+* not authorize its products for use in any products where a malfunction or
+* failure of the Cypress product may reasonably be expected to result in
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer
+* of such system or application assumes all risk of such use and in doing
+* so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 #include "cybsp.h"
 
@@ -55,6 +55,7 @@
 #include "publisher_task.h"
 
 /* Configuration file for Wi-Fi and MQTT client */
+#include "wifi_config.h"
 #include "mqtt_client_config.h"
 
 /* Middleware libraries */
@@ -67,10 +68,6 @@
 /* LwIP header files */
 #include "lwip/netif.h"
 #include "retarget_io_init.h"
-
-#include "wireless_manager.h"
-#include "mqtt/mqtt_command_handler.h"
-#include "wifi_task.h"
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -82,6 +79,14 @@
 /* Time in milliseconds to wait before creating the publisher task. */
 #define TASK_CREATION_DELAY_MS           (2000u)
 
+/* Flag Masks for tracking which cleanup functions must be called. */
+#define WCM_INITIALIZED                             (1lu << 0)
+#define WIFI_CONNECTED                              (1lu << 1)
+#define LIBS_INITIALIZED                            (1lu << 2)
+#define BUFFER_INITIALIZED                          (1lu << 3)
+#define MQTT_INSTANCE_CREATED                       (1lu << 4)
+#define MQTT_CONNECTION_SUCCESS                     (1lu << 5)
+#define MQTT_MSG_RECEIVED                           (1lu << 6)
 #define TIME_DIV_MS                                 (60000u)
 #define APP_SDIO_INTERRUPT_PRIORITY                 (7U)
 #define APP_HOST_WAKE_INTERRUPT_PRIORITY            (2U)
@@ -129,11 +134,32 @@ uint32_t status_flag;
  * receive operations.
  */
 uint8_t *mqtt_network_buffer = NULL;
+static mtb_hal_sdio_t sdio_instance;
+cy_stc_sd_host_context_t sdhc_host_context;
+static cy_wcm_config_t wcm_config;
 
-mqtttopic_t mqtt_topics[NUMBERS_OF_TOPIC] = {0};
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
 
-extern TaskHandle_t wifi_task_handle;
-extern bool device_provisioned;
+/* SysPm callback parameter structure for SDHC */
+static cy_stc_syspm_callback_params_t sdcardDSParams =
+{
+    .context   = &sdhc_host_context,
+    .base      = CYBSP_WIFI_SDIO_HW
+};
+
+/* SysPm callback structure for SDHC*/
+static cy_stc_syspm_callback_t sdhcDeepSleepCallbackHandler =
+{
+    .callback           = Cy_SD_Host_DeepSleepCallback,
+    .skipMode           = SYSPM_SKIP_MODE,
+    .type               = CY_SYSPM_DEEPSLEEP,
+    .callbackParams     = &sdcardDSParams,
+    .prevItm            = NULL,
+    .nextItm            = NULL,
+    .order              = SYSPM_CALLBACK_ORDER
+};
+#endif
+
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -157,12 +183,12 @@ static cy_rslt_t mqtt_get_unique_client_identifier(char *mqtt_client_identifier)
  *  void
  *
  ******************************************************************************/
-void cleanup_mqtt(void)
+static void cleanup(void)
 {
     cy_rslt_t status = CY_RSLT_SUCCESS;
 
     /* Disconnect the MQTT connection if it was established. */
-    if (status_flag & FLAG_MQTT_CONNECTION_SUCCESS)
+    if (status_flag & MQTT_CONNECTION_SUCCESS)
     {
         status = cy_mqtt_disconnect(mqtt_connection);
 
@@ -176,7 +202,7 @@ void cleanup_mqtt(void)
         }
     }
     /* Delete the MQTT instance if it was created. */
-    if (status_flag & FLAG_MQTT_INSTANCE_CREATED)
+    if (status_flag & MQTT_INSTANCE_CREATED)
     {
         status = cy_mqtt_delete(mqtt_connection);
 
@@ -190,12 +216,12 @@ void cleanup_mqtt(void)
         }
     }
     /* Deallocate the network buffer. */
-    if (status_flag & FLAG_BUFFER_INITIALIZED)
+    if (status_flag & BUFFER_INITIALIZED)
     {
         vPortFree((void *) mqtt_network_buffer);
     }
     /* Deinit the MQTT library. */
-    if (status_flag & FLAG_LIBS_INITIALIZED)
+    if (status_flag & LIBS_INITIALIZED)
     {
         status = cy_mqtt_deinit();
 
@@ -209,7 +235,7 @@ void cleanup_mqtt(void)
         }
     }
     /* Disconnect from Wi-Fi AP. */
-    if (status_flag & FLAG_WIFI_CONNECTED)
+    if (status_flag & WIFI_CONNECTED)
     {
         status = cy_wcm_disconnect_ap();
 
@@ -223,7 +249,7 @@ void cleanup_mqtt(void)
         }
     }
     /* De-initialize the Wi-Fi Connection Manager. */
-    if (status_flag & FLAG_WCM_INITIALIZED)
+    if (status_flag & WCM_INITIALIZED)
     {
         status = cy_wcm_deinit();
 
@@ -236,6 +262,77 @@ void cleanup_mqtt(void)
             printf("WCM deinit API failed unexpectedly.\n");
         }
     }
+}
+
+
+/******************************************************************************
+ * Function Name: wifi_connect
+ ******************************************************************************
+ * Summary:
+ *  Function that initiates connection to the Wi-Fi Access Point using the
+ *  specified SSID and PASSWORD. The connection is retried a maximum of
+ *  'MAX_WIFI_CONN_RETRIES' times with interval of 'WIFI_CONN_RETRY_INTERVAL_MS'
+ *  milliseconds.
+ *
+ * Parameters:
+ *  void
+ *
+ * Return:
+ *  cy_rslt_t : CY_RSLT_SUCCESS upon a successful Wi-Fi connection, else an
+ *              error code indicating the failure.
+ *
+ ******************************************************************************/
+static cy_rslt_t wifi_connect(void)
+{
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_wcm_connect_params_t connect_param;
+    cy_wcm_ip_address_t ip_address;
+
+    /* Check if Wi-Fi connection is already established. */
+    if (!(cy_wcm_is_connected_to_ap()))
+    {
+        /* Configure the connection parameters for the Wi-Fi interface. */
+        memset(&connect_param, 0, sizeof(cy_wcm_connect_params_t));
+        memcpy(connect_param.ap_credentials.SSID, WIFI_SSID, sizeof(WIFI_SSID));
+        memcpy(connect_param.ap_credentials.password, WIFI_PASSWORD, sizeof(WIFI_PASSWORD));
+        connect_param.ap_credentials.security = WIFI_SECURITY;
+
+        printf("\nWi-Fi Connecting to '%s'\n", connect_param.ap_credentials.SSID);
+
+        /* Connect to the Wi-Fi AP. */
+        for (uint32_t retry_count = 0; retry_count < MAX_WIFI_CONN_RETRIES; retry_count++)
+        {
+            result = cy_wcm_connect_ap(&connect_param, &ip_address);
+
+            if (CY_RSLT_SUCCESS == result)
+            {
+                printf("\nSuccessfully connected to Wi-Fi network '%s'.\n", connect_param.ap_credentials.SSID);
+
+                /* Set the appropriate bit in the status_flag to denote
+                 * successful Wi-Fi connection, print the assigned IP address.
+                 */
+                status_flag |= WIFI_CONNECTED;
+                if (ip_address.version == CY_WCM_IP_VER_V4)
+                {
+                    printf("IPv4 Address Assigned: %s\n\n", ip4addr_ntoa((const ip4_addr_t *) &ip_address.ip.v4));
+                }
+                else if (ip_address.version == CY_WCM_IP_VER_V6)
+                {
+                    printf("IPv6 Address Assigned: %s\n\n", ip6addr_ntoa((const ip6_addr_t *) &ip_address.ip.v6));
+                }
+                return result;
+            }
+
+            printf("Wi-Fi Connection failed. Error code:0x%0X. Retrying in %d ms. Retries left: %d\n",
+                (int)result, WIFI_CONN_RETRY_INTERVAL_MS, (int)(MAX_WIFI_CONN_RETRIES - retry_count - 1));
+            vTaskDelay(pdMS_TO_TICKS(WIFI_CONN_RETRY_INTERVAL_MS));
+        }
+
+        printf("\nExceeded maximum Wi-Fi connection attempts!\n");
+        printf("Wi-Fi connection failed after retrying for %d mins\n\n",
+            (int)(WIFI_CONN_RETRY_INTERVAL_MS * MAX_WIFI_CONN_RETRIES) / TIME_DIV_MS);
+    }
+    return result;
 }
 
 /******************************************************************************
@@ -267,14 +364,12 @@ static void mqtt_event_callback(cy_mqtt_t mqtt_handle, cy_mqtt_event_t event, vo
     CY_UNUSED_PARAMETER(mqtt_handle);
     CY_UNUSED_PARAMETER(user_data);
 
-    printf("\nMQTT Received Event: %d!\n",event.type);
-
     switch(event.type)
     {
         case CY_MQTT_EVENT_TYPE_DISCONNECT:
         {
             /* Clear the status flag bit to indicate MQTT disconnection. */
-            status_flag &= ~(FLAG_MQTT_CONNECTION_SUCCESS);
+            status_flag &= ~(MQTT_CONNECTION_SUCCESS);
 
             /* MQTT connection with the MQTT broker is broken as the client
              * is unable to communicate with the broker. Set the appropriate
@@ -292,7 +387,7 @@ static void mqtt_event_callback(cy_mqtt_t mqtt_handle, cy_mqtt_event_t event, vo
 
         case CY_MQTT_EVENT_TYPE_SUBSCRIPTION_MESSAGE_RECEIVE:
         {
-            status_flag |= FLAG_MQTT_MSG_RECEIVED;
+            status_flag |= MQTT_MSG_RECEIVED;
 
             /* Incoming MQTT message has been received. Send this message to
              * the subscriber callback function to handle it.
@@ -335,7 +430,7 @@ static cy_rslt_t mqtt_init(void)
 
     /* Initialize the MQTT library. */
     result = cy_mqtt_init();
-    CHECK_RESULT(result, FLAG_LIBS_INITIALIZED, "\nMQTT library initialization failed!\n");
+    CHECK_RESULT(result, LIBS_INITIALIZED, "\nMQTT library initialization failed!\n");
 
     /* Allocate buffer for MQTT send and receive operations. */
     mqtt_network_buffer = (uint8_t *) pvPortMalloc(sizeof(uint8_t) * MQTT_NETWORK_BUFFER_SIZE);
@@ -343,14 +438,14 @@ static cy_rslt_t mqtt_init(void)
     {
         result = ~CY_RSLT_SUCCESS;
     }
-    CHECK_RESULT(result, FLAG_BUFFER_INITIALIZED, "Network Buffer allocation failed!\n\n");
+    CHECK_RESULT(result, BUFFER_INITIALIZED, "Network Buffer allocation failed!\n\n");
 
     /* Create the MQTT client instance. */
     result = cy_mqtt_create(mqtt_network_buffer, MQTT_NETWORK_BUFFER_SIZE,
                             security_info, &broker_info,MQTT_HANDLE_DESCRIPTOR,
                             &mqtt_connection);
 
-    CHECK_RESULT(result, FLAG_MQTT_INSTANCE_CREATED, "\nMQTT instance creation failed!\n");
+    CHECK_RESULT(result, MQTT_INSTANCE_CREATED, "\nMQTT instance creation failed!\n");
     if(CY_RSLT_SUCCESS == result)
     {
         /* Register a MQTT event callback */
@@ -383,7 +478,7 @@ static cy_rslt_t mqtt_connect(void)
 {
     /* Variable to indicate status of various operations. */
     cy_rslt_t result = CY_RSLT_SUCCESS;
-    bool mqtt_conn_status;
+    bool mqtt_conn_status = false;
 
     /* MQTT client identifier string. */
     char mqtt_client_identifier[(MQTT_CLIENT_IDENTIFIER_MAX_LEN + 1)] = MQTT_CLIENT_IDENTIFIER;
@@ -415,18 +510,12 @@ static cy_rslt_t mqtt_connect(void)
            broker_info.hostname_len,
            broker_info.hostname);
 
-    connection_info.will_info->topic = mqtt_topics[1];
-    connection_info.will_info->topic_len = MQTT_TOPIC_SIZE;
-    connection_info.will_info->payload = "{\"cmd_id\":0,\"type\":0,\"value\":0}";
-    connection_info.will_info->payload_len = (size_t)(strlen(connection_info.will_info->payload));
-
-    mqtt_conn_status = false;
-    while(false == mqtt_conn_status)
+    for (uint32_t retry_count = 0; retry_count < MAX_MQTT_CONN_RETRIES; retry_count++)
     {
         if (cy_wcm_is_connected_to_ap() == 0)
         {
             printf("\nUnexpectedly disconnected from Wi-Fi network! \nInitiating Wi-Fi reconnection...\n");
-            status_flag &= ~(FLAG_WIFI_CONNECTED);
+            status_flag &= ~(WIFI_CONNECTED);
 
             /* Initiate Wi-Fi reconnection. */
             result = wifi_connect();
@@ -436,6 +525,8 @@ static cy_rslt_t mqtt_connect(void)
             }
         }
 
+        mqtt_conn_status = false;
+
         /* Establish the MQTT connection. */
         result = cy_mqtt_connect(mqtt_connection, &connection_info);
 
@@ -443,19 +534,24 @@ static cy_rslt_t mqtt_connect(void)
         {
             printf("MQTT connection successful.\r\n");
 
-        	update_conn_state(DEV_ST_CLOUD_CONNECTED);
-
             /* Set the appropriate bit in the status_flag to denote successful
              * MQTT connection, and return the result to the calling function.
              */
-            status_flag |= FLAG_MQTT_CONNECTION_SUCCESS;
+            status_flag |= MQTT_CONNECTION_SUCCESS;
             mqtt_conn_status = true;
             break;
         }
 
-        printf("\nMQTT connection failed with error code 0x%0X.\n",
-               (int)result);
-        vTaskDelay(MQTT_CONN_RETRY_INTERVAL_MS);
+        printf("\nMQTT connection failed with error code 0x%0X. \nRetrying in %d ms. Retries left: %d\n",
+               (int)result, MQTT_CONN_RETRY_INTERVAL_MS, (int)(MAX_MQTT_CONN_RETRIES - retry_count - 1));
+        vTaskDelay(pdMS_TO_TICKS(MQTT_CONN_RETRY_INTERVAL_MS));
+    }
+
+    if(!mqtt_conn_status)
+    {
+        printf("\nExceeded maximum MQTT connection attempts\n");
+        printf("MQTT connection failed after retrying for %d mins\n\n",
+               (int)(MQTT_CONN_RETRY_INTERVAL_MS * MAX_MQTT_CONN_RETRIES) / TIME_DIV_MS);
     }
     return result;
 }
@@ -463,6 +559,107 @@ static cy_rslt_t mqtt_connect(void)
 /*******************************************************************************
 * Function Definitions
 *******************************************************************************/
+
+/*******************************************************************************
+* Function Name: sdio_interrupt_handler
+********************************************************************************
+* Summary:
+* Interrupt handler function for SDIO instance.
+*******************************************************************************/
+static void sdio_interrupt_handler(void)
+{
+    mtb_hal_sdio_process_interrupt(&sdio_instance);
+}
+
+/*******************************************************************************
+* Function Name: host_wake_interrupt_handler
+********************************************************************************
+* Summary:
+* Interrupt handler function for the host wake up input pin.
+*******************************************************************************/
+static void host_wake_interrupt_handler(void)
+{
+    mtb_hal_gpio_process_interrupt(&wcm_config.wifi_host_wake_pin);
+}
+
+/*******************************************************************************
+* Function Name: app_sdio_init
+********************************************************************************
+* Summary:
+* This function configures and initializes the SDIO instance used in
+* communication between the host MCU and the wireless device.
+*******************************************************************************/
+static void app_sdio_init(void)
+{
+    cy_rslt_t result;
+    mtb_hal_sdio_cfg_t sdio_hal_cfg;
+    cy_stc_sysint_t sdio_intr_cfg =
+    {
+        .intrSrc = CYBSP_WIFI_SDIO_IRQ,
+        .intrPriority = APP_SDIO_INTERRUPT_PRIORITY
+    };
+
+    cy_stc_sysint_t host_wake_intr_cfg =
+    {
+            .intrSrc = CYBSP_WIFI_HOST_WAKE_IRQ,
+            .intrPriority = APP_HOST_WAKE_INTERRUPT_PRIORITY
+    };
+
+    /* Initialize the SDIO interrupt and specify the interrupt handler. */
+    cy_en_sysint_status_t interrupt_init_status = Cy_SysInt_Init(&sdio_intr_cfg, sdio_interrupt_handler);
+
+    /* SDIO interrupt initialization failed. Stop program execution. */
+    if(CY_SYSINT_SUCCESS != interrupt_init_status)
+    {
+        handle_app_error();
+    }
+
+    /* Enable NVIC interrupt. */
+    NVIC_EnableIRQ(CYBSP_WIFI_SDIO_IRQ);
+
+    /* Setup SDIO using the HAL object and desired configuration */
+    result = mtb_hal_sdio_setup(&sdio_instance, &CYBSP_WIFI_SDIO_sdio_hal_config, NULL, &sdhc_host_context);
+
+    /* SDIO setup failed. Stop program execution. */
+    if(CY_RSLT_SUCCESS != result)
+    {
+        handle_app_error();
+    }
+
+    /* Initialize and Enable SD HOST */
+    Cy_SD_Host_Enable(CYBSP_WIFI_SDIO_HW);
+    Cy_SD_Host_Init(CYBSP_WIFI_SDIO_HW, CYBSP_WIFI_SDIO_sdio_hal_config.host_config, &sdhc_host_context);
+    Cy_SD_Host_SetHostBusWidth(CYBSP_WIFI_SDIO_HW, CY_SD_HOST_BUS_WIDTH_4_BIT);
+
+    sdio_hal_cfg.frequencyhal_hz = APP_SDIO_FREQUENCY_HZ;
+    sdio_hal_cfg.block_size = SDHC_SDIO_64BYTES_BLOCK;
+
+    /* Configure SDIO */
+    mtb_hal_sdio_configure(&sdio_instance, &sdio_hal_cfg);
+
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
+    /* SDHC SysPm callback registration */
+    Cy_SysPm_RegisterCallback(&sdhcDeepSleepCallbackHandler);
+#endif /* (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP) */
+
+    /* Setup GPIO using the HAL object for WIFI WL REG ON  */
+    mtb_hal_gpio_setup(&wcm_config.wifi_wl_pin, CYBSP_WIFI_WL_REG_ON_PORT_NUM, CYBSP_WIFI_WL_REG_ON_PIN);
+
+    /* Setup GPIO using the HAL object for WIFI HOST WAKE PIN  */
+    mtb_hal_gpio_setup(&wcm_config.wifi_host_wake_pin, CYBSP_WIFI_HOST_WAKE_PORT_NUM, CYBSP_WIFI_HOST_WAKE_PIN);
+
+    /* Initialize the Host wakeup interrupt and specify the interrupt handler. */
+    cy_en_sysint_status_t interrupt_init_status_host_wake =  Cy_SysInt_Init(&host_wake_intr_cfg, host_wake_interrupt_handler);
+
+    /* Host wake up interrupt initialization failed. Stop program execution. */
+    if(CY_SYSINT_SUCCESS != interrupt_init_status_host_wake)
+    {
+        handle_app_error();
+    }
+
+    /* Enable NVIC interrupt. */
+    NVIC_EnableIRQ(CYBSP_WIFI_HOST_WAKE_IRQ);
+}
 
 /******************************************************************************
  * Function Name: terminate_tasks
@@ -489,7 +686,7 @@ void terminate_tasks(void)
     {
         vTaskDelete(publisher_task_handle);
     }
-    cleanup_mqtt();
+    cleanup();
     printf("\nCleanup Done\nTerminating the MQTT task...\n\n");
     vTaskDelete(NULL);
 }
@@ -518,8 +715,13 @@ void mqtt_client_task(void *pvParameters)
     mqtt_task_cmd_t mqtt_status;
     subscriber_data_t subscriber_q_data;
     publisher_data_t publisher_q_data;
-    bool mqtt_init_status = false;
-    cy_rslt_t result = CY_RSLT_SUCCESS;
+    bool mqtt_client_status = false;
+
+    app_sdio_init();
+
+    /* Configure the Wi-Fi interface as a Wi-Fi STA (i.e. Client). */
+    wcm_config.interface = CY_WCM_INTERFACE_TYPE_STA;
+    wcm_config.wifi_interface_instance = &sdio_instance;
 
     /* To avoid compiler warnings */
     (void) pvParameters;
@@ -527,182 +729,114 @@ void mqtt_client_task(void *pvParameters)
     /* Create a message queue to communicate with other tasks and callbacks. */
     mqtt_task_q = xQueueCreate(MQTT_TASK_QUEUE_LENGTH, sizeof(mqtt_task_cmd_t));
 
+    /* Initialize the Wi-Fi Connection Manager and jump to the cleanup block 
+     * upon failure.
+     */
+    if (CY_RSLT_SUCCESS != cy_wcm_init(&wcm_config))
+    {
+        CY_ASSERT(0);
+    }
+
     /* Set the appropriate bit in the status_flag to denote successful 
      * WCM initialization.
      */
-    status_flag |= FLAG_WCM_INITIALIZED;
+    status_flag |= WCM_INITIALIZED;
     printf("\nWi-Fi Connection Manager initialized.\n");
 
-	/* Create the subscriber task and cleanup if the operation fails. */
-	if (pdPASS == xTaskCreate(subscriber_task, "Subscriber task", SUBSCRIBER_TASK_STACK_SIZE,
-							  NULL, SUBSCRIBER_TASK_PRIORITY, &subscriber_task_handle))
-	{
-		/* Wait for the subscribe operation to complete. */
-		vTaskDelay(pdMS_TO_TICKS(TASK_CREATION_DELAY_MS));
-
-		/* Create the publisher task and cleanup if the operation fails. */
-		if (pdPASS != xTaskCreate(publisher_task, "Publisher task", PUBLISHER_TASK_STACK_SIZE,
-								  NULL, PUBLISHER_TASK_PRIORITY, &publisher_task_handle))
-		{
-	        handle_app_error();
-		}
-	}
-
-    while (true)
+    /* Initiate connection to the Wi-Fi AP and cleanup if the operation fails. */
+    if (CY_RSLT_SUCCESS == wifi_connect())
     {
-        /* Wait for results of MQTT operations from other tasks and callbacks. */
-        if (pdTRUE == xQueueReceive(mqtt_task_q, &mqtt_status, portMAX_DELAY))
+        /* Set-up the MQTT client and connect to the MQTT broker.
+         * cleanup block if any of the operations fail.
+         */
+        if ( (CY_RSLT_SUCCESS == mqtt_init()) && (CY_RSLT_SUCCESS == mqtt_connect()) )
         {
-            /* In this code example, the disconnection from the MQTT Broker or
-             * the Wi-Fi network is handled by the case 'HANDLE_DISCONNECTION'.
-             *
-             * The publish and subscribe failures (`HANDLE_MQTT_PUBLISH_FAILURE`
-             * and `HANDLE_MQTT_SUBSCRIBE_FAILURE`) does not initiate
-             * reconnection in this example, but they can be handled as per the
-             * application requirement in the following swich cases.
-             */
-            switch(mqtt_status)
+            /* Create the subscriber task and cleanup if the operation fails. */
+            if (pdPASS == xTaskCreate(subscriber_task, "Subscriber task", SUBSCRIBER_TASK_STACK_SIZE,
+                                      NULL, SUBSCRIBER_TASK_PRIORITY, &subscriber_task_handle))
             {
-                case HANDLE_DISCONNECTION:
+                /* Wait for the subscribe operation to complete. */
+                vTaskDelay(pdMS_TO_TICKS(TASK_CREATION_DELAY_MS));
+
+                /* Create the publisher task and cleanup if the operation fails. */
+                if (pdPASS == xTaskCreate(publisher_task, "Publisher task", PUBLISHER_TASK_STACK_SIZE,
+                                          NULL, PUBLISHER_TASK_PRIORITY, &publisher_task_handle))
                 {
-                    /* Deinit the publisher before initiating reconnections. */
-                    publisher_q_data.cmd = PUBLISHER_DEINIT;
-                    xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-
-                    /* Although the connection with the MQTT Broker is lost,
-                     * call the MQTT disconnect API for cleanup of threads and
-                     * other resources before reconnection.
-                     */
-                    cy_mqtt_disconnect(mqtt_connection);
-                	update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
-
-                    /* Check if Wi-Fi connection is active. If not, update the
-                     * status flag and initiate Wi-Fi reconnection.
-                     */
-                    if (cy_wcm_is_connected_to_ap() == 0)
-                    {
-                        status_flag &= ~(FLAG_WIFI_CONNECTED);
-                        printf("\nInitiating Wi-Fi Reconnection...\n");
-                        if (CY_RSLT_SUCCESS == wifi_connect())
-                        {
-                        	update_conn_state(DEV_ST_WIFI_CONNECTED);
-            				vTaskDelay(2000);
-
-                            printf("\nInitiating MQTT Reconnection...\n");
-                            if (CY_RSLT_SUCCESS == mqtt_connect())
-                            {
-                                /* Initiate MQTT subscribe post the reconnection. */
-                                subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
-                                xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
-
-        						/* Send the connection status to end device */
-        						send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
-                            }
-                        }
-                        else
-                        {
-                        	update_conn_state(DEV_ST_WIFI_DISCONNECTED);
-                        }
-                    }
-                    else
-                    {
-                        printf("\nInitiating MQTT Reconnection...\n");
-						if (CY_RSLT_SUCCESS == mqtt_connect())
-						{
-							/* Initiate MQTT subscribe post the reconnection. */
-							subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
-							xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
-
-							/* Send the connection status to end device */
-							send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
-						}
-                    }
-
-                    break;
+                    mqtt_client_status = true;
                 }
-
-                /**
-                 * Once WIFI connected try to connected with mqtt server
-                 */
-                case HANDLE_CONNECT:
-                {
-                	if(false == mqtt_init_status)
-                	{
-						result = mqtt_init();
-	                	if(CY_RSLT_SUCCESS == result)
-	                	{
-	                		mqtt_init_status = true;
-	                	}
-	                	else
-	                	{
-	                        printf("\nMQTT Init failed with error 0x%0X\n\n",
-	                               (int)result);
-	                	}
-                	}
-
-                	update_conn_state(DEV_ST_CLOUD_CONNECTING);
-		        	vTaskDelay(1500);
-
-                	result = mqtt_connect();
-					if(CY_RSLT_SUCCESS == result)
-					{
-						/* Initiate MQTT subscribe post the reconnection. */
-						subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
-						xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
-
-						/* Send the connection status to end device */
-						send_response_numeric(DEVICE_STATUS, OPERATION_READ, 1);
-
-			        	vTaskDelay(1000);
-			        	device_provisioned = true;
-			        	ble_disconnect();
-
-	                	update_conn_state(DEV_ST_CLOUD_CONNECTED);
-					}
-                	else
-                	{
-                        printf("\nMQTT connect failed with error 0x%0X\n\n",
-                               (int)result);
-                	}
-                    break;
-                }
-                case HANDLE_MANUAL_DISCONNECTION:
-                {
-                	if(cy_wcm_is_connected_to_ap())
-                	{
-						/* Initiate MQTT subscribe post the reconnection. */
-						subscriber_q_data.cmd = UNSUBSCRIBE_FROM_TOPIC;
-						xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
-
-						vTaskDelay(500);
-
-						/* Although the connection with the MQTT Broker is lost,
-						 * call the MQTT disconnect API for cleanup of threads and
-						 * other resources before reconnection.
-						 */
-						cy_mqtt_disconnect(mqtt_connection);
-						update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
-						vTaskDelay(2000);
-                	}
-
-                    xTaskNotify(wifi_task_handle, NOTIF_DISCONNECT | NOTIF_ERASE_DATA,
-                                eSetValueWithOverwrite);
-                    break;
-                }
-                default:
-                    break;
             }
         }
-        else
-        {
-        	vTaskDelay(500);
-        }
     }
-}
 
-uint32_t get_mqtt_status(void)
-{
-	return status_flag;
+    if(mqtt_client_status)
+    {
+        mqtt_client_status = false;
+        while (true)
+        {
+            /* Wait for results of MQTT operations from other tasks and callbacks. */
+            if (pdTRUE == xQueueReceive(mqtt_task_q, &mqtt_status, portMAX_DELAY))
+            {
+                /* In this code example, the disconnection from the MQTT Broker or
+                 * the Wi-Fi network is handled by the case 'HANDLE_DISCONNECTION'.
+                 *
+                 * The publish and subscribe failures (`HANDLE_MQTT_PUBLISH_FAILURE`
+                 * and `HANDLE_MQTT_SUBSCRIBE_FAILURE`) does not initiate
+                 * reconnection in this example, but they can be handled as per the
+                 * application requirement in the following swich cases.
+                 */
+                switch(mqtt_status)
+                {
+                    case HANDLE_DISCONNECTION:
+                    {
+                        /* Deinit the publisher before initiating reconnections. */
+                        publisher_q_data.cmd = PUBLISHER_DEINIT;
+                        xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+
+                        /* Although the connection with the MQTT Broker is lost,
+                         * call the MQTT disconnect API for cleanup of threads and
+                         * other resources before reconnection.
+                         */
+                        cy_mqtt_disconnect(mqtt_connection);
+
+                        /* Check if Wi-Fi connection is active. If not, update the
+                         * status flag and initiate Wi-Fi reconnection.
+                         */
+                        if (cy_wcm_is_connected_to_ap() == 0)
+                        {
+                            status_flag &= ~(WIFI_CONNECTED);
+                            printf("\nInitiating Wi-Fi Reconnection...\n");
+                            if (CY_RSLT_SUCCESS == wifi_connect())
+                            {
+                                printf("\nInitiating MQTT Reconnection...\n");
+                                if (CY_RSLT_SUCCESS == mqtt_connect())
+                                {
+                                    /* Initiate MQTT subscribe post the reconnection. */
+                                    subscriber_q_data.cmd = SUBSCRIBE_TO_TOPIC;
+                                    xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
+
+                                    /* Initialize Publisher post the reconnection. */
+                                    publisher_q_data.cmd = PUBLISHER_INIT;
+                                    xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+                                    mqtt_client_status = true;
+                                }
+                            }
+                        }
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+            if(!mqtt_client_status){
+                terminate_tasks();
+                break;
+            }
+        }
+    }else
+    {
+        terminate_tasks();
+    }
 }
 
 #if GENERATE_UNIQUE_CLIENT_ID

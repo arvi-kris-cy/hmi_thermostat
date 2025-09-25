@@ -83,9 +83,6 @@ static const lcd_init_cmd_t panel_init_sequence[] = {
     {(uint8_t[]){0xEC, 0x3C, 0x00}, 3, 0},
     {(uint8_t[]){0xED, 0xAB, 0x89, 0x76, 0x54, 0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0x45, 0x67, 0x98, 0xBA}, 17, 0},
     {(uint8_t[]){0xFF, 0x77, 0x01, 0x00, 0x00, 0x00}, 6, 0},
-//    {(uint8_t[]){0xFF, 0x77, 0x01, 0x00, 0x00, 0x12}, 6, 0},
-//    {(uint8_t[]){0xd1, 0x81}, 2, 0},
-//    {(uint8_t[]){0xd2, 0x08}, 2, 0},
     {(uint8_t[]){0x11}, 1, 120},
     {(uint8_t[]){0x29}, 1, 0},
 };
@@ -117,26 +114,6 @@ cy_en_mipidsi_status_t mtb_display_st7701s_init ( GFXSS_MIPIDSI_Type *mipi_dsi_b
     disp_pin_config = disp_st7701s_pin_config;
 
     // TODO: Reseting lcd does not work
-#if 0
-	/* Display pin initialization sequence */
-	/* Initialize display RESET GPIO pin with initial value as HIGH */
-	Cy_GPIO_Pin_FastInit(disp_pin_config->reset_port, disp_pin_config->reset_pin,
-			CY_GPIO_DM_STRONG, GPIO_HIGH, HSIOM_SEL_GPIO);
-	Cy_SysLib_Delay(200);
-
-	/* Perform reset */
-	/* Pull the display RESET GPIO pin to LOW */
-	Cy_GPIO_Write(disp_pin_config->reset_port, disp_pin_config->reset_pin, GPIO_LOW);
-	Cy_SysLib_Delay(400);
-
-	/* Pull the display RESET GPIO pin to HIGH */
-	Cy_GPIO_Write(disp_pin_config->reset_port, disp_pin_config->reset_pin, GPIO_HIGH);
-	Cy_SysLib_Delay(200);
-
-	// debug gpio
-	Cy_GPIO_Write(GPIO_PRT11, 1, 1);
-#endif
-
     status = Cy_MIPIDSI_ExitSleep(mipi_dsi_base);
     if ( CY_MIPIDSI_SUCCESS == status )
     {
@@ -169,20 +146,6 @@ cy_en_mipidsi_status_t mtb_display_st7701s_init ( GFXSS_MIPIDSI_Type *mipi_dsi_b
 
     Cy_SysLib_Delay(10);
 
-    // mipi_dsi_base->DWCMIPIDSI.VID_MODE_CFG = VID_MODE_TYPE_BURST | ENABLE_LOW_POWER_CMD;
-
-    // size_arry = (sizeof(panel_init_sequence) / sizeof(lcd_init_cmd_t));
-    //     /* Set the LCM init settings */
-	// for ( uint16_t i = 0; i < (sizeof(panel_init_sequence) / sizeof(lcd_init_cmd_t)); i++ )
-	// {
-	// 	status = Cy_MIPIDSI_WritePacket(mipi_dsi_base, panel_init_sequence[i].data, panel_init_sequence[i].bytes);
-	// 	Cy_SysLib_Delay(panel_init_sequence[i].delay_ms);
-	// 	if ( CY_MIPIDSI_SUCCESS != status )
-	// 	{
-	// 		break;
-	// 	}
-	// }
-
     return status;
 }
 
@@ -210,19 +173,6 @@ cy_en_mipidsi_status_t mtb_display_st7701s_deinit ( GFXSS_MIPIDSI_Type *mipi_dsi
 //    CY_ASSERT(NULL != backlight_config);
 
     status = Cy_MIPIDSI_EnterSleep(mipi_dsi_base);
-    if ( CY_MIPIDSI_SUCCESS == status )
-    {
-        // TODO: Add Deinit Code
-//        /* Set display RESET GPIO pin to LOW */
-//        Cy_GPIO_Write(disp_pin_config->reset_port, disp_pin_config->reset_pin, GPIO_LOW);
-//
-//        /* Stop and de-initialize PWM on display backlight pin */
-//        Cy_TCPWM_TriggerStopOrKill_Single(backlight_config->pwm_hw, backlight_config->pwm_num);
-//        Cy_TCPWM_PWM_Disable(backlight_config->pwm_hw, backlight_config->pwm_num);
-//        Cy_TCPWM_PWM_DeInit(backlight_config->pwm_hw, backlight_config->pwm_num,
-//                            backlight_config->pwm_config);
-    }
-
     return status;
 }
 

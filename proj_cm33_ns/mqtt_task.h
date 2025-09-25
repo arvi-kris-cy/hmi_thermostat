@@ -51,16 +51,9 @@
 * Macros
 ********************************************************************************/
 /* Task parameters for MQTT Client Task. */
-#define MQTT_CLIENT_TASK_PRIORITY       	(3U)
-#define MQTT_CLIENT_TASK_STACK_SIZE     	(1024U * 2U)
+#define MQTT_CLIENT_TASK_PRIORITY       (2U)
+#define MQTT_CLIENT_TASK_STACK_SIZE     (1024U * 2U)
 
-#define MQTT_TOPIC_SIZE 					(16U)
-
-#define NUMBERS_OF_TOPIC					(2U)
-
-#define JSON_KEY_FOR_TYPEOFOPERATION			"type"
-#define JSON_KEY_FOR_COMMAND					"cmd_id"
-#define JSON_KEY_FOR_VALUE						"value"
 /*******************************************************************************
 * Global Variables
 ********************************************************************************/
@@ -69,26 +62,8 @@ typedef enum
 {
     HANDLE_MQTT_SUBSCRIBE_FAILURE,
     HANDLE_MQTT_PUBLISH_FAILURE,
-    HANDLE_DISCONNECTION,
-    HANDLE_CONNECT,
-	HANDLE_MANUAL_DISCONNECTION
+    HANDLE_DISCONNECTION
 } mqtt_task_cmd_t;
-
-/**
- * @brief Flags for tracking the state of system components during cleanup.
- */
-typedef enum
-{
-    FLAG_WCM_INITIALIZED            = (1lu << 0),
-    FLAG_WIFI_CONNECTED             = (1lu << 1),
-    FLAG_LIBS_INITIALIZED           = (1lu << 2),
-    FLAG_BUFFER_INITIALIZED         = (1lu << 3),
-    FLAG_MQTT_INSTANCE_CREATED      = (1lu << 4),
-    FLAG_MQTT_CONNECTION_SUCCESS    = (1lu << 5),
-    FLAG_MQTT_MSG_RECEIVED          = (1lu << 6)
-} cleanup_flags_t;
-
-typedef char mqtttopic_t[MQTT_TOPIC_SIZE + 1];
 
 /*******************************************************************************
  * Extern variables
@@ -100,8 +75,6 @@ extern QueueHandle_t mqtt_task_q;
 * Function Prototypes
 ********************************************************************************/
 void mqtt_client_task(void *pvParameters);
-void cleanup_mqtt(void);
-uint32_t get_mqtt_status(void);
 
 #endif /* MQTT_TASK_H_ */
 

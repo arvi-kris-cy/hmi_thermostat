@@ -1,13 +1,12 @@
 /*******************************************************************************
-* File Name        : main.c
+* File Name:   main.c
 *
-* Description      : This source file contains the main routine for non-secure
-*                    application running on CM33 CPU.
+* Description: This is the source code for MQTT Client example running on CM33 CPU.
 *
-* Related Document : See README.md
+* Related Document: See README.md
 *
-********************************************************************************
-* Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company) or
+*******************************************************************************
+* Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -40,24 +39,23 @@
 *******************************************************************************/
 
 /* Header file includes */
-#include <inttypes.h>
 #include "cybsp.h"
+#include "retarget_io_init.h"
 #include "mqtt_task.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
 #include "cy_time.h"
-#include "wireless_manager.h"
-#include "ipc_communication.h"
-#include "app_common.h"
-#include "app_ui_receiver.h"
-
+#include "cycfg_peripherals.h"
 /******************************************************************************
  * Macros
  ******************************************************************************/
-/* The timeout value in microseconds used to wait for CM55 core to be booted */
-#define CM55_BOOT_WAIT_TIME_USEC    (10U)
+/* The timeout value in microsecond used to wait for core to be booted */
+#define CM55_BOOT_WAIT_TIME_US            (10U)
+/* App boot address for CM55 project */
+#define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
+                                        CYBSP_MCUBOOT_HEADER_SIZE)
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -67,56 +65,18 @@
  */
 #define APP_LPTIMER_INTERRUPT_PRIORITY      (1U)
 
-/* App boot address for CM55 project */
-#define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
-                                        CYBSP_MCUBOOT_HEADER_SIZE)
-
 /*******************************************************************************
  * Global Variables
  ******************************************************************************/
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
-typedef mtb_hal_rtc_t rtc_type;
 
-/* Task Handle for WiFi Task */
-extern TaskHandle_t wifi_task_handle;
-
-volatile bool cm33_pipe2_msg_received = false;
-
-ipc_msg_t *ipc_recv_msg;
+/* RTC HAL object */
+static mtb_hal_rtc_t rtc_obj;
 
 /*****************************************************************************
  * Function Definitions
  *****************************************************************************/
-
-/*******************************************************************************
-* Function Name: cm33_msg_callback
-********************************************************************************
-* Summary:
-*  Callback function called when endpoint-1 (CM33) has received a message
-*
-* Parameters:
-*  msg_data: Message data received throuig IPC
-*
-* Return :
-*  void
-*
-*******************************************************************************/
-void cm33_msg_callback(uint32_t * msg_data)
-{
-    if (msg_data != NULL)
-    {
-        /* Cast the message received to the IPC structure */
-        ipc_recv_msg = (ipc_msg_t *) msg_data;
-
-        /* Extract the command to be processed in the UI_Rx loop */
-        msg_val = ipc_recv_msg->data;
-        msg_cmd = ipc_recv_msg->cmd;
-    }
-
-    cm33_pipe2_msg_received = true;
-}
-
 /*******************************************************************************
 * Function Name: lptimer_interrupt_handler
 ********************************************************************************
@@ -209,6 +169,32 @@ static void setup_tickless_idle_timer(void)
     cyabs_rtos_set_lptimer(&lptimer_obj);
 }
 
+/*******************************************************************************
+* Function Name: setup_clib_support
+********************************************************************************
+* Summary:
+*    1. This function configures and initializes the Real-Time Clock (RTC).
+*    2. It then initializes the RTC HAL object to enable CLIB support library
+*       to work with the provided Real-Time Clock (RTC) module.
+*
+* Parameters:
+*  void
+*
+* Return:
+*  void
+*
+*******************************************************************************/
+static void setup_clib_support(void)
+{
+    /* RTC Initialization */
+    Cy_RTC_Init(&CYBSP_RTC_config);
+    Cy_RTC_SetDateAndTime(&CYBSP_RTC_config);
+
+    /* Initialize the ModusToolbox CLIB support library */
+    mtb_clib_support_init(&rtc_obj);
+}
+
+
 /******************************************************************************
  * Function Name: main
  ******************************************************************************
@@ -227,33 +213,13 @@ static void setup_tickless_idle_timer(void)
 int main(void)
 {
     cy_rslt_t result;
-    cy_en_ipc_pipe_status_t pipeStatus;
-    rtc_type obj;
+
     /* Initialize the board support package. */
-    
     result = cybsp_init();
     CY_ASSERT(CY_RSLT_SUCCESS == result);
 
     /* To avoid compiler warnings. */
     CY_UNUSED_PARAMETER(result);
-
-    /* Enable global interrupts. */
-    __enable_irq();
-
-    /* Setup IPC communication for CM33 */
-    cm33_ipc_communication_setup();
-
-    Cy_SysLib_Delay(50);
-
-    /* Register a callback function to handle events on the CM33 IPC pipe */
-    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM33_IPC_PIPE_EP_ADDR, &cm33_msg_callback,
-                                              (uint32_t)CM33_IPC_PIPE_CLIENT_ID);
-
-    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
-    {
-        handle_app_error();
-    }
-
 
     /* Setup the LPTimer instance for CM33 CPU. */
     setup_tickless_idle_timer();
@@ -261,32 +227,22 @@ int main(void)
     /* Initialize retarget-io middleware */
     init_retarget_io();
 
-    /* Initialize rtc */
-    Cy_RTC_Init(&CYBSP_RTC_config);
-    Cy_RTC_SetDateAndTime(&CYBSP_RTC_config);
-    
+    /* Setup CLIB support library. */
+    setup_clib_support();
+
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
     printf("\x1b[2J\x1b[;H");
     printf("===============================================================\n");
-    printf("Thermostat Application Started!\n");
+
+    printf("PSOC Edge MCU: Wi-Fi MQTT Client\n");
+
     printf("===============================================================\n\n");
 
-    /* Initialize the CLIB support library */
-    mtb_clib_support_init(&obj);
+    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
+    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 
-    /* CM55_APP_BOOT_ADDR must be updated if CM55 memory layout is changed.*/
-    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_USEC);
-
-    Cy_SysLib_Delay(APP_BOOTUP_DELAY);
-
-    //ui_rx_thread_init();
-
-    /* Initialize WiFi Tasks */
-    if(xTaskCreate(wifi_task, "WiFi-Task", WIFI_TASK_STACK_SIZE, NULL,
-                WIFI_TASK_PRIORITY, &wifi_task_handle) != pdPASS)
-    {
-        handle_app_error();
-    }
+    /* Enable global interrupts. */
+    __enable_irq();
 
     /* Create the MQTT Client task. */
     result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
@@ -305,6 +261,5 @@ int main(void)
         handle_app_error();
     }
 }
-
 
 /* [] END OF FILE */

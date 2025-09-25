@@ -87,7 +87,6 @@ extern uint32_t current_device_state;
 ********************************************************************************/
 void subscriber_task(void *pvParameters);
 void mqtt_subscription_callback(cy_mqtt_publish_info_t *received_msg_info);
-void setuid(uint8_t uidx, uint8_t uidy, uint8_t uidz);
 
 #endif /* SUBSCRIBER_TASK_H_ */
 

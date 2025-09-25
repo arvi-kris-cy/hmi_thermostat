@@ -56,9 +56,6 @@
 #include "cy_mqtt_api.h"
 #include "cy_retarget_io.h"
 
-// #include "cJSON.h"
-#include "mqtt/mqtt_command_handler.h"
-#include "publisher_task.h"
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -74,7 +71,8 @@
 /* Queue length of a message queue that is used to communicate with the 
  * subscriber task.
  */
-#define SUBSCRIBER_TASK_QUEUE_LENGTH            (20U)
+#define SUBSCRIBER_TASK_QUEUE_LENGTH            (1U)
+
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -89,18 +87,18 @@ QueueHandle_t subscriber_task_q;
  */
 uint32_t current_device_state = DEVICE_OFF_STATE;
 
-extern mqtttopic_t mqtt_topics[NUMBERS_OF_TOPIC];
 /* Configure the subscription information structure. */
-cy_mqtt_subscribe_info_t subscribe_info =
+static cy_mqtt_subscribe_info_t subscribe_info =
 {
-	.qos = (cy_mqtt_qos_t) MQTT_MESSAGES_QOS,
-	.topic = mqtt_topics[0],
-	.topic_len = MQTT_TOPIC_SIZE
+    .qos = (cy_mqtt_qos_t) MQTT_MESSAGES_QOS,
+    .topic = MQTT_SUB_TOPIC,
+    .topic_len = (sizeof(MQTT_SUB_TOPIC) - 1)
 };
 
-/*****************************************************************************
- * Static Function Prototype
- *****************************************************************************/
+/******************************************************************************
+* Function Prototypes
+*******************************************************************************/
+
 /******************************************************************************
  * Function Name: subscribe_to_topic
  ******************************************************************************
@@ -117,7 +115,38 @@ cy_mqtt_subscribe_info_t subscribe_info =
  *  void
  *
  ******************************************************************************/
-static void subscribe_to_topic(void);
+static void subscribe_to_topic(void)
+{
+    /* Status variable */
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+
+    /* Command to the MQTT client task */
+    mqtt_task_cmd_t mqtt_task_cmd;
+
+    /* Subscribe with the configured parameters. */
+    for (uint32_t retry_count = 0; retry_count < MAX_SUBSCRIBE_RETRIES; retry_count++)
+    {
+        result = cy_mqtt_subscribe(mqtt_connection, &subscribe_info, SUBSCRIPTION_COUNT);
+        if (result == CY_RSLT_SUCCESS)
+        {
+            printf("\nMQTT client subscribed to the topic '%.*s' successfully.\n",
+                    subscribe_info.topic_len, subscribe_info.topic);
+            break;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(MQTT_SUBSCRIBE_RETRY_INTERVAL_MS));
+    }
+
+    if (CY_RSLT_SUCCESS != result)
+    {
+        printf("\nMQTT Subscribe failed with error 0x%0X after %d retries...\n\n",
+               (int)result, MAX_SUBSCRIBE_RETRIES);
+
+        /* Notify the MQTT client task about the subscription failure */
+        mqtt_task_cmd = HANDLE_MQTT_SUBSCRIBE_FAILURE;
+        xQueueSend(mqtt_task_q, &mqtt_task_cmd, portMAX_DELAY);
+    }
+}
 
 /******************************************************************************
  * Function Name: unsubscribe_from_topic
@@ -133,44 +162,6 @@ static void subscribe_to_topic(void);
  *  void
  *
  ******************************************************************************/
-static void unsubscribe_from_topic(void);
-
-/******************************************************************************
-* static Function definition
-*******************************************************************************/
-static void subscribe_to_topic(void)
-{
-    /* Status variable */
-    cy_rslt_t result = CY_RSLT_SUCCESS;
-
-    /* Command to the MQTT client task */
-    mqtt_task_cmd_t mqtt_task_cmd;
-
-    /* Subscribe with the configured parameters. */
-	for (uint32_t retry_count = 0; retry_count < MAX_SUBSCRIBE_RETRIES; retry_count++)
-	{
-		result = cy_mqtt_subscribe(mqtt_connection, &subscribe_info, SUBSCRIPTION_COUNT);
-		if (result == CY_RSLT_SUCCESS)
-		{
-			printf("\nMQTT client subscribed to the topic '%.*s' successfully.\n",
-					subscribe_info.topic_len, subscribe_info.topic);
-			break;
-		}
-
-		vTaskDelay(pdMS_TO_TICKS(MQTT_SUBSCRIBE_RETRY_INTERVAL_MS));
-	}
-
-    if (CY_RSLT_SUCCESS != result)
-    {
-        printf("\nMQTT Subscribe failed with error 0x%0X after %d retries...\n\n",
-               (int)result, MAX_SUBSCRIBE_RETRIES);
-
-        /* Notify the MQTT client task about the subscription failure */
-        mqtt_task_cmd = HANDLE_MQTT_SUBSCRIBE_FAILURE;
-        xQueueSend(mqtt_task_q, &mqtt_task_cmd, portMAX_DELAY);
-    }
-}
-
 static void unsubscribe_from_topic(void)
 {
     cy_rslt_t result = cy_mqtt_unsubscribe(mqtt_connection,
@@ -182,10 +173,6 @@ static void unsubscribe_from_topic(void)
         printf("MQTT Unsubscribe operation failed with error 0x%0X!\n", (int)result);
     }
 }
-
-/******************************************************************************
-* Function definition
-*******************************************************************************/
 
 /******************************************************************************
  * Function Name: subscriber_task
@@ -211,7 +198,7 @@ void subscriber_task(void *pvParameters)
     (void) pvParameters;
 
     /* Subscribe to the specified MQTT topic. */
-    //subscribe_to_topic();
+    subscribe_to_topic();
 
     /* Create a message queue to communicate with other tasks and callbacks. */
     subscriber_task_q = xQueueCreate(SUBSCRIBER_TASK_QUEUE_LENGTH, sizeof(subscriber_data_t));
@@ -237,7 +224,13 @@ void subscriber_task(void *pvParameters)
 
                 case UPDATE_DEVICE_STATE:
                 {
-                	//Do Nothing
+                    /* Update the LED state as per received notification. */
+                    Cy_GPIO_Write(CYBSP_USER_LED_PORT, CYBSP_USER_LED_NUM,
+                            subscriber_q_data.data);
+
+                    /* Update the current device state extern variable. */
+                    current_device_state = subscriber_q_data.data;
+
                     break;
                 }
             }
@@ -264,12 +257,44 @@ void subscriber_task(void *pvParameters)
  ******************************************************************************/
 void mqtt_subscription_callback(cy_mqtt_publish_info_t *received_msg_info)
 {
-    parse_mqtt_command(received_msg_info->payload, received_msg_info->payload_len);
+    /* Received MQTT message */
+    const char *received_msg = received_msg_info->payload;
+    int received_msg_len = received_msg_info->payload_len;
+
+    /* Data to be sent to the subscriber task queue. */
+    subscriber_data_t subscriber_q_data;
+
+    printf("  \nSubsciber: Incoming MQTT message received:\n"
+           "    Publish topic name: %.*s\n"
+           "    Publish QoS: %d\n"
+           "    Publish payload: %.*s\n",
+           received_msg_info->topic_len, received_msg_info->topic,
+           (int) received_msg_info->qos,
+           (int) received_msg_info->payload_len, (const char *)received_msg_info->payload);
+
+    /* Assign the command to be sent to the subscriber task. */
+    subscriber_q_data.cmd = UPDATE_DEVICE_STATE;
+
+    /* Assign the device state depending on the received MQTT message. */
+    if ((strlen(MQTT_DEVICE_ON_MESSAGE) == received_msg_len) &&
+        (strncmp(MQTT_DEVICE_ON_MESSAGE, received_msg, received_msg_len) == 0))
+    {
+        subscriber_q_data.data = DEVICE_ON_STATE;
+    }
+    else if ((strlen(MQTT_DEVICE_OFF_MESSAGE) == received_msg_len) &&
+             (strncmp(MQTT_DEVICE_OFF_MESSAGE, received_msg, received_msg_len) == 0))
+    {
+        subscriber_q_data.data = DEVICE_OFF_STATE;
+    }
+    else
+    {
+        printf("  Subscriber: Received MQTT message not in valid format!\n");
+        return;
+    }
+
+    /* Send the command and data to subscriber task queue */
+    xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
 }
 
-void setuid(uint8_t uidx, uint8_t uidy, uint8_t uidz)
-{
-	snprintf(mqtt_topics[0], MQTT_TOPIC_SIZE+1, "THERM/%X%X%X/CMD", uidx,uidy,uidz);
-	snprintf(mqtt_topics[1], MQTT_TOPIC_SIZE+1, "THERM/%X%X%X/RSP", uidx,uidy,uidz);
-}
+
 /* [] END OF FILE */

@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,10 +53,10 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE
+COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS=
+DISABLE_COMPONENTS= 
 
 CORE=CM33
 CORE_NAME=CM33_0
@@ -65,12 +65,11 @@ CORE_NAME=CM33_0
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
-SOURCES+=$(wildcard ../shared/source/*.c)
+SOURCES+=
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+=../shared/include
+INCLUDES+=
 
 # Custom configuration of mbedtls library.
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
@@ -86,8 +85,6 @@ DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
 ifeq ($(TOOLCHAIN),LLVM_ARM)
 DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
 endif
-
-DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=

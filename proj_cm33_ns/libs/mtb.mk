@@ -11,8 +11,6 @@ SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
 SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
-SEARCH_btstack-integration=../../mtb_shared/btstack-integration/release-v6.2.1
-SEARCH_btstack=../../mtb_shared/btstack/release-v4.1.4
 SEARCH_mqtt=../../mtb_shared/mqtt/release-v4.7.0
 SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
 SEARCH_wifi-core-freertos-lwip-mbedtls=../../mtb_shared/wifi-core-freertos-lwip-mbedtls/release-v3.0.0
@@ -44,8 +42,6 @@ SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v2.0.4
 SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/release-v1.3.0
 
 # Search libraries added to build
-SEARCH_MTB_MK+=$(SEARCH_btstack-integration)
-SEARCH_MTB_MK+=$(SEARCH_btstack)
 SEARCH_MTB_MK+=$(SEARCH_mqtt)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
 SEARCH_MTB_MK+=$(SEARCH_wifi-core-freertos-lwip-mbedtls)
@@ -77,8 +73,6 @@ SEARCH_MTB_MK+=$(SEARCH_wifi-resources)
 SEARCH_MTB_MK+=$(SEARCH_wpa3-external-supplicant)
 
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
-COMPONENTS += MW_BTSTACK_INTEGRATION
-COMPONENTS += MW_BTSTACK
 COMPONENTS += MW_MQTT
 COMPONENTS += MW_RETARGET_IO
 COMPONENTS += MW_WIFI_CORE_FREERTOS_LWIP_MBEDTLS
