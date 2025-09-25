@@ -1,7 +1,7 @@
 /******************************************************************************
-* File Name:   mqtt_task.h
+* File Name:   publisher_task.h
 *
-* Description: This file is the public interface of mqtt_task.c
+* Description: This file is the public interface of publisher_task.c
 *
 * Related Document: See README.md
 *
@@ -39,43 +39,53 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#ifndef MQTT_TASK_H_
-#define MQTT_TASK_H_
+#ifndef PUBLISHER_TASK_H_
+#define PUBLISHER_TASK_H_
 
 #include "FreeRTOS.h"
+#include "task.h"
 #include "queue.h"
-#include "cy_mqtt_api.h"
-
 
 /*******************************************************************************
 * Macros
 ********************************************************************************/
-/* Task parameters for MQTT Client Task. */
-#define MQTT_CLIENT_TASK_PRIORITY       (2U)
-#define MQTT_CLIENT_TASK_STACK_SIZE     (1024U * 2U)
+/* Task parameters for Button Task. */
+#define PUBLISHER_TASK_PRIORITY               (2U)
+#define PUBLISHER_TASK_STACK_SIZE             (1024U *1U)
+
+/* Queue length of a message queue that is used to communicate with the
+ * publisher task.
+ */
+#define PUBLISHER_TASK_QUEUE_LENGTH     (30U)
 
 /*******************************************************************************
 * Global Variables
 ********************************************************************************/
-/* Commands for the MQTT Client Task. */
+/* Commands for the Publisher Task. */
 typedef enum
 {
-    HANDLE_MQTT_SUBSCRIBE_FAILURE,
-    HANDLE_MQTT_PUBLISH_FAILURE,
-    HANDLE_DISCONNECTION
-} mqtt_task_cmd_t;
+    PUBLISHER_INIT,
+    PUBLISHER_DEINIT,
+    PUBLISH_MQTT_MSG
+} publisher_cmd_t;
+
+/* Struct to be passed via the publisher task queue */
+typedef struct{
+    publisher_cmd_t cmd;
+    char *data;
+} publisher_data_t;
 
 /*******************************************************************************
- * Extern variables
- ******************************************************************************/
-extern cy_mqtt_t mqtt_connection;
-extern QueueHandle_t mqtt_task_q;
+* Extern Variables
+********************************************************************************/
+extern TaskHandle_t publisher_task_handle;
+extern QueueHandle_t publisher_task_q;
 
 /*******************************************************************************
 * Function Prototypes
 ********************************************************************************/
-void mqtt_client_task(void *pvParameters);
+void publisher_task(void *pvParameters);
 
-#endif /* MQTT_TASK_H_ */
+#endif /* PUBLISHER_TASK_H_ */
 
 /* [] END OF FILE */

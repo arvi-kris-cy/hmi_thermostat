@@ -120,11 +120,11 @@ extern "C" {
 #define CYBSP_DEBUG_UART_HW SCB2
 #define CYBSP_DEBUG_UART_IRQ scb_2_interrupt_IRQn
 #define CYBSP_SPI_CONTROLLER_2_ENABLED 1U
-#define CYBSP_RSPI_ENABLED CYBSP_SPI_CONTROLLER_2_ENABLED
+#define CYBSP_RS_SPI_ENABLED CYBSP_SPI_CONTROLLER_2_ENABLED
 #define CYBSP_SPI_CONTROLLER_2_HW SCB3
-#define CYBSP_RSPI_HW CYBSP_SPI_CONTROLLER_2_HW
+#define CYBSP_RS_SPI_HW CYBSP_SPI_CONTROLLER_2_HW
 #define CYBSP_SPI_CONTROLLER_2_IRQ scb_3_interrupt_IRQn
-#define CYBSP_RSPI_IRQ CYBSP_SPI_CONTROLLER_2_IRQ
+#define CYBSP_RS_SPI_IRQ CYBSP_SPI_CONTROLLER_2_IRQ
 #define CYBSP_BT_UART_ENABLED 1U
 #define CYBSP_BT_UART_HW SCB4
 #define CYBSP_BT_UART_IRQ scb_4_interrupt_IRQn
@@ -270,18 +270,18 @@ extern const mtb_hal_uart_configurator_t CYBSP_DEBUG_UART_hal_config;
 
 extern const cy_stc_scb_spi_config_t CYBSP_SPI_CONTROLLER_2_config;
 
-#define CYBSP_RSPI_config CYBSP_SPI_CONTROLLER_2_config
+#define CYBSP_RS_SPI_config CYBSP_SPI_CONTROLLER_2_config
 
 #if defined (COMPONENT_MTB_HAL)
 extern const mtb_hal_peri_div_t CYBSP_SPI_CONTROLLER_2_clock_ref;
-#define CYBSP_RSPI_clock_ref CYBSP_SPI_CONTROLLER_2_clock_ref
+#define CYBSP_RS_SPI_clock_ref CYBSP_SPI_CONTROLLER_2_clock_ref
 extern const mtb_hal_clock_t CYBSP_SPI_CONTROLLER_2_hal_clock;
-#define CYBSP_RSPI_hal_clock CYBSP_SPI_CONTROLLER_2_hal_clock
+#define CYBSP_RS_SPI_hal_clock CYBSP_SPI_CONTROLLER_2_hal_clock
 #endif /* defined (COMPONENT_MTB_HAL) */
 
 #if defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_SPI)
 extern const mtb_hal_spi_configurator_t CYBSP_SPI_CONTROLLER_2_hal_config;
-#define CYBSP_RSPI_hal_config CYBSP_SPI_CONTROLLER_2_hal_config
+#define CYBSP_RS_SPI_hal_config CYBSP_SPI_CONTROLLER_2_hal_config
 #endif /* defined (COMPONENT_MTB_HAL) && (MTB_HAL_DRIVER_AVAILABLE_SPI) */
 
 extern const cy_stc_scb_uart_config_t CYBSP_BT_UART_config;

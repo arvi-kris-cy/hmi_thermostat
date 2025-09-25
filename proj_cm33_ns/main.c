@@ -39,6 +39,7 @@
 *******************************************************************************/
 
 /* Header file includes */
+#include <inttypes.h>
 #include "cybsp.h"
 #include "retarget_io_init.h"
 #include "mqtt_task.h"
@@ -47,7 +48,12 @@
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
 #include "cy_time.h"
-#include "cycfg_peripherals.h"
+#include "wireless_manager.h"
+#include "ipc_communication.h"
+#include "app_common.h"
+#include "app_ui_receiver.h"
+#include "app_radar.h"
+
 /******************************************************************************
  * Macros
  ******************************************************************************/
@@ -74,9 +80,51 @@ static mtb_hal_lptimer_t lptimer_obj;
 /* RTC HAL object */
 static mtb_hal_rtc_t rtc_obj;
 
+/* Task Handle for WiFi Task */
+extern TaskHandle_t wifi_task_handle;
+
+
+ipc_msg_t *ipc_recv_msg;
+
+
+
+
+
 /*****************************************************************************
  * Function Definitions
  *****************************************************************************/
+
+/*******************************************************************************
+* Function Name: cm33_msg_callback
+********************************************************************************
+* Summary:
+*  Callback function called when endpoint-1 (CM33) has received a message
+*
+* Parameters:
+*  msg_data: Message data received throuig IPC
+*
+* Return :
+*  void
+*
+*******************************************************************************/
+void cm33_msg_callback(uint32_t * msg_data)
+{
+    if (msg_data != NULL)
+    {
+        /* Cast the message received to the IPC structure */
+        ipc_recv_msg = (ipc_msg_t *) msg_data;
+
+        /* Extract the command to be processed in the UI_Rx loop */
+        msg_val = ipc_recv_msg->data;
+        msg_cmd = ipc_recv_msg->cmd;
+
+        /* Notify the UI RX task directly with an IPC message event. */
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        xTaskNotifyFromISR(cm33_ui_rx_task_handle, 1, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+}
+
 /*******************************************************************************
 * Function Name: lptimer_interrupt_handler
 ********************************************************************************
@@ -213,6 +261,8 @@ static void setup_clib_support(void)
 int main(void)
 {
     cy_rslt_t result;
+    cy_en_ipc_pipe_status_t pipeStatus;
+ 
 
     /* Initialize the board support package. */
     result = cybsp_init();
@@ -220,6 +270,23 @@ int main(void)
 
     /* To avoid compiler warnings. */
     CY_UNUSED_PARAMETER(result);
+
+    /* Enable global interrupts. */
+    __enable_irq();
+
+    /* Setup IPC communication for CM33 */
+    cm33_ipc_communication_setup();
+
+    Cy_SysLib_Delay(50);
+
+    /* Register a callback function to handle events on the CM33 IPC pipe */
+    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM33_IPC_PIPE_EP_ADDR, &cm33_msg_callback,
+                                              (uint32_t)CM33_IPC_PIPE_CLIENT_ID);
+
+    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
+    {
+        handle_app_error();
+    }
 
     /* Setup the LPTimer instance for CM33 CPU. */
     setup_tickless_idle_timer();
@@ -233,16 +300,25 @@ int main(void)
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
     printf("\x1b[2J\x1b[;H");
     printf("===============================================================\n");
-
-    printf("PSOC Edge MCU: Wi-Fi MQTT Client\n");
-
+    printf("Thermostat Application Started!\n");
     printf("===============================================================\n\n");
 
     /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
     Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 
-    /* Enable global interrupts. */
-    __enable_irq();
+    ui_rx_thread_init();
+
+#if(FEATURE_RADAR == 1U)
+    /* Radar task */
+    start_radar_accquisition_task();
+#endif /* FEATURE_RADAR */
+
+    /* Initialize WiFi Tasks */
+    if(xTaskCreate(wifi_task, "WiFiTask", WIFI_TASK_STACK_SIZE, NULL,
+                WIFI_TASK_PRIORITY, &wifi_task_handle) != pdPASS)
+    {
+        handle_app_error();
+    }
 
     /* Create the MQTT Client task. */
     result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,

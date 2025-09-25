@@ -1,13 +1,14 @@
-/******************************************************************************
-* File Name:   publisher_task.h
-*
-* Description: This file is the public interface of publisher_task.c
-*
-* Related Document: See README.md
-*
-*
-*******************************************************************************
-* Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
+/*******************************************************************************
+ * File Name:   app_ui_receiver.h
+ *
+ * Description:  Public interface for the UI receiver module.
+ *
+ * This file contains the headers and structures to support the UI receiver
+ * task, which handles events and messages from various sources, including the
+ * inter-processor communication (IPC) pipe.
+ *
+ *******************************************************************************
+* Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -39,48 +40,44 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#ifndef PUBLISHER_TASK_H_
-#define PUBLISHER_TASK_H_
-
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
+#ifndef PROJ_CM33_NS_APP_INCLUDE_APP_UI_RECEIVER_H_
+#define PROJ_CM33_NS_APP_INCLUDE_APP_UI_RECEIVER_H_
 
 /*******************************************************************************
-* Macros
-********************************************************************************/
-/* Task parameters for Button Task. */
-#define PUBLISHER_TASK_PRIORITY               (2U)
-#define PUBLISHER_TASK_STACK_SIZE             (1024U *2U)
+ *                              INCLUDES
+ *******************************************************************************/
+#include "app_main.h"
 
 /*******************************************************************************
-* Global Variables
-********************************************************************************/
-/* Commands for the Publisher Task. */
-typedef enum
-{
-    PUBLISHER_INIT,
-    PUBLISHER_DEINIT,
-    PUBLISH_MQTT_MSG
-} publisher_cmd_t;
-
-/* Struct to be passed via the publisher task queue */
-typedef struct{
-    publisher_cmd_t cmd;
-    char *data;
-} publisher_data_t;
+ *                              MACROS
+ *******************************************************************************/
 
 /*******************************************************************************
-* Extern Variables
-********************************************************************************/
-extern TaskHandle_t publisher_task_handle;
-extern QueueHandle_t publisher_task_q;
+ *                              CONSTANTS
+ *******************************************************************************/
 
 /*******************************************************************************
-* Function Prototypes
-********************************************************************************/
-void publisher_task(void *pvParameters);
+ *                              DATA TYPES
+ *******************************************************************************/
 
-#endif /* PUBLISHER_TASK_H_ */
+/*******************************************************************************
+ *                              GLOBAL VARIABLES
+ *******************************************************************************/
+extern volatile uint32_t msg_val;
+extern volatile uint32_t msg_cmd;
+extern TaskHandle_t cm33_ui_rx_task_handle;
+
+/*******************************************************************************
+ *                              FUNCTION PROTOTYPES
+ *******************************************************************************/
+/**
+ * @brief Initializes and starts the UI receiver thread.
+ *
+ * This function creates the FreeRTOS task responsible for handling events and
+ * messages for the user interface.
+ */
+void ui_rx_thread_init(void);
+
+#endif /* PROJ_CM33_NS_APP_INCLUDE_APP_UI_RECEIVER_H_ */
 
 /* [] END OF FILE */

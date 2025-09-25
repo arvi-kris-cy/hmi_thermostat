@@ -123,11 +123,11 @@ cy_awsport_ssl_credentials_t *security_info = NULL;
  */
 static cy_mqtt_publish_info_t will_msg_info =
 {
-    .qos = CY_MQTT_QOS2,
-    .topic = MQTT_WILL_TOPIC_NAME,
-    .topic_len = (uint16_t)(sizeof(MQTT_WILL_TOPIC_NAME) - 1),
-    .payload = MQTT_WILL_MESSAGE,
-    .payload_len = (size_t)(sizeof(MQTT_WILL_MESSAGE) - 1),
+    .qos = CY_MQTT_QOS1,
+    .topic = "",
+    .topic_len = 0,
+    .payload = "",
+    .payload_len = 0,
     .retain = false,
     .dup = false
 };

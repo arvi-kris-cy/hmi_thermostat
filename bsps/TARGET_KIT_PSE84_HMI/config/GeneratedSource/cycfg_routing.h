@@ -35,6 +35,7 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
+#define ioss_0_port_0_pin_0_HSIOM P0_0_SCB3_SPI_SELECT0
 #define ioss_0_port_0_pin_1_HSIOM P0_1_SMIF1_SMIF0_SPIHB_SELECT2
 #define ioss_0_port_1_pin_0_AUX SMIF0_SPIHB_DATA0_SMIF0_SMIF0_SPIHB_DATA0_PAD
 #define ioss_0_port_1_pin_1_AUX SMIF0_SPIHB_DATA1_SMIF0_SMIF0_SPIHB_DATA1_PAD
@@ -95,6 +96,7 @@ extern "C" {
 #define ioss_0_port_21_pin_4_HSIOM P21_4_SCB3_SPI_MISO
 #define ioss_0_port_21_pin_5_HSIOM P21_5_SCB3_SPI_MOSI
 #define ioss_0_port_21_pin_6_HSIOM P21_6_SCB3_SPI_CLK
+#define ioss_0_port_21_pin_7_HSIOM P21_7_SCB3_SPI_SELECT1
 #define CYBSP_DMA_TX_SPI_CONTROLLER_tr_in_0_TRIGGER_OUT PERI_0_TRIG_OUT_MUX_0_PDMA0_TR_IN1
 #define CYBSP_SPI_CONTROLLER_tr_tx_req_0_TRIGGER_IN PERI_0_TRIG_IN_MUX_0_SCB_TX_TR_OUT10
 

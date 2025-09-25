@@ -3012,7 +3012,7 @@
                     <Block location="scb[3]" locked="true">
                         <Aliases>
                             <Alias value="CYBSP_SPI_CONTROLLER_2"/>
-                            <Alias value="CYBSP_RSPI"/>
+                            <Alias value="CYBSP_RS_SPI"/>
                         </Aliases>
                     </Block>
                     <Parameters>
@@ -4098,6 +4098,10 @@
                     <Port name="srss[0].clock[0].hfclk[12].root_clk[0]"/>
                 </Net>
                 <Net>
+                    <Port name="ioss[0].port[0].pin[0].digital_inout[0]"/>
+                    <Port name="scb[3].spi_select0[0]"/>
+                </Net>
+                <Net>
                     <Port name="ioss[0].port[0].pin[1].digital_out[0]"/>
                     <Port name="smif[1].core[0].spihb_select2[0]"/>
                 </Net>
@@ -4336,6 +4340,10 @@
                 <Net>
                     <Port name="ioss[0].port[21].pin[6].digital_inout[0]"/>
                     <Port name="scb[3].spi_clk[0]"/>
+                </Net>
+                <Net>
+                    <Port name="ioss[0].port[21].pin[7].digital_inout[0]"/>
+                    <Port name="scb[3].spi_select1[0]"/>
                 </Net>
                 <Net>
                     <Port name="m33syscpuss[0].dw0[0].chan[1].tr_in[0]"/>

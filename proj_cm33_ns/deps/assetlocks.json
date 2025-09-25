@@ -84,6 +84,10 @@
         "locked-commit": "release-v3.11.0"
     },
     {
+        "asset-name": "sensor-dsp",
+        "locked-commit": "release-v1.0.0"
+    },
+    {
         "asset-name": "whd-bsp-integration",
         "locked-commit": "release-v2.4.0"
     },
