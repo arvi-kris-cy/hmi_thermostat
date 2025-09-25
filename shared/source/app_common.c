@@ -16,7 +16,7 @@ uint32_t get_timeout_ms(idle_timeout_t timeout)
         case TIMEOUT_20S:    return 20000;
         case TIMEOUT_30S:    return 30000;
         case TIMEOUT_NEVER:  return 0; // Or 0 or some sentinel value
-        default:             return 0;
+        default:             return 10000;
     }
 }
 

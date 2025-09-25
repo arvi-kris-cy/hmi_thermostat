@@ -3,12 +3,13 @@
 // LVGL version: 9.1.0
 // Project name: SquareLine_Project
 
-#include "ui.h"
+#include "../ui.h"
 
 lv_obj_t * ui_BootScreen;
 lv_obj_t * ui_bootcontainer1;
 lv_obj_t * ui_bootupimg;
 lv_obj_t * ui_bootlabel;
+
 // event funtions
 static void anim_set_opa_cb(void * obj, int32_t opa);
 // build funtions
@@ -28,14 +29,15 @@ void ui_BootScreen_screen_init(void)
     lv_obj_set_x(ui_bootcontainer1, -18);
     lv_obj_set_y(ui_bootcontainer1, -2);
     lv_obj_set_align(ui_bootcontainer1, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_bootcontainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+//    lv_obj_remove_flag(ui_bootcontainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_bootcontainer1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_bootupimg = lv_image_create(ui_bootcontainer1);
     lv_image_set_src(ui_bootupimg, &ui_img_bootimg_cmp_png);
     lv_obj_set_width(ui_bootupimg, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_bootupimg, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_bootupimg, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_bootupimg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+//    lv_obj_add_flag(ui_bootupimg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_bootupimg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_opa(ui_bootupimg, LV_OPA_TRANSP, 50);
 
@@ -43,14 +45,13 @@ void ui_BootScreen_screen_init(void)
     lv_anim_init(&fade_in);
     lv_anim_set_var(&fade_in, ui_bootupimg);
     lv_anim_set_values(&fade_in, LV_OPA_TRANSP, LV_OPA_COVER);  // 0 → 255
-    lv_anim_set_time(&fade_in, 3000); // 4 seconds
-    lv_anim_set_exec_cb(&fade_in,anim_set_opa_cb);
+    lv_anim_set_time(&fade_in, 4000); // 4 seconds
+    lv_anim_set_exec_cb(&fade_in, anim_set_opa_cb);
     lv_anim_set_path_cb(&fade_in, lv_anim_path_ease_in); // optional smooth fade
     lv_anim_start(&fade_in);
-
 }
 
-void anim_set_opa_cb(void * obj, int32_t opa)
+static void anim_set_opa_cb(void * obj, int32_t opa)
 {
     lv_obj_set_style_opa((lv_obj_t *)obj, opa, LV_PART_MAIN);
 }

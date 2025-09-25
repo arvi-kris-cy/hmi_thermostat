@@ -4,7 +4,7 @@
 // Project name: SettingsScreen_HMI
 
 #include "ui.h"
-#include "thermostat_events.h"
+
 lv_obj_t * ui_AudioSettings;
 lv_obj_t * ui_Container7;
 lv_obj_t * ui_audioscreenlbl;

@@ -64,7 +64,7 @@
 /* IPC Pipe Endpoint-1 config */
 #define CY_IPC_CYPIPE_CHAN_MASK_EP1     CY_IPC_CH_MASK(CY_IPC_CHAN_CYPIPE_EP1)
 #define CY_IPC_CYPIPE_INTR_MASK_EP1     CY_IPC_INTR_MASK(CY_IPC_INTR_CYPIPE_EP1)
-#define CY_IPC_INTR_CYPIPE_PRIOR_EP1    (1UL)
+#define CY_IPC_INTR_CYPIPE_PRIOR_EP1    (4UL)//(1UL)
 #define CY_IPC_INTR_CYPIPE_MUX_EP1      (CY_IPC0_INTR_MUX(CY_IPC_INTR_CYPIPE_EP1))
 #define CM33_IPC_PIPE_EP_ADDR           (1UL)
 #define CM33_IPC_PIPE_CLIENT_ID         (3UL)
@@ -72,7 +72,7 @@
 /* IPC Pipe Endpoint-2 config */
 #define CY_IPC_CYPIPE_CHAN_MASK_EP2     CY_IPC_CH_MASK(CY_IPC_CHAN_CYPIPE_EP2)
 #define CY_IPC_CYPIPE_INTR_MASK_EP2     CY_IPC_INTR_MASK(CY_IPC_INTR_CYPIPE_EP2)
-#define CY_IPC_INTR_CYPIPE_PRIOR_EP2    (1UL)
+#define CY_IPC_INTR_CYPIPE_PRIOR_EP2    (4UL)//(1UL)
 #define CY_IPC_INTR_CYPIPE_MUX_EP2      (CY_IPC0_INTR_MUX(CY_IPC_INTR_CYPIPE_EP2))
 #define CM55_IPC_PIPE_EP_ADDR           (2UL)
 #define CM55_IPC_PIPE_CLIENT_ID         (5UL)
@@ -104,6 +104,7 @@ typedef struct
     	wifi_credentials_t	wifi_info;
     	ble_pairing_code_t	pairing_code;
     	char unique_id[13];		/* Unique id created using MAC addr. */
+        DateTime datetime;
     };
 
 } ipc_msg_t;

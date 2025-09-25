@@ -53,7 +53,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=
+COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -65,13 +65,28 @@ CORE_NAME=CM33_0
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=
+SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
+SOURCES+=$(wildcard ../shared/source/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+=
+INCLUDES+=../shared/include
+
+# Custom configuration of mbedtls library.
+MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
+DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
+
+# Default configuration of mbedtls library.
+DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
+# PSA configuration of mbedtls library.
+DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
+
+ifeq ($(TOOLCHAIN),LLVM_ARM)
+DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
+endif
+
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 
 # Select softfp or hardfp floating point. Default is softfp.

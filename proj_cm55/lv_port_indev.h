@@ -59,7 +59,8 @@ extern "C" {
 * Variables
 *******************************************************************************/
 extern cy_stc_scb_i2c_context_t disp_touch_i2c_controller_context;
-
+extern volatile bool touch_detected;
+extern SemaphoreHandle_t i2c_mutex;
 
 /*******************************************************************************
 * Function Prototypes

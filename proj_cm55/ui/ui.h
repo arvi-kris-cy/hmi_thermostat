@@ -30,7 +30,7 @@ extern "C" {
 #include "screens/ui_PerformanceSettings.h"
 #include "screens/ui_BootScreen.h"
 #include "screens/ui_FWUpdateScreen.h"
-
+#include "screens/ui_DateTimeSettings.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -121,6 +121,8 @@ LV_IMG_DECLARE(ui_img_wifidisconn50_png);    // assets/wifidisconn50.png
 LV_IMG_DECLARE(ui_img_wifidisconn120_png);    // assets/wifidisconn120.png
 LV_IMG_DECLARE(ui_img_bootscreenimgb120_png);    // assets/bootscreen.png
 LV_IMG_DECLARE(ui_img_bootimg_cmp_png);    // assets/bootscreen.png
+LV_IMG_DECLARE(ble_connected_home_icon);
+LV_IMG_DECLARE(downarrow);
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Roboto80);

@@ -51,7 +51,7 @@
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
 #include "cy_time.h"
-
+#include "semphr.h"
 #include "lvgl.h"
 #include "ui.h"
 #if defined(MTB_DISPLAY_WS7P0DSI_RPI)
@@ -63,11 +63,20 @@
 #elif defined(MTB_DISPLAY_R4INCH_TFT)
 #include "mtb_display_st7701s.h"
 #endif
-
+#include "lv_qrcode.h"
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
 #include "demos/lv_demos.h"
-
+#include "ui/ui.h"
+#include "ipc_communication.h"
+#include "app_common.h"
+#include "thermostat_events.h"
+#include "comm_manager.h"
+#include "app_eeprom.h"
+#include "app_sensor.h"
+#include "app_speaker.h"
+#include "xensiv_pasco2_mtb.h"
+#include "app_rtc.h"
 
 /*******************************************************************************
 * Macros
@@ -77,7 +86,7 @@
 
 #define GFX_TASK_NAME                       ("CM55 Gfx Task")
 /* stack size in words */
-#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 16)
+#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 32)
 
 #define GFX_TASK_PRIORITY                   (configMAX_PRIORITIES - 1)
 
@@ -110,7 +119,7 @@
 #define GPU_MEM_BASE                        (0x0U)
 #define I2C_CONTROLLER_IRQ_PRIORITY         (2UL)
 #define VG_PARAMS_POS                       (0UL)
-
+#define RESET_VAL                   (0U)
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -128,6 +137,16 @@
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
+static bool cm55_pipe2_msg_received = false;
+static ipc_msg_t *ipc_recv_msg;
+
+static volatile uint32_t msg_val = RESET_VAL;
+static volatile uint32_t msg_cmd = RESET_VAL;
+
+bool is_device_provisioned = false;
+bool is_mic_clicked = false;
+static bool cur_voice_active = false;
+static bool pre_voice_active = false;
 /* Heap memory for VGLite to allocate memory for buffers, command, and
  * tessellation buffers 
  */
@@ -136,6 +155,7 @@ CY_SECTION(".cy_gpu_buf") uint8_t contiguous_mem[VGLITE_HEAP_SIZE] = { 0xFF };
 volatile void *vglite_heap_base = &contiguous_mem;
 
 TaskHandle_t rtos_cm55_gfx_task_handle = NULL;
+TaskHandle_t rtos_cm55_sensor_task_handle = NULL;
 
 /* DC IRQ Config */
 cy_stc_sysint_t dc_irq_cfg =
@@ -192,9 +212,87 @@ mtb_display_st7701s_backlight_config_t st7701s_pwm_cfg =
 
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
+
+lv_obj_t *label;
 uint8_t brightness_level = 100;
+audio_level_t audio_level = AUDIO_MED;
 /* RTC HAL object */
 static mtb_hal_rtc_t rtc_obj;
+/* Mutex to guard the I2C instance for Sensor/Touhpad */
+SemaphoreHandle_t i2c_mutex = NULL;
+
+/****************************************************************************
+ *                              FUNCTION DECLARATIONS
+ ***************************************************************************/
+
+/**
+ * @brief Handles the writing of device settings to EEPROM.
+ *
+ * This function checks a global flag to determine if a write operation to
+ * the EEPROM is required. If the flag is set, it retrieves the current device
+ * settings and writes them to the EEPROM for persistent storage.
+ *
+ * @param None
+ */
+static void handle_eeprom_write(void);
+
+/**
+ * @brief Handles touch events detected on the UI.
+ *
+ * This function is triggered by a touch event. It clears the touch detection
+ * flag and restarts the inactivity timer to prevent the device from entering
+ * a low-power state.
+ *
+ * @param None
+ */
+static void handle_touch_event(void);
+
+/**
+ * @brief Clears the speaker buffer.
+ *
+ * This function calls the application's speaker clear function to stop
+ * audio playback and clear any associated buffers.
+ *
+ * @param None
+ */
+static void clear_speaker(void);
+
+/**
+ * @brief Updates the UI with the current time and date.
+ *
+ * This function checks a flag to determine if the timestamp has been updated.
+ * If so, it reads the current time and date, formats the strings, and updates
+ * the corresponding labels and the calendar widget on the user interface.
+ *
+ * @param None
+ */
+static void handle_time_update(void);
+
+/**
+ * @brief Handles updates from the system's sensor.
+ *
+ * This function checks if new sensor data is available. If so, it updates
+ * the UI with the latest CO2 reading and sends the updated configuration
+ * to other device components via IPC.
+ *
+ * @param None
+ */
+static void handle_sensor_update(void);
+
+/**
+ * @brief Helper function to encapsulate all system event handling.
+ *
+ * This function processes all incoming IPC messages from CM55 and routes
+ * them to the appropriate handler functions. It also manages screen state
+ * transitions based on specific commands.
+ *
+ * @param None
+ */
+static void handle_system_event(void);
+
+/*******************************************************************************
+ *                              FUNCTION DEFINITIONS
+ ******************************************************************************/
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 /*******************************************************************************
@@ -290,6 +388,354 @@ uint32_t calculate_idle_percentage(void)
     return idle_percent;
 }
 #endif
+
+static void handle_eeprom_write(void)
+{
+    /** Check if the EEPROM write setting flag is enabled. */
+    if (eeprom_wr_setting)
+    {
+        /** A temporary structure to hold current device settings. */
+        device_settings_t settings = { 0 };
+
+        /** Get the current settings from the device's state. */
+        get_current_device_setting(&settings);
+
+        /** Write the settings to the application EEPROM. */
+        app_eeprom_write(&settings);
+    }
+}
+
+static void handle_touch_event(void)
+{
+    /** Check if a touch event has been detected. */
+    if (true == touch_detected)
+    {
+        /** Reset the touch detection flag. */
+        touch_detected = false;
+
+        /** Restart the inactivity timer to prevent device idle state. */
+        start_inactivity_timer();
+    }
+}
+
+static void clear_speaker(void)
+{
+    app_speaker_clear();
+}
+
+static void handle_time_update(void)
+{
+    /** Check if the timestamp update flag is set. */
+    if (update_timestamp)
+    {
+        /** Clear the flag to prevent redundant updates. */
+        update_timestamp = false;
+        char time_str[3];
+        char date_str[20];
+
+        /** Update the hour labels for the main screen and low-power screen. */
+        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.hour);
+        lv_label_set_text(ui_TimeHactive, time_str);
+        lv_label_set_text(ui_TimeHLP, time_str);
+
+        /** Update the minute labels. */
+        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.min);
+        lv_label_set_text(ui_TimeMactive, time_str);
+        lv_label_set_text(ui_TimeMLP, time_str);
+
+        /** Update the second label on the low-power screen. */
+        lv_label_set_text(ui_TimeSLP, "00");
+
+        /** Use the standard C library for date formatting. */
+        struct tm date_time;
+        uint32_t year = 2000 + ui_current_time.year;
+
+        /** Populate the tm structure with current RTC values. */
+        date_time.tm_sec = ui_current_time.sec;
+        date_time.tm_min = ui_current_time.min;
+        date_time.tm_hour = ui_current_time.hour;
+        date_time.tm_mday = ui_current_time.date;
+        date_time.tm_mon = ui_current_time.month - 1u;
+        date_time.tm_year = year - 1900;
+        date_time.tm_wday = ui_current_time.dayOfWeek - 1u;
+
+        /** Use strftime to format the date string. */
+        strftime(date_str, sizeof(date_str), "%a %d %b", &date_time);
+
+        /** Update the date labels. */
+        lv_label_set_text(ui_Dateactive, date_str);
+        lv_label_set_text(ui_DateLP, date_str);
+
+        /** Update the calendar widget's selected date to the current date. */
+        lv_calendar_set_today_date(ui_dtCalendar, year, ui_current_time.month, ui_current_time.date);
+    }
+}
+
+static void handle_sensor_update(void)
+{
+    /** Check if new sensor data is available. */
+    if (sensor_data_available)
+    {
+        /** Update CO2 level on the UI. */
+        update_co2_data_ui(read_ppm);
+
+        /* Update sensor data if device is connected */
+        if (true == is_device_connected)
+        {
+            if(dev_info.environment.current_temp == dev_info.environment.target_temp)
+            {
+                /* Update humidity and CO2 levels on MApp via IPC. */
+                update_device_config_ipc();
+            }
+        }
+
+        /** Clear the flag to indicate the data has been processed. */
+        sensor_data_available = false;
+    }
+}
+
+/* Helper function to encapsulate all system event handling */
+static void handle_system_event(void)
+{
+    if (cm55_pipe2_msg_received)
+    {
+        switch (msg_cmd)
+        {
+            case IPC_CMD_UPDATE_PRESENCE_STATUS:
+                /** Update UI based on presence detection status. */
+                if ((presence_status_t) msg_val == PRESENCE_DETECTED)
+                {
+                    /** Switch to Active screen and display presence status. */
+                    switch_to_active_screen();
+                    update_presence_detection(1);
+                }
+                else if ((presence_status_t) msg_val == ABSENCE_DETECTED)
+                {
+                    /** Update absence status. */
+                    hide_presence_icon();
+                }
+                break;
+
+            case IPC_CMD_SET_UID:
+                /** Set the device's unique ID from the IPC message. */
+                printf("Rx UID: %s\n", ipc_recv_msg->unique_id);
+                memcpy(device_unique_id, ipc_recv_msg->unique_id, 13);
+                update_device_config_ipc();
+                break;
+
+            case IPC_CMD_SET_DATE_TIME:
+            {
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the device's date and time from the IPC message. */
+                DateTime rx_datetime;
+                memset(&rx_datetime, 0, sizeof(rx_datetime));
+                memcpy(&rx_datetime, &(ipc_recv_msg->datetime), sizeof(DateTime));
+                set_date_time_rtc(&rx_datetime);
+                break;
+            }
+
+            case IPC_CMD_SET_CURRENT_CO2_LEVEL:
+                /** Update the UI with the current CO2 level. */
+                update_co2_data_ui((uint16_t) msg_val);
+                break;
+
+            case IPC_CMD_DEVICE_CONFIG:
+                /** Update the device configuration via IPC. */
+                update_device_config_ipc();
+                break;
+
+            case IPC_CMD_SET_DISPLAY_BRIGHTNESS:
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the display brightness. */
+                update_display_brightness(msg_val);
+                break;
+
+            case IPC_CMD_SET_AUDIO_LEVEL:
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the audio output level. */
+                update_thermostat_volume((audio_level_t) msg_val);
+                break;
+
+            case IPC_CMD_SET_TEMP_UNIT:
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the temperature unit and update IPC. */
+                update_system_unit((temp_unit_t) msg_val);
+                update_device_config_ipc();
+                break;
+
+            case IPC_CMD_UPDATE_CONN_STATE:
+            {
+                /** Update the device's connection state based on the IPC message. */
+                switch ((device_connection_state_t) msg_val)
+                {
+                    case DEV_ST_BLE_ADVERTISING:
+                    case DEV_ST_WIFI_CONNECTING:
+                        /* Dont turn off screen if device is not provisioned */
+                        if(true != is_device_provisioned)
+                        {
+                            stop_active_state_timer();
+                        }
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        break;
+
+                    case DEV_ST_UNPROVISIONED:
+                    case DEV_ST_CLOUD_DISCONNECTED:
+                    case DEV_ST_WIFI_DISCONNECTED:
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        start_inactivity_timer();
+                        break;
+
+                    case DEV_ST_CLOUD_CONNECTING:
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        break;
+
+                    case DEV_ST_WIFI_CONNECTED:
+                        /** Switch to Active screen and display presence status. */
+                        switch_to_active_screen();
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        break;
+
+                    case DEV_ST_BLE_CONNECTED:
+                        /** Switch to Active screen and display presence status. */
+                        switch_to_active_screen();
+
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        start_inactivity_timer();
+                        break;
+
+                    case DEV_ST_CLOUD_CONNECTED:
+                        /** Switch to Active screen and display presence status. */
+                        switch_to_active_screen();
+
+                        update_device_connection_state((device_connection_state_t) msg_val);
+                        request_uid_ipc();
+                        start_inactivity_timer();
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+            }
+            case IPC_CMD_SET_FAN_SPEED:
+            {
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the fan speed and update settings. */
+                update_fan_mode((fan_speed_t) msg_val);
+                current_settings.thermostat_setting.fan_mode = (fan_speed_t) msg_val;
+                update_current_device_setting();
+                break;
+            }
+            case IPC_CMD_SET_THERMOSTAT_MODE:
+            {
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Set the thermostat mode and update settings. */
+                update_thermostat_mode((thermostat_mode_t) msg_val);
+                current_settings.thermostat_setting.mode = (thermostat_mode_t) msg_val;
+                current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
+                update_thermostat_mode_timer();
+                update_current_device_setting();
+                break;
+            }
+            case IPC_CMD_SET_TARGET_TEMP:
+            {
+                /** Switch to Active screen and display presence status. */
+                switch_to_active_screen();
+
+                /** Update the target temperature. */
+                update_device_temp((uint8_t) msg_val);
+                break;
+            }
+            case IPC_CMD_CURRENT_EVENT:
+            {
+                /** Display the BLE pairing window with a code. */
+                char pin[7] = { 0 };
+                snprintf(pin, sizeof(pin), "%06lu", (unsigned long) msg_val);
+                if (msg_val > 1)
+                {
+                    /** Switch to Active screen and display presence status. */
+                    switch_to_active_screen();
+                    stop_active_state_timer();
+                    display_ble_pairing_window(0, pin);
+                }
+                else
+                {
+                    display_ble_pairing_window(1, pin);
+                }
+                break;
+            }
+
+            case IPC_CMD_GET_CURRENT_TEMP:
+                /** Get and update the current temperature via IPC. */
+                update_current_temp_ipc(get_current_temperature());
+                break;
+
+            case IPC_CMD_GET_DISPLAY_BRIGHTNESS:
+                /** Get and update the brightness via IPC. */
+                update_brightness_ipc(get_current_brigthness());
+                break;
+
+            case IPC_CMD_GET_FAN_SPEED:
+                /** Get and update the fan speed via IPC. */
+                update_fan_speed_ipc(get_current_fan_mode());
+                break;
+
+            case IPC_CMD_GET_THERMOSTAT_MODE:
+                /** Get and update the thermostat mode via IPC. */
+                update_device_mode_ipc(get_current_device_mode());
+                break;
+
+            case IPC_CMD_UPDATE_PROVISION_STATE:
+                /** Update the provisioned state of the device. */
+                is_device_provisioned = msg_val;
+                break;
+
+            default:
+                break;
+        }
+        cm55_pipe2_msg_received = false;
+    }
+}
+
+/*******************************************************************************
+* Function Name: cm33_msg_callback
+********************************************************************************
+* Summary:
+*  Callback function called when endpoint-2 (CM55) has received a message
+*
+* Parameters:
+*  msg_data: Message data received throuig IPC
+*
+* Return :
+*  void
+*
+*******************************************************************************/
+void cm55_msg_callback(uint32_t * msgData)
+{
+    if (msgData != NULL)
+    {
+        /* Cast the message received to the IPC structure */
+        ipc_recv_msg = (ipc_msg_t *) msgData;
+
+        /* Extract the command to be processed in the main loop */
+        msg_val = ipc_recv_msg->data;
+        msg_cmd = ipc_recv_msg->cmd;
+    }
+
+    cm55_pipe2_msg_received = true;
+}
 
 /*******************************************************************************
 * Function Name: lptimer_interrupt_handler
@@ -487,7 +933,7 @@ static void cm55_gfx_task(void *arg)
     CY_UNUSED_PARAMETER(arg);
 
     uint32_t time_till_next = 0;
-
+    static bool boot_config = true;
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
     vg_lite_error_t vglite_status = VG_LITE_SUCCESS;
@@ -577,6 +1023,17 @@ static void cm55_gfx_task(void *arg)
         /* Enable the I2C interrupts. */
         NVIC_EnableIRQ(disp_touch_i2c_controller_irq_cfg.intrSrc);
 
+        i2c_result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_2_hal_obj,
+                                    &CYBSP_I2C_CONTROLLER_2_hal_config,
+                                        &disp_touch_i2c_controller_context,
+                                            NULL);
+
+    if(CY_RSLT_SUCCESS != i2c_result)
+    {
+        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
+        handle_app_error();
+    }
+
 #if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Enable the I2C */
         Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_2_HW);
@@ -628,7 +1085,13 @@ static void cm55_gfx_task(void *arg)
             lv_port_disp_init();
             lv_port_indev_init();
             ui_demo_init();
+            ui_timer_init();
 
+            /* Start sensor task */
+            xTaskCreate(sensor_task, SENSOR_TASK_NAME,
+                                                   SENSOR_TASK_STACK_SIZE, NULL,
+                                                   SENSOR_TASK_PRIORITY,
+                                                   &rtos_cm55_sensor_task_handle);
         }
         else
         {
@@ -647,13 +1110,45 @@ static void cm55_gfx_task(void *arg)
 
     for (;;)
     {
+        /* Process sensor update event */
+        handle_sensor_update();
+
+        /* Process system IPC events */
+        handle_system_event();
+
         /* LVGL's timer handler function, to be called periodically to handle
          * LVGL tasks.
          */
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
+if(boot_config)
+    	{
+    		load_thermostat_config(current_settings.thermostat_setting.mode);
+    		update_device_config_ipc();
+    		boot_config = false;
+    	}
+
+    	/* If eeprom write operation pending */
+        handle_eeprom_write();
+
+    	/* If touch event detected restart the inactivity timer */
+        handle_touch_event();
+    
+ clear_speaker();
+
+    	/* Update time on UI */
+    	handle_time_update();
+
+    	/* Hide connectivity pop-up screen
+    	 * if BLE/Cloud connected state  */
+    	if (hide_conn_screen)
+        {
+            hide_connectivity_screen();
+            hide_conn_screen = false;
+        }
     }
 }
+
 
 /*******************************************************************************
 * Function Name: setup_clib_support
@@ -699,6 +1194,7 @@ int main(void)
 {
     cy_rslt_t result       = CY_RSLT_SUCCESS;
     BaseType_t task_return = pdFAIL;
+    cy_en_ipc_pipe_status_t pipeStatus;
 
     /* Initialize the device and board peripherals */
     result = cybsp_init();
@@ -716,9 +1212,63 @@ int main(void)
 
     /* Initialize retarget-io middleware */
     init_retarget_io();
-
     /* Enable global interrupts */
     __enable_irq();
+    /* Initialize RTC */
+    app_rtc_init();
+
+    /* Setup IPC communication for CM55*/
+    cm55_ipc_communication_setup();
+
+    Cy_SysLib_Delay(50);
+
+    /* Register a callback function to handle events on the CM55 IPC pipe */
+    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM55_IPC_PIPE_EP_ADDR, &cm55_msg_callback,
+                                                      (uint32_t)CM55_IPC_PIPE_CLIENT_ID);
+
+    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
+    {
+        handle_app_error();
+    }
+
+    /* Power pasco2 sensor */
+    power_co2_sensor();
+
+    // /* Initialize I2C SCB */
+    // init_i2c_controller();
+
+    // Create a binary semaphore to act as a mutex.
+    i2c_mutex = xSemaphoreCreateMutex();
+    if (i2c_mutex == NULL) {
+        printf("I2C mutex creation error.\n");
+    }
+
+    /* Initialize Speaker */
+    app_speaker_init();
+
+    /* Initialize Emulated EEPROM */
+    app_eeprom_init();
+
+    /* Read configuration from Emulated EEPROM */
+    device_settings_t rd_settings = {0};
+    app_eeprom_read(&rd_settings);
+
+    if(rd_settings.is_available != true) {
+
+        device_settings_t settings = {0};
+
+    	/* Load default configuration */
+        get_default_device_setting(&settings);
+        settings.is_available = true;
+
+        app_eeprom_write(&settings);
+    	set_current_device_setting(&rd_settings);
+
+    } else {
+    	set_current_device_setting(&rd_settings);
+    }
+
+    dev_info.environment.target_temp = dev_info.environment.current_temp;
 
     /* Create the FreeRTOS Task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,

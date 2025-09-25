@@ -22,12 +22,13 @@ lv_obj_t * ui_tempunitlbl;
 lv_obj_t * ui_tempunitswitch;
 lv_obj_t * ui_timeoutdropdown;
 lv_obj_t * ui_factoryresetcontianer;
-lv_obj_t * ui_Label23;
-lv_obj_t * ui_Label24;
+lv_obj_t * ui_AbtLabel23;
+lv_obj_t * ui_AbtLabel24;
 lv_obj_t * ui_confirmbtn;
 lv_obj_t * ui_confirmbtnlbl;
 lv_obj_t * ui_cancelbtn;
 lv_obj_t * ui_cancelbtnlbl;
+lv_obj_t * ui_AbtLabel2;
 lv_obj_t * ui_systemscreenlbl;
 
 // event funtions
@@ -55,7 +56,7 @@ void ui_event_Label16(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_FWUpdateScreen_screen_init);
+        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
     }
 }
 
@@ -65,6 +66,11 @@ void ui_event_Label17(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_AboutScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AboutScreen_screen_init);
+
+        _ui_flag_modify(ui_checkupdtbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        lv_label_set_text(ui_getfwverdetails, "-.-.-");
+        _ui_flag_modify(ui_downloadfwbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+
     }
 }
 
@@ -82,7 +88,7 @@ void ui_event_tempunitswitch(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        //set_system_unit(e);
+        set_system_unit(e);
     }
 }
 
@@ -91,7 +97,7 @@ void ui_event_timeoutdropdown(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        //change_idle_timeout(e);
+        change_idle_timeout(e);
     }
 }
 
@@ -100,7 +106,7 @@ void ui_event_confirmbtn(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        //device_factory_reset(e);
+        device_factory_reset(e);
     }
     if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_factoryresetcontianer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
@@ -113,6 +119,15 @@ void ui_event_cancelbtn(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_factoryresetcontianer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+}
+
+void ui_event_Label2(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
     }
 }
 
@@ -231,25 +246,26 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_shadow_color(ui_Panel12, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_opa(ui_Panel12, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label16 = lv_label_create(ui_backgesture1);
-    lv_obj_set_width(ui_Label16, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label16, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label16, -103);
-    lv_obj_set_y(ui_Label16, 112);
-    lv_obj_set_align(ui_Label16, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label16, "Firmware Update");
-    lv_obj_add_flag(ui_Label16, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_set_style_text_color(ui_Label16, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label16, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label16, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
+//    ui_Label16 = lv_label_create(ui_backgesture1);
+//    lv_obj_set_width(ui_Label16, LV_SIZE_CONTENT);   /// 1
+//    lv_obj_set_height(ui_Label16, LV_SIZE_CONTENT);    /// 1
+//    lv_obj_set_x(ui_Label16, -103);
+//    lv_obj_set_y(ui_Label16, 112);
+//    lv_obj_set_align(ui_Label16, LV_ALIGN_CENTER);
+//    lv_label_set_text(ui_Label16, "Firmware Update");
+//    lv_obj_add_flag(ui_Label16, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+//    lv_obj_set_style_text_color(ui_Label16, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+//    lv_obj_set_style_text_opa(ui_Label16, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+//    lv_obj_set_style_text_font(ui_Label16, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label17 = lv_label_create(ui_backgesture1);
     lv_obj_set_width(ui_Label17, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label17, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label17, -180);
+//    lv_obj_set_x(ui_Label17, -180);
+    lv_obj_set_x(ui_Label17, -103);
     lv_obj_set_y(ui_Label17, 193);
     lv_obj_set_align(ui_Label17, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label17, "About");
+    lv_label_set_text(ui_Label17, "Firmware Update");
     lv_obj_add_flag(ui_Label17, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_set_style_text_color(ui_Label17, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label17, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -316,33 +332,33 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_bg_color(ui_factoryresetcontianer, lv_color_hex(0x212020), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_factoryresetcontianer, 240, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label23 = lv_label_create(ui_factoryresetcontianer);
-    lv_obj_set_width(ui_Label23, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label23, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label23, -6);
-    lv_obj_set_y(ui_Label23, -116);
-    lv_obj_set_align(ui_Label23, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label23, "Factory Reset");
-    lv_obj_set_style_text_color(ui_Label23, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label23, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(ui_Label23, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(ui_Label23, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_Label23, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label23, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_AbtLabel23 = lv_label_create(ui_factoryresetcontianer);
+    lv_obj_set_width(ui_AbtLabel23, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_AbtLabel23, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_AbtLabel23, -6);
+    lv_obj_set_y(ui_AbtLabel23, -116);
+    lv_obj_set_align(ui_AbtLabel23, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_AbtLabel23, "Factory Reset");
+    lv_obj_set_style_text_color(ui_AbtLabel23, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_AbtLabel23, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui_AbtLabel23, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui_AbtLabel23, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_AbtLabel23, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_AbtLabel23, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label24 = lv_label_create(ui_factoryresetcontianer);
-    lv_obj_set_width(ui_Label24, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label24, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label24, 5);
-    lv_obj_set_y(ui_Label24, -37);
-    lv_obj_set_align(ui_Label24, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label24, "Restore default configuration and \ndelete saved credentials ?");
-    lv_obj_set_style_text_color(ui_Label24, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label24, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(ui_Label24, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(ui_Label24, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_Label24, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label24, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_AbtLabel24 = lv_label_create(ui_factoryresetcontianer);
+    lv_obj_set_width(ui_AbtLabel24, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_AbtLabel24, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_AbtLabel24, 5);
+    lv_obj_set_y(ui_AbtLabel24, -37);
+    lv_obj_set_align(ui_AbtLabel24, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_AbtLabel24, "Restore default configuration and \ndelete saved credentials ?");
+    lv_obj_set_style_text_color(ui_AbtLabel24, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_AbtLabel24, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui_AbtLabel24, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui_AbtLabel24, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_AbtLabel24, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_AbtLabel24, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_confirmbtn = lv_button_create(ui_factoryresetcontianer);
     lv_obj_set_width(ui_confirmbtn, 116);
@@ -400,6 +416,18 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_text_align(ui_cancelbtnlbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_cancelbtnlbl, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_AbtLabel2 = lv_label_create(ui_backgesture1);
+    lv_obj_set_width(ui_AbtLabel2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_AbtLabel2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_AbtLabel2, -123);
+    lv_obj_set_y(ui_AbtLabel2, 112);
+    lv_obj_set_align(ui_AbtLabel2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_AbtLabel2, "Date and Time");
+    lv_obj_add_flag(ui_AbtLabel2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_set_style_text_color(ui_AbtLabel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_AbtLabel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_AbtLabel2, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_systemscreenlbl = lv_label_create(ui_Container5);
     lv_obj_set_width(ui_systemscreenlbl, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_systemscreenlbl, LV_SIZE_CONTENT);    /// 1
@@ -412,13 +440,14 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_text_font(ui_systemscreenlbl, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Label15, ui_event_Label15, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Label16, ui_event_Label16, LV_EVENT_ALL, NULL);
+//    lv_obj_add_event_cb(ui_Label16, ui_event_Label16, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Label17, ui_event_Label17, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homebtn1, ui_event_homebtn1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_tempunitswitch, ui_event_tempunitswitch, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_timeoutdropdown, ui_event_timeoutdropdown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_confirmbtn, ui_event_confirmbtn, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_cancelbtn, ui_event_cancelbtn, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_AbtLabel2, ui_event_Label2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_backgesture1, ui_event_backgesture1, LV_EVENT_ALL, NULL);
 
 }
@@ -445,12 +474,13 @@ void ui_SystemSettings_screen_destroy(void)
     ui_tempunitswitch = NULL;
     ui_timeoutdropdown = NULL;
     ui_factoryresetcontianer = NULL;
-    ui_Label23 = NULL;
-    ui_Label24 = NULL;
+    ui_AbtLabel23 = NULL;
+    ui_AbtLabel24 = NULL;
     ui_confirmbtn = NULL;
     ui_confirmbtnlbl = NULL;
     ui_cancelbtn = NULL;
     ui_cancelbtnlbl = NULL;
+    ui_AbtLabel2 = NULL;
     ui_systemscreenlbl = NULL;
 
 }

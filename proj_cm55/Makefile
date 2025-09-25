@@ -54,7 +54,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=FREERTOS RTOS_AWARE  
+COMPONENTS+=FREERTOS RTOS_AWARE SHT40 CO2
 
 ifeq ($(CONFIG_DISPLAY), R4INCH_DISP)
 DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_P4100TP
@@ -106,7 +106,7 @@ VFP_SELECT+=
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
 # above.
-CFLAGS+=
+CFLAGS+= -flax-vector-conversions -Wno-nan-infinity-disabled -Wno-implicit-function-declaration
 
 # Additional / custom C++ compiler flags.
 #

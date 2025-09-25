@@ -45,6 +45,8 @@ extern lv_obj_t * ui_confirmbtnlbl;
 extern void ui_event_cancelbtn(lv_event_t * e);
 extern lv_obj_t * ui_cancelbtn;
 extern lv_obj_t * ui_cancelbtnlbl;
+extern void ui_event_Label2(lv_event_t * e);
+extern lv_obj_t * ui_AbtLabel2;
 extern lv_obj_t * ui_systemscreenlbl;
 // CUSTOM VARIABLES
 

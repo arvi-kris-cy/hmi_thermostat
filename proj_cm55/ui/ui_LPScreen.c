@@ -5,11 +5,13 @@
 
 #include "ui.h"
 #include "thermostat_events.h"
+#include "app_sensor.h"
 
 lv_obj_t * ui_LPScreen;
 lv_obj_t * ui_Container2;
 lv_obj_t * ui_MainTemptextLP;
 lv_obj_t * ui_TimeColonLP;
+lv_obj_t * ui_Co2LP;
 lv_obj_t * ui_TimeColonLP2;
 lv_obj_t * ui_TimeHLP;
 lv_obj_t * ui_TimeMLP;
@@ -28,8 +30,10 @@ void ui_event_changescreenLP(lv_event_t * e)
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
         app_state = APP_ST_ACTIVE;
-//        start_active_state_timer(10000);
         start_inactivity_timer();
+
+        /* Set sensor sampling interval to Active state */
+        set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
     }
 }
 
@@ -62,6 +66,17 @@ void ui_LPScreen_screen_init(void)
     lv_obj_set_style_text_color(ui_MainTemptextLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_MainTemptextLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_MainTemptextLP, &ui_font_Roboto80, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Co2LP = lv_label_create(ui_Container2);
+    lv_obj_set_width(ui_Co2LP, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Co2LP, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Co2LP, 6);
+    lv_obj_set_y(ui_Co2LP, 75);
+    lv_obj_set_align(ui_Co2LP, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Co2LP, "450 ppm");
+    lv_obj_set_style_text_color(ui_Co2LP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Co2LP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Co2LP, &ui_font_sans36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TimeColonLP = lv_label_create(ui_Container2);
     lv_obj_set_width(ui_TimeColonLP, LV_SIZE_CONTENT);   /// 1
@@ -172,5 +187,6 @@ void ui_LPScreen_screen_destroy(void)
     ui_ecoLP = NULL;
     ui_DateLP = NULL;
     ui_changescreenLP = NULL;
+    ui_Co2LP = NULL;
 
 }

@@ -1,13 +1,46 @@
-/*
- * app_common.h
+/*******************************************************************************
+ * File Name:   app_common.h
  *
- *  Created on: 06-Jun-2025
- *      Author: Tejas.Patel */
+ * Description:  Public interface for common functionality between multiple cores.
+ *
+ *******************************************************************************
+* Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
+* an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
+*
+* This software, including source code, documentation and related
+* materials ("Software") is owned by Cypress Semiconductor Corporation
+* or one of its affiliates ("Cypress") and is protected by and subject to
+* worldwide patent protection (United States and foreign),
+* United States copyright laws and international treaty provisions.
+* Therefore, you may use this Software only as provided in the license
+* agreement accompanying the software package from which you
+* obtained this Software ("EULA").
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
+* non-transferable license to copy, modify, and compile the Software
+* source code solely for use in connection with Cypress's
+* integrated circuit products.  Any reproduction, modification, translation,
+* compilation, or representation of this Software except as specified
+* above is prohibited without the express written permission of Cypress.
+*
+* Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
+* reserves the right to make changes to the Software without notice. Cypress
+* does not assume any liability arising out of the application or use of the
+* Software or any product or circuit described in the Software. Cypress does
+* not authorize its products for use in any products where a malfunction or
+* failure of the Cypress product may reasonably be expected to result in
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer
+* of such system or application assumes all risk of such use and in doing
+* so agrees to indemnify Cypress against all liability.
+*******************************************************************************/
 
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "app_config.h"
 #include "ipc_communication.h"
 #include "cy_device.h"
 
@@ -21,6 +54,8 @@
 
 #define APP_RRAM_NVM_MAIN_NS_START        0x22000000
 #define APP_NVM_DEVICE_SETTINGS_OFFSET	  0x00002000
+
+#define UNUSED_PARAM(x) (void)(x)
 
 /*******************************************************************************
  *                                Data Types
@@ -109,16 +144,37 @@ typedef enum {
 typedef enum {
     DEV_ST_CLOUD_CONNECTED,
     DEV_ST_CLOUD_CONNECTING,
+    DEV_ST_CLOUD_CONNECTION_CANCEL,
     DEV_ST_WIFI_CONNECTING,
+    DEV_ST_WIFI_CONNECTION_CANCEL,
     DEV_ST_WIFI_DISCONNECTED,
     DEV_ST_CLOUD_DISCONNECTED,
     DEV_ST_BLE_ADVERTISING,
+    DEV_ST_BLE_ADVERTISEMENT_CANCEL,
 	DEV_ST_BLE_PAIRING,
     DEV_ST_UNPROVISIONED,
 	DEV_ST_PROVISIONED,
     DEV_ST_WIFI_CONNECTED,
-    DEV_ST_BLE_CONNECTED
+    DEV_ST_BLE_CONNECTED,
+    DEV_ST_SWITCH_WIFI,
+    DEV_ST_SWITCH_BLE,
 } device_connection_state_t;
+
+typedef enum {
+    BLE_CONN_RETRY_LIMITED,
+    BLE_CONN_RETRY_INFINITE,
+    WIFI_CONN_RETRY_LIMITED,
+    WIFI_CONN_RETRY_INFINITE,
+    CLOUD_CONN_RETRY_LIMITED,
+    CLOUD_CONN_RETRY_INFINITE,
+
+    MAX_CONN_RETRY,
+} connection_retries_t;
+
+typedef enum {
+    PRESENCE_DETECTED,
+    ABSENCE_DETECTED,
+} presence_status_t ;
 
 typedef enum {
     IPC_CMD_CURRENT_EVENT = 0,              //Send a current event to UI
@@ -127,21 +183,27 @@ typedef enum {
 	IPC_CMD_SET_UID,						//Response of UID
 
 	IPC_CMD_UPDATE_CONN_STATE,
+	IPC_CMD_UPDATE_CONN_RETRIES,            //Connection retries
+
+	IPC_CMD_UPDATE_PROVISION_STATE,
 
     // Wi-Fi
     IPC_CMD_SET_WIFI_SSID,                  // Set SSID string
     IPC_CMD_SET_WIFI_PASSWORD,              // Set Wi-Fi password
 	IPC_CMD_SET_WIFI_SSID_PASS,              // Set Wi-Fi password
 	IPC_CMD_RESET_WIFI_SSID_PASS,              // Erase Wi-Fi password
-
+	IPC_CMD_UPDATE_PRESENCE_STATUS,                   //Update presence detection
 
     // Environmental data
     IPC_CMD_GET_CURRENT_TEMP,                // Get current temperature
     IPC_CMD_GET_CURRENT_HUMIDITY,           // Get current humidity
     IPC_CMD_GET_CURRENT_CO2_LEVEL,          // Get current CO2 reading
+    IPC_CMD_SET_CURRENT_CO2_LEVEL,          // Set current CO2 reading
     IPC_CMD_SET_TARGET_TEMP,                // Set user-defined target temperature
 	IPC_CMD_SET_CURRENT_TEMP,                // Set current temperature
 	IPC_CMD_SET_TEMPERATURE_DATA,			//Set Current,Target and remaing time data
+
+    IPC_CMD_DEVICE_CONFIG,                 	// Device Config
 
 	//TIME
 	IPC_CMD_SET_REMAINING_TIME,               // Set remainig time to reach target temp.
@@ -166,10 +228,22 @@ typedef enum {
     IPC_CMD_OTA_PROGRESS,               	// Query OTA progress
     IPC_CMD_OTA_STATUS,                  	// Query OTA active status (in progress or not)
 
-    IPC_CMD_DEVICE_CONFIG,                 	// Device Config
+	IPC_CMD_SWITCH_TO_BLE,
+    IPC_CMD_SET_DATE_TIME,                  //Set date time
 
     IPC_CMD_MAX
 } ipc_command_e;
+
+// A simple structure to hold the parsed date and time components.
+typedef struct {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+} DateTime;
+
 
 typedef enum  {
     AUDIO_OFF = 0,
@@ -177,11 +251,6 @@ typedef enum  {
 	AUDIO_MED,
 	AUDIO_HIGH,
 }audio_level_t;
-
-typedef enum {
-	UNIT_DEG_C = 0,
-	UNIT_DEG_F,
-} system_unit_t;
 
 typedef enum {
 	TIMEOUT_3S = 0,
@@ -198,6 +267,14 @@ typedef enum  {
 
 	TEMP_UNIT_MAX,
 }temp_unit_t;
+
+typedef enum
+{
+    CONNECTIVITY_NONE       = 0,        // No active connectivity
+    CONNECTIVITY_BLE        = 1,        // Bluetooth Low Energy
+    CONNECTIVITY_MQTT_CLOUD = 2,        // Cloud via MQTT over Wi-Fi
+} connectivity_medium_t;
+
 
 /* Structure to hold WiFi details */
 typedef struct {

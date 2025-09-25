@@ -40,7 +40,8 @@
 * Header Files
 *******************************************************************************/
 #include "app_i2s.h"
-#include "wave.h"
+#include "error_wav.h"
+#include "success_wav.h"
 
 /*******************************************************************************
 * Global Variables
@@ -69,7 +70,8 @@ uint32_t i2s_txcount = 0;
 bool audio_playback_ended = false;
 
 /* Pointer to the audio data */
-uint16_t *wave_data = (uint16_t*)&hex_array[0];
+uint16_t *wave_data = (uint16_t*)&success_wav[0];
+unsigned int wave_data_size =  success_wav_size;
 uint16_t zeros_data[HW_FIFO_HALF_SIZE/2] = {0};
 
 /*******************************************************************************
@@ -149,7 +151,7 @@ void i2s_tx_interrupt_handler(void)
             Cy_AudioTDM_WriteTxData(TDM_STRUCT0_TX, (uint32_t) (wave_data[i2s_txcount++]));
 
             /* If the end of the wave data is reached, reset i2s_txcount and set end of playback */
-            if (i2s_txcount >= hex_array_size/2)
+            if (i2s_txcount >= wave_data_size/2)
             {
                 i2s_txcount = 0;
                 /* End of Playback */

@@ -1,19 +1,29 @@
 /*
- * app_audio.h
+ * app_main.h
  *
+ *  Created on: 05-Jun-2025
+ *      Author: Tejas Patel
  */
 
-#ifndef APP_INCLUDE_APP_AUDIO_H_
-#define APP_INCLUDE_APP_AUDIO_H_
+#ifndef PROJ_CM33_NS_APP_INCLUDE_APP_MAIN_H_
+#define PROJ_CM33_NS_APP_INCLUDE_APP_MAIN_H_
+
 
 /*******************************************************************************
  *                                Includes
  *******************************************************************************/
-#include "app_i2s/app_i2s.h"
+#include "cybsp.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cyabs_rtos.h"
+#include "cyabs_rtos_impl.h"
+#include "ipc_communication.h"
+#include "app_common.h"
 
 /*******************************************************************************
  *                                Macros
  *******************************************************************************/
+#define CY_RSLT_INVALID -1
 
 /*******************************************************************************
  *                                Constants
@@ -22,12 +32,6 @@
 /*******************************************************************************
  *                                Data Types
  *******************************************************************************/
-typedef enum {
-	AUDIO_LVL_OFF = 0x00,
-	AUDIO_LVL_LOW = 0x49,		//100-27=73
-	AUDIO_LVL_MED = 0x64,		//127-27=100
-	AUDIO_LVL_HIGH = 0x7F,		//127
-} audio_lvl_t;
 
 /*******************************************************************************
  *                                Global Variables
@@ -36,10 +40,8 @@ typedef enum {
 /*******************************************************************************
  *                                Function Prototypes
  *******************************************************************************/
-void app_speaker_init(void);
-void app_speaker_play(void);
-void app_speaker_clear(void);
-void app_speaker_audio_lvl_ctrl(audio_lvl_t level);
 
 
-#endif /* APP_INCLUDE_APP_AUDIO_H_ */
+
+
+#endif /* PROJ_CM33_NS_APP_INCLUDE_APP_MAIN_H_ */

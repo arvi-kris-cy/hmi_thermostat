@@ -10,8 +10,9 @@
 extern "C" {
 #endif
 
+#include "thermostat_events.h"
+
 void change_room(lv_event_t * e);
-void toggle_mode(lv_event_t * e);
 void increase_temp(lv_event_t * e);
 void decrease_temp(lv_event_t * e);
 void change_fan_speed(lv_event_t * e);
@@ -19,16 +20,15 @@ void weather_change(lv_event_t * e);
 void weatherup(lv_event_t * e);
 void weatherdown(lv_event_t * e);
 void hide_mapp_info_label(lv_event_t * e);
-void start_ble_adv(lv_event_t * e);
+
+
 void start_wifi_settings_ilabel_timer(lv_event_t * e);
-void connect_wifi(lv_event_t * e);
 void display_qrcode(lv_event_t * e);
 void delete_wifi_cred(lv_event_t * e);
 void open_notifcaiton(lv_event_t * e);
 void mic_icon_click_handler(lv_event_t * e);
 void change_brightness(lv_event_t * e);
 void display_presence_detection_status(void);
-void fan_clicked(lv_event_t * e);
 void update_display_brightness(uint8_t level);
 void update_setto_label(lv_event_t * e);
 
