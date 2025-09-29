@@ -140,6 +140,8 @@ va_rslt_t voice_assistant_get_command(char *text);
 void ww_to_ui();
 va_rslt_t intent_to_ui(const char * command);
 
+void voice_assistant_task(void * arg);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
