@@ -35,6 +35,7 @@ include ../common.mk
 # If APPNAME is edited, ensure to update or regenerate launch
 # configurations for your IDE.
 APPNAME=proj_cm55
+#APPTYPE=flash
 
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
@@ -54,23 +55,11 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=FREERTOS RTOS_AWARE SHT40 CO2
+COMPONENTS += FREERTOS RTOS_AWARE  
 
-ifeq ($(CONFIG_DISPLAY), R4INCH_DISP)
-DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_P4100TP
-# Ignore unused 10.1-inch display and touch driver files from compilation
-CY_IGNORE += $(SEARCH_display-tft-ek79007ad3)
-CY_IGNORE += $(SEARCH_touch-ctp-ili2511)
-# Ignore unused 7-inch display and touch driver files from compilation
-CY_IGNORE += $(SEARCH_display-dsi-waveshare-7-0-lcd-c)
-CY_IGNORE += $(SEARCH_touch-ctp-gt911)
-# Ignore unused 4.3-inch display and touch driver files from compilation
-CY_IGNORE += $(SEARCH_display-dsi-waveshare-4-3-lcd)
-CY_IGNORE += $(SEARCH_touch-ctp-ft5406)
-endif
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS=
+DISABLE_COMPONENTS+=
 
 CORE=CM55
 CORE_NAME=CM55_0
@@ -89,24 +78,27 @@ INCLUDES+=app/include
 INCLUDES+=app_i2s
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE
+DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
 
-
-# Ignore unused LVGL middleware files from compilation
-CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests
-CY_IGNORE += $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples 
-CY_IGNORE += $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_vg_lite_utils.c
-CY_IGNORE += $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite_img.c $(SEARCH_lvgl)/src/draw/sw/blend/helium
-CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/neon $(SEARCH_lvgl)/src/core/lv_refr.c 
+#DEFINES += FLASH_BOOT
 
 # Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT+=
+VFP_SELECT = hardfp
 
 # Additional / custom C compiler flags.
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
 # above.
 CFLAGS+= -flax-vector-conversions -Wno-nan-infinity-disabled -Wno-implicit-function-declaration
+ifeq ($(TOOLCHAIN),LLVM_ARM)
+    ifeq ($(CONFIG),Debug)
+        CFLAGS+=-O1
+    else
+        CFLAGS+=
+    endif
+else
+    CFLAGS+=
+endif 
 
 # Additional / custom C++ compiler flags.
 #
@@ -130,10 +122,102 @@ LDLIBS+=
 LINKER_SCRIPT=
 
 # Custom pre-build commands to run.
-PREBUILD=
+PREBUILD+=
 
 # Custom post-build commands to run.
-POSTBUILD=
+POSTBUILD+=
+
+################################################################################
+# Application specific Configurations to use COMPONENTS, DEFINES and flags.
+################################################################################
+
+DEFINES+=PROJECT_PREFIX=$(DEEPCRAFT_PROJECT_NAME)
+
+DEFINES+=_BAREMETAL=0 LV_USE_QRCODE #SHOW_MCPS
+
+# Lift of components for onboard sensors
+COMPONENTS += SHT40 CO2
+
+ifeq ($(CONFIG_DISPLAY), R4INCH_DISP)
+DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_P4100TP
+# Ignore unused 10.1-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-tft-ek79007ad3)
+CY_IGNORE += $(SEARCH_touch-ctp-ili2511)
+# Ignore unused 7-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-dsi-waveshare-7-0-lcd-c)
+CY_IGNORE += $(SEARCH_touch-ctp-gt911)
+# Ignore unused 4.3-inch display and touch driver files from compilation
+CY_IGNORE += $(SEARCH_display-dsi-waveshare-4-3-lcd)
+CY_IGNORE += $(SEARCH_touch-ctp-ft5406)
+endif
+
+#Application logger
+COMPONENTS += APP_LOGGER
+
+ifeq ($(CONFIG_VOICE_CORE_MODE),LIMITED)
+    COMPONENTS+=AVC_DEMO
+endif
+
+ifeq ($(CONFIG_VOICE_CORE_MODE),FULL)
+    COMPONENTS+=AVC_FULL
+endif
+
+# Add additional components related to MTB ML
+COMPONENTS+=CMSIS_DSP U55
+
+# List of components for ML-middleware
+COMPONENTS+=MW_MDL_VA MW_MDL_DSNS MW_MDL_DSES MW_DSNS_MODEL
+
+# List of defines for ML-middleware
+DEFINES+=TF_LITE_STATIC_MEMORY CY_ML_MODEL_MEM=.cy_socmem_data
+
+# List of defines for DEEPCRAFT Voice Assistant
+DEFINES+=ENABLE_IFX_SOD ENABLE_IFX_PRE_PROCESS_HPF ENABLE_IFX_VA_WWD ENABLE_IFX_VA_CMD
+
+# Add necessary defines for the DEEPCRAFT Audio Enhancement
+DEFINES+=RUN_FLOAT_FE ENABLE_AFE_MW_SUPPORT DSNS_ENABLE_MTB_ML USE_MTB_ML
+
+ifeq (ENABLED, $(USE_AUDIO_ENHANCEMENT))
+DEFINES+=USE_AUDIO_ENHANCEMENT
+endif
+
+# Neural Network Configuration. Options include
+#
+# float    -- floating point for the input data and weights
+# int8x8   -- 8-bit fixed-point for the input data and weights
+NN_TYPE=int16x8
+
+# Choose the inference engine
+# tflm      -- TensorFlow Lite for Microcontrollers inference engine with interpreter
+# Note tflm_less option is not supported on CM55+U55
+NN_INFERENCE_ENGINE=tflm
+
+NPU=U55
+
+DEFINES+=ETHOSU55
+
+
+#Default Cache management is all layers.
+#DEFINES+=MTB_ML_ETHOSU_CACHE_MGMT_TYPE=MTB_ML_ETHOSU_CACHE_MGMT_ALL_LAYERS
+
+
+# Add additional define/components to select the inference engine
+ifeq (tflm, $(NN_INFERENCE_ENGINE))
+    COMPONENTS+=ML_TFLM
+    DEFINES+=TF_LITE_STATIC_MEMORY
+endif
+
+DEFINES+= CY_ML_MODEL_MEM=.cy_socmem_data
+ifeq (int16x8, $(NN_TYPE))
+    COMPONENTS+=ML_INT16x8
+endif
+ifeq (int8x8, $(NN_TYPE))
+    COMPONENTS+=ML_INT8x8
+endif
+
+#PDM mic settings - EVK 
+#GAIN_CONTROL_ON - to restrict gain level to -25.0dB to 25.0dB
+DEFINES +=GAIN_CONTROL_ON
 
 
 ################################################################################
@@ -147,15 +231,32 @@ CY_APP_PATH=
 
 # Relative path to the shared repo location.
 #
-# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> 
-# field begins with $$ASSET_REPO$$, then the repo is deposited in the path 
-# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one 
-# directory level above the current app directory. This is used with 
-# CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
+# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> field 
+# begins with $$ASSET_REPO$$, then the repo is deposited in the path specified by 
+# the CY_GETLIBS_SHARED_PATH variable. The default location is one directory level 
+# above the current app directory.
+# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
 CY_GETLIBS_SHARED_PATH=../..
 
 # Directory name of the shared repo location.
 #
 CY_GETLIBS_SHARED_NAME=mtb_shared
+
+# Absolute path to the compiler's "bin" directory.
+#
+# The default depends on the selected TOOLCHAIN (GCC_ARM uses the ModusToolbox
+# software provided compiler by default).
+CY_COMPILER_PATH?=
+
+
+CY_AVC_PATH=$(SEARCH_audio-voice-core)
+CY_AFE_PATH=$(SEARCH_audio-front-end)
+CY_SOD_PATH=$(SEARCH_speech-onset-detection)
+
+# Ignore unused LVGL middleware files from compilation
+
+#LVGL_PATH = ./source/modules/use_case/COMPONENT_MUSICPLAYER/COMPONENT_LVGL
+CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_vg_lite_utils.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite_img.c
+CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/helium $(SEARCH_lvgl)/src/draw/sw/blend/neon $(SEARCH_lvgl)/demos/music $(SEARCH_lvgl)/src/core/lv_refr.c#TODO ignore 
 
 include $(CY_TOOLS_DIR)/make/start.mk

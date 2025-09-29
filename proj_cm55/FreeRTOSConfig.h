@@ -55,6 +55,8 @@
 #include "cycfg_system.h"
 #endif
 
+
+
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #if defined (__ICCARM__) || (__GNUC__)
@@ -201,6 +203,9 @@ standard names - or at least those used in the unmodified vector table. */
 /* Enable low power tickless functionality. The RTOS abstraction library
  * provides the compatible implementation of the vApplicationSleep hook:
  * https://github.com/Infineon/abstraction-rtos#freertos
+ * The Low Power Assistant library provides additional portable configuration layer
+ * for low-power features supported by the PSoC 6 devices:
+ * https://github.com/Infineon/lpa
  */
 extern void vApplicationSleep( uint32_t xExpectedIdleTime );
 #define portSUPPRESS_TICKS_AND_SLEEP( xIdleTime ) vApplicationSleep( xIdleTime )

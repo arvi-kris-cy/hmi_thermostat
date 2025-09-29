@@ -6,7 +6,7 @@
  *
  * Related Document: See README.md
  *
- *******************************************************************************
+********************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
@@ -43,7 +43,6 @@
 * Header Files
 *******************************************************************************/
 #include "retarget_io_init.h"
-
 
 /*******************************************************************************
 * Global Variables
@@ -93,7 +92,6 @@ static cy_stc_syspm_callback_t retarget_io_syspm_cb =
     .order              = SYSPM_CALLBACK_ORDER
 };
 #endif /* (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP) */
-
 
 /*******************************************************************************
 * Function Name: init_retarget_io

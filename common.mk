@@ -33,13 +33,11 @@ TARGET=KIT_PSE84_HMI
 
 # Name of toolchain to use. Options include:
 #
-# GCC_ARM 	-- GCC is available as part of ModusToolbox Setup program
 # ARM     	-- ARM Compiler (must be installed separately)
-# IAR     	-- IAR Compiler (must be installed separately)
 # LLVM_ARM	-- LLVM Embedded Toolchain (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
-TOOLCHAIN=GCC_ARM
+TOOLCHAIN=LLVM_ARM
 
 # Default build configuration. Options include:
 #
@@ -50,6 +48,32 @@ TOOLCHAIN=GCC_ARM
 # If CONFIG is manually edited, ensure to update or regenerate 
 # launch configurations for your IDE.
 CONFIG=Debug
+
+MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
+
+# Config file for postbuild sign and merge operations.
+# NOTE: Check the JSON file for the command parameters
+COMBINE_SIGN_JSON?=configs/boot_with_extended_boot.json
+
+# Option to enable the DEEPCRAFT Audio Enhancement.
+#
+# ENABLED   - use the audio-enhancement to filter the audio input stream before
+#             executing the voice-assistant process function.
+# DISABLED  - use raw audio input stream from microphone to the feed the 
+#             voice assistant process function.
+USE_AUDIO_ENHANCEMENT=ENABLED
+
+# Option to use FULL or LIMITED version of the Audio Voice Core library
+#
+# LIMITED - Limited time functionality (Default)
+# FULL    - Full functionality, no time limit
+#
+CONFIG_VOICE_CORE_MODE=LIMITED
+
+# Set the name of the project created in DEEPCRAFT Voice Assistant cloud tool 
+# and placed in the va_models/ folder.
+
+DEEPCRAFT_PROJECT_NAME=VA_HMI_Thermostat
 
 ############################# Display module ###################################
 # Option to choose the display module to realize the graphics application.

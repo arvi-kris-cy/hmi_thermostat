@@ -1,0 +1,631 @@
+/******************************************************************************
+* File Name : voice_assistant.c
+*
+* Description :
+* Code for DEEPCRAFT voice assistant
+********************************************************************************
+* Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
+* an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
+*
+* This software, including source code, documentation and related
+* materials ("Software") is owned by Cypress Semiconductor Corporation
+* or one of its affiliates ("Cypress") and is protected by and subject to
+* worldwide patent protection (United States and foreign),
+* United States copyright laws and international treaty provisions.
+* Therefore, you may use this Software only as provided in the license
+* agreement accompanying the software package from which you
+* obtained this Software ("EULA").
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
+* non-transferable license to copy, modify, and compile the Software
+* source code solely for use in connection with Cypress's
+* integrated circuit products.  Any reproduction, modification, translation,
+* compilation, or representation of this Software except as specified
+* above is prohibited without the express written permission of Cypress.
+*
+* Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
+* reserves the right to make changes to the Software without notice. Cypress
+* does not assume any liability arising out of the application or use of the
+* Software or any product or circuit described in the Software. Cypress does
+* not authorize its products for use in any products where a malfunction or
+* failure of the Cypress product may reasonably be expected to result in
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer
+* of such system or application assumes all risk of such use and in doing
+* so agrees to indemnify Cypress against all liability.
+*******************************************************************************/
+
+/*******************************************************************************
+* Header Files
+*******************************************************************************/
+#include "voice_assistant.h"
+#include "thermostat_events.h"
+
+#include "cy_pdl.h"
+#include "cycfg.h"
+
+#include "stdlib.h"
+
+#include MTB_WWD_NLU_CONFIG_HEADER(PROJECT_PREFIX)
+
+/*******************************************************************************
+* Macros
+*******************************************************************************/
+
+
+/*******************************************************************************
+* Global Variables
+*******************************************************************************/
+static mtb_wwd_t va_wwd_obj;
+static mtb_nlu_t va_nlu_obj;
+static va_mode_t va_mode = VA_MODE_WW_SINGLE_CMD;
+static va_run_state_t va_state = VA_RUN_WWD;
+
+extern bool handle_ww_for_ui;
+extern bool handle_command_for_ui;
+extern int *intent_value;
+extern uint8_t brightness_level;
+/*******************************************************************************
+ * Function Name: voice_assistant_init
+ *******************************************************************************
+ * Summary:
+ * Initializes the voice assistant with the specified mode.
+ *
+ * Parameters:
+ *  mode: New mode to set.
+ *
+ * Return:
+ *  Returns VA_RSLT_SUCCESS if successful, otherwise returns an error code.
+ *
+ *******************************************************************************/
+va_rslt_t voice_assistant_init(va_mode_t mode)
+{
+    cy_rslt_t result;
+
+    va_mode = mode;
+
+    switch (mode)
+    {
+        case VA_MODE_WW_SINGLE_CMD:
+        case VA_MODE_WW_MULTI_CMD:
+            result = mtb_wwd_init(&va_wwd_obj, MTB_WWD_NLU_CONFIG_STRUCT(PROJECT_PREFIX)[0]);
+            if (result != CY_WWD_RSLT_SUCCESS)
+            {
+                return VA_RSLT_FAIL;
+            }
+            result = mtb_nlu_init(&va_nlu_obj, MTB_WWD_NLU_CONFIG_STRUCT(PROJECT_PREFIX)[0]);
+            if (result != CY_WWD_RSLT_SUCCESS)
+            {
+                return VA_RSLT_FAIL;
+            }
+            va_state = VA_RUN_WWD;
+            break;
+
+        case VA_MODE_WW_ONLY:
+            result = mtb_wwd_init(&va_wwd_obj, MTB_WWD_NLU_CONFIG_STRUCT(PROJECT_PREFIX)[0]);
+            if (result != CY_WWD_RSLT_SUCCESS)
+            {
+                return VA_RSLT_FAIL;
+            }
+            va_state = VA_RUN_WWD;
+            break;
+
+        case VA_MODE_CMD_ONLY:
+            result = mtb_nlu_init(&va_nlu_obj, MTB_WWD_NLU_CONFIG_STRUCT(PROJECT_PREFIX)[0]);
+            if (result != CY_NLU_RSLT_SUCCESS)
+            {
+                return VA_RSLT_FAIL;
+            }
+            va_state = VA_RUN_CMD;
+            break;
+
+        default:
+            return VA_RSLT_INVALID_ARGUMENT;
+    }
+
+    return VA_RSLT_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function Name: voice_assistant_change_state
+ *******************************************************************************
+ * Summary:
+ * Changes the state of the voice assistant.
+ *
+ * Parameters:
+ *  state: New state to set.
+ *
+ * Return:
+ *  void
+ *
+ *******************************************************************************/
+void voice_assistant_change_state(va_run_state_t state)
+{
+    va_state = state;
+}
+
+/*******************************************************************************
+ * Function Name: voice_assistant_process
+ *******************************************************************************
+ * Summary:
+ * Processes the audio data and detects the wake word or command.
+ *
+ * Parameters:
+ *  audio_frame: Pointer to the audio data frame.
+ *  event: Pointer to the event detected.
+ *  va_data: Pointer to the data detected.
+ *
+ * Return:
+ *  Returns VA_RSLT_SUCCESS if successful, otherwise returns an error code.
+ *
+ *******************************************************************************/
+va_rslt_t voice_assistant_process(int16_t *audio_frame, va_event_t *event, va_data_t *va_data)
+{
+    cy_rslt_t result;
+    mtb_wwd_state_t wwd_state;
+    mtb_nlu_state_t nlu_state;
+    mtb_nlu_variable_t variable[VA_NLU_MAX_NUM_VARIABLES] = {0};
+    
+    if ((event == NULL) || (audio_frame == NULL))
+    {
+        return VA_RSLT_INVALID_ARGUMENT;
+    }
+
+    /* Check if the current VA state is WWD */
+    if (va_state == VA_RUN_WWD)
+    {
+        /* Run the wake-word detection process */
+        result = mtb_wwd_process(&va_wwd_obj, audio_frame, &wwd_state);
+
+        if (result == CY_WWD_RSLT_LICENSE_ERROR)
+        {
+            return VA_RSLT_LICENSE_ERROR;
+        } 
+        else if (result != CY_WWD_RSLT_SUCCESS)
+        {
+            return VA_RSLT_FAIL;
+        }
+
+        /* Check if the wake-word was detected */
+        if (wwd_state == CY_WWD_DETECTED)
+        {
+            *event = VA_EVENT_WW_DETECTED;
+
+            /* Change state to detect command */
+            if (va_mode != VA_MODE_WW_ONLY)
+            {
+                va_state = VA_RUN_CMD;
+            }
+        }
+        else if (wwd_state == CY_WWD_NOT_DETECTED)
+        {
+            *event = VA_EVENT_WW_NOT_DETECTED;
+        }
+        else
+        {
+            *event = VA_NO_EVENT;
+        }
+    }
+    /* Check if the current VA state is CMD */
+    else if (va_state == VA_RUN_CMD)
+    {
+        if (va_data == NULL)
+        {
+            return VA_RSLT_INVALID_ARGUMENT;
+        }
+
+        /* Run the command detection process */
+        result = mtb_nlu_process(&va_nlu_obj, audio_frame, &nlu_state, &va_data->intent_index, variable, &va_data->num_var);
+
+        if (result == CY_NLU_RSLT_LICENSE_ERROR)
+        {
+            return VA_RSLT_LICENSE_ERROR;
+        }
+
+        /* Check if a command was detected */
+        if (nlu_state == CY_NLU_DETECTED)
+        {
+            *event = VA_EVENT_CMD_DETECTED;
+
+            if (va_mode == VA_MODE_WW_SINGLE_CMD)
+            {
+                va_state = VA_RUN_WWD;
+            }
+            
+            for (int i = 0; i < va_data->num_var; i++)
+            {
+                va_data->variable[i].value = variable[i].value;
+                va_data->variable[i].unit_idx = variable[i].unit_idx;
+            }
+        }
+        else if (result == CY_NLU_RSLT_COMMAND_TIMEOUT)
+        {
+            *event = VA_EVENT_CMD_TIMEOUT;
+            if (va_mode != VA_MODE_CMD_ONLY)
+            {
+                va_state = VA_RUN_WWD;
+            }
+        }
+        else if (result == CY_NLU_RSLT_PRE_SILENCE_TIMEOUT)
+        {
+            *event = VA_EVENT_CMD_SILENCE_TIMEOUT;
+            if ((va_mode != VA_MODE_CMD_ONLY) && (va_mode != VA_MODE_WW_MULTI_CMD))
+            {
+                va_state = VA_RUN_WWD;
+            }
+        }
+        else
+        {
+            *event = VA_NO_EVENT;
+        }
+    }
+    
+    return VA_RSLT_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function Name: voice_assistant_get_command
+ *******************************************************************************
+ * Summary:
+ * Returns the command string detected by the voice-assistant.
+ *
+ * Parameters:
+ *  text: detected command string
+ *
+ * Return:
+ *  Returns VA_RSLT_SUCCESS if successful, otherwise returns an error code.
+ *
+ *******************************************************************************/
+va_rslt_t voice_assistant_get_command(char *text)
+{
+    cy_rslt_t result;
+
+    if (text == NULL)
+    {
+        return VA_RSLT_INVALID_ARGUMENT;
+    }
+
+    result = mtb_nlu_get_command(&va_nlu_obj, text);
+
+    return result;
+}
+
+/*******************************************************************************
+ * Function Name: Intent Functions Definitions
+ *******************************************************************************/
+void ww_to_ui()
+{
+    if(handle_ww_for_ui)
+    {
+        // Check if the current screen is ui_LPScreen
+        if (lv_screen_active() == ui_LPScreen) 
+        {
+            _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_ActiveScreen_screen_init);
+            voice_assistant_change_state(VA_RUN_CMD);
+            handle_ww_for_ui = false;
+        } 
+        else 
+        {
+            // printf("Current screen is not ui_LPScreen. Screen change skipped.\n");
+        }
+        handle_ww_for_ui = false;
+    }
+}
+
+va_detect_cmd_t map_string_to_enum(const char *command) {
+    if (strcmp(command, "SLEEPMODE") == 0) {
+        return SLEEPMODE;
+    } else if (strcmp(command, "DECREASESCREENBRIGHTNESS") == 0) {
+        return DECREASESCREENBRIGHTNESS;
+    } else if (strcmp(command, "INCREASESCREENBRIGHTNESS") == 0) {
+        return INCREASESCREENBRIGHTNESS;
+    } else if (strcmp(command, "DECREASETEMPERATURE") == 0) {
+        return DECREASETEMPERATURE;
+    } else if (strcmp(command, "INCREASETEMPERATURE") == 0) {
+        return INCREASETEMPERATURE;
+    } else if (strcmp(command, "SETTEMPERATURE") == 0) {
+        return SETTEMPERATURE;
+    } else if (strcmp(command, "COOLINGMODE") == 0) {
+        return COOLINGMODE;
+    } else if (strcmp(command, "HEATINGOFFMODE") == 0) {
+        return HEATINGOFFMODE;
+    } else if (strcmp(command, "HEATINGONMODE") == 0) {
+        return HEATINGONMODE;
+    } else if (strcmp(command, "SCREENOFF") == 0) {
+        return SCREENOFF;
+    } else if (strcmp(command, "SCREENON") == 0) {
+        return SCREENON;
+    } else if (strcmp(command, "FANENABLEMODE") == 0) {
+        return FANENABLEMODE;
+    } else if (strcmp(command, "FANDISABLEMODE") == 0) {
+        return FANDISABLEMODE;
+    } else if (strcmp(command, "TEMPERATURESTATUS") == 0) {
+        return TEMPERATURESTATUS;
+    } else if (strcmp(command, "WIFISTATUS") == 0) {
+        return WIFISTATUS;
+    } else if (strcmp(command, "SYSTEMSTATUS") == 0) {
+        return SYSTEMSTATUS;
+    } else if (strcmp(command, "CONNECTTOWIFI") == 0) {
+        return CONNECTTOWIFI;
+    } else if (strcmp(command, "UNMUTEVOLUME") == 0) {
+        return UNMUTEVOLUME;
+    } else if (strcmp(command, "MUTEVOLUME") == 0) {
+        return MUTEVOLUME;
+    } else if (strcmp(command, "SETTINGMODE") == 0) {
+        return SETTINGMODE; 
+    }
+    else {
+        return -1;  // Unknown command
+    }
+}
+
+void go_to_sleepmode()
+{
+    _ui_screen_change(&ui_LPScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_LPScreen_screen_init);
+}
+
+void decrease_screen_brightness()
+{
+    brightness_level  = lv_slider_get_value(ui_Slider2);
+    if(brightness_level%10 !=0)
+    {
+        brightness_level = ((brightness_level) - (brightness_level%10) + 10);
+    }
+    brightness_level  -= 10;
+
+    if(brightness_level > lv_slider_get_min_value(ui_Slider2) && brightness_level < lv_slider_get_max_value(ui_Slider2))
+    {
+        lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
+        mtb_display_st7701s_set_brightness(brightness_level);
+
+        printf("Brightness level %d. \n", brightness_level);
+    }
+}
+
+void increase_screen_brightness()
+{
+    brightness_level  = lv_slider_get_value(ui_Slider2);
+    if(brightness_level%10 !=0)
+    {
+        brightness_level = ((brightness_level) - (brightness_level%10) + 10);
+    }
+    brightness_level  += 10;
+    
+    if(brightness_level > lv_slider_get_min_value(ui_Slider2) && brightness_level < lv_slider_get_max_value(ui_Slider2))
+    {
+        lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
+        mtb_display_st7701s_set_brightness(brightness_level);
+
+        printf("Brightness level %d. \n", brightness_level);
+    }
+}
+
+void go_to_setting()
+{
+    _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_SettingsScreen_screen_init);
+}
+
+void disable_fanmode()
+{
+    // lv_obj_remove_state(ui_Switch1, LV_STATE_CHECKED);
+}
+
+void enable_fanmode()
+{
+    // lv_obj_add_state(ui_Switch1, LV_STATE_CHECKED);
+}
+
+void set_temperature(int *value)
+{
+    // Check if the value pointer is NULL
+    if (value == NULL) {
+        printf("Error: NULL temperature value provided.\n");
+        return;
+    }
+
+    // Create a buffer to hold the formatted string
+    char temp_with_unit[32];
+
+    // Format the integer value with the "°C" unit
+    snprintf(temp_with_unit, sizeof(temp_with_unit), "%d°c", *value);
+
+    // Print for debugging (replace this with your LVGL label update)
+    printf("Setting temperature: %s\n", temp_with_unit);
+
+    // Update the LVGL label (example function call)
+    lv_label_set_text(ui_MainTempactive, temp_with_unit);
+}
+
+/*******************************************************************************
+ * Function Name: Intent to ui changes
+ *******************************************************************************/
+va_rslt_t intent_to_ui(const char *command)
+{
+    if(handle_command_for_ui)
+    {
+        if (NULL == command) {
+            // printf("No command received.\n");
+            return VA_RSLT_INVALID_ARGUMENT;  // Return immediately for invalid input
+        }
+
+        // Map the command string to an enum value
+        va_detect_cmd_t cmd = map_string_to_enum(command);
+
+        // Handle the command using a switch statement
+        switch (cmd) 
+        {
+            case SLEEPMODE:
+            {
+                go_to_sleepmode();
+                printf("Handling SLEEPMODE command.\n");
+                break;
+            }
+
+            case DECREASESCREENBRIGHTNESS:
+            {
+                decrease_screen_brightness();
+                printf("Handling DECREASESCREENBRIGHTNESS command.\n");
+                break;
+            }
+
+            case INCREASESCREENBRIGHTNESS:
+            {
+                increase_screen_brightness();
+                printf("Handling INCREASESCREENBRIGHTNESS command.\n");
+                break;
+            }
+
+            case DECREASETEMPERATURE:
+            {
+                update_device_temp((uint8_t)(get_current_temperature() - 10));
+                printf("Handling DECREASETEMPERATURE command.\n");
+                break;
+            }
+
+            case INCREASETEMPERATURE:
+            {
+                update_device_temp((uint8_t)(get_current_temperature() + 10));
+                printf("Handling INCREASETEMPERATURE command.\n");
+                break;
+            }
+
+            case SETTEMPERATURE:
+            {
+                update_device_temp((uint8_t)*intent_value);
+                printf("Handling SETTEMPERATURE command.\n");
+                break;
+            }
+
+            case COOLINGMODE:
+            {
+                update_thermostat_mode(MODE_RAPID);
+                current_settings.thermostat_setting.mode = MODE_RAPID;
+                current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
+                update_thermostat_mode_timer();
+                update_current_device_setting();
+                printf("Handling COOLINGMODE command.\n");
+                break;
+            }
+
+            case HEATINGOFFMODE:
+            {
+                update_thermostat_mode(MODE_ECO);
+                current_settings.thermostat_setting.mode = MODE_ECO;
+                current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
+                update_thermostat_mode_timer();
+                update_current_device_setting();
+                printf("Handling HEATINGOFFMODE command.\n");
+                break;
+            }
+
+            case HEATINGONMODE:
+            {
+                update_thermostat_mode(MODE_OFF);
+                current_settings.thermostat_setting.mode = MODE_OFF;
+                current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
+                update_thermostat_mode_timer();
+                update_current_device_setting();
+                printf("Handling HEATINGONMODE command.\n");
+                break;
+            }
+
+            case SCREENOFF:
+            {
+            	go_to_sleepmode();
+                printf("Handling SCREENOFF command.\n");
+                break;
+            }
+
+            case SCREENON:
+            {
+                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
+                printf("Handling SCREENON command.\n");
+                break;
+            }
+
+            case FANENABLEMODE:
+            {
+                update_fan_mode(FAN_MED);
+                current_settings.thermostat_setting.fan_mode = FAN_MED;
+                update_current_device_setting();
+                printf("Handling FANENABLEMODE command.\n");
+                break;
+            }
+
+            case FANDISABLEMODE:
+            {
+                update_fan_mode(FAN_OFF);
+                current_settings.thermostat_setting.fan_mode = FAN_OFF;
+                update_current_device_setting();
+                printf("Handling FANDISABLEMODE command.\n");
+                break;
+            }
+
+            case TEMPERATURESTATUS:
+            {
+                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
+                printf("Handling TEMPERATURESTATUS command.\n");
+                break;
+            }
+
+            case WIFISTATUS:
+            {
+                printf("Handling WIFISTATUS command.\n");
+                break;
+            }
+
+            case SYSTEMSTATUS:
+            {
+                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
+                printf("Handling SYSTEMSTATUS command.\n");
+                break;
+            }
+
+            case CONNECTTOWIFI:
+            {
+                update_switch_wifi_ipc();
+                printf("Handling CONNECTTOWIFI command.\n");
+                break;
+            }
+
+            case UNMUTEVOLUME:
+            {
+                update_thermostat_volume(AUDIO_MED);
+                printf("Handling UNMUTEVOLUME command.\n");
+                break;
+            }
+
+            case MUTEVOLUME:
+            {
+                update_thermostat_volume(AUDIO_OFF);
+                printf("Handling MUTEVOLUME command.\n");
+                break;
+            }
+
+            case SETTINGMODE:
+            {
+                go_to_setting();
+                printf("Handling SETTINGMODE command.\n");
+                break;
+            }
+
+            default:
+            {
+                // Handle unknown commands
+                if (command && command[0] != '\0') {
+                    printf("Unknown command: %s\n", command);
+                } else {
+                    printf("Unknown or empty command received.\n");
+                }
+                return VA_RSLT_INVALID_ARGUMENT;  // Return an error for unknown commands
+            }
+        }
+        handle_command_for_ui = false;
+    }
+
+    // Successfully handled the command
+    return VA_RSLT_SUCCESS;
+}
+
+
