@@ -118,6 +118,7 @@ void cm33_msg_callback(uint32_t * msg_data)
         msg_val = ipc_recv_msg->data;
         msg_cmd = ipc_recv_msg->cmd;
 
+        printf("CM33 Callback triggered \n");
         /* Notify the UI RX task directly with an IPC message event. */
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         xTaskNotifyFromISR(cm33_ui_rx_task_handle, 1, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
@@ -303,8 +304,6 @@ int main(void)
     printf("Thermostat Application Started!\n");
     printf("===============================================================\n\n");
 
-    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
-    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 
     ui_rx_thread_init();
 
@@ -324,6 +323,8 @@ int main(void)
     result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
                 NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
 
+    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
+    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
     if( pdPASS == result )
     {
         /* Start the FreeRTOS scheduler. */

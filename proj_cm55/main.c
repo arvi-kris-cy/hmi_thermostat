@@ -1088,10 +1088,10 @@ static void cm55_gfx_task(void *arg)
             ui_timer_init();
 
             /* Start sensor task */
-            xTaskCreate(sensor_task, SENSOR_TASK_NAME,
-                                                   SENSOR_TASK_STACK_SIZE, NULL,
-                                                   SENSOR_TASK_PRIORITY,
-                                                   &rtos_cm55_sensor_task_handle);
+            // xTaskCreate(sensor_task, SENSOR_TASK_NAME,
+            //                                        SENSOR_TASK_STACK_SIZE, NULL,
+            //                                        SENSOR_TASK_PRIORITY,
+            //                                        &rtos_cm55_sensor_task_handle);
         }
         else
         {
@@ -1111,7 +1111,7 @@ static void cm55_gfx_task(void *arg)
     for (;;)
     {
         /* Process sensor update event */
-        handle_sensor_update();
+        //handle_sensor_update();
 
         /* Process system IPC events */
         handle_system_event();
@@ -1121,20 +1121,21 @@ static void cm55_gfx_task(void *arg)
          */
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
-if(boot_config)
-    	{
-    		load_thermostat_config(current_settings.thermostat_setting.mode);
-    		update_device_config_ipc();
-    		boot_config = false;
-    	}
+
+        if(boot_config)
+            {
+                load_thermostat_config(current_settings.thermostat_setting.mode);
+                update_device_config_ipc();
+                boot_config = false;
+            }
 
     	/* If eeprom write operation pending */
-        handle_eeprom_write();
+        //handle_eeprom_write();
 
     	/* If touch event detected restart the inactivity timer */
         handle_touch_event();
     
- clear_speaker();
+        clear_speaker();
 
     	/* Update time on UI */
     	handle_time_update();
@@ -1232,10 +1233,10 @@ int main(void)
     }
 
     /* Power pasco2 sensor */
-    power_co2_sensor();
+    //power_co2_sensor();
 
     // /* Initialize I2C SCB */
-    // init_i2c_controller();
+    // init_i2c_controller();                                                                       
 
     // Create a binary semaphore to act as a mutex.
     i2c_mutex = xSemaphoreCreateMutex();
@@ -1275,8 +1276,6 @@ int main(void)
                               GFX_TASK_STACK_SIZE, NULL,
                               GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
 
-    /* ANSI ESC sequence for clear screen */
-    printf("\x1b[2J\x1b[;H");
 
     if (pdPASS == task_return)
     {

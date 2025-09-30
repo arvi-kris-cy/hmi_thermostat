@@ -232,7 +232,7 @@ void sensor_task(void *arg)
             result = xensiv_pasco2_mtb_read(&xensiv_pasco2, DEFAULT_PRESSURE_REF_HPA, &read_ppm);
             if (result == CY_RSLT_SUCCESS)
             {
-                //            printf("CO2 concentration: %d ppm\r\n", ppm);
+                printf("CO2 concentration: %d ppm\r\n", read_ppm);
                 sensor_data_available = true;
             }
             else if (result == XENSIV_PASCO2_RSLT_READ_NRDY)

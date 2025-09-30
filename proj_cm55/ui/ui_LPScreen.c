@@ -33,7 +33,7 @@ void ui_event_changescreenLP(lv_event_t * e)
         start_inactivity_timer();
 
         /* Set sensor sampling interval to Active state */
-        set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
+        //set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
     }
 }
 

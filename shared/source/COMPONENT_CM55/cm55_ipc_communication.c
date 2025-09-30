@@ -145,8 +145,8 @@ int cm55_send_msg_cm33(ipc_msg_t *msg)
 		cy_en_ipc_pipe_status_t pipeStatus = CY_IPC_PIPE_SUCCESS;
 
 		msg->client_id = CM33_IPC_PIPE_CLIENT_ID;
-		// pipeStatus = Cy_IPC_Pipe_SendMessage(CM33_IPC_PIPE_EP_ADDR, CM55_IPC_PIPE_EP_ADDR, \
-		// 									 (void *)msg, 0);
+		pipeStatus = Cy_IPC_Pipe_SendMessage(CM33_IPC_PIPE_EP_ADDR, CM55_IPC_PIPE_EP_ADDR, \
+											 (void *)msg, 0);
 		if(CY_IPC_PIPE_SUCCESS != pipeStatus)
 		{
 		    printf("cm55_send_msg_cm33 error\n");

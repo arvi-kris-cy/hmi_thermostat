@@ -57,7 +57,7 @@
 /* stack size in words */
 #define UI_RX_TASK_STACK_SIZE                 (1 * 1024)
 
-#define UI_RX_TASK_PRIORITY                   (configMAX_PRIORITIES - 1)
+#define UI_RX_TASK_PRIORITY                   (configMAX_PRIORITIES - 3)
 #define MAX_BLE_RETRY                           20U
 
 /*******************************************************************************
@@ -299,9 +299,9 @@ static void ui_rx_task(void *arg)
                         break;
 
                     case DEV_ST_BLE_ADVERTISING:
-                        printf("Rx DEV_ST_BLE_ADVERTISING. Staring BLE ADV.\n");
-                        handle_connectivity_state(STATE_START_PROVISIONING);
-                        update_conn_state(DEV_ST_BLE_ADVERTISING);
+                        // printf("Rx DEV_ST_BLE_ADVERTISING. Starting BLE ADV.\n");
+                        // handle_connectivity_state(STATE_START_PROVISIONING);
+                        //update_conn_state(DEV_ST_BLE_ADVERTISING);
                         break;
 
                     case DEV_ST_WIFI_CONNECTING:
