@@ -1,8 +1,8 @@
 /******************************************************************************
-* File Name : pdm_mic.h
+* File Name : audio_input_configuration.h
 *
 * Description :
-* Header for PDM microphone driver.
+* Header for Mono/Stereo configuration of input.
 ********************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -35,35 +35,28 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
-#ifndef _PDM_MIC_H__
-#define _PDM_MIC_H__
 
+#ifndef __AUDIO_INPUT_CONFIGURATION_H__
+#define __AUDIO_INPUT_CONFIGURATION_H__
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
 
-#include "cy_result.h"
+#include "cy_afe_configurator_settings.h"
 
-/*******************************************************************************
-* Macros
-*******************************************************************************/
-#define PDM_MIC_SAMPLE_RATE_HZ              (16000u)
-#define PDM_MIC_MODE                        CYHAL_PDM_PCM_MODE_LEFT
-#define PDM_MIC_NUM_CHANNEL                 (1)
-#define PDM_MIC_SAMPLES_COUNT               (160*PDM_MIC_NUM_CHANNEL)
+#if AFE_INPUT_NUMBER_CHANNELS == 2
+#define ENABLE_STEREO_INPUT_FEED
+#else
+/* USB audio input is stereo */
+#ifdef USB_AUDIO_INPUT
+#define ENABLE_STEREO_INPUT_FEED
+#endif /* USB_AUDIO_INPUT */
 
-/*******************************************************************************
-* Functions Prototypes
-*******************************************************************************/
-cy_rslt_t pdm_mic_init(void);
-cy_rslt_t pdm_mic_get_data(int16_t **frame);
-cy_rslt_t pdm_mic_deinit(void);
+#endif /* AFE_INPUT_NUMBER_CHANNELS */
 
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
-#endif /* _PDM_MIC_INTERFACE_H__*/
-
-/* [] END OF FILE */
+#endif /* __AUDIO_INPUT_CONFIGURATION_H__ */

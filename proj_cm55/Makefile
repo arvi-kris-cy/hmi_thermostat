@@ -162,6 +162,8 @@ ifeq ($(CONFIG_VOICE_CORE_MODE),FULL)
     COMPONENTS+=AVC_FULL
 endif
 
+COMPONENTS+=AUDIO_MW
+
 # Add additional components related to MTB ML
 COMPONENTS+=CMSIS_DSP U55
 
@@ -252,6 +254,9 @@ CY_COMPILER_PATH?=
 CY_AVC_PATH=$(SEARCH_audio-voice-core)
 CY_AFE_PATH=$(SEARCH_audio-front-end)
 CY_SOD_PATH=$(SEARCH_speech-onset-detection)
+
+CY_IGNORE += ${CY_AVC_PATH}
+CY_IGNORE += ${CY_AFE_PATH}
 
 # Ignore unused LVGL middleware files from compilation
 

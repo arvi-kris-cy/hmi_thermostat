@@ -1315,7 +1315,7 @@ int main(void)
     printf("\x1b[2J\x1b[;H");
 
 	printf("****************** "
-           "PSOC Edge MCU: Graphics LVGL Demo "
+           "PSOC Edge MCU: HMI Thermostat Demo "
            "****************** \r\n\n");
 
     /* Start the RTOS Scheduler */

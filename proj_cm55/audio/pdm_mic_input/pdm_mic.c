@@ -51,27 +51,51 @@
 * Macros
 *******************************************************************************/
 /* PDM PCM interrupt priority */
-#define PDM_PCM_ISR_PRIORITY                    (2u)
+#define PDM_PCM_ISR_PRIORITY 			(2u)
 
 /* PDM PCM Hardware Gain */
 #ifdef USE_KIT_PSE84_AI
-#define PDM_PCM_GAIN                            (CY_PDM_PCM_SEL_GAIN_11DB)
+#define PDM_PCM_GAIN                    (CY_PDM_PCM_SEL_GAIN_11DB)
 #else
-#define PDM_PCM_GAIN                            (CY_PDM_PCM_SEL_GAIN_23DB)
+#define PDM_PCM_GAIN              		(CY_PDM_PCM_SEL_GAIN_23DB)
 #endif
 
+#define PDM_MIC_SAMPLE_RATE_HZ  		(16000u)
+
+#ifdef ENABLE_STEREO_INPUT_FEED
+#define PDM_MIC_NUM_CHANNEL   			(2u)
+#else
+#define PDM_MIC_NUM_CHANNEL        		(1u)
+#endif /* ENABLE_STEREO_INPUT_FEED */
+
+#define PDM_MIC_SAMPLES_COUNT    		(160*PDM_MIC_NUM_CHANNEL)
+
 /* Channel Index */
-#define RIGHT_CH_INDEX                          (3u)
-#define RIGHT_CH_CONFIG                         channel_3_config
+#define LEFT_CH_INDEX         			(2u)
+#define RIGHT_CH_INDEX                  (3u)
+
+/* Channel Configurations */
+#define LEFT_CH_CONFIG                  channel_2_config
+#define RIGHT_CH_CONFIG                 channel_3_config
 
 /* PDM PCM hardware FIFO size */
-#define HW_FIFO_SIZE                            (64u)
+#define PDM_PCM_HW_FIFO_SIZE			(64u)
 
 /* Rx FIFO trigger level/threshold configured by user */
-#define RX_FIFO_TRIG_LEVEL                      (HW_FIFO_SIZE/2)
+#define RX_FIFO_TRIG_LEVEL           	(PDM_PCM_HW_FIFO_SIZE/2)
+
+/* The number of interrupts to get frame of 10 msec samples.
+    5 interrupts of 2msec makes 10msec frame */
+/* 10msec data is 320 samples in STEREO mode*/
+/* 10msec data is 160 samples in STEREO mode*/
+#ifdef ENABLE_STEREO_INPUT_FEED
+#define HALF_FIFO_SIZE         			(PDM_PCM_HW_FIFO_SIZE)
+#else
+#define HALF_FIFO_SIZE       			(PDM_PCM_HW_FIFO_SIZE/2)
+#endif /* ENABLE_STEREO_INPUT_FEED */
 
 /* Total number of interrupts to get the FRAME_SIZE number of samples*/
-#define NUMBER_INTERRUPTS_FOR_FRAME             (PDM_MIC_SAMPLES_COUNT/RX_FIFO_TRIG_LEVEL)
+#define NUMBER_INTERRUPTS_FOR_FRAME    	(PDM_MIC_SAMPLES_COUNT/HALF_FIFO_SIZE)
 
 /*******************************************************************************
 * Global Variables
@@ -97,6 +121,7 @@ const cy_stc_sysint_t PDM_IRQ_cfg =
 /*******************************************************************************
 * Functions Prototypes
 *******************************************************************************/
+//extern void audio_mic_data_feed_cm55(int16_t *audio_data);
 
 /*******************************************************************************
  * Function Name: pdm_pcm_event_handler
@@ -191,6 +216,12 @@ cy_rslt_t pdm_mic_init(void)
     Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &RIGHT_CH_CONFIG, (uint8_t)RIGHT_CH_INDEX);
     Cy_PDM_PCM_Channel_Enable(CYBSP_PDM_HW, RIGHT_CH_INDEX);
 
+#if (PDM_MIC_NUM_CHANNEL == 2)
+    /* Initialize and enable PDM PCM channel 3 -Left */
+    Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &LEFT_CH_CONFIG, (uint8_t)LEFT_CH_INDEX);
+    Cy_PDM_PCM_Channel_Enable(CYBSP_PDM_HW, LEFT_CH_INDEX);
+#endif
+    
     /* An interrupt is registered for right channel, clear and set masks for it. */
     Cy_PDM_PCM_Channel_ClearInterrupt(CYBSP_PDM_HW, RIGHT_CH_INDEX, CY_PDM_PCM_INTR_MASK);
     Cy_PDM_PCM_Channel_SetInterruptMask(CYBSP_PDM_HW, RIGHT_CH_INDEX, CY_PDM_PCM_INTR_MASK);
