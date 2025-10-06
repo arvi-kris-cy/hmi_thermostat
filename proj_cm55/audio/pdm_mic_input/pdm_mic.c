@@ -39,36 +39,21 @@
 /*******************************************************************************
 * Header Files
 *******************************************************************************/
-
-#include "pdm_mic.h"
+#include <math.h>
 
 #include "cy_pdl.h"
 #include "cybsp.h"
+#include "cy_log.h"
 
 #include "cyabs_rtos.h"
+
+#include "pdm_mic.h"
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
 /* PDM PCM interrupt priority */
-#define PDM_PCM_ISR_PRIORITY 			(2u)
-
-/* PDM PCM Hardware Gain */
-#ifdef USE_KIT_PSE84_AI
-#define PDM_PCM_GAIN                    (CY_PDM_PCM_SEL_GAIN_11DB)
-#else
-#define PDM_PCM_GAIN              		(CY_PDM_PCM_SEL_GAIN_23DB)
-#endif
-
-#define PDM_MIC_SAMPLE_RATE_HZ  		(16000u)
-
-#ifdef ENABLE_STEREO_INPUT_FEED
-#define PDM_MIC_NUM_CHANNEL   			(2u)
-#else
-#define PDM_MIC_NUM_CHANNEL        		(1u)
-#endif /* ENABLE_STEREO_INPUT_FEED */
-
-#define PDM_MIC_SAMPLES_COUNT    		(160*PDM_MIC_NUM_CHANNEL)
+#define PDM_PCM_ISR_PRIORITY 			(3u)
 
 /* Channel Index */
 #define LEFT_CH_INDEX         			(2u)
@@ -122,7 +107,8 @@ const cy_stc_sysint_t PDM_IRQ_cfg =
 * Functions Prototypes
 *******************************************************************************/
 //extern void audio_mic_data_feed_cm55(int16_t *audio_data);
-
+void app_pdm_pcm_activate(void);
+void app_pdm_pcm_deactivate(void);
 /*******************************************************************************
  * Function Name: pdm_pcm_event_handler
  ********************************************************************************
@@ -139,6 +125,7 @@ const cy_stc_sysint_t PDM_IRQ_cfg =
  *******************************************************************************/
 static void pdm_pcm_event_handler(void)
 {
+	static bool buff0_active = true;
     /* Used to track how full the buffer is */
     static uint16_t frame_counter = 0;
 
@@ -147,10 +134,21 @@ static void pdm_pcm_event_handler(void)
     if(CY_PDM_PCM_INTR_RX_TRIGGER & intr_status)
     {
         /* Move data from the PDM fifo and place it in a buffer */
-        for(uint32_t index=0; index < RX_FIFO_TRIG_LEVEL; index++)
+        for(uint16_t index=0; index < RX_FIFO_TRIG_LEVEL; index++)
         {
+#if (PDM_MIC_NUM_CHANNEL == 2)
+            int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, LEFT_CH_INDEX);
+            *(active_rx_buffer) = (int16_t)(pdm_data);
+            active_rx_buffer++;
+            
+            pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
+            *(active_rx_buffer) = (int16_t)(pdm_data);
+            active_rx_buffer++;
+#else            
             int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
-            active_rx_buffer[frame_counter * RX_FIFO_TRIG_LEVEL + index] = (int16_t)(pdm_data);
+            *(active_rx_buffer) = (int16_t)(pdm_data);
+            active_rx_buffer++;
+#endif
         }
         Cy_PDM_PCM_Channel_ClearInterrupt(CYBSP_PDM_HW, RIGHT_CH_INDEX, CY_PDM_PCM_INTR_RX_TRIGGER);
         frame_counter++;
@@ -160,9 +158,18 @@ static void pdm_pcm_event_handler(void)
     if((NUMBER_INTERRUPTS_FOR_FRAME) <= frame_counter)
     {
         /* Flip the active and the next rx buffers */
-        int16_t* temp = active_rx_buffer;
-        active_rx_buffer = full_rx_buffer;
-        full_rx_buffer = temp;
+        buff0_active = !buff0_active;
+        
+        if (buff0_active)
+        {
+			active_rx_buffer = audio_buffer0;
+			full_rx_buffer = audio_buffer1;
+		}
+		else
+		{
+			active_rx_buffer = audio_buffer1;
+			full_rx_buffer = audio_buffer0;
+		}
 
         /* Set the PDM_PCM flag as true, signaling there is data ready for use */
         pdm_pcm_flag = true;
@@ -195,6 +202,7 @@ static void pdm_pcm_event_handler(void)
 cy_rslt_t pdm_mic_init(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
+    int16_t gain_scale = 0;
 
     /* Init internal semaphore */
     result = cy_rtos_semaphore_init(&pdm_mic_sema, 5, 0);
@@ -202,23 +210,31 @@ cy_rslt_t pdm_mic_init(void)
     if(CY_RSLT_SUCCESS != result)
     {
         printf("MIC:PDM PCM semaphore init failed %u \r\n",result);
-        return result;
+        CY_ASSERT(0);
     }
 
     /* Initialize PDM PCM block */
     result = Cy_PDM_PCM_Init(CYBSP_PDM_HW, &CYBSP_PDM_config);
     if(CY_PDM_PCM_SUCCESS != result)
     {
-        return result;
+        CY_ASSERT(0);
     }
 
     /* Initialize and enable PDM PCM channel 3 -Right */
-    Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &RIGHT_CH_CONFIG, (uint8_t)RIGHT_CH_INDEX);
+    result = Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &RIGHT_CH_CONFIG, (uint8_t)RIGHT_CH_INDEX);
+    if(CY_PDM_PCM_SUCCESS != result)
+    {
+        CY_ASSERT(0);
+    }
     Cy_PDM_PCM_Channel_Enable(CYBSP_PDM_HW, RIGHT_CH_INDEX);
 
 #if (PDM_MIC_NUM_CHANNEL == 2)
     /* Initialize and enable PDM PCM channel 3 -Left */
-    Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &LEFT_CH_CONFIG, (uint8_t)LEFT_CH_INDEX);
+    result = Cy_PDM_PCM_Channel_Init(CYBSP_PDM_HW, &LEFT_CH_CONFIG, (uint8_t)LEFT_CH_INDEX);
+    if(CY_PDM_PCM_SUCCESS != result)
+    {
+        CY_ASSERT(0);
+    }
     Cy_PDM_PCM_Channel_Enable(CYBSP_PDM_HW, LEFT_CH_INDEX);
 #endif
     
@@ -230,8 +246,10 @@ cy_rslt_t pdm_mic_init(void)
     result = Cy_SysInt_Init(&PDM_IRQ_cfg, &pdm_pcm_event_handler);
     if(CY_SYSINT_SUCCESS != result)
     {
+		printf("PDM/PCM Initialization has failed! \r\n");
         return result;
     }
+    
     NVIC_ClearPendingIRQ(PDM_IRQ_cfg.intrSrc);
     NVIC_EnableIRQ(PDM_IRQ_cfg.intrSrc);
 
@@ -240,11 +258,14 @@ cy_rslt_t pdm_mic_init(void)
     active_rx_buffer = audio_buffer0;
     full_rx_buffer = audio_buffer1;
 
-    /* Set gain and activate the PDM/PCM block */
-    Cy_PDM_PCM_SetGain(CYBSP_PDM_HW, RIGHT_CH_INDEX, PDM_PCM_GAIN);
-    Cy_PDM_PCM_Activate_Channel(CYBSP_PDM_HW, RIGHT_CH_INDEX);
+    /* Set the gain for both left and right channels. */
+    gain_scale = convert_db_to_pdm_scale((float)PDM_MIC_GAIN_VALUE);
+    printf("Setting default PDM gain to %f dB and %d scale \r\n",(float)PDM_MIC_GAIN_VALUE,gain_scale);
+    set_pdm_pcm_gain(gain_scale);
     
-
+    /* Activate the PDM/PCM block */
+    app_pdm_pcm_activate();
+    
     return CY_RSLT_SUCCESS;
 }
 
@@ -293,6 +314,215 @@ cy_rslt_t pdm_mic_deinit(void) {
 
     Cy_PDM_PCM_DeInit(CYBSP_PDM_HW);
     return CY_RSLT_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function Name: app_pdm_pcm_activate
+ ********************************************************************************
+* Summary: This function activates the left and righ channel.
+*
+* Parameters:
+*  None
+*
+* Return:
+*  none
+*
+*******************************************************************************/
+void app_pdm_pcm_activate(void)
+{
+    /* Activate recording from channel after init Activate Channel */
+#if (PDM_MIC_NUM_CHANNEL == 2)
+    Cy_PDM_PCM_Activate_Channel(CYBSP_PDM_HW, LEFT_CH_INDEX);
+#endif
+    Cy_PDM_PCM_Activate_Channel(CYBSP_PDM_HW, RIGHT_CH_INDEX);
+}
+
+/*******************************************************************************
+* Function Name: app_pdm_pcm_deactivate
+********************************************************************************
+* Summary: This function activates the left and righ channel.
+*
+* Parameters:
+*  none
+*
+* Return :
+*  none
+*
+*******************************************************************************/
+void app_pdm_pcm_deactivate(void)
+{
+#if (PDM_MIC_NUM_CHANNEL == 2)
+    Cy_PDM_PCM_DeActivate_Channel(CYBSP_PDM_HW, LEFT_CH_INDEX);
+#endif
+    Cy_PDM_PCM_DeActivate_Channel(CYBSP_PDM_HW, RIGHT_CH_INDEX);
+}
+
+/*******************************************************************************
+ * Function Name: convert_db_to_pdm_scale
+ ********************************************************************************
+ * Summary:
+ * Converts dB to PDM scale (fixed scale from 0 to 31)
+ * Refer
+ *
+ * Parameters:
+ *  gain  : gain in dB
+ * Return:
+ *  Scale value
+ *
+ *******************************************************************************/
+
+int16_t convert_db_to_pdm_scale(float db)
+{
+    if (db>=PDM_PCM_MIN_GAIN && db<=PDM_PCM_SEL_GAIN_NEGATIVE_103DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_103DB; 
+    }
+    else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_103DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_97DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_97DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_97DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_91DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_91DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_91DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_85DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_85DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_85DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_79DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_79DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_79DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_73DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_73DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_73DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_67DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_67DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_67DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_61DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_61DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_61DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_55DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_55DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_55DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_49DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_49DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_49DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_43DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_43DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_43DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_37DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_37DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_37DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_31DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_31DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_31DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_25DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_25DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_25DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_19DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_19DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_19DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_13DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_13DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_13DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_7DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_7DB;
+    }
+    else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_7DB && db<=PDM_PCM_SEL_GAIN_NEGATIVE_1DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_NEGATIVE_1DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_NEGATIVE_1DB && db<=PDM_PCM_SEL_GAIN_5DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_5DB;
+    }
+     else if (db>PDM_PCM_SEL_GAIN_5DB && db<=PDM_PCM_SEL_GAIN_11DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_11DB;
+    }
+    else if (db>PDM_PCM_SEL_GAIN_11DB && db<=PDM_PCM_SEL_GAIN_17DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_17DB;
+    }     
+    else if (db>PDM_PCM_SEL_GAIN_17DB && db<=PDM_PCM_SEL_GAIN_23DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_23DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_23DB && db<=PDM_PCM_SEL_GAIN_29DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_29DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_29DB && db<=PDM_PCM_SEL_GAIN_35DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_35DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_35DB && db<=PDM_PCM_SEL_GAIN_41DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_41DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_41DB && db<=PDM_PCM_SEL_GAIN_47DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_47DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_47DB && db<=PDM_PCM_SEL_GAIN_53DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_53DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_53DB && db<=PDM_PCM_SEL_GAIN_59DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_59DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_59DB && db<=PDM_PCM_SEL_GAIN_65DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_65DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_65DB && db<=PDM_PCM_SEL_GAIN_71DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_71DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_71DB && db<=PDM_PCM_SEL_GAIN_77DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_77DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_77DB && db<=PDM_PCM_SEL_GAIN_83DB)
+    {
+        return CY_PDM_PCM_SEL_GAIN_83DB;
+    } 
+    else if (db>PDM_PCM_SEL_GAIN_83DB && db<=PDM_PCM_MAX_GAIN)
+    {
+        return CY_PDM_PCM_SEL_GAIN_83DB;
+    } 
+    return CY_PDM_PCM_SEL_GAIN_23DB; /* Return default gain value ~20dB if not within range*/
+    
+}
+/*******************************************************************************
+ * Function Name: set_pdm_pcm_gain
+ ********************************************************************************
+ * 
+ * Set PDM scale value for gain.
+ *
+ *******************************************************************************/
+void set_pdm_pcm_gain(int16_t gain)
+{
+
+    Cy_PDM_PCM_SetGain(CYBSP_PDM_HW, RIGHT_CH_INDEX, gain);
+#if (PDM_MIC_NUM_CHANNEL == 2)
+    Cy_PDM_PCM_SetGain(CYBSP_PDM_HW, LEFT_CH_INDEX, gain);
+#endif
+
 }
 
 /* [] END OF FILE */

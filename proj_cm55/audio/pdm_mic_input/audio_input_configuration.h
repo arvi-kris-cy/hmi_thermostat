@@ -44,6 +44,9 @@ extern "C" {
 
 #include "cy_afe_configurator_settings.h"
 
+/* Number of audio channels sampled from microphones and processed */
+#define NUM_AUDIO_CHANNELS                      (2U)
+
 #if AFE_INPUT_NUMBER_CHANNELS == 2
 #define ENABLE_STEREO_INPUT_FEED
 #else

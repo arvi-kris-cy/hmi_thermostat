@@ -44,10 +44,65 @@ extern "C" {
 
 #include "cy_result.h"
 
+#include "audio_input_configuration.h"
+
 /*******************************************************************************
 * Macros
 *******************************************************************************/
+/* PDM PCM sampling rate: 16000 samples every second */
+#define PDM_MIC_SAMPLE_RATE_HZ  		(16000u)
 
+#ifdef ENABLE_STEREO_INPUT_FEED
+#define PDM_MIC_NUM_CHANNEL   			(2u)
+#else
+#define PDM_MIC_NUM_CHANNEL        		(1u)
+#endif /* ENABLE_STEREO_INPUT_FEED */
+
+#define PDM_MIC_SAMPLES_COUNT    		(160*PDM_MIC_NUM_CHANNEL)
+
+#define PDM_PCM_MIN_GAIN                        (-105.0)
+#define PDM_PCM_MAX_GAIN                        (105.0)
+#define PDM_MIC_GAIN_VALUE                      (AFE_MIC_INPUT_GAIN_DB)
+
+#ifdef GAIN_CONTROL_ON  
+#define PDM_MAX_GAIN_LIMIT                      (25.0)
+#define PDM_MIN_GAIN_LIMIT                      (-25.0)
+#endif /* GAIN_CONTROL_ON */   
+
+/* Gain to Scale mapping */
+
+#define PDM_PCM_SEL_GAIN_83DB                   (83.0)
+#define PDM_PCM_SEL_GAIN_77DB                   (77.0)
+#define PDM_PCM_SEL_GAIN_71DB                   (71.0)
+#define PDM_PCM_SEL_GAIN_65DB                   (65.0)
+#define PDM_PCM_SEL_GAIN_59DB                   (59.0)
+#define PDM_PCM_SEL_GAIN_53DB                   (53.0)
+#define PDM_PCM_SEL_GAIN_47DB                   (47.0)
+#define PDM_PCM_SEL_GAIN_41DB                   (41.0)
+#define PDM_PCM_SEL_GAIN_35DB                   (35.0)
+#define PDM_PCM_SEL_GAIN_29DB                   (29.0)
+#define PDM_PCM_SEL_GAIN_23DB                   (23.0)
+#define PDM_PCM_SEL_GAIN_17DB                   (17.0)
+#define PDM_PCM_SEL_GAIN_11DB                   (11.0)
+#define PDM_PCM_SEL_GAIN_5DB                    (5.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_1DB           (-1.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_7DB           (-7.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_13DB          (-13.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_19DB          (-19.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_25DB          (-25.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_31DB          (-31.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_37DB          (-37.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_43DB          (-43.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_49DB          (-49.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_55DB          (-55.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_61DB          (-61.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_67DB          (-67.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_73DB          (-73.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_79DB          (-79.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_85DB          (-85.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_91DB          (-91.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_97DB          (-97.0)
+#define PDM_PCM_SEL_GAIN_NEGATIVE_103DB         (-103.0)
 
 /*******************************************************************************
 * Functions Prototypes
@@ -56,6 +111,8 @@ cy_rslt_t pdm_mic_init(void);
 cy_rslt_t pdm_mic_get_data(int16_t **frame);
 cy_rslt_t pdm_mic_deinit(void);
 
+int16_t convert_db_to_pdm_scale(float db);
+void set_pdm_pcm_gain(int16_t gain);
 
 #if defined(__cplusplus)
 }

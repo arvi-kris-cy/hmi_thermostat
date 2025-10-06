@@ -52,6 +52,8 @@
 
 /* Peripherals related includes */
 #include "pdm_mic.h"
+#include "audio_input_configuration.h"
+#include "audio_conv_utils.h"
 
 #ifdef USE_AUDIO_ENHANCEMENT
 #include "audio_enhancement.h"
@@ -75,9 +77,6 @@
 
 /* Debounce counter for button presses (multiply by 10 ms) */
 #define BUTTON_DEBOUNCE_COUNT                   (10U)
-
-/* Number of audio channels sampled from microphones and processed */
-#define NUM_AUDIO_CHANNELS                      (1U)
 
 /* How often to print the MCPS (multiply by 10 ms) */
 #define PRINT_MCPS_COUNT                        (100u)
@@ -109,6 +108,10 @@ uint8_t bf_coeffs[1];
 uint32_t bf_coeffs_total_len;
 
 bool is_mic_clicked = false;
+
+#ifdef ENABLE_STEREO_INPUT_FEED
+int16_t non_interleaved_audio[2*PDM_MIC_SAMPLES_COUNT] = {0};
+#endif
 
 #ifdef SHOW_MCPS
 /* Variables used to print and calculate MCPS */
@@ -934,6 +937,7 @@ void voice_assistant_task(void * arg)
 {
     va_rslt_t va_result;
     int16_t *audio_frame;
+    int16_t *audio_feed_input;
 #ifdef USE_AUDIO_ENHANCEMENT
     ae_rslt_t ae_result;
     uint8_t ae_license_error = 0;
@@ -990,9 +994,18 @@ void voice_assistant_task(void * arg)
             voice_assistant_change_state(VA_RUN_CMD);
         }
 
+#ifdef ENABLE_STEREO_INPUT_FEED
+    
+    convert_interleaved_to_stereo_non_interleaved((uint16_t *)audio_frame, (uint16_t *)non_interleaved_audio);
+    
+    audio_feed_input = (int16_t*)non_interleaved_audio;
+#else
+	audio_feed_input = audio_frame;
+#endif /* ENABLE_STEREO_INPUT_FEED */
+
 #ifdef USE_AUDIO_ENHANCEMENT
         /* Apply the audio enhancement if AFE is enabled */
-        ae_result = audio_enhancement_feed_input(audio_frame, NULL);
+        ae_result = audio_enhancement_feed_input(audio_feed_input, NULL);
         if (ae_result == AE_RSLT_LICENSE_ERROR)
         {
 			if(ae_license_error == 0)
@@ -1006,7 +1019,7 @@ void voice_assistant_task(void * arg)
 
         /* If Audio Enhancement is not used, run voice-assistant 
          * directly with the microphone data */
-        run_voice_assistant_process(audio_frame);
+        run_voice_assistant_process(audio_feed_input);
 
 #endif  /* USE_AUDIO_ENHANCEMENT */       
 

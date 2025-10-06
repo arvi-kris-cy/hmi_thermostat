@@ -8,14 +8,14 @@
     "app": "AFE",
     "bf": {
         "angle_range_a": 0,
-        "angle_range_b": 0,
-        "bf_state": "off",
-        "interference_canceller": "low",
-        "mic_distance_mm": 20,
+        "angle_range_b": 180,
+        "bf_state": "on",
+        "interference_canceller": "medium",
+        "mic_distance_mm": 95,
         "num_beams": 1
     },
     "dereverberation": {
-        "dereverberation_state": "off"
+        "dereverberation_state": "on"
     },
     "echo_suppression": {
         "echo_suppressor": "low",
@@ -30,9 +30,9 @@
     "input": {
         "frame_rate_sps": 16000,
         "frame_size_ms": 10,
-        "input_gain_db": 0,
+        "input_gain_db": 23,
         "input_source": "mic",
-        "number_of_channels": 1,
+        "number_of_channels": 2,
         "software_input_gain_db1": 0,
         "software_input_gain_db2": 0
     },
