@@ -2158,6 +2158,8 @@ void update_thermostat_mode(thermostat_mode_t mode)
 
 void update_device_temp(uint8_t temp)
 {
+	printf("Temperature %d \r\n", temp);
+
 	if((temp < current_min_temp) || (temp > current_max_temp) || (temp == current_temp))
 	{
 		printf("Temp is not in range or same as current temp!");

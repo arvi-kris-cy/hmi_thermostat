@@ -233,7 +233,7 @@ SemaphoreHandle_t i2c_mutex = NULL;
 
 /* VA Variables */
 char *intent_text;
-int *intent_value;
+
 bool handle_ww_for_ui = false;
 bool handle_command_for_ui = false;
 

@@ -124,8 +124,9 @@ uint32_t cpu_cycle_sum = 0;
 
 extern bool handle_ww_for_ui;
 extern bool handle_command_for_ui;
-extern int *intent_value;
-extern int *intent_text;
+
+int intent_value;
+extern char *intent_text;
 extern uint8_t brightness_level;
 
 /*******************************************************************************
@@ -379,49 +380,92 @@ void ww_to_ui()
     }
 }
 
-va_detect_cmd_t map_string_to_enum(const char *command) {
-    if (strcmp(command, "SLEEPMODE") == 0) {
+va_detect_cmd_t map_string_to_enum(const char *command) 
+{
+	printf("%s\r\n", command);
+
+    if (strcmp(command, "SLEEPMODE") == 0)
+    {
         return SLEEPMODE;
-    } else if (strcmp(command, "DECREASESCREENBRIGHTNESS") == 0) {
+    } 
+    else if (strcmp(command, "DECREASESCREENBRIGHTNESS") == 0)
+    {
         return DECREASESCREENBRIGHTNESS;
-    } else if (strcmp(command, "INCREASESCREENBRIGHTNESS") == 0) {
+    }
+    else if (strcmp(command, "INCREASESCREENBRIGHTNESS") == 0)
+    {
         return INCREASESCREENBRIGHTNESS;
-    } else if (strcmp(command, "DECREASETEMPERATURE") == 0) {
+    }
+    else if (strcmp(command, "DECREASETEMPERATURE") == 0)
+    {
         return DECREASETEMPERATURE;
-    } else if (strcmp(command, "INCREASETEMPERATURE") == 0) {
+    }
+    else if (strcmp(command, "INCREASETEMPERATURE") == 0)
+    {
         return INCREASETEMPERATURE;
-    } else if (strcmp(command, "SETTEMPERATURE") == 0) {
+    }
+    else if (strcmp(command, "SETTEMPERATURE") == 0)
+    {
         return SETTEMPERATURE;
-    } else if (strcmp(command, "COOLINGMODE") == 0) {
+    }
+    else if (strcmp(command, "COOLINGMODE") == 0)
+    {
         return COOLINGMODE;
-    } else if (strcmp(command, "HEATINGOFFMODE") == 0) {
+    }
+    else if (strcmp(command, "HEATINGOFFMODE") == 0)
+    {
         return HEATINGOFFMODE;
-    } else if (strcmp(command, "HEATINGONMODE") == 0) {
+    }
+    else if (strcmp(command, "HEATINGONMODE") == 0)
+    {
         return HEATINGONMODE;
-    } else if (strcmp(command, "SCREENOFF") == 0) {
+    }
+    else if (strcmp(command, "SCREENOFF") == 0)
+    {
         return SCREENOFF;
-    } else if (strcmp(command, "SCREENON") == 0) {
+    }
+    else if (strcmp(command, "SCREENON") == 0)
+    {
         return SCREENON;
-    } else if (strcmp(command, "FANENABLEMODE") == 0) {
+    }
+    else if (strcmp(command, "FANENABLEMODE") == 0)
+    {
         return FANENABLEMODE;
-    } else if (strcmp(command, "FANDISABLEMODE") == 0) {
+    }
+    else if (strcmp(command, "FANDISABLEMODE") == 0)
+    {
         return FANDISABLEMODE;
-    } else if (strcmp(command, "TEMPERATURESTATUS") == 0) {
+    }
+    else if (strcmp(command, "TEMPERATURESTATUS") == 0)
+    {
         return TEMPERATURESTATUS;
-    } else if (strcmp(command, "WIFISTATUS") == 0) {
+    }
+    else if (strcmp(command, "WIFISTATUS") == 0)
+    {
         return WIFISTATUS;
-    } else if (strcmp(command, "SYSTEMSTATUS") == 0) {
+    }
+    else if (strcmp(command, "SYSTEMSTATUS") == 0)
+    {
         return SYSTEMSTATUS;
-    } else if (strcmp(command, "CONNECTTOWIFI") == 0) {
+    }
+    else if (strcmp(command, "CONNECTTOWIFI") == 0)
+    {
         return CONNECTTOWIFI;
-    } else if (strcmp(command, "UNMUTEVOLUME") == 0) {
+    }
+    else if (strcmp(command, "UNMUTEVOLUME") == 0)
+    {
         return UNMUTEVOLUME;
-    } else if (strcmp(command, "MUTEVOLUME") == 0) {
+    }
+    else if (strcmp(command, "MUTEVOLUME") == 0)
+    {
         return MUTEVOLUME;
-    } else if (strcmp(command, "SETTINGMODE") == 0) {
+    }
+    else if (strcmp(command, "SETTINGMODE") == 0)
+    {
         return SETTINGMODE; 
     }
-    else {
+    else
+    {
         return -1;  // Unknown command
     }
 }
@@ -544,22 +588,43 @@ va_rslt_t intent_to_ui(const char *command)
 
             case DECREASETEMPERATURE:
             {
-                update_device_temp((uint8_t)(get_current_temperature() - 10));
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() - (uint8_t)(intent_value)));
+            	}
+            	else
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() - 1));
+            	}
                 printf("Handling DECREASETEMPERATURE command.\n");
                 break;
             }
 
             case INCREASETEMPERATURE:
             {
-                update_device_temp((uint8_t)(get_current_temperature() + 10));
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() + (uint8_t)(intent_value)));
+            	}
+            	else
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() + 1));
+            	}
                 printf("Handling INCREASETEMPERATURE command.\n");
                 break;
             }
 
             case SETTEMPERATURE:
             {
-                update_device_temp((uint8_t)*intent_value);
-                printf("Handling SETTEMPERATURE command.\n");
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(intent_value));
+            		printf("Handling SETTEMPERATURE command.\n");
+            	}
+            	else
+            	{
+            		printf("Temperature not defined.\n");
+            	}
                 break;
             }
 
@@ -824,6 +889,8 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
                 return;
             }
 
+            intent_value = 0;
+            intent_text = NULL;
             //printf("Intent name: %s\r\n", MTB_NLU_INTENT_NAME_LIST(PROJECT_PREFIX)[va_data->intent_index] );
 
             if (va_data->num_var != 0)
@@ -838,7 +905,7 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
                     else
                     {
                         printf("%d ", va_data->variable[i].value);
-                        intent_value =  &va_data->variable[i].value;
+                        intent_value =  va_data->variable[i].value;
                     }
                 }
                 printf("\n\rVariable units : ");
