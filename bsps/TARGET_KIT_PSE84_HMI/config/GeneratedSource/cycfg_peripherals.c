@@ -980,7 +980,7 @@ const cy_stc_scb_i2c_config_t CYBSP_I2C_CONTROLLER_2_config =
     .enableWakeFromSleep = false,
     .enableDigitalFilter = false,
     .lowPhaseDutyCycle = 16,
-    .highPhaseDutyCycle = 9,
+    .highPhaseDutyCycle = 16,
 };
 
 #if defined (COMPONENT_MTB_HAL)
@@ -1112,9 +1112,9 @@ const cy_stc_smif_config_t CYBSP_SMIF_CORE_0_XSPI_FLASH_config =
     .deselectDelay = CYBSP_SMIF_CORE_0_XSPI_FLASH_DESELECT_DELAY,
     .blockEvent = (uint32_t)CY_SMIF_BUS_ERROR,
     .inputFrequencyMHz = 200,
-    .enable_internal_dll = false,
+    .enable_internal_dll = true,
     .dll_divider_value = CY_SMIF_DLL_DIVIDE_BY_2,
-    .rx_capture_mode = CY_SMIF_SEL_NORMAL_SPI,
+    .rx_capture_mode = CY_SMIF_SEL_XSPI_HYPERBUS_WITH_DQS,
     .mdl_tap = CY_SMIF_MDL_8_TAP_DELAY,
     .device0_sdl_tap = CY_SMIF_SDL_8_TAP_DELAY,
     .device1_sdl_tap = CY_SMIF_SDL_8_TAP_DELAY,
@@ -1141,7 +1141,7 @@ const mtb_hal_memoryspi_configurator_t CYBSP_SMIF_CORE_0_XSPI_FLASH_hal_config =
     .base = SMIF0_CORE,
     .clock = &CYBSP_SMIF_CORE_0_XSPI_FLASH_hal_clock,
     .config = &CYBSP_SMIF_CORE_0_XSPI_FLASH_config,
-    .csel = {false, true, false, false},
+    .csel = {true, false, false, false},
     .irqs = CYBSP_SMIF_CORE_0_XSPI_FLASH_MEMORY_MODE_ALIGMENT_ERROR << 5 | CYBSP_SMIF_CORE_0_XSPI_FLASH_RX_DATA_FIFO_UNDERFLOW << 4 | CYBSP_SMIF_CORE_0_XSPI_FLASH_TX_COMMAND_FIFO_OVERFLOW << 3 | CYBSP_SMIF_CORE_0_XSPI_FLASH_TX_DATA_FIFO_OVERFLOW << 2 | (uint8_t)(CYBSP_SMIF_CORE_0_XSPI_FLASH_RX_FIFO_TRIGGER_LEVEL != 0) << 1 | (uint8_t)(CYBSP_SMIF_CORE_0_XSPI_FLASH_TX_FIFO_TRIGGER_LEVEL != 0) << 0,
     .dmas = CYBSP_SMIF_CORE_0_XSPI_FLASH_RX_DMA_TRIGGER_OUT_USED << 1 | CYBSP_SMIF_CORE_0_XSPI_FLASH_TX_DMA_TRIGGER_OUT_USED << 0,
 };
@@ -1285,12 +1285,12 @@ const cy_stc_tdm_config_t CYBSP_TDM_CONTROLLER_0_config =
 };
 const cy_stc_tcpwm_counter_config_t CYBSP_GENERAL_PURPOSE_TIMER_config =
 {
-    .period = 9999,
+    .period = 863999999,
     .clockPrescaler = CY_TCPWM_COUNTER_PRESCALER_DIVBY_1,
     .runMode = CY_TCPWM_COUNTER_CONTINUOUS,
     .countDirection = CY_TCPWM_COUNTER_COUNT_UP,
     .compareOrCapture = CY_TCPWM_COUNTER_MODE_COMPARE,
-    .compare0 = 9999,
+    .compare0 = 863999999,
     .compare1 = 16384,
     .enableCompareSwap = false,
     .interruptSources = (CY_TCPWM_INT_ON_TC ) | (CY_TCPWM_INT_ON_CC0 & 0U) | (CY_TCPWM_INT_ON_CC1 & 0U),

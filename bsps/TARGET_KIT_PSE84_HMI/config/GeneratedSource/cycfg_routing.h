@@ -35,13 +35,15 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
-#define ioss_0_port_0_pin_0_HSIOM P0_0_SCB3_SPI_SELECT0
 #define ioss_0_port_0_pin_1_HSIOM P0_1_SMIF1_SMIF0_SPIHB_SELECT2
 #define ioss_0_port_1_pin_0_AUX SMIF0_SPIHB_DATA0_SMIF0_SMIF0_SPIHB_DATA0_PAD
 #define ioss_0_port_1_pin_1_AUX SMIF0_SPIHB_DATA1_SMIF0_SMIF0_SPIHB_DATA1_PAD
 #define ioss_0_port_1_pin_2_AUX SMIF0_SPIHB_DATA2_SMIF0_SMIF0_SPIHB_DATA2_PAD
 #define ioss_0_port_1_pin_3_AUX SMIF0_SPIHB_DATA3_SMIF0_SMIF0_SPIHB_DATA3_PAD
-#define ioss_0_port_2_pin_0_HSIOM P2_0_SMIF0_SMIF0_SPIHB_SELECT1
+#define ioss_0_port_1_pin_4_AUX SMIF0_SPIHB_DATA4_SMIF0_SMIF0_SPIHB_DATA4_PAD
+#define ioss_0_port_1_pin_5_AUX SMIF0_SPIHB_DATA5_SMIF0_SMIF0_SPIHB_DATA5_PAD
+#define ioss_0_port_1_pin_6_AUX SMIF0_SPIHB_DATA6_SMIF0_SMIF0_SPIHB_DATA6_PAD
+#define ioss_0_port_1_pin_7_AUX SMIF0_SPIHB_DATA7_SMIF0_SMIF0_SPIHB_DATA7_PAD
 #define ioss_0_port_4_pin_0_AUX SMIF1_SPIHB_DATA0_SMIF1_SMIF0_SPIHB_DATA0_PAD
 #define ioss_0_port_4_pin_1_AUX SMIF1_SPIHB_DATA1_SMIF1_SMIF0_SPIHB_DATA1_PAD
 #define ioss_0_port_4_pin_2_AUX SMIF1_SPIHB_DATA2_SMIF1_SMIF0_SPIHB_DATA2_PAD
@@ -50,6 +52,7 @@ extern "C" {
 #define ioss_0_port_4_pin_5_AUX SMIF1_SPIHB_DATA5_SMIF1_SMIF0_SPIHB_DATA5_PAD
 #define ioss_0_port_4_pin_6_AUX SMIF1_SPIHB_DATA6_SMIF1_SMIF0_SPIHB_DATA6_PAD
 #define ioss_0_port_4_pin_7_AUX SMIF1_SPIHB_DATA7_SMIF1_SMIF0_SPIHB_DATA7_PAD
+#define ioss_0_port_5_pin_0_HSIOM P5_0_SMIF0_SMIF0_SPIHB_SELECT0
 #define ioss_0_port_6_pin_5_HSIOM P6_5_SCB2_UART_RX
 #define ioss_0_port_6_pin_7_HSIOM P6_7_SCB2_UART_TX
 #define ioss_0_port_7_pin_0_HSIOM P7_0_SDHC1_CARD_CMD
@@ -61,6 +64,8 @@ extern "C" {
 #define ioss_0_port_7_pin_7_HSIOM P7_7_SDHC1_CARD_DAT_3TO03
 #define ioss_0_port_8_pin_0_HSIOM P8_0_SCB0_I2C_SCL
 #define ioss_0_port_8_pin_1_HSIOM P8_1_SCB0_I2C_SDA
+#define ioss_0_port_8_pin_2_HSIOM P8_2_PDM_PDM_CLK2
+#define ioss_0_port_8_pin_4_HSIOM P8_4_PDM_PDM_DATA2
 #define ioss_0_port_8_pin_5_HSIOM P8_5_PDM_PDM_CLK3
 #define ioss_0_port_8_pin_6_HSIOM P8_6_PDM_PDM_DATA3
 #define ioss_0_port_10_pin_0_HSIOM P10_0_SCB4_UART_RX
@@ -96,7 +101,6 @@ extern "C" {
 #define ioss_0_port_21_pin_4_HSIOM P21_4_SCB3_SPI_MISO
 #define ioss_0_port_21_pin_5_HSIOM P21_5_SCB3_SPI_MOSI
 #define ioss_0_port_21_pin_6_HSIOM P21_6_SCB3_SPI_CLK
-#define ioss_0_port_21_pin_7_HSIOM P21_7_SCB3_SPI_SELECT1
 #define CYBSP_DMA_TX_SPI_CONTROLLER_tr_in_0_TRIGGER_OUT PERI_0_TRIG_OUT_MUX_0_PDMA0_TR_IN1
 #define CYBSP_SPI_CONTROLLER_tr_tx_req_0_TRIGGER_IN PERI_0_TRIG_IN_MUX_0_SCB_TX_TR_OUT10
 

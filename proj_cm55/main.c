@@ -1279,9 +1279,9 @@ int main(void)
 
     if (pdPASS == task_return)
     {
-        printf("****************** "
-               "PSOC Edge MCU: Graphics LVGL Demo "
-               "****************** \r\n\n");
+        // printf("****************** "
+        //        "PSOC Edge MCU: Graphics LVGL Demo "
+        //        "****************** \r\n\n");
 
         /* Start the RTOS Scheduler */
         vTaskStartScheduler();

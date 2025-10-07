@@ -72,7 +72,7 @@
 #define NUM_CHIRPS_PER_FRAME                XENSIV_BGT60TRXX_CONF_NUM_CHIRPS_PER_FRAME
 #define NUM_SAMPLES_PER_CHIRP               XENSIV_BGT60TRXX_CONF_NUM_SAMPLES_PER_CHIRP
 
-#define SPI_INTR_NUM        ((IRQn_Type) CYBSP_RS_SPI_IRQ)
+#define SPI_INTR_NUM        ((IRQn_Type) CYBSP_RSPI_IRQ)
 #define SPI_INTR_PRIORITY   (2U)
 
 #define ENABLE_RADAR_TIMING_LOG 0U
@@ -169,12 +169,12 @@ static int32_t init_sensor(void)
     cy_rslt_t result = CY_RSLT_SUCCESS;
     uint32_t status = INIT_SUCCESS;
 
-    sensor.iface.scb_inst = CYBSP_RS_SPI_HW;
+    sensor.iface.scb_inst = CYBSP_RSPI_HW;
     sensor.iface.spi = &SPI_context;
     sensor.iface.sel_port = CYBSP_RSPI_CS_PORT;
     sensor.iface.sel_pin = CYBSP_RSPI_CS_PIN;
-    sensor.iface.rst_port = CYBSP_RADAR_RST_PORT;
-    sensor.iface.rst_pin = CYBSP_RADAR_RST_PIN;
+    sensor.iface.rst_port = CYBSP_RADAR_RESET_PORT;
+    sensor.iface.rst_pin = CYBSP_RADAR_RESET_PIN;
     sensor.iface.irq_port = CYBSP_RADAR_INT_PORT;
     sensor.iface.irq_pin = CYBSP_RADAR_INT_PIN;
     sensor.iface.irq_num = CYBSP_RADAR_INT_IRQ;
@@ -183,7 +183,7 @@ static int32_t init_sensor(void)
     irq_cfg.intrPriority = XENSIV_BGT60TRXX_IRQ_PRIORITY;
 
     /* Initialize the SPI interface to BGT60. */
-    init_status = Cy_SCB_SPI_Init(CYBSP_RS_SPI_HW, &CYBSP_RS_SPI_config, &SPI_context);
+    init_status = Cy_SCB_SPI_Init(CYBSP_RSPI_HW, &CYBSP_RSPI_config, &SPI_context);
 
     /* If the initialization fails, update status */
     if ( CY_SCB_SPI_SUCCESS != init_status )
@@ -205,7 +205,7 @@ static int32_t init_sensor(void)
         /* Set active target select to line 0 */
         Cy_SCB_SPI_SetActiveSlaveSelect(CYBSP_SPI_CONTROLLER_2_HW, CY_SCB_SPI_SLAVE_SELECT0);
         /* Enable SPI Controller block. */
-        Cy_SCB_SPI_Enable(CYBSP_RS_SPI_HW);
+        Cy_SCB_SPI_Enable(CYBSP_RSPI_HW);
     }
 
     /* Reduce drive strength to improve EMI */
@@ -245,7 +245,7 @@ static int32_t init_sensor(void)
 
 static void mSPI_Interrupt(void)
 {
-    Cy_SCB_SPI_Interrupt(CYBSP_RS_SPI_HW, &SPI_context);
+    Cy_SCB_SPI_Interrupt(CYBSP_RSPI_HW, &SPI_context);
 }
 
 void start_radar_processing_task(void)
@@ -285,7 +285,7 @@ static void accquisition_task(void *pvParameters)
     }
     else
     {
-        printf("Radar sensor initialization Ok.\n");
+        printf("\nRadar sensor initialization Ok.\n");
     }
 
     /* Start radar processing task */

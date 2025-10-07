@@ -78,11 +78,11 @@ extern "C" {
 #define mxsramc_0_mpc_0_REGION_COUNT 3U
 #define mxsramc_1_mpc_0_RESPONSE CY_MPC_BUS_ERR
 #define mxsramc_1_mpc_0_REGION_COUNT 2U
-#define smif_0_mpc_0_RESPONSE CY_MPC_BUS_ERR
+#define smif_0_mpc_0_RESPONSE CY_MPC_RZWI
 #define smif_0_mpc_0_REGION_COUNT 6U
 #define smif_1_mpc_0_RESPONSE CY_MPC_RZWI
 #define smif_1_mpc_0_REGION_COUNT 0U
-#define socmem_0_mpc_0_RESPONSE CY_MPC_BUS_ERR
+#define socmem_0_mpc_0_RESPONSE CY_MPC_RZWI
 #define socmem_0_mpc_0_REGION_COUNT 2U
 
 #if defined(COMPONENT_SECURE_DEVICE) && defined(COMPONENT_MW_MTB_SRF)

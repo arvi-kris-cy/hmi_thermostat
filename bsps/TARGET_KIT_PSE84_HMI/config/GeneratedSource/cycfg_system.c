@@ -81,32 +81,32 @@ const mtb_srf_protection_range_s_t smif_0_mpc_0_srf_protection_range_s[smif_0_mp
 {
     {
         .start = (void *) 0x60100000 ,
-        .length = 0x280000U,
+        .length = 0x240000U,
         .is_secure = true,
     },
     {
-        .start = (void *) 0x60380000 ,
-        .length = 0x280000U,
+        .start = (void *) 0x60340000 ,
+        .length = 0x240000U,
         .is_secure = false,
     },
     {
-        .start = (void *) 0x60600000 ,
-        .length = 0x5C0000U,
+        .start = (void *) 0x60580000 ,
+        .length = 0x400000U,
         .is_secure = false,
     },
     {
         .start = (void *) 0x60100000,
-        .length = 0x280000U,
+        .length = 0x240000U,
         .is_secure = true,
     },
     {
-        .start = (void *) 0x60380000,
-        .length = 0x280000U,
+        .start = (void *) 0x60340000,
+        .length = 0x240000U,
         .is_secure = false,
     },
     {
-        .start = (void *) 0x60600000,
-        .length = 0x5C0000U,
+        .start = (void *) 0x60580000,
+        .length = 0x400000U,
         .is_secure = false,
     },
 };
@@ -114,12 +114,12 @@ const mtb_srf_protection_range_s_t socmem_0_mpc_0_srf_protection_range_s[socmem_
 {
     {
         .start = (void *) 0x26000000 ,
-        .length = 0x2BC000U,
+        .length = 0x60000U,
         .is_secure = false,
     },
     {
-        .start = (void *) 0x262BC000 ,
-        .length = 0x240000U,
+        .start = (void *) 0x26060000 ,
+        .length = 0x4A0000U,
         .is_secure = false,
     },
 };

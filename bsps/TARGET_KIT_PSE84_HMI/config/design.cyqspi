@@ -4,11 +4,11 @@
     <DevicePath>PSE846GPS2DBZC4A</DevicePath>
     <FlashloaderDir>FlashLoaders</FlashloaderDir>
     <FlashloaderProgramChunkSize>4096</FlashloaderProgramChunkSize>
-    <FlashloaderEraseChunkSize>65536</FlashloaderEraseChunkSize>
+    <FlashloaderEraseChunkSize>262144</FlashloaderEraseChunkSize>
     <SlotConfigs>
         <SlotConfig>
             <SlaveSlot>0</SlaveSlot>
-            <MemoryId>Not used</MemoryId>
+            <MemoryId>S28HS01GT (Octal DDR Hybrid Split 25 MHz)</MemoryId>
             <MemoryMapped>true</MemoryMapped>
             <DualQuad>None</DualQuad>
             <StartAddress>0x60000000</StartAddress>
@@ -17,13 +17,13 @@
             <WriteEnable>true</WriteEnable>
             <Encrypt>false</Encrypt>
             <DataSelect>OCTAL_SPI_DATA_0_7</DataSelect>
-            <MemoryConfigsPath>default_memory.xml</MemoryConfigsPath>
+            <MemoryConfigsPath>S28HS01GT (Octal DDR Hybrid Split 25 MHz)</MemoryConfigsPath>
             <ConfigDataInFlash>false</ConfigDataInFlash>
             <MergeTimeout>CY_SMIF_MERGE_TIMEOUT_256_CYCLES</MergeTimeout>
         </SlotConfig>
         <SlotConfig>
             <SlaveSlot>1</SlaveSlot>
-            <MemoryId>S25FS128S (Hybrid at bottom, 64 KB sectors elsewhere)</MemoryId>
+            <MemoryId>Not used</MemoryId>
             <MemoryMapped>true</MemoryMapped>
             <DualQuad>None</DualQuad>
             <StartAddress>0x60000000</StartAddress>
@@ -31,8 +31,8 @@
             <EndAddress>0x60FFFFFF</EndAddress>
             <WriteEnable>true</WriteEnable>
             <Encrypt>false</Encrypt>
-            <DataSelect>QUAD_SPI_DATA_0_3</DataSelect>
-            <MemoryConfigsPath>S25FS128S (Hybrid at bottom, 64 KB sectors elsewhere)</MemoryConfigsPath>
+            <DataSelect>OCTAL_SPI_DATA_0_7</DataSelect>
+            <MemoryConfigsPath>default_memory.xml</MemoryConfigsPath>
             <ConfigDataInFlash>false</ConfigDataInFlash>
             <MergeTimeout>CY_SMIF_MERGE_TIMEOUT_256_CYCLES</MergeTimeout>
         </SlotConfig>

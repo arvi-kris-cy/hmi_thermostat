@@ -26,60 +26,62 @@
 
 #include "cycfg_qspi_memslot.h"
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_readCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_readCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
-    .command = 0xEBU,
+    .command = 0xEEU,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_QUAD,
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
-    .mode = 0x01U,
+    .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_QUAD,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
-    .dummyCycles = 8U,
+    .dummyCycles = 20U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_QUAD,
+    .dataWidth = CY_SMIF_WIDTH_OCTAL,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
-    .dataRate = CY_SMIF_SDR,
+    .dataRate = CY_SMIF_DDR,
     /* This specifies the presence of the dummy field */
     .dummyCyclesPresence = CY_SMIF_PRESENT_1BYTE,
     /* This specifies the presence of the mode field */
-    .modePresence = CY_SMIF_PRESENT_1BYTE,
+    .modePresence = CY_SMIF_NOT_PRESENT,
     /* The high byte of a 16-bit mode. This value is 0x0 when there is no higher byte mode present */
     .modeH = 0x00,
     /* The Data rate of mode */
     .modeRate = CY_SMIF_SDR,
     /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
+    .addrRate = CY_SMIF_DDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0xEE,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeEnCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_writeEnCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x06U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_NA,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_NA,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
     .dataRate = CY_SMIF_SDR,
@@ -94,30 +96,32 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeEnCmd =
     /* The Data rate of address */
     .addrRate = CY_SMIF_SDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x06,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeDisCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_writeDisCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x04U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_NA,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_NA,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
     .dataRate = CY_SMIF_SDR,
@@ -132,30 +136,32 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeDisCmd =
     /* The Data rate of address */
     .addrRate = CY_SMIF_SDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x04,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_eraseCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_eraseCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
-    .command = 0xD8U,
+    .command = 0xDCU,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_NA,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
     .dataRate = CY_SMIF_SDR,
@@ -168,32 +174,34 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_eraseCmd =
     /* The Data rate of mode */
     .modeRate = CY_SMIF_SDR,
     /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
+    .addrRate = CY_SMIF_DDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0xDC,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_chipEraseCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_chipEraseCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x60U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_NA,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_NA,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
     .dataRate = CY_SMIF_SDR,
@@ -208,33 +216,35 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_chipEraseCmd =
     /* The Data rate of address */
     .addrRate = CY_SMIF_SDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x60,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_programCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_programCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
-    .command = 0x02U,
+    .command = 0x12U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_OCTAL,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
-    .dataRate = CY_SMIF_SDR,
+    .dataRate = CY_SMIF_DDR,
     /* This specifies the presence of the dummy field */
     .dummyCyclesPresence = CY_SMIF_NOT_PRESENT,
     /* This specifies the presence of the mode field */
@@ -244,75 +254,39 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_programCmd =
     /* The Data rate of mode */
     .modeRate = CY_SMIF_SDR,
     /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
+    .addrRate = CY_SMIF_DDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x12,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_readStsRegQeCmd =
-{
-    /* The 8-bit command. 1 x I/O read command. */
-    .command = 0x35U,
-    /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
-    /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
-    /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
-    .mode = 0xFFFFFFFFU,
-    /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
-    /* The number of dummy cycles. A zero value suggests no dummy cycles. */
-    .dummyCycles = 0U,
-    /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
-#if (CY_IP_MXSMIF_VERSION >= 2)
-    /* The Data rate of data */
-    .dataRate = CY_SMIF_SDR,
-    /* This specifies the presence of the dummy field */
-    .dummyCyclesPresence = CY_SMIF_NOT_PRESENT,
-    /* This specifies the presence of the mode field */
-    .modePresence = CY_SMIF_NOT_PRESENT,
-    /* The high byte of a 16-bit mode. This value is 0x0 when there is no higher byte mode present */
-    .modeH = 0x00,
-    /* The Data rate of mode */
-    .modeRate = CY_SMIF_SDR,
-    /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
-    /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
-    /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
-    /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
-#endif /* CY_IP_MXSMIF_VERSION */
-};
-
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_readStsRegWipCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_readStsRegWipCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
     .command = 0x05U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
-    .dummyCycles = 0U,
+    .dummyCycles = 3U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_OCTAL,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
-    .dataRate = CY_SMIF_SDR,
+    .dataRate = CY_SMIF_DDR,
     /* This specifies the presence of the dummy field */
-    .dummyCyclesPresence = CY_SMIF_NOT_PRESENT,
+    .dummyCyclesPresence = CY_SMIF_PRESENT_1BYTE,
     /* This specifies the presence of the mode field */
     .modePresence = CY_SMIF_NOT_PRESENT,
     /* The high byte of a 16-bit mode. This value is 0x0 when there is no higher byte mode present */
@@ -320,32 +294,74 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_readStsRegWipCmd =
     /* The Data rate of mode */
     .modeRate = CY_SMIF_SDR,
     /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
+    .addrRate = CY_SMIF_DDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x05,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
-cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeStsRegQeCmd =
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_readStsRegOeCmd =
 {
     /* The 8-bit command. 1 x I/O read command. */
-    .command = 0x01U,
+    .command = 0x65U,
     /* The width of the command transfer. */
-    .cmdWidth = CY_SMIF_WIDTH_SINGLE,
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
     /* The width of the address transfer. */
-    .addrWidth = CY_SMIF_WIDTH_SINGLE,
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
     /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
     .mode = 0xFFFFFFFFU,
     /* The width of the mode command transfer. */
-    .modeWidth = CY_SMIF_WIDTH_SINGLE,
+    .modeWidth = CY_SMIF_WIDTH_NA,
+    /* The number of dummy cycles. A zero value suggests no dummy cycles. */
+    .dummyCycles = 3U,
+    /* The width of the data transfer. */
+    .dataWidth = CY_SMIF_WIDTH_OCTAL,
+#if (CY_IP_MXSMIF_VERSION >= 2)
+    /* The Data rate of data */
+    .dataRate = CY_SMIF_DDR,
+    /* This specifies the presence of the dummy field */
+    .dummyCyclesPresence = CY_SMIF_PRESENT_1BYTE,
+    /* This specifies the presence of the mode field */
+    .modePresence = CY_SMIF_NOT_PRESENT,
+    /* The high byte of a 16-bit mode. This value is 0x0 when there is no higher byte mode present */
+    .modeH = 0x00,
+    /* The Data rate of mode */
+    .modeRate = CY_SMIF_SDR,
+    /* The Data rate of address */
+    .addrRate = CY_SMIF_DDR,
+    /* This specifies the width of the command field */
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
+    /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
+    .commandH = 0x65,
+    /* The Data rate of command */
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
+#endif /* CY_IP_MXSMIF_VERSION */
+};
+
+cy_stc_smif_mem_cmd_t S28HS01GT_SMIF0_SlaveSlot_0_writeStsRegOeCmd =
+{
+    /* The 8-bit command. 1 x I/O read command. */
+    .command = 0x71U,
+    /* The width of the command transfer. */
+    .cmdWidth = CY_SMIF_WIDTH_OCTAL,
+    /* The width of the address transfer. */
+    .addrWidth = CY_SMIF_WIDTH_OCTAL,
+    /* The 8-bit mode byte. This value is 0xFFFFFFFF when there is no mode present. */
+    .mode = 0xFFFFFFFFU,
+    /* The width of the mode command transfer. */
+    .modeWidth = CY_SMIF_WIDTH_NA,
     /* The number of dummy cycles. A zero value suggests no dummy cycles. */
     .dummyCycles = 0U,
     /* The width of the data transfer. */
-    .dataWidth = CY_SMIF_WIDTH_SINGLE,
+    .dataWidth = CY_SMIF_WIDTH_NA,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* The Data rate of data */
     .dataRate = CY_SMIF_SDR,
@@ -358,109 +374,151 @@ cy_stc_smif_mem_cmd_t S25FS128S_SMIF0_SlaveSlot_1_writeStsRegQeCmd =
     /* The Data rate of mode */
     .modeRate = CY_SMIF_SDR,
     /* The Data rate of address */
-    .addrRate = CY_SMIF_SDR,
+    .addrRate = CY_SMIF_DDR,
     /* This specifies the width of the command field */
-    .cmdPresence = CY_SMIF_PRESENT_1BYTE,
+    .cmdPresence = CY_SMIF_PRESENT_2BYTE,
     /* The high byte of a 16-bit command. This value is 0x0 when there is no higher byte command present */
-    .commandH = 0x00,
+    .commandH = 0x71,
     /* The Data rate of command */
-    .cmdRate = CY_SMIF_SDR,
+    .cmdRate = CY_SMIF_DDR,
+#else
+#error Features used by this file require CY_IP_MXSMIF_VERSION >= 2.
 #endif /* CY_IP_MXSMIF_VERSION */
 };
 
+#if (CY_IP_MXSMIF_VERSION >= 2)
+cy_stc_smif_octal_ddr_en_seq_t oe_sequence_S28HS01GT_SMIF0_SlaveSlot_0 =
+{
+    .cmdSeq1Len = 1U,
+    .cmdSeq2Len = 5U,
+    .cmdSeq1 = {0x06},
+    .cmdSeq2 = {0x71, 0x80, 0x00, 0x06, 0x43},
+};
+#endif
+
 #if (CY_SMIF_DRV_VERSION_MAJOR > 1) || (CY_SMIF_DRV_VERSION_MINOR >= 50)
-static cy_stc_smif_hybrid_region_info_t S25FS128S_SMIF0_SlaveSlot_1_region0 =
+static cy_stc_smif_hybrid_region_info_t S28HS01GT_SMIF0_SlaveSlot_0_region0 =
 {
     /* The region start address. */
     .regionAddress = 0x0U,
     /* The number of sectors in this region. */
-    .sectorsCount = 8U,
+    .sectorsCount = 16U,
     /* The erase command to use for erasing sectors in this region. */
-    .eraseCmd = 0x20U,
+    .eraseCmd = 0x21U,
     /* The sector size in bytes. */
     .eraseSize = 0x1000U,
     /* The erase time for these sectors in ms. */
-    .eraseTime = 725U,
+    .eraseTime = 335U,
 };
 
-static cy_stc_smif_hybrid_region_info_t S25FS128S_SMIF0_SlaveSlot_1_region1 =
-{
-    /* The region start address. */
-    .regionAddress = 0x8000U,
-    /* The number of sectors in this region. */
-    .sectorsCount = 1U,
-    /* The erase command to use for erasing sectors in this region. */
-    .eraseCmd = 0xD8U,
-    /* The sector size in bytes. */
-    .eraseSize = 0x8000U,
-    /* The erase time for these sectors in ms. */
-    .eraseTime = 725U,
-};
-
-static cy_stc_smif_hybrid_region_info_t S25FS128S_SMIF0_SlaveSlot_1_region2 =
+static cy_stc_smif_hybrid_region_info_t S28HS01GT_SMIF0_SlaveSlot_0_region1 =
 {
     /* The region start address. */
     .regionAddress = 0x10000U,
     /* The number of sectors in this region. */
-    .sectorsCount = 255U,
+    .sectorsCount = 1U,
     /* The erase command to use for erasing sectors in this region. */
-    .eraseCmd = 0xD8U,
+    .eraseCmd = 0xDCU,
     /* The sector size in bytes. */
-    .eraseSize = 0x10000U,
+    .eraseSize = 0x30000U,
     /* The erase time for these sectors in ms. */
-    .eraseTime = 725U,
+    .eraseTime = 5869U,
 };
 
-static cy_stc_smif_hybrid_region_info_t * S25FS128S_SMIF0_SlaveSlot_1_regionInfo[3] = {
-   &S25FS128S_SMIF0_SlaveSlot_1_region0,
-   &S25FS128S_SMIF0_SlaveSlot_1_region1,
-   &S25FS128S_SMIF0_SlaveSlot_1_region2
+static cy_stc_smif_hybrid_region_info_t S28HS01GT_SMIF0_SlaveSlot_0_region2 =
+{
+    /* The region start address. */
+    .regionAddress = 0x40000U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 510U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0xDCU,
+    /* The sector size in bytes. */
+    .eraseSize = 0x40000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 5869U,
+};
+
+static cy_stc_smif_hybrid_region_info_t S28HS01GT_SMIF0_SlaveSlot_0_region3 =
+{
+    /* The region start address. */
+    .regionAddress = 0x7FC0000U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 1U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0xDCU,
+    /* The sector size in bytes. */
+    .eraseSize = 0x30000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 5869U,
+};
+
+static cy_stc_smif_hybrid_region_info_t S28HS01GT_SMIF0_SlaveSlot_0_region4 =
+{
+    /* The region start address. */
+    .regionAddress = 0x7FF0000U,
+    /* The number of sectors in this region. */
+    .sectorsCount = 16U,
+    /* The erase command to use for erasing sectors in this region. */
+    .eraseCmd = 0x21U,
+    /* The sector size in bytes. */
+    .eraseSize = 0x1000U,
+    /* The erase time for these sectors in ms. */
+    .eraseTime = 335U,
+};
+
+static cy_stc_smif_hybrid_region_info_t * S28HS01GT_SMIF0_SlaveSlot_0_regionInfo[5] = {
+   &S28HS01GT_SMIF0_SlaveSlot_0_region0,
+   &S28HS01GT_SMIF0_SlaveSlot_0_region1,
+   &S28HS01GT_SMIF0_SlaveSlot_0_region2,
+   &S28HS01GT_SMIF0_SlaveSlot_0_region3,
+   &S28HS01GT_SMIF0_SlaveSlot_0_region4
 };
 
 #endif
 
-cy_stc_smif_mem_device_cfg_t deviceCfg_S25FS128S_SMIF0_SlaveSlot_1 =
+cy_stc_smif_mem_device_cfg_t deviceCfg_S28HS01GT_SMIF0_SlaveSlot_0 =
 {
     /* Specifies the number of address bytes used by the memory slave device. */
-    .numOfAddrBytes = 0x03U,
+    .numOfAddrBytes = 0x04U,
     /* The size of the memory. */
-    .memSize = 0x1000000U,
+    .memSize = 0x08000000U,
     /* Specifies the Read command. */
-    .readCmd = &S25FS128S_SMIF0_SlaveSlot_1_readCmd,
+    .readCmd = &S28HS01GT_SMIF0_SlaveSlot_0_readCmd,
     /* Specifies the Write Enable command. */
-    .writeEnCmd = &S25FS128S_SMIF0_SlaveSlot_1_writeEnCmd,
+    .writeEnCmd = &S28HS01GT_SMIF0_SlaveSlot_0_writeEnCmd,
     /* Specifies the Write Disable command. */
-    .writeDisCmd = &S25FS128S_SMIF0_SlaveSlot_1_writeDisCmd,
+    .writeDisCmd = &S28HS01GT_SMIF0_SlaveSlot_0_writeDisCmd,
     /* Specifies the Erase command. */
-    .eraseCmd = &S25FS128S_SMIF0_SlaveSlot_1_eraseCmd,
+    .eraseCmd = &S28HS01GT_SMIF0_SlaveSlot_0_eraseCmd,
     /* Specifies the sector size of each erase. */
-    .eraseSize = 0x0010000U,
+    .eraseSize = 0x0040000U,
     /* Specifies the Chip Erase command. */
-    .chipEraseCmd = &S25FS128S_SMIF0_SlaveSlot_1_chipEraseCmd,
+    .chipEraseCmd = &S28HS01GT_SMIF0_SlaveSlot_0_chipEraseCmd,
     /* Specifies the Program command. */
-    .programCmd = &S25FS128S_SMIF0_SlaveSlot_1_programCmd,
+    .programCmd = &S28HS01GT_SMIF0_SlaveSlot_0_programCmd,
     /* Specifies the page size for programming. */
     .programSize = 0x0000100U,
     /* Specifies the command to read the QE-containing status register. */
-    .readStsRegQeCmd = &S25FS128S_SMIF0_SlaveSlot_1_readStsRegQeCmd,
+    .readStsRegQeCmd = 0,
     /* Specifies the command to read the WIP-containing status register. */
-    .readStsRegWipCmd = &S25FS128S_SMIF0_SlaveSlot_1_readStsRegWipCmd,
+    .readStsRegWipCmd = &S28HS01GT_SMIF0_SlaveSlot_0_readStsRegWipCmd,
     /* Specifies the command to write into the QE-containing status register. */
-    .writeStsRegQeCmd = &S25FS128S_SMIF0_SlaveSlot_1_writeStsRegQeCmd,
+    .writeStsRegQeCmd = 0,
     /* The mask for the status register. */
     .stsRegBusyMask = 0x01U,
     /* The mask for the status register. */
     .stsRegQuadEnableMask = 0x02U,
     /* The max time for the erase type-1 cycle-time in ms. */
-    .eraseTime = 725U,
+    .eraseTime = 5869U,
     /* The max time for the chip-erase cycle-time in ms. */
-    .chipEraseTime = 180000U,
+    .chipEraseTime = 1381000U,
     /* The max time for the page-program cycle-time in us. */
-    .programTime = 2000U,
+    .programTime = 2175U,
 #if (CY_SMIF_DRV_VERSION_MAJOR > 1) || (CY_SMIF_DRV_VERSION_MINOR >= 50)
     /* Points to NULL or to structure with info about sectors for hybrid memory. */
-    .hybridRegionCount = 3U,
-    .hybridRegionInfo = S25FS128S_SMIF0_SlaveSlot_1_regionInfo,
+    .hybridRegionCount = 5U,
+    .hybridRegionInfo = S28HS01GT_SMIF0_SlaveSlot_0_regionInfo,
 #else
 #error Hybrid erase sectors require SMIF driver 1.50 or greater.
 #endif
@@ -474,24 +532,24 @@ cy_stc_smif_mem_device_cfg_t deviceCfg_S25FS128S_SMIF0_SlaveSlot_1 =
     .latencyCyclesMask = 0x00U,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /* Specifies data for memory with hybrid sectors */
-    .octalDDREnableSeq = 0,
+    .octalDDREnableSeq = &oe_sequence_S28HS01GT_SMIF0_SlaveSlot_0,
     /* Specifies the command to read the OE-containing status register. */
-    .readStsRegOeCmd = 0,
+    .readStsRegOeCmd = &S28HS01GT_SMIF0_SlaveSlot_0_readStsRegOeCmd,
     /* Specifies the command to write the OE-containing status register. */
-    .writeStsRegOeCmd = 0,
+    .writeStsRegOeCmd = &S28HS01GT_SMIF0_SlaveSlot_0_writeStsRegOeCmd,
     /* QE mask for the status registers */
-    .stsRegOctalEnableMask = 0x00U,
+    .stsRegOctalEnableMask = 0x01U,
     /* Octal enable register address */
-    .octalEnableRegAddr = 0x00U,
+    .octalEnableRegAddr = 0x00800006U,
     /* Frequency of operation used in Octal mode */
     .freq_of_operation = CY_SMIF_100MHZ_OPERATION,
 #endif
 };
 
-cy_stc_smif_mem_config_t S25FS128S_SMIF0_SlaveSlot_1 =
+cy_stc_smif_mem_config_t S28HS01GT_SMIF0_SlaveSlot_0 =
 {
     /* Determines the slot number where the memory device is placed. */
-    .slaveSelect = CY_SMIF_SLAVE_SELECT_1,
+    .slaveSelect = CY_SMIF_SLAVE_SELECT_0,
     /* Flags. */
 #if (CY_IP_MXSMIF_VERSION >= 2)
     .flags = CY_SMIF_FLAG_SMIF_REV_3 | CY_SMIF_FLAG_MEMORY_MAPPED | CY_SMIF_FLAG_WR_EN | CY_SMIF_FLAG_MERGE_ENABLE,
@@ -505,12 +563,12 @@ cy_stc_smif_mem_config_t S25FS128S_SMIF0_SlaveSlot_1 =
     .baseAddress = 0x60000000U,
     /* The size allocated in the PSoC memory map, for the memory slave device.
     The size is allocated from the base address. Valid when the memory mapped mode is enabled. */
-    .memMappedSize = 0x1000000U,
+    .memMappedSize = 0x2000000U,
     /* If this memory device is one of the devices in the dual quad SPI configuration.
     Valid when the memory mapped mode is enabled. */
     .dualQuadSlots = 0,
     /* The configuration of the device. */
-    .deviceCfg = &deviceCfg_S25FS128S_SMIF0_SlaveSlot_1,
+    .deviceCfg = &deviceCfg_S28HS01GT_SMIF0_SlaveSlot_0,
 #if (CY_IP_MXSMIF_VERSION >= 2)
     /** Continous transfer merge timeout.
      * After this period the memory device is deselected. A later transfer, even from a
@@ -523,7 +581,7 @@ cy_stc_smif_mem_config_t S25FS128S_SMIF0_SlaveSlot_1 =
 };
 
 cy_stc_smif_mem_config_t* smif0MemConfigs[CY_SMIF_DEVICE_NUM0] = {
-   &S25FS128S_SMIF0_SlaveSlot_1,
+   &S28HS01GT_SMIF0_SlaveSlot_0,
 };
 
 cy_stc_smif_block_config_t smif0BlockConfig =
