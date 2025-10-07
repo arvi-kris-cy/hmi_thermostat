@@ -44,11 +44,34 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <stdint.h>
+#include "cy_afe_configurator_settings.h"
+#include "cy_audio_front_end.h"
+#include "cy_audio_front_end_error.h"
 
-/******************************************************************************
- * Macros
- *****************************************************************************/
+#ifdef COMPONENT_APP_LOGGER
+#include "app_logger.h" 
+#endif /* COMPONENT_APP_LOGGER */
 
+
+/*******************************************************************************
+* Macros
+*******************************************************************************/
+#ifdef PROFILER_ENABLE
+#define AE_APP_PROFILE                                (0)
+#define INFERENCING_PROFILE                           (0)
+#endif /* PROFILER_ENABLE */
+
+#ifdef COMPONENT_APP_LOGGER
+#define APP_AE_LOG_ENABLE                       (1)
+#else
+#define APP_AE_LOG_ENABLE                       (0)
+#endif /* COMPONENT_APP_LOGGER */  
+
+#if APP_AE_LOG_ENABLE
+#define app_ae_log(format,...)                  printf(format "\r\n",##__VA_ARGS__);
+#else
+#define app_ae_log(format,...)
+#endif /* APP_AE_LOG_ENABLE */
 
 /******************************************************************************
  * Typedefs
@@ -87,7 +110,6 @@ typedef enum
     AE_CONFIG_STREAM,                 /* Start Stop stream */
 } ae_config_name_t;
 
-
 /******************************************************************************
  * Structures
  ******************************************************************************/
@@ -113,11 +135,11 @@ ae_rslt_t audio_enhancement_feed_input(int16_t *input_buffer,
                                        int16_t *aec_buffer);
 void      audio_enhancement_process_output(ae_buffer_info_t *output_buffer);
 #ifdef CY_AFE_ENABLE_TUNING_FEATURE
-void      audio_enhancement_tuner_notify(ae_config_action_t action, 
-                                         ae_config_name_t name, void *value);
-void      audio_enhancement_tuner_read(uint8_t *buffer, uint16_t *length);
-void      audio_enhancement_tuner_write(uint8_t *buffer, uint16_t length);
-#endif
+ae_rslt_t audio_enhancement_tuner_notify(cy_afe_t handle, cy_afe_config_setting_t *config_setting);
+ae_rslt_t audio_enhancement_tuner_read(cy_afe_tuner_buffer_t *buffer);
+ae_rslt_t audio_enhancement_tuner_write(cy_afe_tuner_buffer_t *buffer);
+#endif /* CY_AFE_ENABLE_TUNING_FEATURE */
+
 
 #if defined(__cplusplus)
 }

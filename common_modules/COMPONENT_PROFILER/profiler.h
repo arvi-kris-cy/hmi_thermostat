@@ -2,7 +2,7 @@
 * File Name : profiler.h
 *
 * Description :
-* Header for MCPS profiler
+* Configuration Header for MIPS profiler
 ********************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -35,22 +35,31 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
-
 #ifndef _PROFILER_H_
 #define _PROFILER_H_
 
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus */
+#include <inttypes.h>
+#if !defined(COMPONENT_CM33) && !defined(__ARMCC_VERSION)
+#include <malloc.h>
+#endif /* #if !defined(COMPONENT_CM33) && !defined(__ARMCC_VERSION) */
+#include <stdlib.h>
+#include <string.h>
 
-void profiler_init(void);
-void profiler_start(void);
-void profiler_stop(void);
-uint32_t profiler_get_cycles(void);
+#if !defined(COMPONENT_CM33) && !defined(__ARMCC_VERSION)
+void display_mallinfo(void);
+#endif /* #if !defined(COMPONENT_CM33) && !defined(__ARMCC_VERSION) */
 
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus */
+/* Peripheral clock dividier */
+#define CPU_PERI_CLOCK_DIV              (2)
+#define PROFILE_SW_CODEC                (1)
+
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif /* max */
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif /* min */
+
 
 #endif /* _PROFILER_H_ */
 

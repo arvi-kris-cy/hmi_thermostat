@@ -52,7 +52,8 @@
 /******************************************************************************
 * Defines
 *****************************************************************************/
-
+#define AFE_1SEC_FRAME_COUNT    (100)
+#define AFE_MCPS_FOR_1SEC       (1000000)
 /******************************************************************************
 * Constants
 *****************************************************************************/
@@ -60,7 +61,8 @@
 /******************************************************************************
 * Variables
 *****************************************************************************/
-
+uint32_t afe_cycle_1s=0;
+uint32_t afe_cycle_count=0;
 /******************************************************************************
 * Functions
 *****************************************************************************/
@@ -155,6 +157,21 @@ cy_rslt_t cy_afe_profile(afe_profile_command cmd,
                      afe_profile.max_cycles );
 
              break;
+        }
+        case AFE_PROFILE_CMD_PRINT_STATS_1SEC:
+        {
+            if (afe_cycle_count<=AFE_1SEC_FRAME_COUNT)
+            {
+                afe_cycle_1s+=afe_profile.cycles_taken;
+                afe_cycle_count++;
+            }
+            else
+            {
+                afe_cycle_count=0;
+                printf("Average MCPS is %u \n",afe_cycle_1s/AFE_MCPS_FOR_1SEC);
+                afe_cycle_1s=0;
+            }
+            break;
         }
         default:
         {

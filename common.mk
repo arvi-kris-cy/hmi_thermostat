@@ -109,6 +109,11 @@ CONFIG_DISPLAY = R4INCH_DISP
 #
 COMPONENTS+=GFXSS
 
+# Search path for
+# 1. Common source code shared between CM33 and CM55 cores.
+
+SEARCH+=../common_modules
+
 # NOTE: Check the JSON file for the command parameters
 COMBINE_SIGN_JSON?=configs/boot_with_extended_boot.json
 

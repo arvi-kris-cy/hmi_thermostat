@@ -9,7 +9,7 @@
     "bf": {
         "angle_range_a": 0,
         "angle_range_b": 180,
-        "bf_state": "on",
+        "bf_state": "off",
         "interference_canceller": "medium",
         "mic_distance_mm": 95,
         "num_beams": 1
@@ -30,7 +30,7 @@
     "input": {
         "frame_rate_sps": 16000,
         "frame_size_ms": 10,
-        "input_gain_db": 23,
+        "input_gain_db": 25,
         "input_source": "mic",
         "number_of_channels": 2,
         "software_input_gain_db1": 0,

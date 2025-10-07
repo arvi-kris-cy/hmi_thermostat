@@ -53,11 +53,17 @@
 /* Peripherals related includes */
 #include "pdm_mic.h"
 #include "audio_input_configuration.h"
+#include "audio_usb_send_utils.h"
 #include "audio_conv_utils.h"
 
 #ifdef USE_AUDIO_ENHANCEMENT
 #include "audio_enhancement.h"
 #endif
+
+#ifdef PROFILER_ENABLE
+#include "cy_afe_profiler.h"
+#include "cy_profiler.h"
+#endif /* PROFILER_ENABLE */
 
 #include "thermostat_events.h"
 
@@ -80,9 +86,6 @@
 
 /* How often to print the MCPS (multiply by 10 ms) */
 #define PRINT_MCPS_COUNT                        (100u)
-
-/* Uncomment to print MCPS */
-// #define SHOW_MCPS
 
 /* Choose one of the following options to run the voice-assistant:
  * VA_MODE_WW_SINGLE_CMD : For every wake word, a single command is detected
@@ -113,7 +116,7 @@ bool is_mic_clicked = false;
 int16_t non_interleaved_audio[2*PDM_MIC_SAMPLES_COUNT] = {0};
 #endif
 
-#ifdef SHOW_MCPS
+#if INFERENCING_PROFILE
 /* Variables used to print and calculate MCPS */
 uint32_t show_count = 0;
 uint32_t cpu_cycle_sum = 0;
@@ -124,6 +127,10 @@ extern bool handle_command_for_ui;
 extern int *intent_value;
 extern int *intent_text;
 extern uint8_t brightness_level;
+
+/*******************************************************************************
+* Function Definitions
+*******************************************************************************/
 
 /*******************************************************************************
  * Function Name: voice_assistant_init
@@ -721,7 +728,7 @@ static bool check_button_pressed(void)
     return false;
 }
 
-#ifdef SHOW_MCPS
+#if INFERENCING_PROFILE
 /*******************************************************************************
  * Function Name: print_mcps
  *******************************************************************************
@@ -736,11 +743,11 @@ static bool check_button_pressed(void)
  *******************************************************************************/
 static void print_mcps(void)
 {
-    cpu_cycle_sum += profiler_get_cycles();
+    cpu_cycle_sum += cy_profiler_get_cycles();
     show_count++;
     if(show_count >= PRINT_MCPS_COUNT)
     {
-        printf("Profiler: %u MCPS\r\n", cpu_cycle_sum/1000000);
+        printf("cy_profiler: %u MCPS\r\n", cpu_cycle_sum/1000000);
         show_count = 0;
         cpu_cycle_sum = 0;
     }
@@ -877,13 +884,13 @@ static void run_voice_assistant_process(int16_t *audio_frame)
     va_data_t va_data;
     va_event_t va_event;
 
-#ifdef SHOW_MCPS
-    profiler_start();
+#if INFERENCING_PROFILE
+    cy_profiler_start();
 #endif    
     /* Process the audio data */
     va_result = voice_assistant_process(audio_frame, &va_event, &va_data);
-#ifdef SHOW_MCPS
-    profiler_stop();
+#if INFERENCING_PROFILE
+    cy_profiler_stop();
     print_mcps();
 #endif
 
@@ -899,12 +906,12 @@ static void run_voice_assistant_process(int16_t *audio_frame)
     #endif
 }
 
-#ifdef USE_AUDIO_ENHANCEMENT
 /*******************************************************************************
  * Function Name: audio_enhancement_process_output
  *******************************************************************************
  * Summary:
- * Strong implementation to process the audio enhancement output.
+ * Use case API
+ * Sends back AE data/tuning data back to PC via USB Audio Class
  *
  * Parameters:
  *  output_buffer: pointer to the output audio data buffer.
@@ -913,12 +920,33 @@ static void run_voice_assistant_process(int16_t *audio_frame)
  *  void
  *
  *******************************************************************************/
-void audio_enhancement_process_output(ae_buffer_info_t *output_buffer)
+ 
+void audio_enhancement_process_output(ae_buffer_info_t *ae_output_buffer)
 {
+
+#ifdef AE_TUNING_MODE
+    int16_t *output_dgb1 = (int16_t *)ae_output_buffer->dbg_output1;
+    int16_t *output_dgb2 = (int16_t *)ae_output_buffer->dbg_output2;
+    int16_t *output_dgb3 = (int16_t *)ae_output_buffer->dbg_output3;
+    int16_t *output_dgb4 = (int16_t *)ae_output_buffer->dbg_output4;
+#endif /* AE_TUNING_MODE */
+
+#if AE_APP_PROFILE
+    cy_afe_profile(AFE_PROFILE_CMD_PRINT_STATS_1SEC, NULL);
+    cy_afe_profile(AFE_PROFILE_CMD_RESET, NULL);
+#endif /* AE_APP_PROFILE */
+
+#ifdef AE_TUNING_MODE
+    usb_send_out_dbg_put(USB_CHANNEL_1,(int16_t *)output_dgb1);
+    usb_send_out_dbg_put(USB_CHANNEL_2,(int16_t *)output_dgb2);
+    usb_send_out_dbg_put(USB_CHANNEL_3,(int16_t *)output_dgb3);
+    usb_send_out_dbg_put(USB_CHANNEL_4,(int16_t *)output_dgb4);
+#endif /* AE_TUNING_MODE */
+
     /* Use the output data from the audio enhancement with the voice-assistant */
-    run_voice_assistant_process(output_buffer->output_buf);
+    run_voice_assistant_process(ae_output_buffer->output_buf);
+
 }
-#endif
 
 /*******************************************************************************
  * Function Name: voice_assistant_task
@@ -943,7 +971,17 @@ void voice_assistant_task(void * arg)
     uint8_t ae_license_error = 0;
 #endif /* USE_AUDIO_ENHANCEMENT */    
 
-   /* If AFE is used, intialize the audio enhancement */
+    // Initialize the profiler to print MCPS
+#if INFERENCING_PROFILE
+    cy_profiler_init();
+#endif /* INFERENCING_PROFILE */ 
+
+#if AE_APP_PROFILE
+    cy_profiler_init();
+    cy_afe_profile(AFE_PROFILE_CMD_ENABLE,NULL);
+#endif /* AE_APP_PROFILE */ 
+
+   /* If AFE is used, initialize the audio enhancement */
 #ifdef USE_AUDIO_ENHANCEMENT
     ae_result = audio_enhancement_init(NUM_AUDIO_CHANNELS);
     if (ae_result != AE_RSLT_SUCCESS)
@@ -957,13 +995,15 @@ void voice_assistant_task(void * arg)
     }
 #endif /* USE_AUDIO_ENHANCEMENT */
 
-    /* Initialize the PDM microphone */
-    pdm_mic_init();
+#ifdef AE_TUNING_MODE
+    /* Enable USB interface*/
+    app_log_print("Initializing USB interface \r\n");
+    usb_audio_interface_init();
+    usb_send_out_dbg_init_channels();
+#endif
 
-    // Initialize the profiler to print MCPS
-#ifdef SHOW_MCPS
-    profiler_init();
-#endif /* SHOW_MCPS */   
+    /* Initialize the PDM microphone */
+    pdm_mic_init(); 
 
     /* Initialize the voice assistant */
     va_result = voice_assistant_init(RUNNING_MODE);

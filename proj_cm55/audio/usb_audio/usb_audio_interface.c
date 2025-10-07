@@ -1,8 +1,8 @@
 /******************************************************************************
-* File Name : profiler.c
+* File Name : usb_audio_interface.c
 *
 * Description :
-* Code for MCPS profiler
+* USB interface control code.
 ********************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -39,141 +39,71 @@
 /*******************************************************************************
 * Header Files
 *******************************************************************************/
+#include "usb_audio_interface.h"
 #include "cy_pdl.h"
-#include "profiler.h"
+#include "cybsp.h"
+#include "cy_log.h"
+#include "rtos.h"
+#include "audio_app.h"
+#include "app_logger.h"
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#define RESET_CYCLE_CNT (DWT->CYCCNT=0)
-#define GET_CYCLE_CNT (DWT->CYCCNT)
 
-/*******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+#define USB_INTERFACE_TASK_PRIORITY         (4)
 
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
-uint32_t profiler_cycles = 0;
+TaskHandle_t audio_usb_task;
 
 /*******************************************************************************
-* Function Name: Cy_Reset_Cycles
+* Function Name: cy_audio_usb_interface_init
 ********************************************************************************
 * Summary:
-* Reset the DWT counter.
+* Create USB interface thread.
 *
 * Parameters:
 *  None
 *
 * Return:
-*  None
+*  CY_RSLT_SUCCESS
 *
 *******************************************************************************/
-uint32_t Cy_Reset_Cycles(void)
+cy_rslt_t usb_audio_interface_init()
 {
-    /* Call DWTCyCNTInit before first call */
-    return RESET_CYCLE_CNT;
+    BaseType_t rtos_task_status;
+    /* Create the RTOS tasks */
+
+    rtos_task_status = xTaskCreate(audio_app_process, "usb_interface",
+                        RTOS_STACK_DEPTH*4, NULL, USB_INTERFACE_TASK_PRIORITY,
+                        &audio_usb_task);
+
+    if (pdPASS != rtos_task_status)
+    {
+        app_log_print("Error in creating USB audio task \r\n");
+    }
+
+    return CY_RSLT_SUCCESS;
 }
 
 /*******************************************************************************
-* Function Name: Cy_Get_Cycles
+* Function Name: cy_audio_usb_interface_deinit
 ********************************************************************************
 * Summary:
-* Return the current DWT counter.
+* Delete USB interface thread.
 *
 * Parameters:
 *  None
 *
 * Return:
-*  Current DWT counter value.
+*  CY_RSLT_SUCCESS
 *
 *******************************************************************************/
-uint32_t Cy_Get_Cycles(void)
+cy_rslt_t usb_audio_interface_deinit() 
 {
-    /* Call DWTCyCNTInit before first call */
-    return GET_CYCLE_CNT;
+    vTaskDelete((TaskHandle_t)&audio_usb_task);
+    return CY_RSLT_SUCCESS;
 }
-
-/*******************************************************************************
-* Function Name: profiler_init
-********************************************************************************
-* Summary:
-* This function configures the DWT cycle counter.
-*
-* Parameters:
-*  none
-*
-* Return:
-*  None
-*
-*******************************************************************************/
- void profiler_init(void)
- {
-    /* Disable TRC */
-    CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk; // ~0x01000000;
-    /* Enable TRC */
-    CoreDebug->DEMCR |=  CoreDebug_DEMCR_TRCENA_Msk; // 0x01000000;
-
-    /* Disable clock cycle counter */
-    DWT->CTRL &= ~DWT_CTRL_CYCCNTENA_Msk; //~0x00000001;
-    /* Enable  clock cycle counter */
-    DWT->CTRL |=  DWT_CTRL_CYCCNTENA_Msk; //0x00000001;
- }
-
-/*******************************************************************************
-* Function Name: profiler_start
-********************************************************************************
-* Summary:
-* Start profiler.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  None
-*
-*******************************************************************************/
-void profiler_start(void)
-{
-    RESET_CYCLE_CNT;
-}
-
-/*******************************************************************************
-* Function Name: profiler_stop
-********************************************************************************
-* Summary:
-* Stop profiler.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  None
-*
-*******************************************************************************/
-void profiler_stop(void)
-{
-    profiler_cycles = GET_CYCLE_CNT;
-}
-
-/*******************************************************************************
-* Function Name: cy_profiler_get_cycles
-********************************************************************************
-* Summary:
-* Get profiling cycles.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  Profiling cycles.
-*
-*******************************************************************************/
-uint32_t profiler_get_cycles(void)
-{
-    return profiler_cycles;
-}
-
-
 /* [] END OF FILE */

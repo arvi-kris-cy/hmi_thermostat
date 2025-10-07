@@ -133,7 +133,7 @@ POSTBUILD+=
 
 DEFINES+=PROJECT_PREFIX=$(DEEPCRAFT_PROJECT_NAME)
 
-DEFINES+=_BAREMETAL=0 LV_USE_QRCODE #SHOW_MCPS
+DEFINES+=_BAREMETAL=0 LV_USE_QRCODE 
 
 # Lift of components for onboard sensors
 COMPONENTS += SHT40 CO2
@@ -150,6 +150,18 @@ CY_IGNORE += $(SEARCH_touch-ctp-gt911)
 CY_IGNORE += $(SEARCH_display-dsi-waveshare-4-3-lcd)
 CY_IGNORE += $(SEARCH_touch-ctp-ft5406)
 endif
+
+#For Profiler
+COMPONENTS += PROFILER
+DEFINES+=PROFILER_ENABLE
+
+#AFE Tuning enablement
+#DEFINES += CY_AFE_ENABLE_TUNING_FEATURE
+#DEFINES+=AE_TUNING_MODE
+
+#USB Audio class
+COMPONENTS += EMUSB
+COMPONENTS += USBD_BASE
 
 #Application logger
 COMPONENTS += APP_LOGGER
@@ -220,7 +232,6 @@ endif
 #PDM mic settings - EVK 
 #GAIN_CONTROL_ON - to restrict gain level to -25.0dB to 25.0dB
 DEFINES +=GAIN_CONTROL_ON
-
 
 ################################################################################
 # Paths

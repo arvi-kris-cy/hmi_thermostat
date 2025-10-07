@@ -41,22 +41,28 @@
 *******************************************************************************/
 #include "audio_enhancement.h"
 
-#include "cy_audio_front_end.h"
-#include "cy_afe_configurator_settings.h"
-
+#ifdef PROFILER_ENABLE
+#include "cy_afe_profiler.h"
+#include "cy_profiler.h"
+#endif /* PROFILER_ENABLE */
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#define AE_FRAME_BUFFER_MEMORY                          (320)
-#define AE_APP_TEMP_MEMORY                              (2)
-#define AE_MAX_NUM_CHANNELS                             (2)
-#define AE_ALGO_SCRATCH_MEMORY                          (25000)
+#define AE_FRAME_BUFFER_MEMORY                  (320)
+#define AE_APP_TEMP_MEMORY                      (2)
+#define AE_MAX_NUM_CHANNELS                     (2)
+#define AE_ALGO_SCRATCH_MEMORY                  (25000)
 #ifdef ENABLE_IFX_AEC
-#define AE_ALGO_PERSISTENT_MEMORY                       (160000)
+#define AE_ALGO_PERSISTENT_MEMORY               (160000)
 #else
-#define AE_ALGO_PERSISTENT_MEMORY                       (60000)
+#define AE_ALGO_PERSISTENT_MEMORY               (60000)
 #endif /* ENABLE_IFX_AEC */
+
+#define NO_OF_CHANNELS_RECEIVED                 (AFE_INPUT_NUMBER_CHANNELS)
+#define NO_OF_BYTES_PER_SAMPLE                  (2)
+#define MONO_AUDIO_DATA_IN_BYTES                (320)
+#define STEREO_AUDIO_DATA_IN_BYTES              (640)
 
 /*******************************************************************************
 * Global Variables
@@ -124,7 +130,6 @@ static cy_rslt_t ae_output_callback(cy_afe_t handle, cy_afe_buffer_info_t *outpu
     ae_output_buffer_info.dbg_output4 = (int16_t *) output_buffer_info->dbg_output4;
 #endif
     audio_enhancement_process_output(&ae_output_buffer_info);
-
     return CY_RSLT_SUCCESS;
 }
 
@@ -132,7 +137,7 @@ static cy_rslt_t ae_output_callback(cy_afe_t handle, cy_afe_buffer_info_t *outpu
 * Function Name: ae_free_memory
 ********************************************************************************
 * Summary:
-* Callback from middleware to free memory for AFE.
+* Callback from middle-ware to free memory for AFE.
 *
 * Parameters:
 *  None
@@ -143,11 +148,36 @@ static cy_rslt_t ae_output_callback(cy_afe_t handle, cy_afe_buffer_info_t *outpu
 *******************************************************************************/
 cy_rslt_t ae_free_memory(cy_afe_mem_id_t mem_id, void *buffer)
 {
+    int ae_mem_id = (int)mem_id;
     if (buffer != NULL)
     {
           free(buffer);
           buffer = NULL;
     }
+    switch(ae_mem_id)
+    {
+        case CY_AFE_MEM_ID_ALGORITHM_ES_MEMORY:
+        {
+            if (ae_dses_mem != NULL) 
+            {
+                free(ae_dses_mem);
+                ae_dses_mem=NULL;
+            }
+            break;
+        }
+        case CY_AFE_MEM_ID_ALGORITHM_NS_MEMORY:
+        {
+            if (ae_dsns_mem !=NULL)
+            {
+                free(ae_dsns_mem);
+                ae_dsns_mem=NULL;                
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
     return CY_RSLT_SUCCESS;
 }
 
@@ -167,28 +197,31 @@ cy_rslt_t ae_free_memory(cy_afe_mem_id_t mem_id, void *buffer)
 cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
 {
     cy_rslt_t  ret_val = CY_RSLT_SUCCESS;
-
+    int ae_mem_id = (int)mem_id;
     if(NULL == buffer)
     {
         return ret_val;
     }
     *buffer = NULL;
-
+    app_ae_log("app afe alloc size %ld \r\n", (long)size);
     /* If size equal ZERO, no allocation required */
     if (size == 0)
     {
+        app_ae_log("No allocation as size is zero \r\n");
         *buffer = &ae_temp_mem[0];
         return ret_val;
     }
 
     /* Allocate memory based on the memory ID */
-    switch(mem_id)
+    switch(ae_mem_id)
     {
-        case CY_AFE_MEM_ID_ALGORITHM_ES_MEMORY:
+		case CY_AFE_MEM_ID_ALGORITHM_ES_MEMORY:
         {
+            app_ae_log("DSES Memory requires %ld bytes \r\n", (long)size);
             ae_dses_mem = calloc(size+15,1);
             if (ae_dses_mem == NULL)
             {
+                app_ae_log("DSES memory allocation failed \r\n");
                 ret_val = AE_RSLT_ALLOC_ERROR;
             }
             else
@@ -197,11 +230,14 @@ cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
             }
             break;
         }
+        
         case CY_AFE_MEM_ID_ALGORITHM_NS_MEMORY:
         {
+            app_ae_log("DSNS Memory requires %ld bytes \r\n", (long)size);
             ae_dsns_mem = calloc(size+15,1);
             if (ae_dsns_mem == NULL)
             {
+                app_ae_log("DSNS memory allocation failed \r\n");
                 ret_val = AE_RSLT_ALLOC_ERROR;
             }
             else
@@ -210,13 +246,18 @@ cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
             }
             break;
         }
+        
         case CY_AFE_MEM_ID_ALGORITHM_PERSISTENT_MEMORY:
         {
+            app_ae_log("Persistent Memory requires %ld bytes \r\n", (long)size);
+
             if(size > AE_ALGO_PERSISTENT_MEMORY)
             {
+                app_ae_log("Defaulting to heap allocation for persistent memory \r\n");
                 *buffer = (void *)calloc(size,1);
                 if (*buffer == NULL)
                 {
+                    app_ae_log("Persistent memory allocation failed \r\n");
                     ret_val = AE_RSLT_ALLOC_ERROR;
                 }
             }
@@ -229,8 +270,10 @@ cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
         }
         case CY_AFE_MEM_ID_ALGORITHM_SCRATCH_MEMORY:
         {
+            app_ae_log("Scratch Memory requires %ld bytes \r\n", (long)size);
             if(size > AE_ALGO_SCRATCH_MEMORY)
             {
+                app_ae_log("Defaulting to heap allocation for scratch memory \r\n");
                 *buffer = (void *)calloc(size,1);
                 if (*buffer == NULL)
                 {
@@ -249,6 +292,7 @@ cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
             *buffer = (void *)calloc(size,1);
             if (*buffer == NULL)
             {
+                app_ae_log("AFE memory allocation failed \r\n");
                 ret_val = AE_RSLT_ALLOC_ERROR;
             }
             break;
@@ -257,7 +301,6 @@ cy_rslt_t ae_alloc_memory(cy_afe_mem_id_t mem_id, uint32_t size, void **buffer)
 
     return ret_val;
 }
-
 
 #ifdef CY_AFE_ENABLE_TUNING_FEATURE
 /*******************************************************************************
@@ -281,11 +324,8 @@ static cy_rslt_t ae_tuner_notify_callback(cy_afe_t handle,
 {
     (void) user_arg;
 
-    audio_enhancement_tuner_notify((ae_config_action_t) config_setting->action, 
-                                   (ae_config_name_t) config_setting->config_name, 
-                                   config_setting->value);
+    return audio_enhancement_tuner_notify(handle,config_setting);
 
-    return CY_RSLT_SUCCESS;
 }
 
 /*******************************************************************************
@@ -309,7 +349,7 @@ static cy_rslt_t ae_tuner_read_callback(cy_afe_t handle,
 {
     (void) user_arg;
 
-    audio_enhancement_tuner_read(request_buffer->buffer, &request_buffer->length);
+    audio_enhancement_tuner_read(request_buffer);
 
     return CY_RSLT_SUCCESS;
 }
@@ -333,13 +373,12 @@ static cy_rslt_t ae_tuner_write_callback(cy_afe_t handle,
                                          cy_afe_tuner_buffer_t *response_buffer, 
                                          void *user_arg)
 {
-    audio_enhancement_tuner_write(response_buffer->buffer, 
-                                  response_buffer->length);
+    return audio_enhancement_tuner_write(response_buffer);
 
-    return CY_RSLT_SUCCESS;
+    //return CY_RSLT_SUCCESS;
 }
 
-#endif /* CY_AFE_ENABLE_TUNING_FEATURE */
+#endif
 
 /*******************************************************************************
  * Function Name: audio_enhancement_init
@@ -361,7 +400,7 @@ ae_rslt_t audio_enhancement_init(uint8_t num_channels)
     cy_rslt_t result = CY_RSLT_SUCCESS;
     cy_afe_config_t afe_config = {0};
 
-    if (num_channels != AFE_INPUT_NUMBER_CHANNELS)
+    if (num_channels > AE_MAX_NUM_CHANNELS)
     {
         return AE_RSLT_INVALID_ARGUMENT;
     }
@@ -424,11 +463,12 @@ ae_rslt_t audio_enhancement_feed_input(int16_t *input_buffer, int16_t *aec_buffe
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    result = cy_afe_feed(ae_handle, input_buffer, aec_buffer);
+    result = cy_afe_feed(ae_handle, (int16_t*)input_buffer, (int16_t*)aec_buffer);
 
     if (CY_RSLT_AFE_FUNCTIONALITY_RESTRICTED == result)
     {
         return AE_RSLT_LICENSE_ERROR;
+
     }
     else if (CY_RSLT_SUCCESS != result)
     {
@@ -438,83 +478,6 @@ ae_rslt_t audio_enhancement_feed_input(int16_t *input_buffer, int16_t *aec_buffe
     return AE_RSLT_SUCCESS;
 }
 
-/*******************************************************************************
- * Function Name: audio_enhancement_process_output
- *******************************************************************************
- * Summary:
- * Weak implementation to process the audio enhancement output.
- *
- * Parameters:
- *  output_buffer: pointer to the output audio data buffer.
- *
- * Return:
- *  void
- *
- *******************************************************************************/
-__attribute__((weak)) void audio_enhancement_process_output(ae_buffer_info_t *output_buffer)
-{
-    return;
-}
 
-#ifdef CY_AFE_ENABLE_TUNING_FEATURE
-/*******************************************************************************
- * Function Name: audio_enhancement_tuner_notify
- *******************************************************************************
- * Summary:
- * Weak implementation for the AFE tuner to notify the application.
- *
- * Parameters:
- *  void
- *
- * Return:
- *  void
- *
- *******************************************************************************/
-__attribute__((weak)) void audio_enhancement_tuner_notify(ae_config_action_t action, 
-                                                          ae_config_name_t name, 
-                                                          void *value)
-{
-    return;
-}
 
-/*******************************************************************************
- * Function Name: audio_enhancement_tuner_read
- *******************************************************************************
- * Summary:
- * Weak implementation for the AFE tuner to process a read request.
- *
- * Parameters:
- *  buffer: pointer to the buffer to fill with data.
- *  length: pointer to the length of the data to read.
- *
- * Return:
- *  void
- *
- *******************************************************************************/
-__attribute__((weak)) void audio_enhancement_tuner_read(uint8_t *buffer, 
-                                                        uint16_t *length)
-{
-    return;
-}
-
-/*******************************************************************************
- * Function Name: audio_enhancement_tuner_write
- *******************************************************************************
- * Summary:
- * Weak implementation for the AFE tuner to process a write response.
- *
- * Parameters:
- *  buffer: pointer to the buffer containing the data to write.
- *  length: length of the data to write.
- *
- * Return:
- *  void
- *
- *******************************************************************************/
-__attribute__((weak)) void audio_enhancement_tuner_write(uint8_t *buffer, 
-                                                         uint16_t length)
-{
-    return;
-}
-
-#endif /* CY_AFE_ENABLE_TUNING_FEATURE */
+/* [] END OF FILE */
