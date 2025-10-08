@@ -67,10 +67,10 @@
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
-uint8_t ae_scratch_memory[AE_ALGO_SCRATCH_MEMORY] __attribute__((aligned(4)));
-uint8_t ae_persistent_memory[AE_ALGO_PERSISTENT_MEMORY] __attribute__((aligned(4)));
+uint8_t ae_scratch_memory[AE_ALGO_SCRATCH_MEMORY] __attribute__((section(".dtcm_data"), aligned(4)));
+uint8_t ae_persistent_memory[AE_ALGO_PERSISTENT_MEMORY] __attribute__((section(".dtcm_data"), aligned(4)));
 uint8_t ae_temp_mem[AE_APP_TEMP_MEMORY] = {0};
-uint8_t ae_output_buffer[AE_FRAME_BUFFER_MEMORY] __attribute__((aligned(4)));
+uint8_t ae_output_buffer[AE_FRAME_BUFFER_MEMORY] __attribute__((section(".dtcm_data"), aligned(4)));
 
 cy_afe_t ae_handle = NULL;
 void    *ae_dsns_mem = NULL;
