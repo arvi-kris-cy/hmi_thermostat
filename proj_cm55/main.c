@@ -1248,26 +1248,26 @@ int main(void)
     app_speaker_init();
 
     /* Initialize Emulated EEPROM */
-    ///app_eeprom_init();
+    app_eeprom_init();
 
-    // /* Read configuration from Emulated EEPROM */
-    // device_settings_t rd_settings = {0};
-    // app_eeprom_read(&rd_settings);
+    /* Read configuration from Emulated EEPROM */
+    device_settings_t rd_settings = {0};
+    app_eeprom_read(&rd_settings);
 
-    // if(rd_settings.is_available != true) {
+    if(rd_settings.is_available != true) {
 
-    //     device_settings_t settings = {0};
+        device_settings_t settings = {0};
 
-    // 	/* Load default configuration */
-    //     get_default_device_setting(&settings);
-    //     settings.is_available = true;
+    	/* Load default configuration */
+        get_default_device_setting(&settings);
+        settings.is_available = true;
 
-    //     app_eeprom_write(&settings);
-    // 	set_current_device_setting(&rd_settings);
+        app_eeprom_write(&settings);
+    	set_current_device_setting(&rd_settings);
 
-    // } else {
-    // 	set_current_device_setting(&rd_settings);
-    // }
+    } else {
+    	set_current_device_setting(&rd_settings);
+    }
 
     dev_info.environment.target_temp = dev_info.environment.current_temp;
 
@@ -1279,9 +1279,9 @@ int main(void)
 
     if (pdPASS == task_return)
     {
-        // printf("****************** "
-        //        "PSOC Edge MCU: Graphics LVGL Demo "
-        //        "****************** \r\n\n");
+        printf("****************** "
+               "PSOC Edge MCU: Graphics LVGL Demo "
+               "****************** \r\n\n");
 
         /* Start the RTOS Scheduler */
         vTaskStartScheduler();

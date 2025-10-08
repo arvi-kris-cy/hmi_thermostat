@@ -10,12 +10,12 @@
 #define CYMEM_CM33_0_m55_code_OFFSET 0x00000000u
 #define CYMEM_CM33_0_user_programmable_START 0x22011000u
 #define CYMEM_CM33_0_user_programmable_C_START 0x02011000u
-#define CYMEM_CM33_0_user_programmable_SIZE 0x0004A000u
+#define CYMEM_CM33_0_user_programmable_SIZE 0x00019000u
 #define CYMEM_CM33_0_user_programmable_OFFSET 0x00011000u
-#define CYMEM_CM33_0_user_nvm_START 0x2205B000u
-#define CYMEM_CM33_0_user_nvm_C_START 0x0205B000u
-#define CYMEM_CM33_0_user_nvm_SIZE 0x00008000u
-#define CYMEM_CM33_0_user_nvm_OFFSET 0x0005B000u
+#define CYMEM_CM33_0_user_nvm_START 0x2202A000u
+#define CYMEM_CM33_0_user_nvm_C_START 0x0202A000u
+#define CYMEM_CM33_0_user_nvm_SIZE 0x00040000u
+#define CYMEM_CM33_0_user_nvm_OFFSET 0x0002A000u
 #define CYMEM_CM33_0_m33s_nvm_START 0x60100000u
 #define CYMEM_CM33_0_m33s_nvm_C_START 0x08100000u
 #define CYMEM_CM33_0_m33s_nvm_SIZE 0x00200000u

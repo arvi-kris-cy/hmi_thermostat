@@ -3771,7 +3771,7 @@
                         <Param id="offset" value="0x00011000"/>
                         <Param id="regionId" value="user_programmable"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
-                        <Param id="size" value="0x0004A000"/>
+                        <Param id="size" value="0x00019000"/>
                     </Parameters>
                 </Personality>
                 <Personality template="memory_region_data" version="1.0" instance="odLZVCjJ5gk">
@@ -3912,10 +3912,10 @@
                         <Param id="description" value="CM33 non-secure and CM55 user programmable region"/>
                         <Param id="domain" value="Rj_rAX1eb8U"/>
                         <Param id="memoryId" value="RRAM"/>
-                        <Param id="offset" value="0x0005B000"/>
+                        <Param id="offset" value="0x0002A000"/>
                         <Param id="regionId" value="user_nvm"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
-                        <Param id="size" value="0x00008000"/>
+                        <Param id="size" value="0x00040000"/>
                     </Parameters>
                 </Personality>
                 <Personality template="memory_region_data" version="1.0" instance="NG7qDZ398TM">

@@ -23,7 +23,7 @@
 #define DEBOUNCE_DELAY_MS          (300U)
 #define INITIAL_LEN_FILLED         (0U)
 #define CRED_INIT_VALUE            (0U)
-
+#define RRAM_NVM_DATA_NS_OFFSET  0x0002A000
 /******************************************************************************
 * TYPEDEFS
 ******************************************************************************/
@@ -855,9 +855,9 @@ static void application_init(void)
         printf("Set ADV data failed\n");
     }
 
-	/* Read data from NVM if present */
+	// /* Read data from NVM if present */
 	result =  Cy_RRAM_NvmReadByteArray(RRAMC0,
-			APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_MAIN_NS_DATA_OFFSET,
+			APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET,
 			( uint8_t *)&wifi_details.wifi_ssid[0], sizeof(wifi_details) );
 
 	if ((!result) && (wifi_details.ssid_len))
@@ -907,22 +907,22 @@ cy_rslt_t wirelessdevice_init(void)
 		return result;
 	}
 
-	// result = ble_init();
-	// if(CY_RSLT_SUCCESS != result)
-	// {
-	// 	printf("\nUnable to init BLE module with error: %u\n", result);
-	// 	return result;
-	// }
+	result = ble_init();
+	if(CY_RSLT_SUCCESS != result)
+	{
+		printf("\nUnable to init BLE module with error: %u\n", result);
+		return result;
+	}
 
-    // wifi_get_macaddr((uint8_t *)wifi_mac);
+    wifi_get_macaddr((uint8_t *)wifi_mac);
 
-    // //Update the BLE name based on MAC address
-    // snprintf((char *)ble_name, sizeof(ble_name),"Therm_%X%X%X", wifi_mac[3], wifi_mac[4], wifi_mac[5]);
-    // memcpy(app_gap_device_name, ble_name, MAX_LEN_GAP_DEVICE_NAME);
-    // cy_bt_adv_packet_data[1].p_data = (uint8_t *)ble_name;
-    // cy_bt_scan_resp_packet_data[0].p_data = (uint8_t *)ble_name;
+    //Update the BLE name based on MAC address
+    snprintf((char *)ble_name, sizeof(ble_name),"Therm_%X%X%X", wifi_mac[3], wifi_mac[4], wifi_mac[5]);
+    memcpy(app_gap_device_name, ble_name, MAX_LEN_GAP_DEVICE_NAME);
+    cy_bt_adv_packet_data[1].p_data = (uint8_t *)ble_name;
+    cy_bt_scan_resp_packet_data[0].p_data = (uint8_t *)ble_name;
 
-    // setuid(wifi_mac[3], wifi_mac[4], wifi_mac[5]);
+    setuid(wifi_mac[3], wifi_mac[4], wifi_mac[5]);
 
     return result;
 }
@@ -955,7 +955,7 @@ void delete_wifi_credential(void)
 	memset(&wifi_details, 0, sizeof(wifi_details));
 	memset(&wifi_conn_param, 0, sizeof(wifi_conn_param));
 
-	Cy_RRAM_WriteByteArray(RRAMC0, APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_MAIN_NS_DATA_OFFSET , &wifi_details.wifi_ssid[0],sizeof(wifi_details));
+	Cy_RRAM_WriteByteArray(RRAMC0, APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET , &wifi_details.wifi_ssid[0],sizeof(wifi_details));
 }
 
 // Function for BLE functionality

@@ -60,9 +60,9 @@
 
 #if defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
 #define CTP_RESET_PORT       GPIO_PRT16
-#define CTP_RESET_PIN        (6U)
-#define CTP_IRQ_PORT         GPIO_PRT10
-#define CTP_IRQ_PIN          (7U)
+#define CTP_RESET_PIN        (7U)
+#define CTP_IRQ_PORT         GPIO_PRT11
+#define CTP_IRQ_PIN          (6U)
 #endif
 
 extern lv_obj_t *label;

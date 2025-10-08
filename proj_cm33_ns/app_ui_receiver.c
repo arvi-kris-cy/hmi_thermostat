@@ -299,9 +299,9 @@ static void ui_rx_task(void *arg)
                         break;
 
                     case DEV_ST_BLE_ADVERTISING:
-                        // printf("Rx DEV_ST_BLE_ADVERTISING. Starting BLE ADV.\n");
-                        // handle_connectivity_state(STATE_START_PROVISIONING);
-                        //update_conn_state(DEV_ST_BLE_ADVERTISING);
+                        printf("Rx DEV_ST_BLE_ADVERTISING. Starting BLE ADV.\n");
+                        handle_connectivity_state(STATE_START_PROVISIONING);
+                        update_conn_state(DEV_ST_BLE_ADVERTISING);
                         break;
 
                     case DEV_ST_WIFI_CONNECTING:

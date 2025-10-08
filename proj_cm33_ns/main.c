@@ -118,7 +118,6 @@ void cm33_msg_callback(uint32_t * msg_data)
         msg_val = ipc_recv_msg->data;
         msg_cmd = ipc_recv_msg->cmd;
 
-        printf("CM33 Callback triggered \n");
         /* Notify the UI RX task directly with an IPC message event. */
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         xTaskNotifyFromISR(cm33_ui_rx_task_handle, 1, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);

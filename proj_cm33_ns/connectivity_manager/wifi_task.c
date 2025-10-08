@@ -54,7 +54,7 @@
 #define APP_HOST_WAKE_INTERRUPT_PRIORITY             (2U)
 #define APP_SDIO_FREQUENCY_HZ                        (25000000U)
 #define SDHC_SDIO_64BYTES_BLOCK                      (64U)
-
+#define RRAM_NVM_DATA_NS_OFFSET  0x0002A000
 
 /******************************************************************************
  * Global Variables
@@ -404,7 +404,7 @@ void wifi_task(void * arg)
                 /* Store WiFi credentials in NVM */
                 /* Write data to NVM. */
                 nvm_result =  Cy_RRAM_WriteByteArray(RRAMC0,
-                        APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_MAIN_NS_DATA_OFFSET ,
+                        APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET ,
                         &wifi_details.wifi_ssid[0],sizeof(wifi_details) );
                 if (CY_RRAM_SUCCESS != nvm_result)
                 {
@@ -499,7 +499,7 @@ void wifi_task(void * arg)
                 /* Set the data to 0*/
                 memset(&wifi_details, 0, sizeof(wifi_details));
 
-                nvm_result =  Cy_RRAM_WriteByteArray(RRAMC0, APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_MAIN_NS_DATA_OFFSET , &wifi_details.wifi_ssid[0],sizeof(wifi_details));
+                nvm_result =  Cy_RRAM_WriteByteArray(RRAMC0, APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET , &wifi_details.wifi_ssid[0],sizeof(wifi_details));
                 if (nvm_result)
                 {
                     printf("Failed to write to NVM\n");

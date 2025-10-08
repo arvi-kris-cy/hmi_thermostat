@@ -42,12 +42,12 @@ const mtb_srf_protection_range_s_t mxrramc_0_mpc_0_srf_protection_range_s[mxrram
 {
     {
         .start = (void *) 0x22011000 ,
-        .length = 0x4A000U,
+        .length = 0x19000U,
         .is_secure = true,
     },
     {
-        .start = (void *) 0x2205B000 ,
-        .length = 0x8000U,
+        .start = (void *) 0x2202A000 ,
+        .length = 0x40000U,
         .is_secure = false,
     },
 };
