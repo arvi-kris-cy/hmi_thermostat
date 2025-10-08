@@ -127,7 +127,7 @@ SECTIONS
         /* Read only code (constants) */
         *(.rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
         /* Exclude certain files from this section as they will be placed in RAM */
-        *(EXCLUDE_FILE(*cy_syslib.* *cy_syslib_ext.* *cy_smif.* *cy_smif_memnum.* *cy_smif_memslot.* *cy_smif_sfdp.* *cy_smif_hb_flash.* *cyhal_qspi.* *mtb_hal_memoryspi.* *mtb_serial_memory.* *freertos/Source*.* *cy_clib_support*.* *cy_mutex_pool*.* *cy_time.* *cyabs_*.* *cy_worker_thread.* *cmsis*.*) .text*)
+        *(EXCLUDE_FILE(*cy_syslib.* *cy_syslib_ext.* *cy_smif.* *cy_smif_memnum.* *cy_smif_memslot.* *cy_smif_sfdp.* *cy_smif_hb_flash.* *cyhal_qspi.* *mtb_hal_memoryspi.* *mtb_serial_memory.* *freertos/Source*.* *cy_clib_support*.* *cy_mutex_pool*.* *cy_time.* *cyabs_*.* *cy_worker_thread.* *cmsis*.* *ifx_va*.* *sp_enh*.*) .text*)
 
         . = ALIGN(4);
 
@@ -213,6 +213,10 @@ SECTIONS
         *cyabs_*.*(.text*)
         *cy_worker_thread.*(.text*)
         *cmsis*.*(.text*)
+        
+        /* Voice/Audio related libraries */
+        *ifx_va*.*(.text*)
+        *sp_enh*.*(.text*)
 
         . = ALIGN(4);
     } > m55_code_INTERNAL AT > m55_nvm_sel
@@ -384,6 +388,13 @@ SECTIONS
     .cy_socmem_data : ALIGN(4)
     {
         KEEP(*(.cy_socmem_data))
+        *(.wwd_nlu_data0)
+        *(.wwd_nlu_data1)
+        *(.wwd_nlu_data2)
+        *(.wwd_nlu_data3)
+        *(.wwd_nlu_data4)
+        *(.wwd_nlu_data5)
+        *(.wwd_nlu_data6)
 
         . = ALIGN(4);
     }  > m55_data_secondary AT > m55_nvm_sel

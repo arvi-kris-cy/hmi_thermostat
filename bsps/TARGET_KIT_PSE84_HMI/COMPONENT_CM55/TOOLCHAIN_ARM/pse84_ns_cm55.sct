@@ -103,6 +103,10 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *cyabs_*.* (+RO)
     *cy_worker_thread.* (+RO)
     *cmsis*.* (+RO)
+    
+    /* Voice/Audio related libraries */
+    *ifx_va*.* (+RO)
+    *sp_enh*.* (+RO)
   }
 
   /* The execution region for less performance-sensitive or critical functions that might be executed in SOC memory */
@@ -122,6 +126,13 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
   cy_socmem_data CYMEM_CM55_0_m55_data_secondary_START CYMEM_CM55_0_m55_data_secondary_SIZE
   {
     *(.cy_socmem_data)
+    *(.wwd_nlu_data0)
+    *(.wwd_nlu_data1)
+    *(.wwd_nlu_data2)
+    *(.wwd_nlu_data3)
+    *(.wwd_nlu_data4)
+    *(.wwd_nlu_data5)
+    *(.wwd_nlu_data6)
   }
 
   /* A region for shared RAM memory where only the Cortex-M55 can allocate data but all cores can access*/
