@@ -62,7 +62,7 @@ extern "C" {
 #endif /* PROFILER_ENABLE */
 
 #ifdef COMPONENT_APP_LOGGER
-#define APP_AE_LOG_ENABLE                       (1)
+#define APP_AE_LOG_ENABLE                       (0)
 #else
 #define APP_AE_LOG_ENABLE                       (0)
 #endif /* COMPONENT_APP_LOGGER */  
