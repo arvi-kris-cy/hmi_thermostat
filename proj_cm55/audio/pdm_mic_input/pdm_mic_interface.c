@@ -47,7 +47,7 @@
 
 #include "cyabs_rtos.h"
 
-#include "pdm_mic.h"
+#include "pdm_mic_interface.h"
 
 /*******************************************************************************
 * Macros

@@ -107,7 +107,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     */lvgl/src*.* (+RO)
     *abstraction-rtos*.* (+RO)
     
-	; Libraries 
+    ; Libraries 
     *sp_enh* (+RO, +RW, +ZI)
     *libusbd_base_d_cm55f_armc6* (+RO, +RW, +ZI)
     *libusbd_base_r_cm55f_armc6* (+RO, +RW, +ZI)
@@ -115,8 +115,10 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *libnlu* (+RO, +RW, +ZI)
     *libwwd* (+RO, +RW, +ZI)
     
+    ;Application
+    *app_voice_control* (+RO)
+
     ; Inferencing
-    *va_inferencing* (+RO)
     *voice_assistant* (+RO)
 
     ; Audio Enhancement
@@ -125,7 +127,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
    
     ;Middleware, Software, Modules
     *app_logger* (+RO)
-    *pdm_mic* (+RO)
+    *pdm_mic_interface* (+RO)
     
     *audio_usb_send_utils* (+RO)
     *audio_send_task* (+RO)

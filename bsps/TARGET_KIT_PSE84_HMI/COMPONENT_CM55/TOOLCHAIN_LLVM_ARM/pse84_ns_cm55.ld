@@ -153,13 +153,13 @@ SECTIONS
         *ifx_va.*
         *sp_enh.*
 
-        /*Inferencing*/
+        /*Application*/
+        *app_voice_control.*
         
-        *va_inferencing.*
+        /*Inferencing*/
         *voice_assistant.*
 
         /* Audio Enhancement */
-        
         *audio_enhancement.*
         *audio_enhancement_interface.*
         *app_afe_tuner.*
@@ -168,7 +168,7 @@ SECTIONS
         
         /* Middleware, Software, Modules */
         *app_logger.*
-        *pdm_mic.*
+        *pdm_mic_interface.*
 
         *audio_usb_send_utils.*
         *audio_send_task.*
@@ -307,9 +307,11 @@ SECTIONS
                 
         *libusbd_base_d_cm55f_llvm_arm.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *libusbd_base_r_cm55f_llvm_arm.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
-
+        
+        /*Application*/
+        *app_voice_control.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        
         /*Inferencing*/
-        *va_inferencing.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *voice_assistant.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
         /* Audio Enhancement */
@@ -321,7 +323,7 @@ SECTIONS
         
         /* Middleware, Software, Modules */
         *app_logger.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
-        *pdm_mic.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *pdm_mic_interface.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
         *audio_usb_send_utils.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *audio_send_task.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)

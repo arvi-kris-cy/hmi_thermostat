@@ -1,8 +1,8 @@
 /******************************************************************************
-* File Name : voice_assistant.h
+* File Name : app_voice_control.h
 *
 * Description :
-* Header for the DEEPCRAFT voice assistant (VA)
+* Header for the voice control app
 ********************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -36,106 +36,31 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#ifndef _VOICE_ASSISTANT_H_
-#define _VOICE_ASSISTANT_H_
+#ifndef _APP_VOICE_CONTROL_H_
+#define _APP_VOICE_CONTROL_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
 
-#include "mtb_wwd_nlu_common.h"
-#include "mtb_nlu.h"
-#include "mtb_wwd.h"
-
 #include "ui.h"
 #include "mtb_display_st7701s.h"
+
+#include "voice_assistant.h"
 
 /******************************************************************************
  * Macros
  *****************************************************************************/
-#define VA_NLU_MAX_NUM_VARIABLES   4u
+
 
 /******************************************************************************
  * Typedefs
  *****************************************************************************/
-typedef enum
-{
-    VA_RSLT_SUCCESS = 0,
-    VA_RSLT_FAIL = -1,
-    VA_RSLT_INVALID_ARGUMENT = -2,
-    VA_RSLT_LICENSE_ERROR = -3,
-} va_rslt_t;
 
- typedef enum
-{
-    VA_NO_EVENT = 0,
-    VA_EVENT_WW_DETECTED = 1,
-    VA_EVENT_WW_NOT_DETECTED = 2,
-    VA_EVENT_CMD_DETECTED = 3,
-    VA_EVENT_CMD_TIMEOUT = 4,
-    VA_EVENT_CMD_SILENCE_TIMEOUT = 5,
-} va_event_t;
-
-typedef enum
-{
-    VA_MODE_WW_SINGLE_CMD = 0,
-    VA_MODE_WW_MULTI_CMD = 1,
-    VA_MODE_WW_ONLY = 2,
-    VA_MODE_CMD_ONLY = 3,
-} va_mode_t;
-
-typedef enum
-{
-    VA_RUN_WWD = 0,
-    VA_RUN_CMD = 1,
-} va_run_state_t;
-
-/**
- * @brief Map a string command to its corresponding enum value.
- *
- * @param command The input string command to map.
- * @return The corresponding va_detect_cmd_t value, or -1 if the command is unknown.
- */
-typedef enum
-{
-    SLEEPMODE=0,
-    DECREASESCREENBRIGHTNESS,
-    INCREASESCREENBRIGHTNESS,
-    DECREASETEMPERATURE,
-    INCREASETEMPERATURE,
-    SETTEMPERATURE,
-    COOLINGMODE,
-    HEATINGOFFMODE,
-    HEATINGONMODE,
-    SCREENOFF,
-    SCREENON,
-    FANENABLEMODE,
-    FANDISABLEMODE,
-    TEMPERATURESTATUS,
-    WIFISTATUS,
-    SYSTEMSTATUS,
-    CONNECTTOWIFI,
-    UNMUTEVOLUME,
-    MUTEVOLUME,
-    SETTINGMODE,
-} va_detect_cmd_t;
-/******************************************************************************
- * Structures
- ******************************************************************************/
-typedef struct
-{
-    int     intent_index;
-    int     num_var;
-    mtb_nlu_variable_t variable[VA_NLU_MAX_NUM_VARIABLES];
-} va_data_t;
 
 /*******************************************************************************
  * Function Prototypes
  *******************************************************************************/
-va_rslt_t voice_assistant_init(va_mode_t mode);
-void      voice_assistant_change_state(va_run_state_t state);
-va_rslt_t voice_assistant_process(int16_t *audio_frame, va_event_t *event, va_data_t *va_data);
-va_rslt_t voice_assistant_get_command(char *text);
 
 void ww_to_ui();
 va_rslt_t intent_to_ui(const char * command);
@@ -146,6 +71,6 @@ void voice_assistant_task(void * arg);
 }
 #endif /* __cplusplus */
 
-#endif /* _VOICE_ASSISTANT_H_ */
+#endif /* _APP_VOICE_CONTROL_H_ */
 
 /* [] END OF FILE */

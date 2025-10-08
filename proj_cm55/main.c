@@ -83,6 +83,7 @@
 #include "xensiv_pasco2_mtb.h"
 
 /* Application related includes */
+#include "app_voice_control.h"
 #include "voice_assistant.h"
 #include "app_rtc.h"
 
