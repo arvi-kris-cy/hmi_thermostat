@@ -51,7 +51,7 @@
 #define WEAR_LEVELLING_FACTOR            (2U)
 #define SIMPLE_MODE                      (0U)
 #define CY_EM_EEPROM_NVM_SIZEOF_ROW      (16U)
-#define CY_RRAM_MAIN_NVM_NS_OFFSET 0x0005B000
+#define CY_RRAM_MAIN_NVM_NS_OFFSET 0x0002A000
 /* Set the macro NVM_REGION_TO_USE to either USER_NVM or
  * EMULATED_EEPROM_NVM to specify the region of the NVM used for
  * emulated EEPROM.

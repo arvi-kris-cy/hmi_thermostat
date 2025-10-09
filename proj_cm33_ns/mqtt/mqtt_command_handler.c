@@ -46,7 +46,7 @@
 #include "comm_manager.h"
 #include "mqtt_task.h"
 
-#define CJSON_ISSUE_resolved 0
+#define CJSON_ISSUE_resolved 1
 /**
  * Macros
  */

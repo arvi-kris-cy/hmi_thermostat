@@ -48,7 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-// #include <cJSON.h>
+#include <cJSON.h>
 #include "app_common.h"
 #include "wireless_manager.h"
 

@@ -102,6 +102,7 @@ static void ui_rx_task(void *arg)
         /* Wait for events via task notification (block indefinitely) */
         xTaskNotifyWait(0, UINT32_MAX, &notificationValue, portMAX_DELAY);
         printf("ui_rx_task\n");
+        printf("Message Cmd : %d \n",msg_cmd);
         switch (msg_cmd)
         {
             case IPC_CMD_GET_UID:

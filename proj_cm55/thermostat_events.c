@@ -1029,7 +1029,6 @@ void update_fan_mode(fan_speed_t mode)
     }
 
     dev_fan_mode = mode;
-    update_fan_speed_ipc(dev_fan_mode);
 
     /* Update info on MApp or Cloud if connected */
     if (true == is_device_connected)
