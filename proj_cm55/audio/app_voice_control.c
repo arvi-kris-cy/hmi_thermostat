@@ -179,10 +179,16 @@ va_rslt_t intent_to_ui(const char *command)
 {
     if(handle_command_for_ui)
     {
-        if (NULL == command) {
+        handle_command_for_ui = false;
+
+        if (NULL == command)
+        {
             // printf("No command received.\n");
             return VA_RSLT_INVALID_ARGUMENT;  // Return immediately for invalid input
         }
+
+        /** Switch to Active screen */
+        switch_to_active_screen();
 
         // Map the command string to an enum value
         va_detect_cmd_t cmd = va_command_to_id(command);
@@ -196,21 +202,18 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling SLEEPMODE command.\n");
                 break;
             }
-
             case DECREASESCREENBRIGHTNESS:
             {
                 decrease_screen_brightness();
                 printf("Handling DECREASESCREENBRIGHTNESS command.\n");
                 break;
             }
-
             case INCREASESCREENBRIGHTNESS:
             {
                 increase_screen_brightness();
                 printf("Handling INCREASESCREENBRIGHTNESS command.\n");
                 break;
             }
-
             case DECREASETEMPERATURE:
             {
             	if(intent_value)
@@ -224,7 +227,6 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling DECREASETEMPERATURE command.\n");
                 break;
             }
-
             case INCREASETEMPERATURE:
             {
             	if(intent_value)
@@ -238,7 +240,6 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling INCREASETEMPERATURE command.\n");
                 break;
             }
-
             case SETTEMPERATURE:
             {
             	if(intent_value)
@@ -252,7 +253,6 @@ va_rslt_t intent_to_ui(const char *command)
             	}
                 break;
             }
-
             case COOLINGMODE:
             {
                 update_thermostat_mode(MODE_RAPID);
@@ -263,7 +263,6 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling COOLINGMODE command.\n");
                 break;
             }
-
             case HEATINGOFFMODE:
             {
                 update_thermostat_mode(MODE_ECO);
@@ -274,7 +273,6 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling HEATINGOFFMODE command.\n");
                 break;
             }
-
             case HEATINGONMODE:
             {
                 update_thermostat_mode(MODE_OFF);
@@ -285,21 +283,18 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling HEATINGONMODE command.\n");
                 break;
             }
-
             case SCREENOFF:
             {
             	go_to_sleepmode();
                 printf("Handling SCREENOFF command.\n");
                 break;
             }
-
             case SCREENON:
             {
                 _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
                 printf("Handling SCREENON command.\n");
                 break;
             }
-
             case FANENABLEMODE:
             {
                 update_fan_mode(FAN_MED);
@@ -308,7 +303,6 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling FANENABLEMODE command.\n");
                 break;
             }
-
             case FANDISABLEMODE:
             {
                 update_fan_mode(FAN_OFF);
@@ -317,48 +311,41 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling FANDISABLEMODE command.\n");
                 break;
             }
-
             case TEMPERATURESTATUS:
             {
                 _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
                 printf("Handling TEMPERATURESTATUS command.\n");
                 break;
             }
-
             case WIFISTATUS:
             {
                 printf("Handling WIFISTATUS command.\n");
                 break;
             }
-
             case SYSTEMSTATUS:
             {
                 _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
                 printf("Handling SYSTEMSTATUS command.\n");
                 break;
             }
-
             case CONNECTTOWIFI:
             {
                 update_switch_wifi_ipc();
                 printf("Handling CONNECTTOWIFI command.\n");
                 break;
             }
-
             case UNMUTEVOLUME:
             {
                 update_thermostat_volume(AUDIO_MED);
                 printf("Handling UNMUTEVOLUME command.\n");
                 break;
             }
-
             case MUTEVOLUME:
             {
                 update_thermostat_volume(AUDIO_OFF);
                 printf("Handling MUTEVOLUME command.\n");
                 break;
             }
-
             case SETTINGMODE:
             {
                 go_to_setting();
@@ -369,15 +356,18 @@ va_rslt_t intent_to_ui(const char *command)
             default:
             {
                 // Handle unknown commands
-                if (command && command[0] != '\0') {
+                if (command && command[0] != '\0')
+                {
                     printf("Unknown command: %s\n", command);
-                } else {
+                }
+                else
+                {
                     printf("Unknown or empty command received.\n");
                 }
+
                 return VA_RSLT_INVALID_ARGUMENT;  // Return an error for unknown commands
             }
         }
-        handle_command_for_ui = false;
     }
 
     // Successfully handled the command
@@ -388,18 +378,20 @@ void ww_to_ui()
 {
     if(handle_ww_for_ui)
     {
-        // Check if the current screen is ui_LPScreen
-        if (lv_screen_active() == ui_LPScreen)
-        {
-            _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_ActiveScreen_screen_init);
-            voice_assistant_change_state(VA_RUN_CMD);
-            handle_ww_for_ui = false;
-        }
-        else
-        {
-            // printf("Current screen is not ui_LPScreen. Screen change skipped.\n");
-        }
         handle_ww_for_ui = false;
+
+        // Check if the current screen is ui_LPScreen
+        //if (lv_screen_active() == ui_LPScreen)
+        //{
+        //    voice_assistant_change_state(VA_RUN_CMD);
+       // }
+       // else
+       // {
+       //     // printf("Current screen is not ui_LPScreen. Screen change skipped.\n");
+       // }
+
+        /** Switch to Active screen  */
+        switch_to_active_screen();
     }
 }
 
