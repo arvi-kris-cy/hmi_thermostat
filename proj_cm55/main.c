@@ -406,6 +406,9 @@ static void handle_eeprom_write(void)
 
         /** Write the settings to the application EEPROM. */
         app_eeprom_write(&settings);
+
+        /* Clear flag */
+        eeprom_wr_setting = false;
     }
 }
 
@@ -728,12 +731,12 @@ static void handle_system_event(void)
                 ui_FWUpdateScreen_update_msg("Rebooting device as error with\n firmware update or no \nupdate available!\n");
                 //is_need_to_reboot = 1;
                 /* Enable the I2C interrupts. */
-//                Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_11_HW,
-//                                    &CYBSP_I2C_CONTROLLER_11_config, &CYBSP_I2C_CONTROLLER_11_context);
+//                Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
+//                                    &CYBSP_I2C_CONTROLLER_2_config, &disp_touch_i2c_controller_context);
 //                NVIC_EnableIRQ((IRQn_Type)i2c_scb_irq_cfg.intrSrc);
 //
 //                /* Enable the I2C */
-//                Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_11_HW);
+//                Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_2_HW);
 //                /* Add same FW version error status in notification queue */
 //                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
 //                enqueue_notification(NOTIFY_FW_UPDATE, NOTIF_FAIL, DEV_ST_FW_HAVE_SAME_VERSION);
@@ -992,13 +995,57 @@ static void gpu_irq_handler(void)
 *******************************************************************************/
 static void disp_touch_i2c_controller_interrupt(void)
 {
-#if defined(MTB_DISPLAY_R4INCH_TFT)
+    #if defined(MTB_DISPLAY_R4INCH_TFT)
     Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_2_HW, &disp_touch_i2c_controller_context);
 #else
 	Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_HW, &disp_touch_i2c_controller_context);
 #endif
 }
 
+static void init_i2c_controller()
+{
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
+    cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
+
+    i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
+                    &CYBSP_I2C_CONTROLLER_2_config, &disp_touch_i2c_controller_context);
+
+    if (CY_SCB_I2C_SUCCESS != i2c_result)
+    {
+        LOG_ERROR(CYLF_DEF, "I2C controller initialization failed !!\n");
+        CY_ASSERT(0);
+    }
+
+    /* Initialize the I2C interrupt */
+    sysint_status = Cy_SysInt_Init(&disp_touch_i2c_controller_irq_cfg,
+                                       &disp_touch_i2c_controller_interrupt);
+
+    if (CY_SYSINT_SUCCESS != sysint_status)
+    {
+        LOG_ERROR(CYLF_DEF, "I2C controller interrupt initialization failed\r\n");
+        CY_ASSERT(0);
+    }
+
+    /* Enable the I2C interrupts. */
+    NVIC_EnableIRQ((IRQn_Type)disp_touch_i2c_controller_irq_cfg.intrSrc);
+
+    /* Enable the I2C */
+    Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_2_HW);
+
+
+    i2c_result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_2_hal_obj,
+                                    &CYBSP_I2C_CONTROLLER_2_hal_config,
+                                        &disp_touch_i2c_controller_context,
+                                            NULL);
+
+    if(CY_RSLT_SUCCESS != result)
+    {
+        LOG_ERROR(CYLF_DEF, "I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)result);
+//        handle_app_error();
+        APP_ERROR(result);
+    }
+}
 
 /*******************************************************************************
 * Function Name: cm55_gfx_task
@@ -1090,38 +1137,7 @@ static void cm55_gfx_task(void *arg)
 
         /* Enable GFX GPU interrupt in NVIC. */
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
-#if defined(MTB_DISPLAY_R4INCH_TFT)
-        /* Initialize the I2C in controller mode. */
-        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
-                    &CYBSP_I2C_CONTROLLER_2_config, &disp_touch_i2c_controller_context);
-#else
-        i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW,
-                    &CYBSP_I2C_CONTROLLER_config, &disp_touch_i2c_controller_context);
-#endif
 
-        if (CY_SCB_I2C_SUCCESS != i2c_result)
-        {
-            printf("I2C controller initialization failed !!\n");
-            handle_app_error();
-        }
-
-        /* Initialize the I2C interrupt */
-        sysint_status = Cy_SysInt_Init(&disp_touch_i2c_controller_irq_cfg,
-                                       &disp_touch_i2c_controller_interrupt);
-
-        if (CY_SYSINT_SUCCESS != sysint_status)
-        {
-            printf("I2C controller interrupt initialization failed\r\n");
-            handle_app_error();
-        }
-
-        /* Enable the I2C interrupts. */
-        NVIC_EnableIRQ(disp_touch_i2c_controller_irq_cfg.intrSrc);
-
-        i2c_result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_2_hal_obj,
-                                    &CYBSP_I2C_CONTROLLER_2_hal_config,
-                                        &disp_touch_i2c_controller_context,
-                                            NULL);
 
     if(CY_RSLT_SUCCESS != i2c_result)
     {
@@ -1183,7 +1199,7 @@ static void cm55_gfx_task(void *arg)
             ui_timer_init();
 
            /* Start sensor task */
-            //app_sensor_task_init();
+            app_sensor_task_init();
 
         }
         else
@@ -1209,7 +1225,7 @@ static void cm55_gfx_task(void *arg)
             NVIC_SystemReset();
         }
         /* Process sensor update event */
-        //handle_sensor_update();
+        handle_sensor_update();
 
         /* Process system IPC events */
         handle_system_event();
@@ -1345,12 +1361,13 @@ int main(void)
     }
 
     /* Power pasco2 sensor */
-    //power_co2_sensor();
+    power_co2_sensor();
 
-    // /* Initialize I2C SCB */
-    // init_i2c_controller();                                                                       
+    /* Initialize I2C SCB */
+    init_i2c_controller();
 
-    // Create a binary semaphore to act as a mutex.
+    /* Create a binary semaphore to act as a I2C mutex
+     * guarding touchpad and sensor. */
     i2c_mutex = xSemaphoreCreateMutex();
     if (i2c_mutex == NULL) {
         LOG_INFO(CYLF_DEF, "I2C mutex creation error.\n");

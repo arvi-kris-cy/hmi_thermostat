@@ -213,7 +213,7 @@ void app_timer_handler(lv_timer_t *timer)
     app_state = APP_ST_IDLE;
 
     /* Set sensor sampling interval to IDLE state */
-    //set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_IDLE);
+    set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_IDLE);
 }
 
 void start_active_state_timer(uint32_t timeout_ms)

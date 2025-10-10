@@ -3039,7 +3039,7 @@ void switch_to_active_screen(void)
 
         /* Update sensor sampling interval to 1s */
         /* Set sensor sampling interval to IDLE state */
-        //set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
+        set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
     }
 }
 

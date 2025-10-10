@@ -227,7 +227,7 @@ void ui_DateTimeSettings_screen_init(void)
     lv_obj_set_x(ui_datetimetextarea, -65);
     lv_obj_set_y(ui_datetimetextarea, -132);
     lv_obj_set_align(ui_datetimetextarea, LV_ALIGN_CENTER);
-    lv_textarea_set_text(ui_datetimetextarea, "01/09/2025");
+    lv_textarea_set_text(ui_datetimetextarea, "10/10/2025");
     lv_textarea_set_placeholder_text(ui_datetimetextarea, "Placeholder...");
     lv_textarea_set_one_line(ui_datetimetextarea, true);
     lv_obj_set_style_text_align(ui_datetimetextarea, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
