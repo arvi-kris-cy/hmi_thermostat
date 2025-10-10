@@ -89,6 +89,10 @@ ifeq ($(TOOLCHAIN),LLVM_ARM)
 DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
 endif
 
+DEFINES+= APP_VERSION_MAJOR=$(APP_VERSION_MAJOR) \
+          APP_VERSION_MINOR=$(APP_VERSION_MINOR) \
+          APP_VERSION_BUILD=$(APP_VERSION_BUILD) \
+
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=
 

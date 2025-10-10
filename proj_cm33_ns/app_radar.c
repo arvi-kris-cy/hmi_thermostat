@@ -226,7 +226,7 @@ static int32_t init_sensor(void)
     result = xensiv_bgt60trxx_mtb_interrupt_init(&sensor, NUM_SAMPLES_PER_FRAME);
     if(result != CY_RSLT_SUCCESS)
     {
-        printf("ERROR: xensiv_bgt60trxx_mtb_interrupt_init failed\n");
+        LOG_ERROR(CYLF_DEF, "xensiv_bgt60trxx_mtb_interrupt_init failed\n");
         return result;
     }
 
@@ -252,7 +252,7 @@ void start_radar_processing_task(void)
 {
     if (xTaskCreate(processing_task, PROCESSING_TASK_NAME, PROCESSING_TASK_STACK_SIZE, NULL, PROCESSING_TASK_PRIORITY, &radar_processing_tsk_hdlr) != pdPASS)
     {
-        CY_ASSERT(0);
+        LOG_ERROR(CYLF_DEF, "Radar start_radar_processing_task create failed.\n");
     }
 }
 
@@ -260,7 +260,7 @@ void start_radar_accquisition_task(void)
 {
     if (xTaskCreate(accquisition_task, ACCQUISITION_TASK_NAME, ACCQUISITION_TASK_STACK_SIZE, NULL, ACCQUISITION_TASK_PRIORITY, &radar_accqusition_tsk_hdlr) != pdPASS)
     {
-        CY_ASSERT(0);
+        LOG_ERROR(CYLF_DEF, "Radar start_radar_accquisition_task create failed.\n");
     }
 }
 
@@ -280,12 +280,12 @@ static void accquisition_task(void *pvParameters)
     /* Initialize radar sensor */
     if(CY_RSLT_SUCCESS != init_sensor())
     {
-        printf("Radar sensor initialization failed.\n");
+        LOG_ERROR(CYLF_DEF, "Radar sensor initialization failed.\n");
         vTaskSuspend(NULL);
     }
     else
     {
-        printf("\nRadar sensor initialization Ok.\n");
+        LOG_INFO(CYLF_DEF, "Radar sensor initialization Ok.\n");
     }
 
     /* Start radar processing task */
@@ -294,7 +294,7 @@ static void accquisition_task(void *pvParameters)
     uint32_t frame_idx = 0;
     uint16_t test_word = XENSIV_BGT60TRXX_INITIAL_TEST_WORD;
 
-    printf("Radar accquisition_task start Ok\n");
+    LOG_INFO(CYLF_DEF, "Radar accquisition_task start Ok\n");
 
     for(;;)
     {
@@ -373,12 +373,12 @@ static void presence_detection_cb(xensiv_radar_presence_handle_t handle,
             break;
 
         case XENSIV_RADAR_PRESENCE_STATE_ABSENCE:
-            printf("[INFO] absence %" PRIu32 "\n\r", event->timestamp);
+            LOG_INFO(CYLF_DEF, "[INFO] absence %" PRIu32 "\n\r", event->timestamp);
             status = ABSENCE_DETECTED;
             break;
 
         default:
-            printf("[WARN]: Unknown reported state in event handling\n\r");
+            LOG_ERROR(CYLF_DEF, "Unknown reported state in event handling\n\r");
             break;
     }
 
@@ -433,7 +433,7 @@ static void processing_task(void *pvParameters)
     /* Set callback function to trigger on presence detection */
     xensiv_radar_presence_set_callback(handle, presence_detection_cb, NULL);
 
-    printf("Radar processing_task start Ok\n");
+    LOG_INFO(CYLF_DEF, "Radar processing_task start Ok\n");
 
     for(;;)
     {
@@ -441,7 +441,7 @@ static void processing_task(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         if(XENSIV_RADAR_PRESENCE_OK != xensiv_radar_presence_process_frame(handle, frame, xTaskGetTickCount() * portTICK_PERIOD_MS))
         {
-            printf("Error xensiv_radar_presence_process_frame\n");
+            LOG_ERROR(CYLF_DEF, "Error xensiv_radar_presence_process_frame\n");
         }
         else
         {

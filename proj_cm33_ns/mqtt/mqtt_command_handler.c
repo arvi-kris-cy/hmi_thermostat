@@ -45,8 +45,8 @@
 #include "subscriber_task.h"
 #include "comm_manager.h"
 #include "mqtt_task.h"
+#include "wireless_manager.h"
 
-#define CJSON_ISSUE_resolved 1
 /**
  * Macros
  */
@@ -65,7 +65,7 @@ extern QueueHandle_t mqtt_task_q;
 publisher_data_t publisher_q_data;
 
 device_state_t device_status;
-extern bool device_provisioned;
+extern char current_OTA_version[MAX_FW_VERSION_LEN];
 
 static connectivity_medium_t current_interface = CONNECTIVITY_NONE;
 
@@ -113,6 +113,12 @@ static void handle_devicestatus_command(void);
  * @brief Handles the Set date time command and responds with the status.
  */
 static void handle_datetime_command(char *value);
+
+
+/**
+ * @brief Handles to get current FW version from cloud
+ */
+static void handle_current_FW_version_command(char *FW_version);
 
 /**
  * @brief Main dispatcher for incoming MQTT commands string values; routes them to appropriate handlers.
@@ -163,11 +169,6 @@ static void handle_deviceaudio_command(operation_type_e type, uint8_t level);
  * @brief Initiates the firmware update sequence as triggered via MQTT.
  */
 static void handle_triggerfirmwareupdate_command(void);
-
-/**
- * @brief Processes the FIRMWARE_UPDATE_PROGRESS command to send update progress details.
- */
-static void handle_firmwareupdateprogress_command(void);
 
 /**
  * @brief Sends the final status of the firmware update process (success/failure).
@@ -229,62 +230,62 @@ static double json_parsenumeric(const char *message, const char *tokan)
 {
 	double number = -1;
     // Example: Parse JSON payload from MQTT message
-    #if CJSON_ISSUE_resolved
+   
 		cJSON *json = cJSON_Parse(message);
 		if (json) {
 			number = cJSON_GetObjectItem(json, tokan)->valuedouble;
-			printf("Parsed value: %g for tokan %s\n", number, tokan);
+			LOG_INFO(CYLF_DEF, "Parsed value: %g for tokan %s\n", number, tokan);
 			cJSON_Delete(json);
 		} else {
-			printf("Failed to parse incoming json message for tokan: %s.\n", tokan);
+			LOG_ERROR(CYLF_DEF, "Failed to parse incoming json message for tokan: %s.\n", tokan);
 		}
-	#endif
+	
     return number;
 }
 
 static char* json_parsestring(const char *message, const char *token)
 {
     char* result = NULL;
-    #if CJSON_ISSUE_resolved
+   
 		cJSON *json = NULL;
 		cJSON *item = NULL;
 
-		// Parse the JSON payload from the message string.
-		json = cJSON_Parse(message);
-		if (json == NULL) {
-			printf("Failed to parse incoming JSON message.\r\n");
-			return result;
-		}
+    // Parse the JSON payload from the message string.
+    json = cJSON_Parse(message);
+    if (json == NULL) {
+        LOG_ERROR(CYLF_DEF, "Failed to parse incoming JSON message.\r\n");
+        return result;
+    }
 
-		// Get the specified item from the parsed JSON object.
-		item = cJSON_GetObjectItem(json, token);
-		if (item == NULL) {
-			printf("Failed to find token '%s' in JSON message.\r\n", token);
-			cJSON_Delete(json);
-			return result;
-		}
+    // Get the specified item from the parsed JSON object.
+    item = cJSON_GetObjectItem(json, token);
+    if (item == NULL) {
+        LOG_INFO(CYLF_DEF, "Failed to find token '%s' in JSON message.\r\n", token);
+        cJSON_Delete(json);
+        return result;
+    }
 
-		// Check if the found item is a string and retrieve its value.
-		if (cJSON_IsString(item)) {
-			// Explicitly allocate memory and copy the string.
-			const char *valuestring = item->valuestring;
-			if (valuestring != NULL) {
-				size_t len = strlen(valuestring);
-				result = (char*)malloc(len + 1); // +1 for the null terminator
-				if (result != NULL) {
-					memcpy(result, valuestring, len + 1);
-					printf("Parsed value: '%s' for token '%s'\r\n", result, token);
-				} else {
-					printf("Memory allocation failed for string value.\r\n");
-				}
-			}
-		} else {
-			printf("Token '%s' is not a string. Returning NULL.\r\n", token);
-		}
+    // Check if the found item is a string and retrieve its value.
+    if (cJSON_IsString(item)) {
+        // Explicitly allocate memory and copy the string.
+        const char *valuestring = item->valuestring;
+        if (valuestring != NULL) {
+            size_t len = strlen(valuestring);
+            result = (char*)malloc(len + 1); // +1 for the null terminator
+            if (result != NULL) {
+                memcpy(result, valuestring, len + 1);
+                LOG_INFO(CYLF_DEF, "Parsed value: '%s' for token '%s'\r\n", result, token);
+            } else {
+                LOG_ERROR(CYLF_DEF, "Memory allocation failed for string value.\r\n");
+            }
+        }
+    } else {
+        LOG_ERROR(CYLF_DEF, "Token '%s' is not a string. Returning NULL.\r\n", token);
+    }
 
-		// Clean up the cJSON object to free memory.
-		cJSON_Delete(json);
-    #endif
+    // Clean up the cJSON object to free memory.
+    cJSON_Delete(json);
+  
     return result;
 }
 
@@ -296,7 +297,7 @@ static void handle_devicestatus_command(void)
 static bool parse_datetime_string(const char *datetime_str, DateTime *parsed_time)
 {
     if (datetime_str == NULL || parsed_time == NULL) {
-        printf("Error: Invalid input pointers.\r\n");
+        LOG_ERROR(CYLF_DEF, "Error: Invalid input pointers.\r\n");
         return false;
     }
 
@@ -315,7 +316,7 @@ static bool parse_datetime_string(const char *datetime_str, DateTime *parsed_tim
     if (result == 6) {
         return true;
     } else {
-        printf("Error: Failed to parse date and time string. Expected 6 items, got %d.\r\n", result);
+        LOG_ERROR(CYLF_DEF, "Failed to parse date and time string. Expected 6 items, got %d.\r\n", result);
         return false;
     }
 }
@@ -337,17 +338,28 @@ static void handle_datetime_command(char *value)
     }
 }
 
+
+static void handle_current_FW_version_command(char *FW_version)
+{
+	send_available_FW_version(FW_version);
+}
+
 static void handle_mqtt_command_str(mqtt_commandId_e command, operation_type_e type, char *value)
 {
     switch(command)
     {
         case SET_DATE_TIME:
-            printf("Handling SET_DATE_TIME...\n");
+            LOG_INFO(CYLF_DEF, "Handling SET_DATE_TIME...\n");
             handle_datetime_command(value);
             break;
 
+        case CURRENT_FIRMWARE_VERSION:
+            LOG_INFO(CYLF_DEF, "Handling CURRENT_FIRMWARE_VERSION...\n");
+            handle_current_FW_version_command(value);
+            break;
+
         default:
-            printf("Un-handled string values.\n");
+            LOG_INFO(CYLF_DEF, "Un-handled string values.\n");
             break;
     }
 }
@@ -447,7 +459,7 @@ void handle_getcurrentpara_command(mqtt_commandId_e cmd)
 
 		default:
 		{
-			printf("Unknown parameter!");
+		    LOG_ERROR(CYLF_DEF, "Unknown parameter!");
 			break;
 		}
 	}
@@ -491,13 +503,13 @@ void mqtt_ota_task(void *arg)
 	{
 		device_status.ota.ota_progress+=10;
 		send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
-		printf("Updating FW Progress\n");
+		LOG_INFO(CYLF_DEF, "Updating FW Progress\n");
 		vTaskDelay(1000);
 		if(device_status.ota.ota_progress >= 100)
 		{
 			device_status.ota.ota_final_status = 0;
 			send_response_numeric(FIRMWARE_UPDATE_STATUS, OPERATION_READ, (uint32_t)device_status.ota.ota_final_status);
-			printf("OTA Task Deleted\n");
+			LOG_INFO(CYLF_DEF, "OTA Task Deleted\n");
 			vTaskDelete(NULL);
 		}
 	}
@@ -513,18 +525,27 @@ static void handle_triggerfirmwareupdate_command(void)
 	}
 	else
 	{
-		xTaskCreate(mqtt_ota_task, "OTA task", 512,
-					NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
-		send_response_numeric(DEVICE_FIRMWARE_UPDATE, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_SUCCESS);
+		if(get_device_provision_state())
+		{
+			OTA_Tigger_On_ui();
+			send_response_numeric(DEVICE_FIRMWARE_UPDATE, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_SUCCESS);
+		}
+		else
+		{
+			no_internet_connected_send_to_ui();
+			send_response_numeric(DEVICE_FIRMWARE_UPDATE, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_UNKNOWN_ERROR);
+		}
 	}
 
 }
 
-static void handle_firmwareupdateprogress_command(void)
+void handle_firmwareupdateprogress_command(uint8_t per)
 {
-	//Call get firmware update progress API
-
-	send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
+	if(per != device_status.ota.ota_progress)
+	{
+		device_status.ota.ota_progress = per;
+		send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
+	}
 }
 
 static void handle_firmwareupdatefinalstatus_command(void)
@@ -536,7 +557,7 @@ static void handle_firmwareupdatefinalstatus_command(void)
 
 static void handle_currentfirmwareversion_command(void)
 {
-	//send_response_String(CURRENT_FIRMWARE_VERSION, OPERATION_READ, "V1.0.0");
+	send_response_String(CURRENT_FIRMWARE_VERSION, OPERATION_READ, current_OTA_version);
 }
 
 void handle_pairingremove_command(bool only_wifi)
@@ -564,7 +585,7 @@ static void handle_timerremaining_command(void)
 static void handle_getdeviceconfig_command(void)
 {
 	char temp[5] = {0};
-	#if CJSON_ISSUE_resolved
+	
 		cJSON *json = cJSON_CreateObject();
 		char *json_data = NULL;
 
@@ -632,45 +653,44 @@ static void handle_getdeviceconfig_command(void)
 				return;
 			}
 
-			snprintf(temp, sizeof(temp), "%d",CURRENT_FIRMWARE_VERSION);
-			if(NULL == cJSON_AddStringToObject(json, (const char *)temp, "V1.0.0"))
-			{
-				return;
-			}
+		snprintf(temp, sizeof(temp), "%d",CURRENT_FIRMWARE_VERSION);
+		if(NULL == cJSON_AddStringToObject(json, (const char *)temp, current_OTA_version))
+		{
+			return;
+		}
 
 			json_data = cJSON_Print(json);
 			cJSON_Delete(json);
 
-			if(NULL != json_data)
+		if(NULL != json_data)
+		{
+			if(CONNECTIVITY_MQTT_CLOUD == current_interface)
 			{
-				if(CONNECTIVITY_MQTT_CLOUD == current_interface)
+				if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
 				{
-					if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
-					{
-						printf("Cloud not connected\n");
-						return;
-					}
+				    LOG_INFO(CYLF_DEF, "Cloud not connected\n");
+					return;
+				}
 
-					publisher_q_data.cmd = PUBLISH_MQTT_MSG;
-					publisher_q_data.data = json_data;
+				publisher_q_data.cmd = PUBLISH_MQTT_MSG;
+				publisher_q_data.data = json_data;
 
-					xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-				}
-				else if(CONNECTIVITY_BLE == current_interface)
-				{
-					app_bt_send_message(json_data, strlen(json_data));
-				}
-				else
-				{
-					printf("No interface Found for data exchange!\n");
-				}
+				xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+			}
+			else if(CONNECTIVITY_BLE == current_interface)
+			{
+				app_bt_send_message(json_data, strlen(json_data));
 			}
 			else
 			{
-				printf("Unable to create a JSON string!\n");
+			    LOG_INFO(CYLF_DEF, "No interface Found for data exchange!\n");
 			}
 		}
-	#endif
+		else
+		{
+		    LOG_INFO(CYLF_DEF, "Unable to create a JSON string!\n");
+		}
+	}
 }
 
 void handle_tempunit_command(operation_type_e type, temp_unit_t unit)
@@ -703,10 +723,7 @@ void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t
         {
             if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
             {
-                printf("Cloud not connected\n");
-
-                /* Update connection state on UI */
-                update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
+                LOG_INFO(CYLF_DEF, "send_response_numeric Cloud not connected\n");
 
                 /* Release Mutex */
                 xSemaphoreGive(uplink_mutex);
@@ -723,7 +740,7 @@ void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t
         }
         else
         {
-            printf("No interface Found for data exchange!\n");
+            LOG_INFO(CYLF_DEF, "No interface Found for data exchange!\n");
         }
 
         /* Release Mutex */
@@ -740,25 +757,32 @@ void send_response_String(mqtt_commandId_e cmd, operation_type_e type, char *str
 	pyload.buff = string_data;
 	char *json_data = json_create_response(pyload);
 
-	if(CONNECTIVITY_MQTT_CLOUD == current_interface)
+	if(json_data != NULL)
 	{
-		if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
+		if(CONNECTIVITY_MQTT_CLOUD == current_interface)
 		{
-			printf("Cloud not connected\n");
-			return;
-		}
+			if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
+			{
+			    LOG_INFO(CYLF_DEF, "send_response_String Cloud not connected\n");
+				return;
+			}
 
-		publisher_q_data.cmd = PUBLISH_MQTT_MSG;
-		publisher_q_data.data = json_data;
-		xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-	}
-	else if(CONNECTIVITY_BLE == current_interface)
-	{
-		app_bt_send_message(json_data, strlen(json_data));
+			publisher_q_data.cmd = PUBLISH_MQTT_MSG;
+			publisher_q_data.data = json_data;
+			xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+		}
+		else if(CONNECTIVITY_BLE == current_interface)
+		{
+			app_bt_send_message(json_data, strlen(json_data));
+		}
+		else
+		{
+		    LOG_INFO(CYLF_DEF, "No interface Found for data exchange!\n");
+		}
 	}
 	else
 	{
-		printf("No interface Found for data exchange!\n");
+	    LOG_INFO(CYLF_DEF, "Unable to create a Json string!\n");
 	}
 }
 
@@ -773,97 +797,97 @@ static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type,
 
     switch (command) {
         case DEVICE_STATUS:
-            printf("Handling DEVICE_STATUS...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_STATUS...\n");
 			handle_devicestatus_command();
             break;
 
         case DEVICE_MODE:
-            printf("Handling DEVICE_MODE...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_MODE...\n");
             handle_devicemode_command(type, value);
             break;
 
         case TARGETED_TEMP:
-            printf("Handling TARGETED_TEMP...\n");
+            LOG_INFO(CYLF_DEF, "Handling TARGETED_TEMP...\n");
             handle_gettergettemp_command();
             break;
 
         case SETDEVICE_TEMP_UPDOWN:
-            printf("Handling SETDEVICE_TEMP_UPDOWN...\n");
+            LOG_INFO(CYLF_DEF, "Handling SETDEVICE_TEMP_UPDOWN...\n");
         	handle_settempupdown_command(value);//handle up or down
             break;
 
         case FAN_SPEED:
-            printf("Handling FAN_SPEED...\n");
+            LOG_INFO(CYLF_DEF, "Handling FAN_SPEED...\n");
         	handle_fanspeed_command(type, value);
             break;
 
         case CURRENT_TEMP:
-            printf("Handling GETDEVICE_CURRENT_TEMP...\n");
+            LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_TEMP...\n");
             handle_currenttemp_command(type, value);
             break;
 
         case GETDEVICE_CURRENT_HUMIDITY:
-            printf("Handling GETDEVICE_CURRENT_HUMIDITY...\n");
+            LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_HUMIDITY...\n");
         	handle_getcurrentpara_command(command);
             break;
 
         case GETDEVICE_CURRENT_CO2LEVEL:
-            printf("Handling GETDEVICE_CURRENT_CO2LEVEL...\n");
+            LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_CO2LEVEL...\n");
         	handle_getcurrentpara_command(command);
             break;
 
         case DEVICE_BRIGHTNESS:
-            printf("Handling DEVICE_BRIGHTNESS...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_BRIGHTNESS...\n");
         	handle_brightness_command(type, value);
             break;
 
         case DEVICE_AUDIO:
-            printf("Handling DEVICE_AUDIO...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_AUDIO...\n");
             handle_deviceaudio_command(type, value);
             break;
 
         case DEVICE_FIRMWARE_UPDATE:
-            printf("Handling DEVICE_FIRMWARE_UPDATE...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_FIRMWARE_UPDATE...\n");
             handle_triggerfirmwareupdate_command();
             break;
 
         case FIRMWARE_UPDATE_PROGRESS:
-            printf("Handling FIRMWARE_UPDATE_PROGRESS...\n");
-            handle_firmwareupdateprogress_command();
+            LOG_INFO(CYLF_DEF, "Handling FIRMWARE_UPDATE_PROGRESS...\n");
+            handle_firmwareupdateprogress_command((uint8_t)device_status.ota.ota_progress);
             break;
 
         case FIRMWARE_UPDATE_STATUS:
-            printf("Handling FIRMWARE_UPDATE_STATUS...\n");
+            LOG_INFO(CYLF_DEF, "Handling FIRMWARE_UPDATE_STATUS...\n");
             handle_firmwareupdatefinalstatus_command();
             break;
 
         case DEVICE_PAIRING_DISCONECT:
-            printf("Handling DEVICE_PAIRING_DISCONNECT...\n");
+            LOG_INFO(CYLF_DEF, "Handling DEVICE_PAIRING_DISCONNECT...\n");
             handle_pairingremove_command(false);
             break;
 
         case TIME_REMAINING:
-            printf("Handling TIME_REMAINING...\n");
+            LOG_INFO(CYLF_DEF, "Handling TIME_REMAINING...\n");
             handle_timerremaining_command();
         	break;
 
         case CURRENT_FIRMWARE_VERSION:
-            printf("Handling CURRENT_FIRMWARE_VERSION...\n");
+            LOG_INFO(CYLF_DEF, "Handling CURRENT_FIRMWARE_VERSION...\n");
         	handle_currentfirmwareversion_command();
         	break;
 
         case TEMP_UNIT:
-        	printf("Handling TEMP_UNIT...\n");
+            LOG_INFO(CYLF_DEF, "Handling TEMP_UNIT...\n");
         	handle_tempunit_command(type, value);
         	break;
 
         case GET_DEVICE_CONFIGURATION:
-            printf("Handling GET_DEVICE_CONFIGURATION...\n");
+            LOG_INFO(CYLF_DEF, "Handling GET_DEVICE_CONFIGURATION...\n");
             handle_getdeviceconfig_command();
         	break;
 
         default:
-            printf("Unknown MQTT command received: %d\n", command);
+            LOG_INFO(CYLF_DEF, "Unknown MQTT command received: %d\n", command);
             break;
     }
 }
@@ -888,7 +912,7 @@ mqtt_parser_errors_e parse_received_command(const char *message, size_t message_
     }
 
     /* If cmd is date time, parse the string value  */
-    if(SET_DATE_TIME == cmdId)
+    if(SET_DATE_TIME == cmdId || CURRENT_FIRMWARE_VERSION == cmdId)
     {
         /* Parse the string value */
         value_str = json_parsestring(message, JSON_KEY_FOR_VALUE);
@@ -915,45 +939,48 @@ mqtt_parser_errors_e parse_received_command(const char *message, size_t message_
 
 static char *json_create_response(jsonpyload_t payload)
 {
-   #if CJSON_ISSUE_resolved
 		cJSON *json = cJSON_CreateObject();
 
-		if(NULL != json)
-		{
-			if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_TYPEOFOPERATION, payload.type))
+    if(NULL != json)
+    {
+        if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_TYPEOFOPERATION, payload.type))
+        {
+        	cJSON_Delete(json);
+        	return NULL;
+        }
+
+        if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_COMMAND, payload.command))
+        {
+        	cJSON_Delete(json);
+        	return NULL;
+        }
+
+        if(payload.is_numeric)
+        {
+			if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_VALUE, payload.value))
 			{
+				cJSON_Delete(json);
 				return NULL;
 			}
-
-			if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_COMMAND, payload.command))
+        }
+        else
+        {
+			if(NULL == cJSON_AddStringToObject(json, JSON_KEY_FOR_VALUE, payload.buff))
 			{
+				cJSON_Delete(json);
 				return NULL;
 			}
+        }
 
-			if(payload.is_numeric)
-			{
-				if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_VALUE, payload.value))
-				{
-					return NULL;
-				}
-			}
-			else
-			{
-				if(NULL == cJSON_AddStringToObject(json, JSON_KEY_FOR_VALUE, payload.buff))
-				{
-					return NULL;
-				}
-			}
-
-			char *command_str = cJSON_Print(json);
-			cJSON_Delete(json);
-			return command_str;
-		}
-		else
-		{
-			printf("Unable to generate response for %d command\n", (int)payload.command);
-		}
-    #endif
+        char *command_str = cJSON_Print(json);
+        cJSON_Delete(json);
+        return command_str;
+    }
+    else
+    {
+        LOG_INFO(CYLF_DEF, "Unable to generate response for %d command\n", (int)payload.command);
+    }
+   
 	return NULL;
 }
 
@@ -962,7 +989,7 @@ void update_comm_interface(connectivity_medium_t interface)
 	if(current_interface != interface)
 	{
 		current_interface = interface;
-		printf("Communication Interface Updated To : %d\n", current_interface);
+		LOG_INFO(CYLF_DEF, "Communication Interface Updated To : %d\n", current_interface);
 	}
 }
 

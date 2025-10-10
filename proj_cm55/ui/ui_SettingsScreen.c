@@ -28,7 +28,8 @@ void ui_event_Settingsgesture(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+//        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -37,7 +38,8 @@ void ui_event_Label3(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_DisplaySettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DisplaySettings_screen_init);
+//        _ui_screen_change(&ui_DisplaySettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DisplaySettings_screen_init);
+        _ui_screen_change(&ui_DisplaySettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_DisplaySettings_screen_init);
     }
 }
 
@@ -46,7 +48,8 @@ void ui_event_Label6(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_Sensor_Settings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Sensor_Settings_screen_init);
+//        _ui_screen_change(&ui_Sensor_Settings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Sensor_Settings_screen_init);
+        _ui_screen_change(&ui_Sensor_Settings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_Sensor_Settings_screen_init);
     }
 }
 
@@ -55,7 +58,8 @@ void ui_event_Label5(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_AudioSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AudioSettings_screen_init);
+//        _ui_screen_change(&ui_AudioSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AudioSettings_screen_init);
+        _ui_screen_change(&ui_AudioSettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_AudioSettings_screen_init);
     }
 }
 
@@ -64,7 +68,8 @@ void ui_event_Label4(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_PerformanceSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_PerformanceSettings_screen_init);
+//        _ui_screen_change(&ui_PerformanceSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_PerformanceSettings_screen_init);
+        _ui_screen_change(&ui_PerformanceSettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_PerformanceSettings_screen_init);
     }
 }
 
@@ -73,7 +78,8 @@ void ui_event_Label11(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_SystemSettings_screen_init);
+//        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_SystemSettings_screen_init);
+        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_SystemSettings_screen_init);
     }
 }
 
@@ -82,7 +88,8 @@ void ui_event_Button2(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+//        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 

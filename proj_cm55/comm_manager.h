@@ -186,6 +186,13 @@ void send_device_config(device_state_t config);
 
 void send_switch_to_ble_cmd(void);
 
+void trigger_ota_update(void);
+
+/**
+ * @brief Get Latest Firmware update version
+ */
+void get_latest_OTA_version(void);
+
 #endif /* COMM_MANAGER_H_ */
 
 /* [] END OF FILE */

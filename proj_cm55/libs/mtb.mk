@@ -11,6 +11,7 @@ SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
 SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
+SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
 SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/release-v1.0.0
 SEARCH_display-dsi-waveshare-7-0-lcd-c=../../mtb_shared/display-dsi-waveshare-7-0-lcd-c/release-v1.0.0
 SEARCH_display-tft-ek79007ad3=../../mtb_shared/display-tft-ek79007ad3/release-v1.0.0
@@ -35,6 +36,7 @@ SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
 SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
 
 # Search libraries added to build
+SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-4-3-lcd)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-7-0-lcd-c)
 SEARCH_MTB_MK+=$(SEARCH_display-tft-ek79007ad3)
@@ -59,6 +61,7 @@ SEARCH_MTB_MK+=$(SEARCH_mtb-srf)
 SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
 
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
+COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_4_3_LCD
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_7_0_LCD_C
 COMPONENTS += MW_DISPLAY_TFT_EK79007AD3

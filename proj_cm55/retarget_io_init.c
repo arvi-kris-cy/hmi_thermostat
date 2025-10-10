@@ -43,7 +43,7 @@
 * Header Files
 *******************************************************************************/
 #include "retarget_io_init.h"
-
+#include "FreeRTOSConfig.h"
 
 /*******************************************************************************
 * Global Variables
@@ -120,7 +120,8 @@ void init_retarget_io(void)
     /* UART initialization failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Enable the SCB UART */
@@ -133,7 +134,8 @@ void init_retarget_io(void)
     /* UART setup failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Initialize retarget-io to use the debug UART port. */
@@ -142,13 +144,65 @@ void init_retarget_io(void)
     /* retarget-io initialization failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
 #if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
     /* UART SysPm callback registration for retarget-io */
     Cy_SysPm_RegisterCallback(&retarget_io_syspm_cb);
 #endif /* (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP) */
+}
+
+/*******************************************************************************
+ * GLOBAL VARIABLE (Used to indicate error state for debug visibility)
+ ******************************************************************************/
+volatile uint32_t g_system_error_code = 0;
+volatile const char *g_error_file = NULL;
+volatile int g_error_line = 0;
+
+/**
+ * @brief Halts system execution and prints failure details.
+ *
+ * This function should only be called by the APP_ERROR() macro. It attempts
+ * to safely disable the scheduler/interrupts and then enters an infinite loop.
+ *
+ * @param error_code The specific error code passed by the user.
+ * @param file The file name where the error occurred (via __FILE__).
+ * @param line The line number where the error occurred (via __LINE__).
+ */
+void app_error_handler(uint32_t error_code, const char *file, int line)
+{
+    // Buffer to hold task list information. Size must be adequate for all tasks.
+    // A standard size for a small embedded system with <10 tasks.
+    static char pcTaskListBuffer[512];
+
+    // 1. Store state for debugger inspection (optional but highly recommended)
+    g_system_error_code = error_code;
+    g_error_file = file;
+    g_error_line = line;
+
+    // 3. Print the error details and task stack usage to the console/serial port
+    // Note: Use a thread-safe printing mechanism.
+    printf("\n\n#####################################################\n");
+    printf("!!! CRITICAL APPLICATION ERROR !!!\n");
+    printf("Error Code: 0x%08lX\n", (unsigned long)error_code);
+    printf("File:       %s\n", file);
+    printf("Line:       %d\n", line);
+    printf("SYSTEM HALTED (No Reset)\n");
+    printf("-----------------------------------------------------\n");
+
+
+    printf("#####################################################\n\n");
+
+    // 4. Enter a permanent hang/infinite loop
+    // This is the non-resetting requirement. The CPU is now halted in this function.
+    while (1)
+    {
+        // Add a small delay or loop to prevent busy-waiting if desired,
+        // or just let the debugger catch the execution here.
+        __asm volatile ("nop");
+    }
 }
 
 

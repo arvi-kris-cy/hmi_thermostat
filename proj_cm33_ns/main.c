@@ -53,6 +53,7 @@
 #include "app_common.h"
 #include "app_ui_receiver.h"
 #include "app_radar.h"
+#include "app_common.h"
 
 /******************************************************************************
  * Macros
@@ -83,7 +84,7 @@ static mtb_hal_rtc_t rtc_obj;
 /* Task Handle for WiFi Task */
 extern TaskHandle_t wifi_task_handle;
 
-
+char current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
 ipc_msg_t *ipc_recv_msg;
 
 
@@ -109,18 +110,22 @@ ipc_msg_t *ipc_recv_msg;
 *******************************************************************************/
 void cm33_msg_callback(uint32_t * msg_data)
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xStatus;
+
     if (msg_data != NULL)
     {
         /* Cast the message received to the IPC structure */
         ipc_recv_msg = (ipc_msg_t *) msg_data;
 
-        /* Extract the command to be processed in the UI_Rx loop */
-        msg_val = ipc_recv_msg->data;
-        msg_cmd = ipc_recv_msg->cmd;
+        /* Queue the IPC message to be processed later */
+        xStatus = xQueueSendFromISR(xUiRxQueue, ipc_recv_msg, &xHigherPriorityTaskWoken);
+        if (xStatus != pdPASS)
+        {
+            LOG_ERROR(CYLF_DEF, "CM33 IPC Callback -> UI RX Queue Full\n");
+        }
 
-        /* Notify the UI RX task directly with an IPC message event. */
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xTaskNotifyFromISR(cm33_ui_rx_task_handle, 1, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+        /* Perform context switch if High priority task unblocked */
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
@@ -178,7 +183,8 @@ static void setup_tickless_idle_timer(void)
     /* LPTimer interrupt initialization failed. Stop program execution. */
     if(CY_SYSINT_SUCCESS != interrupt_init_status)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(interrupt_init_status);
     }
 
     /* Enable NVIC interrupt. */
@@ -192,7 +198,8 @@ static void setup_tickless_idle_timer(void)
     /* MCWDT initialization failed. Stop program execution. */
     if(CY_MCWDT_SUCCESS != mcwdt_init_status)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(mcwdt_init_status);
     }
 
     /* Enable MCWDT instance */
@@ -208,7 +215,8 @@ static void setup_tickless_idle_timer(void)
     /* LPTimer setup failed. Stop program execution. */
     if(CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Pass the LPTimer object to abstraction RTOS library that implements
@@ -285,7 +293,8 @@ int main(void)
 
     if(CY_IPC_PIPE_SUCCESS != pipeStatus)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(pipeStatus);
     }
 
     /* Setup the LPTimer instance for CM33 CPU. */
@@ -293,15 +302,30 @@ int main(void)
 
     /* Initialize retarget-io middleware */
     init_retarget_io();
-
     /* Setup CLIB support library. */
     setup_clib_support();
+    /* Default for all logging to WARNING */
+    result = cy_log_init(CY_LOG_ERR, NULL, NULL);
+    if (CY_RSLT_SUCCESS != result)
+    {
+        printf("cy_log_init failed with Error : [0x%X] \n", (unsigned int) result);
+    }
+    else
+    {
+        cy_log_set_facility_level(CYLF_DRIVER, CY_LOG_WARNING);
+        cy_log_set_facility_level(CYLF_DEF, CY_LOG_INFO);
+        cy_log_set_facility_level(CYLF_MIDDLEWARE, CY_LOG_WARNING);
+    }
 
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
-    printf("\x1b[2J\x1b[;H");
-    printf("===============================================================\n");
-    printf("Thermostat Application Started!\n");
-    printf("===============================================================\n");
+    LOG_INFO(CYLF_DEF, "\x1b[2J\x1b[;H");
+    LOG_INFO(CYLF_DEF, "===============================================================\n");
+    LOG_INFO(CYLF_DEF, "Thermostat Application Started Version: <V%d.%d.%d>\n", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
+    LOG_INFO(CYLF_DEF, "===============================================================\n\n");
+
+
+    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
+    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 
 
     ui_rx_thread_init();
@@ -315,26 +339,28 @@ int main(void)
     if(xTaskCreate(wifi_task, "WiFiTask", WIFI_TASK_STACK_SIZE, NULL,
                 WIFI_TASK_PRIORITY, &wifi_task_handle) != pdPASS)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(1);
     }
 
     /* Create the MQTT Client task. */
-    result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
+    result = xTaskCreate(mqtt_client_task, "MQTTTask", MQTT_CLIENT_TASK_STACK_SIZE,
                 NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
 
-    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
-    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
+
     if( pdPASS == result )
     {
         /* Start the FreeRTOS scheduler. */
         vTaskStartScheduler();
         
         /* Should never get here. */
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
     else
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(1);
     }
 }
 

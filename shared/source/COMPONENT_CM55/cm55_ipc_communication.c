@@ -137,8 +137,7 @@ int cm55_send_msg_cm33(ipc_msg_t *msg)
 {
 	int ret = -1;
 
-    vTaskDelay(10);
-	if(CY_RSLT_SUCCESS == cy_rtos_mutex_get(&cm55_ipc_mutex, 1000))
+	if(CY_RSLT_SUCCESS == cy_rtos_mutex_get(&cm55_ipc_mutex, IPC_MUTEX_TIMEOUT))
 	{
 		if(NULL != msg)
 		{
@@ -149,7 +148,7 @@ int cm55_send_msg_cm33(ipc_msg_t *msg)
 											 (void *)msg, 0);
 		if(CY_IPC_PIPE_SUCCESS != pipeStatus)
 		{
-		    printf("cm55_send_msg_cm33 error\n");
+		    printf("cm55_send_msg_cm33 error: %d\n", pipeStatus);
 			ret = -1;
 		}
 		}
@@ -159,7 +158,7 @@ int cm55_send_msg_cm33(ipc_msg_t *msg)
 		}
 
 		ret = 0;
-	    cy_rtos_mutex_set(&cm55_ipc_mutex);
+		cy_rtos_mutex_set(&cm55_ipc_mutex);
 	}
 	else
 	{

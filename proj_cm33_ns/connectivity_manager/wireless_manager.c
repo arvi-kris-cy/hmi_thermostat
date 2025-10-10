@@ -11,6 +11,8 @@
 #include "subscriber_task.h"
 #include "comm_manager.h"
 #include "mqtt_command_handler.h"
+#include "wifi_task.h"
+
 
 /******************************************************************************
  * Macros
@@ -54,6 +56,12 @@ static uint8_t ble_retry_attempt = 0;
 static bool is_manual_low_adv = false;
 static connectivity_state_t current_state = STATE_UNPROVISIONED;
 connection_retries_t auto_reconnect_retry = MAX_CONN_RETRY;
+
+/* This variable tracks the number of congestion events during BLE data transfer */
+uint16_t num_of_congestions = 0;
+
+/* Flag to check for GATT congestion */
+uint8_t is_gatt_congested;
 
 /*****************************************************************************
  * Static Function Prototype
@@ -253,7 +261,7 @@ static wiced_bt_gatt_status_t app_gatts_req_read_handler(uint16_t conn_id,
     /* Get the right address for the handle in Gatt DB */
     if (NULL == (puAttribute = app_get_attribute(p_read_data->handle)))
     {
-        printf("Read handle attribute not found. Handle:0x%X\n",
+        LOG_ERROR(CYLF_DEF, "Read handle attribute not found. Handle:0x%X\n",
                 p_read_data->handle);
         wiced_bt_gatt_server_send_error_rsp(conn_id, opcode, p_read_data->handle,
                                             WICED_BT_GATT_INVALID_HANDLE);
@@ -262,7 +270,7 @@ static wiced_bt_gatt_status_t app_gatts_req_read_handler(uint16_t conn_id,
 
     attr_len_to_copy = puAttribute->cur_len;
 
-    printf("GATT Read handler: handle:0x%X, len:%d\n",
+    LOG_DEBUG(CYLF_DEF,"GATT Read handler: handle:0x%X, len:%d\n",
            p_read_data->handle, attr_len_to_copy);
 
     /* If the incoming offset is greater than the current length in the GATT DB
@@ -356,13 +364,13 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
     uint8_t *p_attr = p_data->p_val;
     gatt_db_lookup_table_t *puAttribute;
 
-    printf("GATT write handler: handle:0x%X len:%d, opcode:0x%X\n",
+    LOG_DEBUG(CYLF_DEF,"GATT write handler: handle:0x%X len:%d, opcode:0x%X\n",
            p_data->handle, p_data->val_len, opcode);
 
     /* Get the right address for the handle in Gatt DB */
     if (NULL == (puAttribute = app_get_attribute(p_data->handle)))
     {
-        printf("\nWrite Handle attr not found. Handle:0x%X\n", p_data->handle);
+        LOG_DEBUG(CYLF_DEF,"Write Handle attr not found. Handle:0x%X\n", p_data->handle);
         return WICED_BT_GATT_INVALID_HANDLE;
     }
 
@@ -383,7 +391,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
             memcpy(&wifi_details.wifi_ssid[0], p_attr, p_data->val_len);
             wifi_details.ssid_len = p_data->val_len;
 
-            printf("Wi-Fi SSID: %s\n", app_custom_service_wifi_ssid);
+            LOG_INFO(CYLF_DEF, "Wi-Fi SSID: %s\n", app_custom_service_wifi_ssid);
             break;
 
         /* Write request for the WiFi password characteristic. Accept the password.
@@ -401,7 +409,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
             memcpy(&wifi_details.wifi_password[0], p_attr, p_data->val_len);
             wifi_details.password_len = p_data->val_len;
 
-            printf("Wi-Fi Password: %s\n", app_custom_service_wifi_password);
+            LOG_INFO(CYLF_DEF, "Wi-Fi Password: %s\n", app_custom_service_wifi_password);
             break;
 
         /* Handle the CCCD values for WIFI NETWORKS characteristic */
@@ -444,7 +452,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
                 }
                 else
                 {
-                    printf("WiFi Credentials not present\n");
+                    LOG_INFO(CYLF_DEF, "WiFi Credentials not present\n");
                 }
             }
             /* Scan command */
@@ -462,7 +470,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
                 }
                 else
                 {
-                    printf("Notifications for WiFi Networks characteristic are "
+                    LOG_INFO(CYLF_DEF, "Notifications for WiFi Networks characteristic are "
                             "disabled. Cannot scan for networks\n");
                 }
             }
@@ -474,7 +482,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
             }
             else
             {
-                printf("Invalid command\n");
+                LOG_INFO(CYLF_DEF, "Invalid command\n");
             }
             break;
 
@@ -492,7 +500,7 @@ static wiced_bt_gatt_status_t app_gatts_req_write_handler(uint16_t conn_id,
         }
 
         default:
-            printf("Write GATT Handle not found\n");
+            LOG_ERROR(CYLF_DEF, "Write GATT Handle not found\n");
             result = WICED_BT_GATT_INVALID_HANDLE;
             break;
     }
@@ -513,21 +521,20 @@ static wiced_bt_gatt_status_t app_gatt_connect_handler(
         if (p_conn_status->connected)
         {
             /* Device got connected */
-            printf("\nConnected: Peer BD Address: ");
+            LOG_INFO(CYLF_DEF, "\nConnected: Peer BD Address: ");
             print_bd_address(p_conn_status->bd_addr);
-            printf("\n");
+            LOG_INFO(CYLF_DEF, "\n");
             conn_id = p_conn_status->conn_id;
-
             memcpy(&peer_addr, &(p_conn_status->bd_addr), sizeof(wiced_bt_device_address_t));
             handle_connectivity_state(STATE_BLE_CONNECTED);
         }
         else /* Device got disconnected */
         {
-            printf("\nDisconnected: Peer BD Address: ");
+            LOG_INFO(CYLF_DEF, "\nDisconnected: Peer BD Address: ");
             print_bd_address(p_conn_status->bd_addr);
-            printf("\n");
+            LOG_INFO(CYLF_DEF, "\n");
 
-            printf("Reason for disconnection: %s\n",
+            LOG_INFO(CYLF_DEF, "Reason for disconnection: %s\n",
                     get_bt_gatt_disconn_reason_name(p_conn_status->reason));
 
             conn_id = false;
@@ -538,14 +545,14 @@ static wiced_bt_gatt_status_t app_gatt_connect_handler(
 																 cy_bt_adv_packet_data);
 				if (WICED_SUCCESS != result)
 				{
-					printf("Set ADV data failed\n");
+				    LOG_INFO(CYLF_DEF, "Set ADV data failed\n");
 				}
 
 				result = wiced_bt_start_advertisements(BTM_BLE_ADVERT_UNDIRECTED_HIGH,
 													   false, NULL);
 				if(WICED_SUCCESS != result)
 				{
-					printf("Start ADV failed");
+				    LOG_INFO(CYLF_DEF, "Start ADV failed");
 				}
 				update_conn_state(DEV_ST_BLE_ADVERTISING);
             }
@@ -593,7 +600,7 @@ static wiced_bt_gatt_status_t app_gatts_attr_req_handler(wiced_bt_gatt_attribute
             break;
 
         case GATT_REQ_MTU:
-            printf("Exchanged MTU from client: %d\n", p_data->data.remote_mtu);
+            LOG_INFO(CYLF_DEF, "Exchanged MTU from client: %d\n", p_data->data.remote_mtu);
             wiced_bt_gatt_server_send_mtu_rsp(p_data->conn_id, p_data->data.remote_mtu,
             		wiced_bt_cfg_settings.p_ble_cfg->ble_max_rx_pdu_size);
             result = WICED_BT_GATT_SUCCESS;
@@ -611,7 +618,7 @@ static wiced_bt_gatt_status_t app_gatts_callback(wiced_bt_gatt_evt_t event,
 {
     wiced_bt_gatt_status_t result = WICED_BT_GATT_INVALID_PDU;
 
-    printf("GATTS event: %s\n", get_bt_gatt_evt_name(event));
+    LOG_DEBUG(CYLF_DEF,"GATTS event: %s\n", get_bt_gatt_evt_name(event));
 
     switch (event)
     {
@@ -623,6 +630,20 @@ static wiced_bt_gatt_status_t app_gatts_callback(wiced_bt_gatt_evt_t event,
             result = app_gatts_attr_req_handler(&p_data->attribute_request);
             break;
 
+
+        case GATT_CONGESTION_EVT:
+            LOG_INFO(CYLF_DEF, "\nGATT_CONGESTION_EVT\n");
+
+            num_of_congestions++;
+            is_gatt_congested = (p_data->congestion.congested) ? true : false;
+
+            if (!is_gatt_congested)
+            {
+                /* Do nothing */
+            }
+            break;
+
+
         case GATT_GET_RESPONSE_BUFFER_EVT:
             p_data->buffer_request.buffer.p_app_rsp_buffer = wiced_bt_get_buffer(
                                               p_data->buffer_request.len_requested);
@@ -631,7 +652,7 @@ static wiced_bt_gatt_status_t app_gatts_callback(wiced_bt_gatt_evt_t event,
 
             if(NULL == p_data->buffer_request.buffer.p_app_rsp_buffer)
             {
-                printf("Insufficient resources\n");
+                LOG_INFO(CYLF_DEF, "Insufficient resources\n");
                 result = WICED_BT_GATT_INSUF_RESOURCE;
             }
             else
@@ -656,7 +677,8 @@ static wiced_bt_gatt_status_t app_gatts_callback(wiced_bt_gatt_evt_t event,
         break;
 
         default:
-            printf("GATT event not handled\n");
+            LOG_INFO(CYLF_DEF, "GATT event not handled\n");
+            break;
     }
     return result;
 }
@@ -669,7 +691,7 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
     wiced_bt_dev_ble_io_caps_req_t *pairing_io_caps = &(p_event_data->
                                            pairing_io_capabilities_ble_request);
 
-    printf("Bluetooth Management Event: %s\n", get_btm_event_name(event));
+    LOG_DEBUG(CYLF_DEF, "Bluetooth Management Event: %s\n", get_btm_event_name(event));
 
     switch (event)
     {
@@ -681,9 +703,9 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
 
             /* Read and print the BD address */
             wiced_bt_dev_read_local_addr(bda);
-            printf("Local Bluetooth Address: ");
+            LOG_INFO(CYLF_DEF, "Local Bluetooth Address: ");
             print_bd_address(bda);
-            printf("\n");
+            LOG_INFO(CYLF_DEF, "\n");
 
             application_init();
             break;
@@ -692,11 +714,11 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
             break;
             /* Print passkey to the screen so that the user can enter it. */
         case BTM_PASSKEY_NOTIFICATION_EVT:
-            printf( "********************************************************\r\n");
-            printf( "Passkey Notification\r\n");
-            printf("PassKey: %" PRIu32 "\r\n",
-            p_event_data->user_passkey_notification.passkey );
-            printf( "***********************************************************\r\n");
+            LOG_INFO(CYLF_DEF, "********************************************************\r\n");
+            LOG_INFO(CYLF_DEF, "Passkey Notification\r\n");
+            LOG_INFO(CYLF_DEF, "PassKey: %" PRIu32 "\r\n",
+                    p_event_data->user_passkey_notification.passkey );
+            LOG_INFO(CYLF_DEF, "***********************************************************\r\n");
             display_ble_pin(p_event_data->user_passkey_notification.passkey);
             break;
 
@@ -714,19 +736,19 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
 
             pairing_io_caps->resp_keys = BTM_LE_KEY_PENC | BTM_LE_KEY_PID |
                                         BTM_LE_KEY_PCSRK | BTM_LE_KEY_LENC;
+
             break;
 
         case BTM_PAIRING_COMPLETE_EVT:
             if (WICED_SUCCESS == p_event_data->
                                 pairing_complete.pairing_complete_info.ble.status)
             {
-                printf("Pairing Complete: SUCCESS\n");
-
+                LOG_INFO(CYLF_DEF, "Pairing Complete: SUCCESS\n");
                 handle_connectivity_state(STATE_BLE_CONNECTED);
             }
             else /* Pairing Failed */
             {
-                printf("Pairing Complete: FAILED\n");
+                LOG_INFO(CYLF_DEF, "Pairing Complete: FAILED\n");
             }
             break;
 
@@ -753,11 +775,11 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
         case BTM_ENCRYPTION_STATUS_EVT:
             if (WICED_SUCCESS == p_event_data->encryption_status.result)
             {
-                printf("Encryption Status Event: SUCCESS\n");
+                LOG_DEBUG(CYLF_DEF, "Encryption Status Event: SUCCESS\n");
             }
             else /* Encryption Failed */
             {
-                printf("Encryption Status Event: FAILED\n");
+                LOG_DEBUG(CYLF_DEF, "Encryption Status Event: FAILED\n");
             }
             break;
 
@@ -767,15 +789,14 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
             break;
 
         case BTM_BLE_ADVERT_STATE_CHANGED_EVT:
-            printf("\n");
-            printf("Advertisement state changed to %s\n", get_bt_advert_mode_name(
+            LOG_INFO(CYLF_DEF, "Advertisement state changed to %s\n", get_bt_advert_mode_name(
                                            p_event_data->ble_advert_state_changed));
 
             if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_OFF)
             {
                 if(device_provisioned == false)
                 {
-                	printf("Device not provisioned. Device in un-provisioned state\n ");
+                    LOG_INFO(CYLF_DEF, "Device not provisioned. Device in un-provisioned state\n ");
                 	if(!provision_inprogress)
                 	{
                 		update_conn_state(DEV_ST_UNPROVISIONED);
@@ -783,9 +804,8 @@ static wiced_result_t app_management_callback(wiced_bt_management_evt_t event,
                 }
                 else
                 {
-                	printf("Device in provisioned state\n ");
+                    LOG_INFO(CYLF_DEF, "Device in provisioned state\n ");
                 }
-
             }
             else if(p_event_data->ble_advert_state_changed == BTM_BLE_ADVERT_UNDIRECTED_LOW)
             {
@@ -819,28 +839,26 @@ static void application_init(void)
     /* Create a buffer heap, make it the default heap */
     app_heap_pointer = wiced_bt_create_heap("app", NULL, APP_HEAP_SIZE, NULL,
                                             WICED_TRUE);
-
     if(NULL == app_heap_pointer)
     {
-        printf("Failed to create heap\n");
-        handle_app_error();
+        LOG_ERROR(CYLF_DEF, "Failed to create heap\n");
+//        handle_app_error();
+        APP_ERROR(1);
     }
 
     /* Register with stack to receive GATT callback */
     gatt_status = wiced_bt_gatt_register(app_gatts_callback);
-
     if(WICED_BT_GATT_SUCCESS != gatt_status)
     {
-        printf("\nGATT register failed. Status: %s\n", get_bt_gatt_status_name(
+        LOG_ERROR(CYLF_DEF, "GATT register failed. Status: %s\n", get_bt_gatt_status_name(
                                                        gatt_status));
     }
 
     /*  Inform the stack to use our GATT database */
     gatt_status = wiced_bt_gatt_db_init(gatt_database, gatt_database_len, NULL);
-
     if(WICED_BT_GATT_SUCCESS != gatt_status)
     {
-        printf("\nGATT db init failed. Status :%s\n",get_bt_gatt_status_name(
+        LOG_ERROR(CYLF_DEF, "GATT db init failed. Status :%s\n",get_bt_gatt_status_name(
                                                      gatt_status));
     }
 
@@ -852,17 +870,41 @@ static void application_init(void)
                                                      cy_bt_adv_packet_data);
     if (WICED_SUCCESS != result)
     {
-        printf("Set ADV data failed\n");
+        LOG_ERROR(CYLF_DEF, "Set ADV data failed\n");
     }
 
-	// /* Read data from NVM if present */
+    wiced_bt_device_address_t ble_mac_addr = {0};
+
+    /* First byte fixed as 0xC0 (static random requirement) */
+    ble_mac_addr[0] = 0xC0;
+
+    /* Update BLE MAC Addr last 3 bytes from Wi-Fi MAC */
+    for (int i = 0; i < 3; i++)
+    {
+        ble_mac_addr[i + 3] = wifi_mac[3 + i];
+    }
+
+    /* Set BLE Random Address */
+    result = wiced_bt_set_local_bdaddr(ble_mac_addr, BLE_ADDR_RANDOM);
+    if (WICED_BT_SUCCESS == result)
+    {
+        LOG_INFO(CYLF_DEF, "Bluetooth MAC Address Set Successfully: %02X:%02X:%02X:%02X:%02X:%02X\n",
+               ble_mac_addr[0], ble_mac_addr[1], ble_mac_addr[2],
+               ble_mac_addr[3], ble_mac_addr[4], ble_mac_addr[5]);
+    }
+    else
+    {
+        LOG_ERROR(CYLF_DEF, "Failed to Set Bluetooth MAC Address, Error Code: %d\n", result);
+    }
+
+	/* Read data from NVM if present */
 	result =  Cy_RRAM_NvmReadByteArray(RRAMC0,
 			APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET,
 			( uint8_t *)&wifi_details.wifi_ssid[0], sizeof(wifi_details) );
 
 	if ((!result) && (wifi_details.ssid_len))
 	{
-		printf("Device provisioned, WiFi credentials present in NVM\n");
+	    LOG_INFO(CYLF_DEF, "Device provisioned, WiFi credentials present in NVM\n");
 
 		/* Set the WiFi Connection parameters structure to 0 before copying
 		 * data */
@@ -884,7 +926,7 @@ static void application_init(void)
 	}
 	else /* WiFi credentials not found in NVM */
 	{
-		printf("WiFi credentials not present in NVM\n");
+	    LOG_INFO(CYLF_DEF, "WiFi credentials not present in NVM\n");
 
 		handle_connectivity_state(STATE_UNPROVISIONED);
         vTaskDelay(1000);
@@ -903,18 +945,18 @@ cy_rslt_t wirelessdevice_init(void)
 	result = wifi_init();
 	if(CY_RSLT_SUCCESS != result)
 	{
-		printf("\nUnable to init wifi module with error: %u\n", result);
-		return result;
-	}
-
-	result = ble_init();
-	if(CY_RSLT_SUCCESS != result)
-	{
-		printf("\nUnable to init BLE module with error: %u\n", result);
+	    LOG_ERROR(CYLF_DEF, "Unable to init. Wi-Fi module with error: %u\n", result);
 		return result;
 	}
 
     wifi_get_macaddr((uint8_t *)wifi_mac);
+
+	result = ble_init();
+	if(CY_RSLT_SUCCESS != result)
+	{
+	    LOG_ERROR(CYLF_DEF, "Unable to init. BLE module with error: %u\n", result);
+		return result;
+	}
 
     //Update the BLE name based on MAC address
     snprintf((char *)ble_name, sizeof(ble_name),"Therm_%X%X%X", wifi_mac[3], wifi_mac[4], wifi_mac[5]);
@@ -949,7 +991,7 @@ void wifi_get_macaddr(uint8_t *mac)
 
 void delete_wifi_credential(void)
 {
-	printf("Deleting Wi-Fi data from NVM\n");
+    LOG_ERROR(CYLF_DEF, "Deleting Wi-Fi data from NVM\n");
 
 	/* Set the data to 0*/
 	memset(&wifi_details, 0, sizeof(wifi_details));
@@ -970,12 +1012,17 @@ cy_rslt_t ble_init(void)
 		result = wiced_bt_stack_init(app_management_callback, &wiced_bt_cfg_settings);
 	    if (WICED_SUCCESS != result )
 	    {
-	        printf("Error in initializing the BT stack with error: %u\n", result);
+	        LOG_ERROR(CYLF_DEF, "Error in initializing the BT stack with error: %u\n", result);
 	    }
 	    else
 	    {
+	        LOG_INFO(CYLF_DEF, "BT stack initialized!\n");
 	    	ble_stack_init_state = true;
 	    }
+	}
+	else
+	{
+	    LOG_INFO(CYLF_DEF, "BT stack already initialized!\n");
 	}
 
     return result;
@@ -992,7 +1039,7 @@ cy_rslt_t ble_deinit(void)
         result = wiced_bt_stack_deinit();
         if (WICED_SUCCESS != result )
         {
-            printf("Error in deinitializing the BT stack with error: %u\n", result);
+            LOG_ERROR(CYLF_DEF, "Error in deinitializing the BT stack with error: %u\n", result);
         }
         else
         {
@@ -1018,12 +1065,12 @@ void ble_disconnect(void)
         wiced_result_t result = wiced_bt_dev_delete_bonded_device(peer_addr);
         if (WICED_SUCCESS == result)
         {
-            printf("Bonding information for device %02X:%02X:%02X:%02X:%02X:%02X removed successfully.\n", peer_addr[0],
+            LOG_INFO(CYLF_DEF, "Bonding information for device %02X:%02X:%02X:%02X:%02X:%02X removed successfully.\n", peer_addr[0],
                     peer_addr[1], peer_addr[2], peer_addr[3], peer_addr[4], peer_addr[5]);
         }
         else
         {
-            printf("Failed to remove bonding information for device %02X:%02X:%02X:%02X:%02X:%02X\n", peer_addr[0],
+            LOG_INFO(CYLF_DEF, "Failed to remove bonding information for device %02X:%02X:%02X:%02X:%02X:%02X\n", peer_addr[0],
                     peer_addr[1], peer_addr[2], peer_addr[3], peer_addr[4], peer_addr[5]);
         }
         vTaskDelay(100);
@@ -1032,8 +1079,17 @@ void ble_disconnect(void)
 
 wiced_result_t ble_start_advertising(wiced_bt_ble_advert_mode_t mode)
 {
-	update_conn_state(DEV_ST_BLE_ADVERTISING);
-	return wiced_bt_start_advertisements(mode, false, NULL);
+	if(!conn_id)
+	{
+		update_conn_state(DEV_ST_BLE_ADVERTISING);
+		return wiced_bt_start_advertisements(mode, false, NULL);
+	}
+	else
+	{
+		update_conn_state(DEV_ST_BLE_CONNECTED);
+	}
+
+	return WICED_SUCCESS;
 }
 
 void ble_stop_advertising(void)
@@ -1046,15 +1102,21 @@ void app_bt_send_message(char *data, size_t data_len)
 {
     if(conn_id)
     {
+        /* Wait if GATT congestion flag enabled. */
+        while (is_gatt_congested);
+
         wiced_bt_gatt_server_send_notification(conn_id,
         		HDLC_CUSTOM_SERVICE_THERMOSTAT_DATA_VALUE,data_len, (uint8_t *)data, NULL);
-        printf("Send JSON Package Over BLE:\n%s\n", data);
+        LOG_INFO(CYLF_DEF, "Send JSON Package Over BLE:\n%s\n", data);
 
         free(data);
+
+        /* Wait for GATT congestion to clear */
+        while (is_gatt_congested);
     }
     else
     {
-        printf("BLE Not Connected!\n");
+        LOG_INFO(CYLF_DEF, "BLE Not Connected!\n");
     }
 }
 
@@ -1125,10 +1187,11 @@ void handle_connectivity_state(connectivity_state_t state)
             /* Don't advertise if already connected */
             if(conn_id != false)
             {
-                printf("STATE_BLE_ADV Device already connected over BLE\n");
+                LOG_INFO(CYLF_DEF, "STATE_BLE_ADV Device already connected over BLE\n");
             }
             else
             {
+                LOG_INFO(CYLF_DEF, "STATE_BLE_ADV BTM_BLE_ADVERT_UNDIRECTED_HIGH\n");
                 ble_start_advertising(BTM_BLE_ADVERT_UNDIRECTED_HIGH);
             }
             break;
@@ -1140,13 +1203,14 @@ void handle_connectivity_state(connectivity_state_t state)
             {
                 if(cy_wcm_is_connected_to_ap())
                 {
+                    switch_to_ble_mqtt_disconn = true;
                     mqtt_task_cmd_t mqtt_task_cmd = HANDLE_MANUAL_DISCONNECTION;
                     xQueueSend(mqtt_task_q, &mqtt_task_cmd, portMAX_DELAY);
                 }
             }
             update_provision_state(device_provisioned);
             vTaskDelay(3000);
-			update_comm_interface(CONNECTIVITY_BLE);
+            update_comm_interface(CONNECTIVITY_BLE);
             update_conn_state(DEV_ST_BLE_CONNECTED);
             is_manual_low_adv = false;
             ble_retry_attempt = 0;
@@ -1168,12 +1232,17 @@ void handle_connectivity_state(connectivity_state_t state)
 
         case STATE_WIFI_DISCONNECTED:
         {
-        	if(!conn_id)
-        	{
-				is_manual_low_adv = true;
+			is_manual_low_adv = true;
+			/* Check if the Switch to BLE is pressed, if yes
+			 * don't start ADV as its already started and updated on UI*/
+			if(true != switch_to_ble_mqtt_disconn)
+			{
 				update_conn_state(DEV_ST_WIFI_DISCONNECTED);
-				ble_start_advertising(BTM_BLE_ADVERT_UNDIRECTED_HIGH);
-        	}
+			}
+
+			ble_start_advertising(BTM_BLE_ADVERT_UNDIRECTED_HIGH);
+
+			switch_to_ble_mqtt_disconn = false;
         	break;
         }
 

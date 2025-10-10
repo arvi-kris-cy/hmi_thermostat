@@ -101,6 +101,55 @@
                                     </Permission>
                                     <Descriptors/>
                                 </Characteristic>
+                                <Characteristic type="org.bluetooth.characteristic.gap.peripheral_preferred_connection_parameters">
+                                    <Fields>
+                                        <Field>
+                                            <FieldProperties>
+                                                <Property id="Name" value="Minimum Connection Interval"/>
+                                                <Property id="Value" value="0x0006"/>
+                                                <Property id="Format" value="f_uint16"/>
+                                            </FieldProperties>
+                                        </Field>
+                                        <Field>
+                                            <FieldProperties>
+                                                <Property id="Name" value="Maximum Connection Interval"/>
+                                                <Property id="Value" value="0x0028"/>
+                                                <Property id="Format" value="f_uint16"/>
+                                            </FieldProperties>
+                                        </Field>
+                                        <Field>
+                                            <FieldProperties>
+                                                <Property id="Name" value="Peripheral Latency"/>
+                                                <Property id="Value" value="0"/>
+                                                <Property id="Format" value="f_uint16"/>
+                                            </FieldProperties>
+                                        </Field>
+                                        <Field>
+                                            <FieldProperties>
+                                                <Property id="Name" value="Connection Supervision Timeout"/>
+                                                <Property id="Value" value="0x03E8"/>
+                                                <Property id="Format" value="f_uint16"/>
+                                            </FieldProperties>
+                                        </Field>
+                                    </Fields>
+                                    <Properties>
+                                        <BleProperty>
+                                            <Property id="PropertyType" value="Read"/>
+                                            <Property id="Present" value="true"/>
+                                            <Property id="Mandatory" value="true"/>
+                                        </BleProperty>
+                                    </Properties>
+                                    <Permission>
+                                        <Property id="Read" value="true"/>
+                                        <Property id="ReadAuthenticated" value="false"/>
+                                        <Property id="VariableLength" value="false"/>
+                                        <Property id="Write" value="false"/>
+                                        <Property id="WriteNoResponse" value="false"/>
+                                        <Property id="WriteReliable" value="false"/>
+                                        <Property id="WriteAuthenticated" value="false"/>
+                                    </Permission>
+                                    <Descriptors/>
+                                </Characteristic>
                             </Characteristics>
                         </Service>
                         <Service type="org.bluetooth.service.generic_attribute" version="0.0.0">

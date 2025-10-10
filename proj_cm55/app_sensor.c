@@ -47,7 +47,7 @@
 #include "task.h"
 #include "timers.h"
 #include "lv_timer.h"
-
+#include "app_common.h"
 /*******************************************************************************
  *                              CONSTANTS
  ******************************************************************************/
@@ -61,7 +61,7 @@ volatile bool sensor_data_available = false;
 uint16_t read_ppm = 0;
 int32_t read_temperature, read_humidity = 0;
 extern TaskHandle_t rtos_cm55_sensor_task_handle;
-
+TimerHandle_t restart_sensor_timer = NULL;
 /*******************************************************************************
  *                             STATIC VARIABLES
  ******************************************************************************/
@@ -73,10 +73,32 @@ static uint32_t sensor_sampling_intv = SENSOR_SAMPLING_INTERVAL_ACTIVE;
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
+/**
+ * @brief Timer callback to restart the Sensor Task after a failure.
+ *
+ * This is a FreeRTOS one-shot timer callback function. When triggered, it
+ * attempts to recreate the Sensor Task that may have previously failed
+ * during initialization. The task is created with predefined stack size
+ * and priority.
+ *
+ * @param[in] xTimer  Handle of the timer that triggered this callback.
+ *
+ * @note This function is typically invoked by the retry timer created in
+ *       `app_sensor_task_init()`.
+ *
+ * @retval None
+ */
+static void restart_sensor_task_timer_cb(TimerHandle_t xTimer);
 
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
+
+static void restart_sensor_task_timer_cb(TimerHandle_t xTimer)
+{
+    xTaskCreate(sensor_task, SENSOR_TASK_NAME, SENSOR_TASK_STACK_SIZE, NULL,
+            SENSOR_TASK_PRIORITY, &rtos_cm55_sensor_task_handle);
+}
 
 void power_co2_sensor(void)
 {
@@ -88,13 +110,13 @@ cy_rslt_t pasco2_sensor_init(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    printf("Initializing CO2 sensor...\r\n");
+    LOG_INFO(CYLF_DEF, "Initializing CO2 sensor...\r\n");
 
     /* Initialize PAS CO2 sensor */
     result = xensiv_pasco2_mtb_init_i2c(&xensiv_pasco2, &CYBSP_I2C_CONTROLLER_2_hal_obj);
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("PAS CO2 sensor initialization failed!\r\n");
+        LOG_ERROR(CYLF_DEF, "PAS CO2 sensor initialization failed!\r\n");
         return result;
     }
 
@@ -102,7 +124,7 @@ cy_rslt_t pasco2_sensor_init(void)
     result = xensiv_pasco2_get_id(&xensiv_pasco2, &chipID);
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("Failed to read CO2 sensor chip ID!\r\n");
+        LOG_ERROR(CYLF_DEF, "Failed to read CO2 sensor chip ID!\r\n");
         return result;
     }
 
@@ -110,10 +132,10 @@ cy_rslt_t pasco2_sensor_init(void)
     result = xensiv_pasco2_start_single_mode(&xensiv_pasco2);
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("Failed to configure sensor in single shot mode!\r\n");
+        LOG_ERROR(CYLF_DEF, "Failed to configure sensor in single shot mode!\r\n");
     }
 
-    printf("CO2 sensor initialized successfully \r\n");
+    LOG_INFO(CYLF_DEF, "CO2 sensor initialized successfully \r\n");
     return CY_RSLT_SUCCESS;
 }
 
@@ -121,17 +143,17 @@ cy_rslt_t sht_sensor_init(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    printf("Initializing SHT40 sensor...\r\n");
+    LOG_INFO(CYLF_DEF, "Initializing SHT40 sensor...\r\n");
 
     /* Initialize SHT40 sensor */
     result = mtb_sht4x_init(&CYBSP_I2C_CONTROLLER_2_hal_obj, MTB_SHT40_ADDRESS_DEFAULT);
     if (CY_RSLT_SUCCESS != result)
     {
-        printf("SHT40 sensor initialization failed!\r\n");
+        LOG_ERROR(CYLF_DEF, "SHT40 sensor initialization failed!\r\n");
         return result;
     }
 
-    printf("SHT40 sensor initialized successfully.\r\n");
+    LOG_INFO(CYLF_DEF, "SHT40 sensor initialized successfully.\r\n");
     return CY_RSLT_SUCCESS;
 }
 
@@ -149,13 +171,13 @@ cy_rslt_t sensor_init(void)
         {
             break;
         }
-        printf("CO2 sensor init failed, retrying... (%d/%d)\r\n", retry + 1, max_retries);
+        LOG_INFO(CYLF_DEF, "CO2 sensor init failed, retrying... (%d/%d)\r\n", retry + 1, max_retries);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("Error: CO2 sensor initialization failed after retries!\r\n");
+        LOG_ERROR(CYLF_DEF, "CO2 sensor initialization failed after retries!\r\n");
         return result;
     }
 
@@ -167,17 +189,17 @@ cy_rslt_t sensor_init(void)
         {
             break;
         }
-        printf("SHT40 sensor init failed, retrying... (%d/%d)\r\n", retry + 1, max_retries);
+        LOG_INFO(CYLF_DEF, "SHT40 sensor init failed, retrying... (%d/%d)\r\n", retry + 1, max_retries);
         vTaskDelay(pdMS_TO_TICKS(1000)); // small delay before retry
     }
 
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("Error: SHT40 sensor initialization failed after retries!\r\n");
+        LOG_ERROR(CYLF_DEF, "SHT40 sensor initialization failed after retries!\r\n");
         return result;
     }
 
-    printf("All sensors initialized successfully.\r\n");
+    LOG_INFO(CYLF_DEF, "All sensors initialized successfully.\r\n");
     return CY_RSLT_SUCCESS;
 }
 
@@ -186,13 +208,24 @@ void sensor_task(void *arg)
     CY_UNUSED_PARAMETER(arg);
     cy_rslt_t result;
 
-    printf("Sensor task running.\n");
+    LOG_INFO(CYLF_DEF, "Sensor task running.\n");
 
     /* Initialize all sensors */
     result = sensor_init();
     if (result != CY_RSLT_SUCCESS)
     {
-        printf("Sensor initialization failed! Halting task.\r\n");
+        LOG_INFO(CYLF_DEF, "Sensor initialization failed! Halting task.\r\n");
+
+        /* Start timer to recreate this task after 5 sec */
+        if (restart_sensor_timer != NULL)
+        {
+            Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 0u);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 1u);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            xTimerStart(restart_sensor_timer, 0);
+        }
+
         vTaskSuspend(NULL);
     }
 
@@ -216,7 +249,7 @@ void sensor_task(void *arg)
             }
             else
             {
-                printf("SHT40 measurement failed. Resetting sensor...\r\n");
+                LOG_ERROR(CYLF_DEF, "SHT40 measurement failed. Resetting sensor...\r\n");
                 sht4x_soft_reset();
             }
 
@@ -232,16 +265,16 @@ void sensor_task(void *arg)
             result = xensiv_pasco2_mtb_read(&xensiv_pasco2, DEFAULT_PRESSURE_REF_HPA, &read_ppm);
             if (result == CY_RSLT_SUCCESS)
             {
-                printf("CO2 concentration: %d ppm\r\n", read_ppm);
+                //            printf("CO2 concentration: %d ppm\r\n", ppm);
                 sensor_data_available = true;
             }
             else if (result == XENSIV_PASCO2_RSLT_READ_NRDY)
             {
-                printf("CO2 sensor data not ready.\n");
+                LOG_ERROR(CYLF_DEF,  "CO2 sensor data not ready.\n");
             }
             else
             {
-                printf("Error reading CO2 sensor data\n");
+                LOG_ERROR(CYLF_DEF, "Error reading CO2 sensor data\n");
             }
 
             /* Configure sensor in single shot mode (Idle Mode -> Single shot mode) */
@@ -259,4 +292,30 @@ void set_sensor_sampling_interval(uint32_t interval_ms)
 {
     sensor_sampling_intv = interval_ms;
     xTaskNotifyGive(rtos_cm55_sensor_task_handle);
+}
+
+void app_sensor_task_init(void)
+{
+    BaseType_t task_return = pdFAIL;
+
+    /* Create one-shot timer for 5-second retry delay */
+    restart_sensor_timer = xTimerCreate("SensorRestartTimer",
+                                        pdMS_TO_TICKS(5000),
+                                        pdFALSE,
+                                        NULL,
+                                        restart_sensor_task_timer_cb);
+    /* Start sensor task */
+    task_return = xTaskCreate(sensor_task, SENSOR_TASK_NAME,
+                                           SENSOR_TASK_STACK_SIZE, NULL,
+                                           SENSOR_TASK_PRIORITY,
+                                           &rtos_cm55_sensor_task_handle);
+
+    if(task_return == pdFAIL)
+    {
+        LOG_ERROR(CYLF_DEF, "App. sensor task create failed.\n");
+    }
+    else
+    {
+        LOG_INFO(CYLF_DEF, "App. sensor task create Ok.\n");
+    }
 }

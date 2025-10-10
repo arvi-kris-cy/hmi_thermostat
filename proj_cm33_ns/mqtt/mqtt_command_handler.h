@@ -150,4 +150,8 @@ void update_comm_interface(connectivity_medium_t interface);
 
 void send_device_config_info(void);
 
+/**
+ * @brief Processes the FIRMWARE_UPDATE_PROGRESS command to send update progress details.
+ */
+void handle_firmwareupdateprogress_command(uint8_t per);
 #endif /* MQTT_MQTT_COMMAND_HANDLER_H_ */

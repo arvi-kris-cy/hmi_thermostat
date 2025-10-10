@@ -88,4 +88,9 @@ COMPONENTS+=GFXSS
 # NOTE: Check the JSON file for the command parameters
 COMBINE_SIGN_JSON?=configs/boot_with_extended_boot.json
 
+#Sets the version of the application for OTA 	
+APP_VERSION_MAJOR?=0
+APP_VERSION_MINOR?=1
+APP_VERSION_BUILD?=11
+
 include ../common_app.mk

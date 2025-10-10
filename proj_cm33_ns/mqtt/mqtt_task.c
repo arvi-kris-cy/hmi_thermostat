@@ -108,7 +108,7 @@
                          }                                     \
                          else                                  \
                          {                                     \
-                             printf(error_message);            \
+                             LOG_ERROR(CYLF_DEF, error_message);            \
                              return result;                    \
                          }                                     \
                      } while(0)
@@ -186,11 +186,11 @@ void cleanup_mqtt(void)
 
         if (CY_RSLT_SUCCESS == status)
         {
-            printf("Removed MQTT connection info from stack...\n");
+            LOG_INFO(CYLF_DEF, "Removed MQTT connection info from stack...\n");
         }
         else
         {
-            printf("MQTT delete API failed unexpectedly.\n");
+            LOG_INFO(CYLF_DEF, "MQTT delete API failed unexpectedly.\n");
         }
     }
     /* Deallocate the network buffer. */
@@ -205,11 +205,11 @@ void cleanup_mqtt(void)
 
         if (CY_RSLT_SUCCESS == status)
         {
-            printf("Deinitialized MQTT stack...\n");
+            LOG_INFO(CYLF_DEF, "Deinitialized MQTT stack...\n");
         }
         else
         {
-            printf("MQTT deinit API failed unexpectedly.\n");
+            LOG_INFO(CYLF_DEF, "MQTT deinit API failed unexpectedly.\n");
         }
     }
 
@@ -245,14 +245,17 @@ static void mqtt_event_callback(cy_mqtt_t mqtt_handle, cy_mqtt_event_t event, vo
     CY_UNUSED_PARAMETER(mqtt_handle);
     CY_UNUSED_PARAMETER(user_data);
 
-    printf("\nMQTT Received Event: %d!\n",event.type);
+    LOG_INFO(CYLF_DEF, "\nMQTT Received Event: %d!\n",event.type);
 
     switch(event.type)
     {
         case CY_MQTT_EVENT_TYPE_DISCONNECT:
         {
-            /* Send connection status to UI */
-            update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
+            if(!switch_to_ble_mqtt_disconn)
+            {
+                /* Send connection status to UI */
+            	update_conn_state(DEV_ST_CLOUD_DISCONNECTED);
+            }
 
             /* Clear the status flag bit to indicate MQTT disconnection. */
             status_flag &= ~(FLAG_MQTT_CONNECTION_SUCCESS);
@@ -261,7 +264,7 @@ static void mqtt_event_callback(cy_mqtt_t mqtt_handle, cy_mqtt_event_t event, vo
              * is unable to communicate with the broker. Set the appropriate
              * command to be sent to the MQTT task.
              */
-            printf("\nUnexpectedly disconnected from MQTT broker!\n");
+            LOG_INFO(CYLF_DEF, "\nUnexpectedly disconnected from MQTT broker!\n");
             mqtt_task_cmd = HANDLE_DISCONNECTION;
 
             /* Send the message to the MQTT client task to handle the
@@ -287,7 +290,7 @@ static void mqtt_event_callback(cy_mqtt_t mqtt_handle, cy_mqtt_event_t event, vo
         default :
         {
             /* Unknown MQTT event */
-            printf("\nUnknown Event received from MQTT callback!\n");
+            LOG_ERROR(CYLF_DEF, "\nUnknown Event received from MQTT callback!\n");
             break;
         }
     }
@@ -338,7 +341,7 @@ static cy_rslt_t mqtt_init(void)
         result = cy_mqtt_register_event_callback( mqtt_connection, (cy_mqtt_callback_t)mqtt_event_callback, NULL );
         if(CY_RSLT_SUCCESS == result)
         {
-            printf("\nMQTT library initialization successful.\n");
+            LOG_INFO(CYLF_DEF, "\nMQTT library initialization successful.\n");
         }
     }
     return result;
@@ -393,7 +396,7 @@ static cy_rslt_t mqtt_connect(void)
     connection_info.client_id = mqtt_client_identifier;
     connection_info.client_id_len = strlen(mqtt_client_identifier);
 
-    printf("\n'%.*s' connecting to MQTT broker '%.*s'...\n",
+    LOG_INFO(CYLF_DEF, "\n'%.*s' connecting to MQTT broker '%.*s'...\n",
            connection_info.client_id_len,
            connection_info.client_id,
            broker_info.hostname_len,
@@ -411,7 +414,7 @@ static cy_rslt_t mqtt_connect(void)
     {
         if (cy_wcm_is_connected_to_ap() == 0)
         {
-            printf("\nUnexpectedly disconnected from Wi-Fi network! \nInitiating Wi-Fi reconnection...\n");
+            LOG_INFO(CYLF_DEF, "\nUnexpectedly disconnected from Wi-Fi network! \nInitiating Wi-Fi reconnection...\n");
             status_flag &= ~(FLAG_WIFI_CONNECTED);
 
             /* Initiate Wi-Fi reconnection. */
@@ -428,7 +431,7 @@ static cy_rslt_t mqtt_connect(void)
         result = cy_mqtt_connect(mqtt_connection, &connection_info);
         if (CY_RSLT_SUCCESS == result)
         {
-            printf("MQTT connection successful.\r\n");
+            LOG_INFO(CYLF_DEF, "MQTT connection successful.\r\n");
 
             /* Set the appropriate bit in the status_flag to denote successful
              * MQTT connection, and return the result to the calling function.
@@ -438,7 +441,7 @@ static cy_rslt_t mqtt_connect(void)
             break;
         }
 
-        printf("\nMQTT connection failed with error code 0x%0X.\n",
+        LOG_INFO(CYLF_DEF, "\nMQTT connection failed with error code 0x%0X.\n",
                (int)result);
         vTaskDelay(MQTT_CONN_RETRY_INTERVAL_MS);
     }
@@ -465,7 +468,7 @@ static cy_rslt_t mqtt_connect(void)
  ******************************************************************************/
 void terminate_tasks(void)
 {
-    printf("\nTerminating Publisher and Subscriber tasks...\n");
+    LOG_INFO(CYLF_DEF, "\nTerminating Publisher and Subscriber tasks...\n");
     if (NULL != subscriber_task_handle )
     {
         vTaskDelete(subscriber_task_handle);
@@ -475,7 +478,7 @@ void terminate_tasks(void)
         vTaskDelete(publisher_task_handle);
     }
     cleanup_mqtt();
-    printf("\nCleanup Done\nTerminating the MQTT task...\n\n");
+    LOG_INFO(CYLF_DEF, "\nCleanup Done\nTerminating the MQTT task...\n\n");
     vTaskDelete(NULL);
 }
 
@@ -511,7 +514,7 @@ void mqtt_client_task(void *pvParameters)
     uplink_mutex = xSemaphoreCreateMutex();
     if (uplink_mutex == NULL)
     {
-        printf("Uplink I2C mutex creation error.\n");
+        LOG_ERROR(CYLF_DEF, "Uplink I2C mutex creation error.\n");
     }
 
     /* Create a message queue to communicate with other tasks and callbacks. */
@@ -521,7 +524,7 @@ void mqtt_client_task(void *pvParameters)
      * WCM initialization.
      */
     status_flag |= FLAG_WCM_INITIALIZED;
-    printf("\nWi-Fi Connection Manager initialized.\n");
+    LOG_INFO(CYLF_DEF, "\nWi-Fi Connection Manager initialized.\n");
 
 	/* Create the subscriber task and cleanup if the operation fails. */
 	if (pdPASS == xTaskCreate(subscriber_task, "Subscriber task", SUBSCRIBER_TASK_STACK_SIZE,
@@ -534,7 +537,8 @@ void mqtt_client_task(void *pvParameters)
 		if (pdPASS != xTaskCreate(publisher_task, "Publisher task", PUBLISHER_TASK_STACK_SIZE,
 								  NULL, PUBLISHER_TASK_PRIORITY, &publisher_task_handle))
 		{
-	        handle_app_error();
+//	        handle_app_error();
+	        APP_ERROR(1);
 		}
 	}
 
@@ -553,6 +557,7 @@ void mqtt_client_task(void *pvParameters)
              */
             switch(mqtt_status)
             {
+                case HANDLE_MQTT_SUBSCRIBE_FAILURE:
                 case HANDLE_DISCONNECTION:
                 {
                     /* Although the connection with the MQTT Broker is lost,
@@ -567,13 +572,13 @@ void mqtt_client_task(void *pvParameters)
                     if (cy_wcm_is_connected_to_ap() == 0)
                     {
                         status_flag &= ~(FLAG_WIFI_CONNECTED);
-                        printf("\nInitiating Wi-Fi Reconnection...\n");
+                        LOG_INFO(CYLF_DEF, "\nInitiating Wi-Fi Reconnection...\n");
                         if (CY_RSLT_SUCCESS == wifi_connect())
                         {
                         	update_conn_state(DEV_ST_WIFI_CONNECTED);
             				vTaskDelay(2000);
 
-                            printf("\nInitiating MQTT Reconnection...\n");
+            				LOG_INFO(CYLF_DEF, "\nInitiating MQTT Reconnection...\n");
                             if (CY_RSLT_SUCCESS == mqtt_connect())
                             {
                                 handle_connectivity_state(STATE_CLOUD_CONNECT);
@@ -601,7 +606,7 @@ void mqtt_client_task(void *pvParameters)
                     }
                     else
                     {
-                        printf("\nInitiating MQTT Reconnection...\n");
+                        LOG_INFO(CYLF_DEF, "\nInitiating MQTT Reconnection...\n");
 						if (CY_RSLT_SUCCESS == mqtt_connect())
 						{
                             handle_connectivity_state(STATE_CLOUD_CONNECT);
@@ -642,7 +647,7 @@ void mqtt_client_task(void *pvParameters)
 							}
 							else
 							{
-								printf("\nMQTT Init failed with error 0x%0X\n\n",
+							    LOG_INFO(CYLF_DEF, "\nMQTT Init failed with error 0x%0X\n\n",
 									   (int)result);
 							}
 						}
@@ -683,16 +688,12 @@ void mqtt_client_task(void *pvParameters)
 	                            {
 	                                update_conn_state(DEV_ST_BLE_CONNECTED);
 	                            }
-	                            else
-	                            {
-	                                update_conn_state(DEV_ST_UNPROVISIONED);
-	                            }
 	                        }
 
 							xTaskNotify(wifi_task_handle, (NOTIF_DISCONNECT),
 										eSetValueWithOverwrite);
 
-							printf("\nMQTT connect failed with error 0x%0X\n\n",
+							LOG_INFO(CYLF_DEF, "\nMQTT connect failed with error 0x%0X\n\n",
 								   (int)result);
 						}
 					}
@@ -731,7 +732,7 @@ void mqtt_client_task(void *pvParameters)
 
                 case HANDLE_MANUAL_DISCONNECTION:
                 {
-                	if(cy_wcm_is_connected_to_ap())
+                	if((cy_wcm_is_connected_to_ap()) && (status_flag & FLAG_MQTT_CONNECTION_SUCCESS))
                 	{
                         uint32_t wait_to_publish = 0;
 						/* Initiate MQTT subscribe post the reconnection. */
@@ -741,7 +742,7 @@ void mqtt_client_task(void *pvParameters)
                         /**
                          * Wait for publish before disconnect
                          */
-                        printf("Available space in publish queue is %lu\n",uxQueueSpacesAvailable(publisher_task_q));
+						LOG_INFO(CYLF_DEF, "Available space in publish queue is %lu\n",uxQueueSpacesAvailable(publisher_task_q));
                         while(PUBLISHER_TASK_QUEUE_LENGTH != uxQueueSpacesAvailable(publisher_task_q)
                                 && (wait_to_publish < (MQTT_PUBLISH_MAX_WAIT_TIME_IN_MS/100)) )
                         {
@@ -755,9 +756,9 @@ void mqtt_client_task(void *pvParameters)
 						 * call the MQTT disconnect API for cleanup of threads and
 						 * other resources before reconnection.
 						 */
-						cleanup_mqtt();
+						mqtt_diconnect();
 
-                        printf("\nMQTT Disconnected!\n");
+						LOG_INFO(CYLF_DEF, "\nMQTT Disconnected!\n");
 
 						xTaskNotify(wifi_task_handle, NOTIF_DISCONNECT,
 									eSetValueWithOverwrite);
@@ -768,23 +769,59 @@ void mqtt_client_task(void *pvParameters)
                              * actions accordingly. */
                             if (conn_id != false)
                             {
-                                printf("DEV_ST_CLOUD_CONNECTION_CANCEL BLE already connected.\n");
+                                LOG_INFO(CYLF_DEF, "DEV_ST_CLOUD_CONNECTION_CANCEL BLE already connected.\n");
                                 handle_connectivity_state(STATE_BLE_CONNECTED);
                                 update_conn_state(DEV_ST_BLE_CONNECTED);
                             }
                             else
                             {
-                                printf("DEV_ST_CLOUD_CONNECTION_CANCEL BLE start ADV.\n");
+                                LOG_INFO(CYLF_DEF, "DEV_ST_CLOUD_CONNECTION_CANCEL BLE start ADV.\n");
                                 handle_connectivity_state(STATE_BLE_ADV);
                             }
 
                             is_cloud_connection_cancel = false;
                         }
+                    }
+                    break;
+                }
+
+                case START_OTA_REMOVE_MQTT_INSTANCE:
+                {
+                	if(cy_wcm_is_connected_to_ap())
+                	{
+						/* Initiate MQTT subscribe post the reconnection. */
+						subscriber_q_data.cmd = UNSUBSCRIBE_FROM_TOPIC;
+						xQueueSend(subscriber_task_q, &subscriber_q_data, portMAX_DELAY);
+
+						vTaskDelay(500);
+
+						/* Although the connection with the MQTT Broker is lost,
+						 * call the MQTT disconnect API for cleanup of threads and
+						 * other resources before reconnection.
+						 */
+						cy_mqtt_disconnect(mqtt_connection);
+
+						status_flag &= ~(FLAG_MQTT_CONNECTION_SUCCESS);
+
+						LOG_INFO(CYLF_DEF, "\nMQTT Disconnected!\n");
+                	}
+                	else
+                	{
+                		if(CY_RSLT_SUCCESS != wifi_connect())
+                		{
+                		    LOG_INFO(CYLF_DEF, "OTA didn’t start—either Wi-Fi wasn’t connected or credentials were missing.\n");
+                			update_current_screen(SCREEN_MAIN);
+                			vTaskDelay(100);
+                			no_internet_connected_send_to_ui();
+                			break;
+                		}
                 	}
 
-                	/* Clear flag to notify that the mQTT is disconneted */
-                	switch_to_ble_mqtt_disconn = false;
-                    break;
+						vTaskDelay(1000);
+
+						// xTaskCreate(ota_task, "OTA task", OTA_TASK_STACK_SIZE,
+						// 			NULL, OTA_TASK_PRIORITY, NULL);
+                	break;
                 }
                 default:
                     break;
@@ -811,11 +848,11 @@ void mqtt_diconnect(void)
 		result = cy_mqtt_disconnect(mqtt_connection);
 		if (CY_RSLT_SUCCESS == result)
 		{
-			printf("Disconnected from the MQTT Broker...\n");
+		    LOG_INFO(CYLF_DEF, "Disconnected from the MQTT Broker...\n");
 		}
 		else
 		{
-			printf("MQTT disconnect API failed unexpectedly.\n");
+		    LOG_INFO(CYLF_DEF, "MQTT disconnect API failed unexpectedly.\n");
 		}
 
 		if(HANDLE_MANUAL_DISCONNECTION != mqtt_status)

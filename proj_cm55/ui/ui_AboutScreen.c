@@ -32,7 +32,7 @@ void ui_event_backgesture2(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SystemSettings_screen_init);
+        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_IN, 30, 0, &ui_SystemSettings_screen_init);
     }
 }
 
@@ -41,7 +41,7 @@ void ui_event_homebtn2(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -61,7 +61,6 @@ void ui_event_downloadfwbtn(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_FWUpdateScreen_screen_init);
         trigger_ota(e);
     }
 }
@@ -171,7 +170,7 @@ void ui_AboutScreen_screen_init(void)
     lv_obj_set_x(ui_Label19, -65);
     lv_obj_set_y(ui_Label19, -135);
     lv_obj_set_align(ui_Label19, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label19, "1.0.0");
+    lv_label_set_text_fmt(ui_Label19, "%d.%d.%d", FW_VERSION_MAJOR, FW_VERSION_MINOR, FW_VERSION_BUILD);
     lv_obj_add_flag(ui_Label19, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_set_style_text_color(ui_Label19, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label19, 255, LV_PART_MAIN | LV_STATE_DEFAULT);

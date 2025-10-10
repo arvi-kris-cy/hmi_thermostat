@@ -56,6 +56,7 @@ typedef enum
 
 
 extern uint16_t conn_id;
+extern uint8_t is_gatt_congested;
 
 /**
  * @brief This will init the wifi & BLE module

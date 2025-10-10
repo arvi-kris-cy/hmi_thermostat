@@ -157,6 +157,8 @@ volatile void *vglite_heap_base = &contiguous_mem;
 TaskHandle_t rtos_cm55_gfx_task_handle = NULL;
 TaskHandle_t rtos_cm55_sensor_task_handle = NULL;
 
+char m55_current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
+static bool is_need_to_reboot = 0;
 /* DC IRQ Config */
 cy_stc_sysint_t dc_irq_cfg =
 {
@@ -218,6 +220,8 @@ uint8_t brightness_level = 100;
 audio_level_t audio_level = AUDIO_MED;
 /* RTC HAL object */
 static mtb_hal_rtc_t rtc_obj;
+char new_FW_version[MAX_FW_VERSION_LEN];
+extern lv_display_t * disp;
 /* Mutex to guard the I2C instance for Sensor/Touhpad */
 SemaphoreHandle_t i2c_mutex = NULL;
 
@@ -444,7 +448,8 @@ static void handle_time_update(void)
         lv_label_set_text(ui_TimeMLP, time_str);
 
         /** Update the second label on the low-power screen. */
-        lv_label_set_text(ui_TimeSLP, "00");
+        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.sec);
+        lv_label_set_text(ui_TimeSLP, time_str);
 
         /** Use the standard C library for date formatting. */
         struct tm date_time;
@@ -518,7 +523,7 @@ static void handle_system_event(void)
 
             case IPC_CMD_SET_UID:
                 /** Set the device's unique ID from the IPC message. */
-                printf("Rx UID: %s\n", ipc_recv_msg->unique_id);
+                LOG_INFO(CYLF_DEF, "Rx UID: %s\n", ipc_recv_msg->unique_id);
                 memcpy(device_unique_id, ipc_recv_msg->unique_id, 13);
                 update_device_config_ipc();
                 break;
@@ -702,8 +707,95 @@ static void handle_system_event(void)
                 is_device_provisioned = msg_val;
                 break;
 
-            default:
+            case IPC_CMD_OTA_VERSION:
+                LOG_INFO(CYLF_DEF, "New OTA version is %s\n", ipc_recv_msg->fw_version);
+                memset(new_FW_version, 0,sizeof(new_FW_version));
+                memcpy(new_FW_version, ipc_recv_msg->fw_version, strlen(ipc_recv_msg->fw_version));
                 break;
+
+            case IPC_CMD_TRIGGER_OTA_START:
+                _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_FWUpdateScreen_screen_init);
+                trigger_ota_update();
+                LOG_INFO(CYLF_DEF, "OTA Event Received\n");
+                break;
+
+            case IPC_CMD_DISABLE_TOUCH:
+                LOG_INFO(CYLF_DEF, "Disable the touch\n");
+                Cy_SCB_I2C_DeInit(CYBSP_I2C_CONTROLLER_2_HW);
+                break;
+
+            case IPC_CMD_ABORT_OTA:
+                ui_FWUpdateScreen_update_msg("Rebooting device as error with\n firmware update or no \nupdate available!\n");
+                //is_need_to_reboot = 1;
+                /* Enable the I2C interrupts. */
+//                Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_11_HW,
+//                                    &CYBSP_I2C_CONTROLLER_11_config, &CYBSP_I2C_CONTROLLER_11_context);
+//                NVIC_EnableIRQ((IRQn_Type)i2c_scb_irq_cfg.intrSrc);
+//
+//                /* Enable the I2C */
+//                Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_11_HW);
+//                /* Add same FW version error status in notification queue */
+//                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+//                enqueue_notification(NOTIFY_FW_UPDATE, NOTIF_FAIL, DEV_ST_FW_HAVE_SAME_VERSION);
+                break;
+
+            case IPC_CMD_NO_INTERNET_NOTIFY:
+                _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+                enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_FAIL, DEV_ST_NO_INTERNET);
+                revert_fw_update_screen();
+                break;
+
+            case IPC_CMD_UPDATE_CURRENT_SCREEN:
+            {
+                switch((screen_id_t)msg_val)
+                {
+                case SCREEN_MAIN:
+                    // if((disp != NULL) && (lv_display_get_screen_active(disp) == ui_FWUpdateScreen))
+                    // {
+                    //     NVIC_EnableIRQ((IRQn_Type)i2c_scb_irq_cfg.intrSrc);
+                    // }
+                    // else
+                    // {
+                    //     LOG_INFO(CYLF_DEF, "No Display mem, power cycle the device!");
+                    // }
+                    // _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_ActiveScreen_screen_init);
+                    // LOG_INFO(CYLF_DEF, "Displaying Main Screen\n");
+                    break;
+
+                case SCREEN_SETTINGS:
+                    _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_SystemSettings_screen_init);
+                    LOG_INFO(CYLF_DEF, "Displaying Settings Screen\n");
+                    break;
+
+                case SCREEN_FW:
+                    _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_FWUpdateScreen_screen_init);
+                    LOG_INFO(CYLF_DEF, "Displaying Firmware Screen\n");
+                    break;
+
+                case SCREEN_DATE_TIME:
+                    _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
+                    LOG_INFO(CYLF_DEF, "Displaying Date & Time Screen\n");
+                    break;
+
+                case SCREEN_SETTINGS_SYSTEM:
+                    _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_SystemSettings_screen_init);
+                    LOG_INFO(CYLF_DEF, "Displaying System Settings Subscreen\n");
+                    break;
+
+                case SCREEN_SETTINGS_AUDIO:
+                    _ui_screen_change(&ui_AudioSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AudioSettings_screen_init);
+                    LOG_INFO(CYLF_DEF, "Displaying Audio Settings Subscreen\n");
+                    break;
+
+                default:
+                    printf("Unknown Screen\n");
+                    break;
+                }
+                break;
+            }
+
+        default:
+            break;
         }
         cm55_pipe2_msg_received = false;
     }
@@ -791,7 +883,8 @@ static void setup_tickless_idle_timer(void)
     /* LPTimer interrupt initialization failed. Stop program execution. */
     if(CY_SYSINT_SUCCESS != interrupt_init_status)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(1);
     }
 
     /* Enable NVIC interrupt. */
@@ -805,7 +898,8 @@ static void setup_tickless_idle_timer(void)
     /* MCWDT initialization failed. Stop program execution. */
     if(CY_MCWDT_SUCCESS != mcwdt_init_status)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(mcwdt_init_status);
     }
 
     /* Enable MCWDT instance */
@@ -821,7 +915,8 @@ static void setup_tickless_idle_timer(void)
     /* LPTimer setup failed. Stop program execution. */
     if(CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Pass the LPTimer object to abstraction RTOS library that implements
@@ -974,8 +1069,8 @@ static void cm55_gfx_task(void *arg)
  
         if (CY_SYSINT_SUCCESS != sysint_status)
         {
-            printf("Error in registering DC interrupt: %d\r\n", sysint_status);
-            handle_app_error();
+            LOG_ERROR(CYLF_DEF, "Error in registering DC interrupt: %d\r\n", sysint_status);
+            CY_ASSERT(0);
         }
 
         /* Enable GFX DC interrupt in NVIC. */
@@ -986,8 +1081,8 @@ static void cm55_gfx_task(void *arg)
 
         if (CY_SYSINT_SUCCESS != sysint_status)
         {
-            printf("Error in registering GPU interrupt: %d\r\n", sysint_status);
-            handle_app_error();
+            LOG_ERROR(CYLF_DEF, "Error in registering GPU interrupt: %d\r\n", sysint_status);
+            CY_ASSERT(0);
         }
  
         /* Enable GPU interrupt */
@@ -1087,29 +1182,32 @@ static void cm55_gfx_task(void *arg)
             ui_demo_init();
             ui_timer_init();
 
-            /* Start sensor task */
-            // xTaskCreate(sensor_task, SENSOR_TASK_NAME,
-            //                                        SENSOR_TASK_STACK_SIZE, NULL,
-            //                                        SENSOR_TASK_PRIORITY,
-            //                                        &rtos_cm55_sensor_task_handle);
+           /* Start sensor task */
+            //app_sensor_task_init();
+
         }
         else
         {
-            printf("vg_lite_init failed, status: %d\r\n", vglite_status);
+            LOG_ERROR(CYLF_DEF, "vg_lite_init failed, status: %d\r\n", vglite_status);
 
             /* Deallocate all the resources and free up all the memory */
             vg_lite_close();
-            handle_app_error();
+            CY_ASSERT(0);
         }
     }
     else
     {
-        printf("Graphics subsystem init failed, status: %d\r\n", gfx_status);
-        handle_app_error();
+        LOG_ERROR(CYLF_DEF, "Graphics subsystem init failed, status: %d\r\n", gfx_status);
+        CY_ASSERT(0);
     }
 
     for (;;)
     {
+        if(is_need_to_reboot)
+        {
+            vTaskDelay(5000);
+            NVIC_SystemReset();
+        }
         /* Process sensor update event */
         //handle_sensor_update();
 
@@ -1130,7 +1228,7 @@ static void cm55_gfx_task(void *arg)
             }
 
     	/* If eeprom write operation pending */
-        //handle_eeprom_write();
+        handle_eeprom_write();
 
     	/* If touch event detected restart the inactivity timer */
         handle_touch_event();
@@ -1203,7 +1301,8 @@ int main(void)
     /* Board init failed. Stop program execution */
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Setup CLIB support library. */
@@ -1215,6 +1314,18 @@ int main(void)
     init_retarget_io();
     /* Enable global interrupts */
     __enable_irq();
+	    result = cy_log_init(CY_LOG_ERR, NULL, NULL);
+    if (CY_RSLT_SUCCESS != result)
+    {
+        printf("cy_log_init failed with Error : [0x%X] \n", (unsigned int) result);
+    }
+    else
+    {
+        cy_log_set_facility_level(CYLF_DRIVER, CY_LOG_WARNING);
+        cy_log_set_facility_level(CYLF_DEF, CY_LOG_INFO);
+        cy_log_set_facility_level(CYLF_MIDDLEWARE, CY_LOG_WARNING);
+    }
+
     /* Initialize RTC */
     app_rtc_init();
 
@@ -1229,7 +1340,8 @@ int main(void)
 
     if(CY_IPC_PIPE_SUCCESS != pipeStatus)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(pipeStatus);
     }
 
     /* Power pasco2 sensor */
@@ -1241,7 +1353,7 @@ int main(void)
     // Create a binary semaphore to act as a mutex.
     i2c_mutex = xSemaphoreCreateMutex();
     if (i2c_mutex == NULL) {
-        printf("I2C mutex creation error.\n");
+        LOG_INFO(CYLF_DEF, "I2C mutex creation error.\n");
     }
 
     /* Initialize Speaker */
@@ -1287,12 +1399,14 @@ int main(void)
         vTaskStartScheduler();
 
         /* Should never get here! */
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(1);
     }
     else
     {
         printf("Error: Failed to create cm55_gfx_task.\r\n");
-        handle_app_error();
+        //        handle_app_error();
+        APP_ERROR(1);
     }
 }
 

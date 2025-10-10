@@ -87,7 +87,7 @@ static cy_wcm_config_t wcm_config;
 		if(is_wifi_connection_cancel){				\
 			is_wifi_connection_cancel = false;		\
 			if (cy_wcm_is_connected_to_ap() == 1){	\
-				printf("Disconnecting Wifi.....\n");\
+			    LOG_INFO(CYLF_DEF, "Disconnecting Wifi.....\n");\
 				cy_wcm_disconnect_ap();				\
 			}										\
 			continue;								\
@@ -101,6 +101,7 @@ static cy_wcm_config_t wcm_config;
 static void scan_callback(cy_wcm_scan_result_t *result_ptr, void *user_data,
                    cy_wcm_scan_status_t status);
 
+static void start_wifi_scanning(void *notifiedvalue, cy_wcm_scan_filter_t *filter);
 /*******************************************************************************
 * Function Definitions
 *******************************************************************************/
@@ -135,48 +136,44 @@ static void wifi_event_callback(cy_wcm_event_t event, cy_wcm_event_data_t *event
 	    	if(cy_wcm_is_connected_to_ap() == 0)
 	    	{
 	    		update_conn_state(DEV_ST_WIFI_CONNECTING);
-				printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connecting to AP...\n");
+	    		LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connecting to AP...\n");
 	    	}
 	        break;
 
 	    case CY_WCM_EVENT_CONNECTED:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connected to AP.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connected to AP.\n");
 	        break;
 
 	    case CY_WCM_EVENT_CONNECT_FAILED:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connection to AP failed.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Connection to AP failed.\n");
 	        break;
 
 	    case CY_WCM_EVENT_RECONNECTED:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Reconnected to AP.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Reconnected to AP.\n");
 	        break;
 
 	    case CY_WCM_EVENT_DISCONNECTED:
-	    	if (cy_wcm_is_connected_to_ap() == 0)
-	    	{
-	            update_conn_state(DEV_ST_WIFI_DISCONNECTED);
-	    	}
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Disconnected from AP.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Disconnected from AP.\n");
 	        break;
 
 	    case CY_WCM_EVENT_IP_CHANGED:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: IP address changed.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: IP address changed.\n");
 	        break;
 
 	    case CY_WCM_EVENT_INITIATED_RETRY:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Retrying connection to AP...\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Retrying connection to AP...\n");
 	        break;
 
 	    case CY_WCM_EVENT_STA_JOINED_SOFTAP:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station joined the SoftAP.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station joined the SoftAP.\n");
 	        break;
 
 	    case CY_WCM_EVENT_STA_LEFT_SOFTAP:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station left the SoftAP.\n");
+	        LOG_INFO(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: A station left the SoftAP.\n");
 	        break;
 
 	    default:
-	        printf("<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Unknown WCM event: %d\n", event);
+	        LOG_ERROR(CYLF_DEF, "<<<<<<<<<<<<<WIFI>>>>>>>>>>>>>: Unknown WCM event: %d\n", event);
 	        break;
 	}
 }
@@ -209,7 +206,8 @@ static void app_sdio_init(void)
     /* SDIO interrupt initialization failed. Stop program execution. */
     if(CY_SYSINT_SUCCESS != interrupt_init_status)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(interrupt_init_status);
     }
 
     /* Enable NVIC interrupt. */
@@ -221,7 +219,8 @@ static void app_sdio_init(void)
     /* SDIO setup failed. Stop program execution. */
     if(CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     /* Initialize and Enable SD HOST */
@@ -247,7 +246,8 @@ static void app_sdio_init(void)
     /* Host wake up interrupt initialization failed. Stop program execution. */
     if(CY_SYSINT_SUCCESS != interrupt_init_status_host_wake)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(interrupt_init_status_host_wake);
     }
 
     /* Enable NVIC interrupt. */
@@ -270,13 +270,15 @@ cy_rslt_t wcm_init()
     printf("\n");
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     result = cy_wcm_register_event_callback(&wifi_event_callback);
     if (CY_RSLT_SUCCESS != result)
     {
-        handle_app_error();
+//        handle_app_error();
+        APP_ERROR(result);
     }
 
     return result;
@@ -313,8 +315,9 @@ void wifi_task(void * arg)
     result = wirelessdevice_init();
 	if(CY_RSLT_SUCCESS != result)
 	{
-		printf("\nERROR: Wireless module initialization failed, Error Code: %u\n", result);
-		handle_app_error();
+	    LOG_ERROR(CYLF_DEF, "Wireless module initialization failed, Error Code: %u\n", result);
+//		handle_app_error();
+        APP_ERROR(result);
 	}
 
     while(true)
@@ -350,20 +353,14 @@ void wifi_task(void * arg)
                 scan_filter.mode = CY_WCM_SCAN_FILTER_TYPE_SSID;
                 memcpy((char *)scan_filter.param.SSID,(char *)wifi_conn_param.ap_credentials.SSID,
                 strlen((char *)wifi_conn_param.ap_credentials.SSID) + 1);
-                printf("Starting scan with SSID: %s\n", scan_filter.param.SSID);
+                LOG_INFO(CYLF_DEF, "Starting scan with SSID: %s\n", scan_filter.param.SSID);
 
-                result = cy_wcm_start_scan(scan_callback, &ulNotifiedValue,
-                                           &scan_filter);
+                start_wifi_scanning(&ulNotifiedValue, &scan_filter);
             }
             /* Else start scan without any filter */
             else
             {
-                result = cy_wcm_start_scan(scan_callback, &ulNotifiedValue, NULL);
-            }
-
-            if(result)
-            {
-                printf("Start scan failed%d\n", result);
+                start_wifi_scanning(&ulNotifiedValue, NULL);
             }
         }
 
@@ -382,13 +379,12 @@ void wifi_task(void * arg)
                     && ((get_retry_state() == WIFI_CONN_RETRY_INFINITE) || (conn_retries++ < MAX_CONNECTION_RETRIES))
 					&& (!is_wifi_connection_cancel))
             {
-                printf("\nTrying to connect SSID: %s, Password: %s\n",
+                LOG_INFO(CYLF_DEF, "Trying to connect SSID: %s, Password: %s\n",
                         wifi_conn_param.ap_credentials.SSID,
                         wifi_conn_param.ap_credentials.password);
 
-                printf("Starting scan with SSID: %s\n", scan_filter.param.SSID);
-                (void) cy_wcm_start_scan(scan_callback, &ulNotifiedValue,
-                                          &scan_filter);
+                LOG_INFO(CYLF_DEF, "Starting scan with SSID: %s\n", scan_filter.param.SSID);
+                start_wifi_scanning(&ulNotifiedValue, &scan_filter);
 
                 /* Connect to the given AP */
                 result = cy_wcm_connect_ap(&wifi_conn_param, &ip_address);
@@ -399,7 +395,7 @@ void wifi_task(void * arg)
                 CHECK_WIFI_CONNECTION_NEED_TO_CANCEL;
 
                 display_ble_pin(0);
-                printf("Successfully joined the Wi-Fi network\n");
+                LOG_INFO(CYLF_DEF, "Successfully joined the Wi-Fi network\n");
 
                 /* Store WiFi credentials in NVM */
                 /* Write data to NVM. */
@@ -408,11 +404,11 @@ void wifi_task(void * arg)
                         &wifi_details.wifi_ssid[0],sizeof(wifi_details) );
                 if (CY_RRAM_SUCCESS != nvm_result)
                 {
-                    printf("Failed to write to NVM \n");
+                    LOG_ERROR(CYLF_DEF, "Failed to write to NVM \n");
                 }
                 else
                 {
-                	printf("Stored WiFi credentials in NVM.\n");
+                    LOG_INFO(CYLF_DEF, "Stored WiFi credentials in NVM.\n");
                 }
 
                 handle_connectivity_state(STATE_WIFI_CONNECTED);
@@ -430,14 +426,21 @@ void wifi_task(void * arg)
                      GATT_CLIENT_CONFIG_NOTIFICATION)))
                 {
                     uint8_t *p_attr = (uint8_t*)app_custom_service_wifi_control;
+
+                    /* Wait if GATT congestion flag enabled. */
+                    while (is_gatt_congested);
+
                     wiced_bt_gatt_server_send_notification(conn_id,
                                     HDLC_CUSTOM_SERVICE_WIFI_CONTROL_VALUE,
                                     sizeof(app_custom_service_wifi_control[0]),
                                     p_attr, NULL);
+
+                    /* Wait for GATT congestion to clear */
+                    while (is_gatt_congested);
                 }
                 else /* Notification not sent */
                 {
-                    printf("Notification not sent\n");
+                    LOG_INFO(CYLF_DEF, "Notification not sent\n");
                 }
 
                 mqtt_task_cmd_t mqtt_task_cmd = HANDLE_CONNECT;
@@ -461,27 +464,34 @@ void wifi_task(void * arg)
                       GATT_CLIENT_CONFIG_NOTIFICATION)))
                 {
                     uint8_t *p_attr = (uint8_t*)app_custom_service_wifi_control;
+
+                    /* Wait if GATT congestion flag enabled. */
+                    while (is_gatt_congested);
+
                     wiced_bt_gatt_server_send_notification(conn_id,
                                      HDLC_CUSTOM_SERVICE_WIFI_CONTROL_VALUE,
                                      sizeof(app_custom_service_wifi_control[0]),
                                      p_attr, NULL);
+
+                    /* Wait for GATT congestion to clear */
+                    while (is_gatt_congested);
                 }
                 else /* Notification not sent */
                 {
-                    printf("Notification not sent\n");
+                    LOG_INFO(CYLF_DEF, "Notification not sent\n");
                 }
 
-                printf("Failed to join Wi-Fi network\n");
+                LOG_INFO(CYLF_DEF, "Failed to join Wi-Fi network\n");
 
                 /* Check if BLE connected, update the screen to BLE */
                 if(conn_id != false)
                 {
-                    printf("WiFi not connected. Update UI to BLE conn.\n");
+                    LOG_INFO(CYLF_DEF, "WiFi not connected. Update UI to BLE conn.\n");
                     update_conn_state(DEV_ST_BLE_CONNECTED);
                 }
                 else
                 {
-                    printf("WiFi &  BLE not connected. Update UI to BLE ADV.\n");
+                    LOG_INFO(CYLF_DEF, "WiFi &  BLE not connected. Update UI to BLE ADV.\n");
                     handle_connectivity_state(STATE_BLE_ADV);
                 }
             }
@@ -494,7 +504,7 @@ void wifi_task(void * arg)
              */
             if(NOTIF_ERASE_DATA & ulNotifiedValue)
             {
-                printf("Deleting Wi-Fi data from NVM\n");
+                LOG_INFO(CYLF_DEF, "Deleting Wi-Fi data from NVM\n");
 
                 /* Set the data to 0*/
                 memset(&wifi_details, 0, sizeof(wifi_details));
@@ -502,22 +512,23 @@ void wifi_task(void * arg)
                 nvm_result =  Cy_RRAM_WriteByteArray(RRAMC0, APP_RRAM_NVM_MAIN_NS_START + RRAM_NVM_DATA_NS_OFFSET , &wifi_details.wifi_ssid[0],sizeof(wifi_details));
                 if (nvm_result)
                 {
-                    printf("Failed to write to NVM\n");
+                    LOG_ERROR(CYLF_DEF, "Failed to write to NVM\n");
                 }
             }
 
-            printf("Disconnecting Wi-Fi\n");
+            LOG_INFO(CYLF_DEF, "Disconnecting Wi-Fi\n");
             result = cy_wcm_disconnect_ap();
             if(CY_RSLT_SUCCESS == result)
             {
                 /* Update GATT DB about disconnection */
                 app_custom_service_wifi_control[0] = WIFI_CONTROL_DISCONNECT;
 
-                printf("Successfully disconnected from AP\n");
+                LOG_INFO(CYLF_DEF, "Successfully disconnected from AP\n");
 
                 if(NOTIF_ERASE_DATA & ulNotifiedValue)
                 {
                 	handle_connectivity_state(STATE_UNPROVISIONED);
+                    vTaskDelay(1000);
 
                     update_conn_state(DEV_ST_WIFI_DISCONNECTED);
                     vTaskDelay(2000);
@@ -532,7 +543,7 @@ void wifi_task(void * arg)
             }
             else /* Disconnection failed */
             {
-                printf("Failed to disconnect\n");
+                LOG_INFO(CYLF_DEF, "Failed to disconnect\n");
             }
 
             if(update_credential)
@@ -543,7 +554,7 @@ void wifi_task(void * arg)
         }
         else if(cy_wcm_is_connected_to_ap() == true)
         {
-            printf("WIFI already connected\n");
+            LOG_INFO(CYLF_DEF, "Wi-Fi already connected\n");
             if(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS)
             {
                 update_conn_state(DEV_ST_CLOUD_CONNECTED);
@@ -563,16 +574,18 @@ cy_rslt_t wifi_connect(void)
     scan_filter.mode = CY_WCM_SCAN_FILTER_TYPE_SSID;
     memcpy((char *)scan_filter.param.SSID,(char *)wifi_conn_param.ap_credentials.SSID,
     strlen((char *)wifi_conn_param.ap_credentials.SSID) + 1);
-    printf("Starting scan with SSID: %s\n", scan_filter.param.SSID);
+    LOG_INFO(CYLF_DEF, "Starting scan with SSID: %s\n", scan_filter.param.SSID);
 
-    (void) cy_wcm_start_scan(scan_callback, &ulNotifiedValue,
-                               &scan_filter);
 
     while((CY_RSLT_SUCCESS != result)
             && ((get_retry_state() == WIFI_CONN_RETRY_INFINITE) || (conn_retries++ < MAX_CONNECTION_RETRIES))
 			&& (!is_wifi_connection_cancel))
     {
-        printf("\nTrying to connect SSID: %s, Password: %s\n",
+        start_wifi_scanning(&ulNotifiedValue, &scan_filter);
+
+        vTaskDelay(100);
+
+        LOG_INFO(CYLF_DEF, "Trying to connect SSID: %s, Password: %s\n",
                 wifi_conn_param.ap_credentials.SSID,
                 wifi_conn_param.ap_credentials.password);
 
@@ -619,8 +632,8 @@ static void scan_callback(cy_wcm_scan_result_t *result_ptr, void *user_data,
     if ((ssid_len != 0) && (CY_WCM_SCAN_INCOMPLETE == status))
     {
         wifi_conn_param.ap_credentials.security = result_ptr->security;
-            printf("%-32s\t", result_ptr->SSID);
-            printf("%s\n", get_wifi_security_name(result_ptr->security));
+        LOG_DEBUG(CYLF_DEF, "%-32s\t", result_ptr->SSID);
+        LOG_DEBUG(CYLF_DEF, "%s\n", get_wifi_security_name(result_ptr->security));
 
         /* If scan bit is set then send the scan result to the BLE Client */
         if(NOTIF_SCAN == *(uint32_t *) user_data)
@@ -629,7 +642,7 @@ static void scan_callback(cy_wcm_scan_result_t *result_ptr, void *user_data,
             scan_data = (uint8_t *)wiced_bt_get_buffer(SCAN_DATA_HEADER + ssid_len + SCAN_DATA_HEADER + sizeof(uint32_t));
             if(NULL == scan_data)
             {
-                printf("Buffer for notification not allocated\n");
+                LOG_INFO(CYLF_DEF, "Buffer for notification not allocated\n");
                 return;
             }
             /* Fill in the SSID first */
@@ -652,10 +665,15 @@ static void scan_callback(cy_wcm_scan_result_t *result_ptr, void *user_data,
                 (app_custom_service_wifi_networks_client_char_config[0] &
                 GATT_CLIENT_CONFIG_NOTIFICATION))
             {
+                /* Wait if GATT congestion flag enabled. */
+                while (is_gatt_congested);
+
                 wiced_bt_gatt_server_send_notification(conn_id,
                         HDLC_CUSTOM_SERVICE_WIFI_NETWORKS_VALUE, byte_no, scan_data,
                     (wiced_bt_gatt_app_context_t)wiced_bt_free_buffer);
 
+                /* Wait for GATT congestion to clear */
+                while (is_gatt_congested);
             }
         }
     }
@@ -671,6 +689,25 @@ static void scan_callback(cy_wcm_scan_result_t *result_ptr, void *user_data,
     }
 }
 
+static void start_wifi_scanning(void *notifiedvalue, cy_wcm_scan_filter_t *filter)
+{
+    cy_rslt_t result = 0;
+
+    result = cy_wcm_start_scan(scan_callback, notifiedvalue, filter);
+
+    if(result)
+    {
+        LOG_ERROR(CYLF_DEF, "Start scan failed error: %x\n", result);
+        if(CY_RSLT_WCM_SCAN_IN_PROGRESS == result)
+        {
+            (void) cy_wcm_stop_scan();
+            if(CY_RSLT_SUCCESS != cy_wcm_start_scan(scan_callback, notifiedvalue, filter))
+            {
+                LOG_ERROR(CYLF_DEF, "Start scan again failed after retry error: %x\n", result);
+            }
+        }
+    }
+}
 
 /* [] END OF FILE */
 

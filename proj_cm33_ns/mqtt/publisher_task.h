@@ -66,7 +66,8 @@ typedef enum
 {
     PUBLISHER_INIT,
     PUBLISHER_DEINIT,
-    PUBLISH_MQTT_MSG
+    PUBLISH_MQTT_MSG,
+    PUBLISH_MQTT_MSG_FOR_FW_VERSION
 } publisher_cmd_t;
 
 /* Struct to be passed via the publisher task queue */
@@ -85,6 +86,8 @@ extern QueueHandle_t publisher_task_q;
 * Function Prototypes
 ********************************************************************************/
 void publisher_task(void *pvParameters);
+void publish_msg_over_mqtt(char* data);
+void publish_msg_for_FW_version(char* data);
 
 #endif /* PUBLISHER_TASK_H_ */
 

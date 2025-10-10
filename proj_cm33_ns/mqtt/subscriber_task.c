@@ -56,7 +56,7 @@
 #include "cy_mqtt_api.h"
 #include "cy_retarget_io.h"
 
-// #include <cJSON.h>
+#include <cJSON.h>
 #include "mqtt/mqtt_command_handler.h"
 #include "publisher_task.h"
 /******************************************************************************
@@ -152,7 +152,7 @@ static void subscribe_to_topic(void)
 		result = cy_mqtt_subscribe(mqtt_connection, &subscribe_info, SUBSCRIPTION_COUNT);
 		if (result == CY_RSLT_SUCCESS)
 		{
-			printf("\nMQTT client subscribed to the topic '%.*s' successfully.\n",
+		    LOG_INFO(CYLF_DEF, "MQTT client subscribed to the topic '%.*s' successfully.\n",
 					subscribe_info.topic_len, subscribe_info.topic);
 			break;
 		}
@@ -162,7 +162,7 @@ static void subscribe_to_topic(void)
 
     if (CY_RSLT_SUCCESS != result)
     {
-        printf("\nMQTT Subscribe failed with error 0x%0X after %d retries...\n\n",
+        LOG_ERROR(CYLF_DEF, "MQTT Subscribe failed with error 0x%0X after %d retries...\n\n",
                (int)result, MAX_SUBSCRIBE_RETRIES);
 
         /* Notify the MQTT client task about the subscription failure */
@@ -179,7 +179,7 @@ static void unsubscribe_from_topic(void)
 
     if (CY_RSLT_SUCCESS != result)
     {
-        printf("MQTT Unsubscribe operation failed with error 0x%0X!\n", (int)result);
+        LOG_ERROR(CYLF_DEF, "MQTT Unsubscribe operation failed with error 0x%0X!\n", (int)result);
     }
 }
 

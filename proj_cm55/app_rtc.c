@@ -49,7 +49,7 @@
 /*******************************************************************************
  *                              CONSTANTS
  ******************************************************************************/
-#define READ_RTC_DATA_MS        3000U   /* Read RTC time update interval */
+#define READ_RTC_DATA_MS        1000U   /* Read RTC time update interval */
 
 /*******************************************************************************
  *                              GLOBAL VARIABLES
@@ -145,7 +145,7 @@ static void minute_sync_freertos_timer_cb(TimerHandle_t xTimer)
     /* Read current date and time */
     Cy_RTC_GetDateAndTime(&ui_current_time);
 
-    /* After the initial one-shot, we set the timer to fire again in 60 seconds.
+    /* After the initial one-shot, we set the timer to fire again in 1 seconds.
      This creates a continuous, per-minute update loop. */
     xTimerChangePeriod(xTimer, pdMS_TO_TICKS(READ_RTC_DATA_MS), 0);
 }

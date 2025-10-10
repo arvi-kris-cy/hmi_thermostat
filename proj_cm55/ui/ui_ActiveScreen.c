@@ -335,7 +335,7 @@ void ui_event_swiperightgesture(lv_event_t *e)
     if (event_code == LV_EVENT_GESTURE && lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT)
     {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SettingsScreen_screen_init);
+        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 30, 0, &ui_SettingsScreen_screen_init);
     }
 }
 
@@ -401,7 +401,7 @@ void ui_event_changescreenbuttonACT(lv_event_t *e)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_LPScreen, LV_SCR_LOAD_ANIM_FADE_ON, 250, 0, &ui_LPScreen_screen_init);
+        _ui_screen_change(&ui_LPScreen, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_LPScreen_screen_init);
         stop_active_state_timer();
     }
 }
@@ -412,7 +412,7 @@ void ui_event_Settingsbutton(lv_event_t *e)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SettingsScreen_screen_init);
+        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 30, 0, &ui_SettingsScreen_screen_init);
     }
 }
 
@@ -909,7 +909,7 @@ void ui_ActiveScreen_screen_init(void)
     // lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-#if 0 // use color gradient for bg
+#if 1 // use color gradient for bg
     lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x18AB9B), LV_PART_MAIN | LV_STATE_DEFAULT);

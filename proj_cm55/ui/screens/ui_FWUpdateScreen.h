@@ -25,6 +25,8 @@ extern lv_obj_t * ui_Fwupdateavaillabel;
 extern lv_obj_t * ui_Bar2;
 // CUSTOM VARIABLES
 
+void ui_FWUpdateScreen_update_msg(char *msg);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

@@ -91,7 +91,6 @@ INCLUDES+=app_i2s
 # Add additional defines to the build process (without a leading -D).
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE
 
-
 # Ignore unused LVGL middleware files from compilation
 CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests
 CY_IGNORE += $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples 
@@ -102,6 +101,13 @@ CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/neon $(SEARCH_lvgl)/src/core/lv_re
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=
 
+DEFINES += FW_VERSION_MAJOR=$(APP_VERSION_MAJOR)
+DEFINES += FW_VERSION_MINOR=$(APP_VERSION_MINOR)
+DEFINES += FW_VERSION_BUILD=$(APP_VERSION_BUILD)
+
+DEFINES+= APP_VERSION_MAJOR=$(APP_VERSION_MAJOR) \
+          APP_VERSION_MINOR=$(APP_VERSION_MINOR) \
+          APP_VERSION_BUILD=$(APP_VERSION_BUILD) \
 # Additional / custom C compiler flags.
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
