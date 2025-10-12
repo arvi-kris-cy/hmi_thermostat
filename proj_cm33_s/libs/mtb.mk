@@ -4,7 +4,6 @@
 # the next time 'make getlibs' is run.
 #
 # List of local libraries
-SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
 
 
 # Path to the current BSP
@@ -12,7 +11,7 @@ SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
 SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
-SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
+SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
 SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
 SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
 SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
@@ -176,34 +175,6 @@ mtb_help_tool_smartio-configurator:
 mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
-
-config_ml:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: config_ml
-
-CY_HELP_config_ml=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_config_ml_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_config_ml:
-	@:
-	$(info $(MTB__SPACE)config_ml           $(CY_HELP_config_ml))
-
-mtb_help_tools_end: mtb_help_tool_config_ml
-mtb_help_tool_config_ml: mtb_help_tools_start
-.PHONY: mtb_help_tool_config_ml
-
-ml-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: ml-configurator
-
-CY_HELP_ml-configurator=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_ml-configurator_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_ml-configurator:
-	@:
-	$(info $(MTB__SPACE)ml-configurator     $(CY_HELP_ml-configurator))
-
-mtb_help_tools_end: mtb_help_tool_ml-configurator
-mtb_help_tool_ml-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_ml-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

@@ -4,7 +4,6 @@
 # the next time 'make getlibs' is run.
 #
 # List of local libraries
-SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
 
 
 # Path to the current BSP
@@ -13,19 +12,15 @@ SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 # The search paths for the included middleware
 SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
 SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/release-v1.0.0
-SEARCH_display-dsi-waveshare-7-0-lcd-c=../../mtb_shared/display-dsi-waveshare-7-0-lcd-c/release-v1.0.0
-SEARCH_display-tft-ek79007ad3=../../mtb_shared/display-tft-ek79007ad3/release-v1.0.0
 SEARCH_emeeprom=../../mtb_shared/emeeprom/release-v2.60.0
 SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.2
 SEARCH_lvgl=../../mtb_shared/lvgl/release-v9.2.0
 SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
 SEARCH_touch-ctp-ft5406=../../mtb_shared/touch-ctp-ft5406/release-v1.0.0
-SEARCH_touch-ctp-gt911=../../mtb_shared/touch-ctp-gt911/release-v1.0.0
-SEARCH_touch-ctp-ili2511=../../mtb_shared/touch-ctp-ili2511/release-v1.0.0
 SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.0
 SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
 SEARCH_block-storage=../../mtb_shared/block-storage/release-v1.3.1
-SEARCH_bt-fw-mur-cyw55513=./libs/bt-fw-mur-cyw55513
+SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
 SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.7.0
 SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
 SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
@@ -38,15 +33,11 @@ SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
 # Search libraries added to build
 SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-4-3-lcd)
-SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-7-0-lcd-c)
-SEARCH_MTB_MK+=$(SEARCH_display-tft-ek79007ad3)
 SEARCH_MTB_MK+=$(SEARCH_emeeprom)
 SEARCH_MTB_MK+=$(SEARCH_freertos)
 SEARCH_MTB_MK+=$(SEARCH_lvgl)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
 SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ft5406)
-SEARCH_MTB_MK+=$(SEARCH_touch-ctp-gt911)
-SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ili2511)
 SEARCH_MTB_MK+=$(SEARCH_abstraction-rtos)
 SEARCH_MTB_MK+=$(SEARCH_async-transfer)
 SEARCH_MTB_MK+=$(SEARCH_block-storage)
@@ -63,15 +54,11 @@ SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
 COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_4_3_LCD
-COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_7_0_LCD_C
-COMPONENTS += MW_DISPLAY_TFT_EK79007AD3
 COMPONENTS += MW_EMEEPROM
 COMPONENTS += MW_FREERTOS
 COMPONENTS += MW_LVGL
 COMPONENTS += MW_RETARGET_IO
 COMPONENTS += MW_TOUCH_CTP_FT5406
-COMPONENTS += MW_TOUCH_CTP_GT911
-COMPONENTS += MW_TOUCH_CTP_ILI2511
 COMPONENTS += MW_ABSTRACTION_RTOS
 COMPONENTS += MW_ASYNC_TRANSFER
 COMPONENTS += MW_BLOCK_STORAGE
@@ -218,34 +205,6 @@ mtb_help_tool_smartio-configurator:
 mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
-
-config_ml:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: config_ml
-
-CY_HELP_config_ml=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_config_ml_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_config_ml:
-	@:
-	$(info $(MTB__SPACE)config_ml           $(CY_HELP_config_ml))
-
-mtb_help_tools_end: mtb_help_tool_config_ml
-mtb_help_tool_config_ml: mtb_help_tools_start
-.PHONY: mtb_help_tool_config_ml
-
-ml-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: ml-configurator
-
-CY_HELP_ml-configurator=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_ml-configurator_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_ml-configurator:
-	@:
-	$(info $(MTB__SPACE)ml-configurator     $(CY_HELP_ml-configurator))
-
-mtb_help_tools_end: mtb_help_tool_ml-configurator
-mtb_help_tool_ml-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_ml-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator
