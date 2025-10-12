@@ -1157,6 +1157,7 @@ void show_presence_icon_and_update_label(uint8_t person_count)
      * presence label if count is >1 */
     lv_obj_set_style_opa(ui_presence, LV_OPA_COVER, 0);
 
+    // TODO: update presence count label only for first couple of seconds after detection
     if (person_count > 1)
     {
         show_presence_icon_bubble();
@@ -1167,10 +1168,23 @@ void show_presence_icon_and_update_label(uint8_t person_count)
 
 void update_presence_detection(uint8_t presence_count)
 {
-    show_presence_icon_and_update_label(presence_count);
-    _ui_opacity_set(ui_presence, 255);
-    person_count = presence_count;
-    person_detected = true;
+    stop_active_state_timer();
+    LOG_INFO(CYLF_DEF, "Presence count: %d\n", presence_count);
+    if (presence_count == 0)
+    {
+        person_detected = false;
+        start_inactivity_timer_addn(3000); // 3 seconds
+    }
+    else 
+    {
+        person_count = presence_count;
+        person_detected = true;
+        start_inactivity_timer();
+        show_presence_icon_and_update_label(presence_count);
+    }
+    display_presence_detection_status();
+    return;
+    // _ui_opacity_set(ui_presence, 255); // TODO - check?
 }
 
 void hide_presence_icon(void)
@@ -1178,16 +1192,14 @@ void hide_presence_icon(void)
     lv_obj_set_style_opa(ui_presence, 60, 0);
     lv_obj_add_flag(ui_presencecountlabel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_presencecountcircle, LV_OBJ_FLAG_HIDDEN);
-    person_detected = false;
-    person_count = 0;
 }
 
 void display_presence_detection_status(void)
 {
-
     if (person_detected == true)
     {
-        update_presence_detection(person_count);
+        show_presence_icon_and_update_label(person_count);
+        // _ui_opacity_set(ui_presence, 255);
     }
     else
     {
@@ -2824,12 +2836,32 @@ void update_device_config_ipc(void)
 
 void start_inactivity_timer(void)
 {
+    uint32_t addn_timeout_ms = 0;
     /* Start inactivity timer if Screen timeout is not set to Never */
     if (TIMEOUT_NEVER != current_settings.system.idle_timeout)
     {
+        if (person_detected == true)
+        {
+            /* Add additional timeout when person detected so screen doesn't immediately transition */
+            addn_timeout_ms = 5000 /* 5 seconds */;
+        }
         /* Start timer with screen timeout duration */
-        start_active_state_timer(get_timeout_ms(current_settings.system.idle_timeout));
+        start_active_state_timer(addn_timeout_ms + get_timeout_ms(current_settings.system.idle_timeout));
     }
+}
+
+// TODO - this is temp, idle transition should be done on completion of absence UI update
+void start_inactivity_timer_addn(uint32_t additional_timeout_ms)
+{
+    /* If configured timeout is set to never, do nothing */
+    if (TIMEOUT_NEVER == current_settings.system.idle_timeout)
+    {
+        return;
+    }
+
+    uint32_t base_ms = get_timeout_ms(current_settings.system.idle_timeout);
+
+    start_active_state_timer(base_ms + additional_timeout_ms);
 }
 
 void cancel_dev_conn_current_opt(lv_event_t *e)

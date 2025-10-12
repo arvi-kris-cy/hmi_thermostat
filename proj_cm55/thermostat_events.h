@@ -436,6 +436,14 @@ void update_device_config_ipc(void);
 void start_inactivity_timer(void);
 
 /**
+ * @brief Starts the inactivity timer using the configured timeout plus an additional
+ * amount in milliseconds.
+ *
+ * @param additional_timeout_ms Number of milliseconds to add to the pre-configured timeout.
+ */
+void start_inactivity_timer_addn(uint32_t additional_timeout_ms);
+
+/**
  * @brief Handles cancel device connection event and updates the device state.
  *
  * This function is triggered when a cancel button event is received.

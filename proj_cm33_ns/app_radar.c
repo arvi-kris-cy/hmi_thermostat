@@ -373,7 +373,7 @@ static void presence_detection_cb(xensiv_radar_presence_handle_t handle,
             break;
 
         case XENSIV_RADAR_PRESENCE_STATE_ABSENCE:
-            LOG_INFO(CYLF_DEF, "[INFO] absence %" PRIu32 "\n\r", event->timestamp);
+            // LOG_INFO(CYLF_DEF, "[INFO] absence %" PRIu32 "\n\r", event->timestamp);
             status = ABSENCE_DETECTED;
             break;
 
@@ -381,7 +381,7 @@ static void presence_detection_cb(xensiv_radar_presence_handle_t handle,
             LOG_ERROR(CYLF_DEF, "Unknown reported state in event handling\n\r");
             break;
     }
-
+    
     /* Update detection state if changed */
     if (last_status != status)
     {

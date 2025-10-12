@@ -511,16 +511,17 @@ static void handle_system_event(void)
         {
             case IPC_CMD_UPDATE_PRESENCE_STATUS:
                 /** Update UI based on presence detection status. */
+                stop_active_state_timer();
                 if ((presence_status_t) msg_val == PRESENCE_DETECTED)
                 {
                     /** Switch to Active screen and display presence status. */
                     switch_to_active_screen();
-                    update_presence_detection(1);
+                    update_presence_detection(1); // TODO get actual person count
                 }
                 else if ((presence_status_t) msg_val == ABSENCE_DETECTED)
                 {
                     /** Update absence status. */
-                    hide_presence_icon();
+                    update_presence_detection(0);
                 }
                 break;
 

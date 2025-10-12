@@ -238,7 +238,7 @@ void stop_active_state_timer(void)
     {
         lv_timer_pause(app_timer);
         lv_timer_reset(app_timer);
-        printf("Active state timer stopped.\n");
+        // printf("Active state timer stopped.\n");
     }
 }
 
