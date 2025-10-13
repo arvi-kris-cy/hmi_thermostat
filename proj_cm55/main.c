@@ -1157,11 +1157,11 @@ static void cm55_gfx_task(void *arg)
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
 
 
-    if(CY_RSLT_SUCCESS != i2c_result)
-    {
-        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
-        handle_app_error();
-    }
+	    if(CY_RSLT_SUCCESS != i2c_result)
+	    {
+	        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
+	        handle_app_error();
+	    }
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Enable the I2C */

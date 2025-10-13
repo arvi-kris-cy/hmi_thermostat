@@ -165,6 +165,24 @@ va_rslt_t voice_assistant_init(va_mode_t mode)
 }
 
 /*******************************************************************************
+ * Function Name: voice_assistant_get_curr_state
+ *******************************************************************************
+ * Summary:
+ * Get the current state of the voice assistant.
+ *
+ * Parameters:
+ *  state: New state to set.
+ *
+ * Return:
+ *  void
+ *
+ *******************************************************************************/
+va_run_state_t voice_assistant_get_curr_state(void)
+{
+    return va_state;
+}
+
+/*******************************************************************************
  * Function Name: voice_assistant_change_state
  *******************************************************************************
  * Summary:

@@ -276,6 +276,7 @@ CY_SOD_PATH=$(SEARCH_speech-onset-detection)
 
 CY_IGNORE += ${CY_AVC_PATH}
 CY_IGNORE += ${CY_AFE_PATH}
+CY_IGNORE += ${CY_SOD_PATH}
 
 # Ignore unused LVGL middleware files from compilation
 

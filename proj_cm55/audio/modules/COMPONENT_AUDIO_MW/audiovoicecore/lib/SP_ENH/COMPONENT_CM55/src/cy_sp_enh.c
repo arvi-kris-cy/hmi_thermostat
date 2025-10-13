@@ -433,7 +433,7 @@ cy_rslt_t cy_sp_enh_init(cy_sp_enh_config_params* config_params, cy_sp_enh_handl
             }
             else
             {/* Need to make sure the allocated memory is in SOCMEM and aligned to 16 */
-                dsns_persistent_mem_unalgned = (char*)malloc(sp_enh_info->dsns_socmem.persistent_mem);
+                dsns_persistent_mem_unalgned = (char*)malloc(sp_enh_info->dsns_socmem.persistent_mem + 15);
                 /* Force align to 16 for U55 */
                 sp_enh_info->dsns_socmem.persistent_mem_pt = (char*)(((uintptr_t)dsns_persistent_mem_unalgned + 15) & ~((uintptr_t)0xF));
             }
@@ -462,7 +462,7 @@ cy_rslt_t cy_sp_enh_init(cy_sp_enh_config_params* config_params, cy_sp_enh_handl
             }
             else
             {/* Need to make sure the allocated memory is in SOCMEM and aligned to 16 */
-                dses_persistent_mem_unalgned = (char*)malloc(sp_enh_info->dses_socmem.persistent_mem);
+                dses_persistent_mem_unalgned = (char*)malloc(sp_enh_info->dses_socmem.persistent_mem + 15);
                 /* Force align to 16 for U55 */
                 sp_enh_info->dses_socmem.persistent_mem_pt = (char*)(((uintptr_t)dses_persistent_mem_unalgned + 15) & ~((uintptr_t)0xF));
             }

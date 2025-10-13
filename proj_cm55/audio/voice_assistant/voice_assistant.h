@@ -140,6 +140,7 @@ va_rslt_t voice_assistant_init(va_mode_t mode);
 void      voice_assistant_change_state(va_run_state_t state);
 va_rslt_t voice_assistant_process(int16_t *audio_frame, va_event_t *event, va_data_t *va_data);
 va_rslt_t voice_assistant_get_command(char *text);
+va_run_state_t voice_assistant_get_curr_state(void);
 
 va_detect_cmd_t va_command_to_id(const char *command);
 void run_voice_assistant_process(int16_t *audio_frame);
