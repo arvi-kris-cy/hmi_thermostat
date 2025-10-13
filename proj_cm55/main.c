@@ -1377,20 +1377,6 @@ int main(void)
     /* Initialize Speaker */
     app_speaker_init();
 
-#if 1 // TEMP workaround for EEPROM read issue:
-    /*
-     * TEMP Force the application to always use the defaults at boot.
-     * This ignores any value read from NVM so the device starts with the
-     * `default_config` defined in `thermostat_events.c`.
-     */
-    
-    device_settings_t settings = {0};
-    get_default_device_setting(&settings);
-    settings.is_available = true;
-
-    /* Apply the defaults unconditionally */
-    set_current_device_setting(&settings);
-#else
     /* Initialize Emulated EEPROM */
     app_eeprom_init();
 
@@ -1412,7 +1398,6 @@ int main(void)
     } else {
     	set_current_device_setting(&rd_settings);
     }
-#endif // TEMP workaround for EEPROM read issue
 
     dev_info.environment.target_temp = dev_info.environment.current_temp;
 
