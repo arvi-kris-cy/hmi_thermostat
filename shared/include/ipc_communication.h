@@ -54,7 +54,7 @@
 * Macros
 *******************************************************************************/
 #define CY_IPC_MAX_ENDPOINTS            (5UL)
-#define CY_IPC_CYPIPE_CLIENT_CNT        (8UL)
+#define CY_IPC_CYPIPE_CLIENT_CNT        (16UL)
 
 #define CY_IPC_CHAN_CYPIPE_EP1          (4UL)
 #define CY_IPC_INTR_CYPIPE_EP1          (4UL)
@@ -86,6 +86,8 @@
 #define IPC_CMD_STOP                    (0x83)
 #define IPC_CMD_STATUS                  (0x41)
 
+#define IPC_MUTEX_TIMEOUT               1000U
+
 /*******************************************************************************
 * Enumeration
 *******************************************************************************/
@@ -105,6 +107,7 @@ typedef struct
     	ble_pairing_code_t	pairing_code;
     	char unique_id[13];		/* Unique id created using MAC addr. */
         DateTime datetime;
+        char fw_version[MAX_FW_VERSION_LEN];
     };
 
 } ipc_msg_t;

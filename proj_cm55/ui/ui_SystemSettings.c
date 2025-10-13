@@ -38,7 +38,7 @@ void ui_event_backgesture1(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SettingsScreen_screen_init);
+        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_FADE_IN, 30, 0, &ui_SettingsScreen_screen_init);
     }
 }
 
@@ -56,7 +56,7 @@ void ui_event_Label16(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
+        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_DateTimeSettings_screen_init);
     }
 }
 
@@ -65,7 +65,7 @@ void ui_event_Label17(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_AboutScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AboutScreen_screen_init);
+        _ui_screen_change(&ui_AboutScreen, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_AboutScreen_screen_init);
 
         _ui_flag_modify(ui_checkupdtbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         lv_label_set_text(ui_getfwverdetails, "-.-.-");
@@ -79,7 +79,7 @@ void ui_event_homebtn1(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -127,7 +127,7 @@ void ui_event_Label2(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
+        _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 30, 0, &ui_DateTimeSettings_screen_init);
     }
 }
 
@@ -200,6 +200,18 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_text_color(ui_Label15, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label15, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label15, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_AbtLabel2 = lv_label_create(ui_backgesture1);
+    lv_obj_set_width(ui_AbtLabel2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_AbtLabel2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_AbtLabel2, -123);
+    lv_obj_set_y(ui_AbtLabel2, 112);
+    lv_obj_set_align(ui_AbtLabel2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_AbtLabel2, "Date and Time");
+    lv_obj_add_flag(ui_AbtLabel2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_set_style_text_color(ui_AbtLabel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_AbtLabel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_AbtLabel2, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel10 = lv_obj_create(ui_backgesture1);
     lv_obj_set_width(ui_Panel10, 460);
@@ -415,18 +427,6 @@ void ui_SystemSettings_screen_init(void)
     lv_obj_set_style_text_line_space(ui_cancelbtnlbl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_cancelbtnlbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_cancelbtnlbl, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_AbtLabel2 = lv_label_create(ui_backgesture1);
-    lv_obj_set_width(ui_AbtLabel2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_AbtLabel2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_AbtLabel2, -123);
-    lv_obj_set_y(ui_AbtLabel2, 112);
-    lv_obj_set_align(ui_AbtLabel2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_AbtLabel2, "Date and Time");
-    lv_obj_add_flag(ui_AbtLabel2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_set_style_text_color(ui_AbtLabel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_AbtLabel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_AbtLabel2, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_systemscreenlbl = lv_label_create(ui_Container5);
     lv_obj_set_width(ui_systemscreenlbl, LV_SIZE_CONTENT);   /// 1

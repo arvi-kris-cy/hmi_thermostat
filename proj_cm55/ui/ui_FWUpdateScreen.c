@@ -21,7 +21,7 @@ void ui_event_backgesture5(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 230, 0, &ui_SystemSettings_screen_init);
+        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 30, 0, &ui_SystemSettings_screen_init);
     }
 }
 
@@ -30,7 +30,7 @@ void ui_event_homebtn6(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -102,34 +102,22 @@ void ui_FWUpdateScreen_screen_init(void)
     lv_obj_set_width(ui_Fwupdateavaillabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Fwupdateavaillabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Fwupdateavaillabel, -4);
-    lv_obj_set_y(ui_Fwupdateavaillabel, -70);
+    lv_obj_set_y(ui_Fwupdateavaillabel, -5);
     lv_obj_set_align(ui_Fwupdateavaillabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Fwupdateavaillabel, "Firmware update is in progress.\nPlease wait for 10 minutes.");
+
+    lv_label_set_text(ui_Fwupdateavaillabel, "Firmware update is in progress.\nPlease wait for 10 minutes.....");
     lv_obj_set_style_text_font(ui_Fwupdateavaillabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-//    ui_Bar2 = lv_bar_create(ui_backgesture5);
-//    lv_bar_set_value(ui_Bar2, 1, LV_ANIM_OFF);
-//    lv_bar_set_start_value(ui_Bar2, 0, LV_ANIM_OFF);
-//    lv_obj_set_width(ui_Bar2, 360);
-//    lv_obj_set_height(ui_Bar2, 10);
-//    lv_obj_set_x(ui_Bar2, -10);
-//    lv_obj_set_y(ui_Bar2, -22);
-//    lv_obj_set_align(ui_Bar2, LV_ALIGN_CENTER);
-//    lv_obj_remove_flag(ui_Bar2, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-//                       LV_OBJ_FLAG_SNAPPABLE);     /// Flags
-//    lv_obj_set_style_radius(ui_Bar2, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
-//
-//    lv_obj_set_style_radius(ui_Bar2, 20, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-//    lv_obj_set_style_bg_color(ui_Bar2, lv_color_hex(0xFFFFFF), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-//    lv_obj_set_style_bg_opa(ui_Bar2, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-//
-//    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
-//    if(lv_obj_get_style_pad_top(ui_Bar2, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_Bar2,
-//                                                                                           lv_obj_get_style_pad_right(ui_Bar2, LV_PART_MAIN) + 1, LV_PART_MAIN);
 
     lv_obj_add_event_cb(ui_homebtn6, ui_event_homebtn6, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_backgesture5, ui_event_backgesture5, LV_EVENT_ALL, NULL);
 
+}
+
+void ui_FWUpdateScreen_update_msg(char *msg)
+{
+    lv_label_set_text(ui_Fwupdateavaillabel, msg);
+    lv_obj_set_style_text_font(ui_Fwupdateavaillabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 }
 
 void ui_FWUpdateScreen_screen_destroy(void)

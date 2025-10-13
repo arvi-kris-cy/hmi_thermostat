@@ -75,6 +75,7 @@ typedef enum {
     NOTIFY_TEMP_UPDATE,
     NOTIFY_MODE_UPDATE,
     NOTIFY_FAN_MODE_UPDATE,
+    NOTIFY_FW_UPDATE
 } notification_type;
 
 typedef enum {
@@ -435,6 +436,14 @@ void update_device_config_ipc(void);
 void start_inactivity_timer(void);
 
 /**
+ * @brief Starts the inactivity timer using the configured timeout plus an additional
+ * amount in milliseconds.
+ *
+ * @param additional_timeout_ms Number of milliseconds to add to the pre-configured timeout.
+ */
+void start_inactivity_timer_addn(uint32_t additional_timeout_ms);
+
+/**
  * @brief Handles cancel device connection event and updates the device state.
  *
  * This function is triggered when a cancel button event is received.
@@ -638,7 +647,26 @@ void display_temp_change_anim(void);
 void stop_temp_change_anim(void);
 
 /**
- * @brief Initialize the UI one-shot timer.
+ * @brief Adds a new notification to the queue if it is not a duplicate.
+ *
+ * Handles overflow by dropping the notification if the queue is full.
+ * If no notification is currently showing, starts displaying the next one.
+ *
+ * @param type Type of the notification.
+ * @param status Status of the notification.
+ * @param value Associated data value.
+ */
+void enqueue_notification(notification_type type, notification_status_t status, uint32_t value);
+
+/**
+ * @brief  Resets the firmware update screen to its initial state
+ *
+ * It will revert the firmware screen with the first step to fetch firmware version
+ */
+void revert_fw_update_screen();
+
+/**
+ *  @brief Initialize the UI one-shot timer.
  *
  * Creates a one-shot FreeRTOS software timer with a period of 2000 ms
  * (2 seconds). When the timer expires, the LVGL timer callback is executed.

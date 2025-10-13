@@ -37,7 +37,7 @@ void ui_event_dateandtimesetting(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 400, 0, &ui_SystemSettings_screen_init);
+        _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_IN, 30, 0, &ui_SystemSettings_screen_init);
     }
 }
 
@@ -46,7 +46,7 @@ void ui_event_dthomebtn5(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 30, 0, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -227,7 +227,7 @@ void ui_DateTimeSettings_screen_init(void)
     lv_obj_set_x(ui_datetimetextarea, -65);
     lv_obj_set_y(ui_datetimetextarea, -132);
     lv_obj_set_align(ui_datetimetextarea, LV_ALIGN_CENTER);
-    lv_textarea_set_text(ui_datetimetextarea, "01/09/2025");
+    lv_textarea_set_text(ui_datetimetextarea, "10/10/2025");
     lv_textarea_set_placeholder_text(ui_datetimetextarea, "Placeholder...");
     lv_textarea_set_one_line(ui_datetimetextarea, true);
     lv_obj_set_style_text_align(ui_datetimetextarea, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -275,9 +275,6 @@ uint32_t Cy_SysGetCM55Status(MXCM55_Type *CM55Base)
 ****************************************************************************//**
 *
 * Enables SOCMEM IP
-* 
-* \param enable
-* Enable or disable SOCMEM
 *
 *******************************************************************************/
 void Cy_SysEnableSOCMEM(bool enable)
@@ -442,7 +439,7 @@ void Cy_SysDisableCM55(void)
 * \param waitus The timeout value in microsecond used to wait for core to be
 * booted. value zero is for infinite wait till the core is booted successfully.
 *
-* \note: For the PSE84 device, this functions clears the first 16 words in
+* \sideeffect: For the PSE84 device, this functions clears the first 16 words in
 * the default vector address (for PSE84 device it is ITCM memory). The processor reads
 * the first two words at the default vector table address to get Stack pointer
 * and Secure reset vector address. Because the processor branches to the address
@@ -580,8 +577,8 @@ void Cy_SysEnableCM55(MXCM55_Type *CM55Base, uint32_t vectorTableOffset, uint32_
 * such a call may corrupt/abort a pending bus-transaction by the CPU and cause
 * unexpected behavior in the system including a deadlock. Call the function
 * while the Cortex-M55 core is in the Sleep or Deep Sleep low-power mode. Use
-* the Power Management (syspm) API to put the CPU into the
-* low-power modes. Use the Cy_SysPm_ReadStatus() to get a status of the CPU.
+* the \ref group_syspm Power Management (syspm) API to put the CPU into the
+* low-power modes. Use the \ref Cy_SysPm_ReadStatus() to get a status of the CPU.
 *
 *******************************************************************************/
 void Cy_SysResetCM55(MXCM55_Type *CM55Base, uint32_t waitus)
@@ -744,8 +741,8 @@ void Cy_SysEnableCM33(uint32_t vectorTableOffset, uint32_t waitus)
 * such a call may corrupt/abort a pending bus-transaction by the CPU and cause
 * unexpected behavior in the system including a deadlock. Call the function
 * while the Cortex-M55 core is in the Sleep or Deep Sleep low-power mode. Use
-* the Power Management (syspm) API to put the CPU into the
-* low-power modes. Use the Cy_SysPm_ReadStatus() to get a status of the CPU.
+* the \ref group_syspm Power Management (syspm) API to put the CPU into the
+* low-power modes. Use the \ref Cy_SysPm_ReadStatus() to get a status of the CPU.
 *
 *******************************************************************************/
 void Cy_SysResetCM33(uint32_t waitus)

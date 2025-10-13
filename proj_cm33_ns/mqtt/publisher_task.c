@@ -57,6 +57,8 @@
 /* Middleware libraries */
 #include "cy_mqtt_api.h"
 #include "retarget_io_init.h"
+#include "app_common.h"
+
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -95,6 +97,14 @@ cy_mqtt_publish_info_t publish_info =
 	.dup = false
 };
 
+cy_mqtt_publish_info_t publish_info_FW_version =
+{
+	.qos = (cy_mqtt_qos_t) MQTT_MESSAGES_QOS,
+	.topic = "OTA-Update/KIT_PSE84_HMI/OTA-Notify",
+	.topic_len = 35,
+	.retain = false,
+	.dup = false
+};
 /******************************************************************************
  * Function Name: publisher_init
  ******************************************************************************
@@ -192,7 +202,7 @@ void publisher_task(void *pvParameters)
                     publish_info.payload = publisher_q_data.data;
                     publish_info.payload_len = strlen(publish_info.payload);
 
-                    printf("\nPublisher: Publishing '%s' on the topic '%s'\n",
+                    LOG_INFO(CYLF_DEF, "Publisher: Publishing '%s' on the topic '%s'\n",
                            (char *) publish_info.payload, publish_info.topic);
 
                     for(int retry = 0; ((retry < PUBLISH_RETRY_LIMIT) && (result != CY_RSLT_SUCCESS)); retry++)
@@ -203,7 +213,7 @@ void publisher_task(void *pvParameters)
 
                     if (result != CY_RSLT_SUCCESS)
                     {
-                        printf("  Publisher: MQTT Publish failed with error 0x%0X.\n\n", (int)result);
+                        LOG_ERROR(CYLF_DEF, "Publisher: MQTT Publish failed with error 0x%0X.\n", (int)result);
 
                         if(MAX_PUB_RETRY_THRESHOLD <= publish_retry++)
                         {
@@ -222,11 +232,52 @@ void publisher_task(void *pvParameters)
                     free(publisher_q_data.data);
                     break;
                 }
+
+                case PUBLISH_MQTT_MSG_FOR_FW_VERSION:
+                {
+                    /* Status variable */
+                    cy_rslt_t result = !CY_RSLT_SUCCESS;
+
+                    /* Publish the data received over the message queue. */
+                    publish_info_FW_version.payload = publisher_q_data.data;
+                    publish_info_FW_version.payload_len = strlen(publish_info_FW_version.payload);
+
+                    LOG_INFO(CYLF_DEF, "Publisher: Publishing '%s' on the topic '%s'\n",
+                           (char *) publish_info_FW_version.payload, publish_info_FW_version.topic);
+
+                    for(int retry = 0; ((retry < PUBLISH_RETRY_LIMIT) && (result != CY_RSLT_SUCCESS)); retry++)
+                    {
+                        result = cy_mqtt_publish(mqtt_connection, &publish_info_FW_version);
+                        vTaskDelay(PUBLISH_RETRY_MS);
+                    }
+
+                    if (result != CY_RSLT_SUCCESS)
+                    {
+                        LOG_ERROR(CYLF_DEF, "Publisher: MQTT Publish failed with error 0x%0X.\n", (int)result);
+                    }
+
+                    break;
+                }
             }
         }
     }
 }
 
+void publish_msg_over_mqtt(char *data)
+{
+	publisher_data_t publisher_q_data;
 
+	publisher_q_data.cmd = PUBLISH_MQTT_MSG;
+	publisher_q_data.data = data;
+	xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+}
 
+void publish_msg_for_FW_version(char *data)
+{
+	publisher_data_t publisher_q_data;
+
+	publisher_q_data.cmd = PUBLISH_MQTT_MSG_FOR_FW_VERSION;
+	publisher_q_data.data = data;
+	xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
+}
 /* [] END OF FILE */

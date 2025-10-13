@@ -107,7 +107,8 @@ lv_timer_t *state_update_timer = NULL;
 device_settings_t current_settings = { 0 };
 extern bool is_device_provisioned;
 extern volatile bool wifi_popup_state;
-
+extern char new_FW_version[MAX_FW_VERSION_LEN];
+extern char m55_current_OTA_version[MAX_FW_VERSION_LEN];
 
 /* Device connection state flag in CM55 core */
 volatile bool is_device_connected = false;
@@ -314,17 +315,7 @@ static void show_next_notification(void);
  */
 static bool is_notification_duplicate(notification_type type, notification_status_t status, uint32_t value);
 
-/**
- * @brief Adds a new notification to the queue if it is not a duplicate.
- *
- * Handles overflow by dropping the notification if the queue is full.
- * If no notification is currently showing, starts displaying the next one.
- *
- * @param type Type of the notification.
- * @param status Status of the notification.
- * @param value Associated data value.
- */
-static void enqueue_notification(notification_type type, notification_status_t status, uint32_t value);
+
 
 /**
  * @brief Initiates the animation to hide the current notification.
@@ -635,7 +626,7 @@ static bool is_notification_duplicate(notification_type type, notification_statu
     return false;
 }
 
-static void enqueue_notification(notification_type type, notification_status_t status, uint32_t value)
+void enqueue_notification(notification_type type, notification_status_t status, uint32_t value)
 {
     if (is_notification_duplicate(type, status, value))
         return;
@@ -778,7 +769,7 @@ void increase_temp(lv_event_t *e)
     }
     else
     {
-        printf("Increase temperature error. Device in Off mode.\n");
+        LOG_INFO(CYLF_DEF, "Increase temperature error. Device in Off mode.\n");
     }
 }
 
@@ -831,12 +822,12 @@ void decrease_temp(lv_event_t *e)
         }
         else
         {
-            printf("Thermostat Minimum temperature reached.\n");
+            LOG_INFO(CYLF_DEF, "Thermostat Minimum temperature reached.\n");
         }
     }
     else
     {
-        printf("Decrease temperature error. Device in Off mode.\n");
+        LOG_INFO(CYLF_DEF, "Decrease temperature error. Device in Off mode.\n");
     }
 }
 
@@ -1146,7 +1137,7 @@ void change_brightness(lv_event_t *e)
         brightness_level = ((slider_val / 10) * 10);
     }
 
-    printf("Brightness Level: %d Actual Level: %d", brightness_level, slider_val);
+    LOG_INFO(CYLF_DEF, "Brightness Level: %d Actual Level: %d\n", brightness_level, slider_val);
     lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
     update_display_brightness(brightness_level);
 
@@ -1166,6 +1157,7 @@ void show_presence_icon_and_update_label(uint8_t person_count)
      * presence label if count is >1 */
     lv_obj_set_style_opa(ui_presence, LV_OPA_COVER, 0);
 
+    // TODO: update presence count label only for first couple of seconds after detection
     if (person_count > 1)
     {
         show_presence_icon_bubble();
@@ -1176,10 +1168,23 @@ void show_presence_icon_and_update_label(uint8_t person_count)
 
 void update_presence_detection(uint8_t presence_count)
 {
-    show_presence_icon_and_update_label(presence_count);
-    _ui_opacity_set(ui_presence, 255);
-    person_count = presence_count;
-    person_detected = true;
+    stop_active_state_timer();
+    LOG_INFO(CYLF_DEF, "Presence count: %d\n", presence_count);
+    if (presence_count == 0)
+    {
+        person_detected = false;
+        start_inactivity_timer_addn(3000); // 3 seconds
+    }
+    else 
+    {
+        person_count = presence_count;
+        person_detected = true;
+        start_inactivity_timer();
+        show_presence_icon_and_update_label(presence_count);
+    }
+    display_presence_detection_status();
+    return;
+    // _ui_opacity_set(ui_presence, 255); // TODO - check?
 }
 
 void hide_presence_icon(void)
@@ -1187,16 +1192,14 @@ void hide_presence_icon(void)
     lv_obj_set_style_opa(ui_presence, 60, 0);
     lv_obj_add_flag(ui_presencecountlabel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_presencecountcircle, LV_OBJ_FLAG_HIDDEN);
-    person_detected = false;
-    person_count = 0;
 }
 
 void display_presence_detection_status(void)
 {
-
     if (person_detected == true)
     {
-        update_presence_detection(person_count);
+        show_presence_icon_and_update_label(person_count);
+        // _ui_opacity_set(ui_presence, 255);
     }
     else
     {
@@ -1346,7 +1349,7 @@ void ui_timer_init(void)
 
     if(lvgl_timer == NULL)
     {
-        printf("ui_timer_init error.\n");
+        LOG_INFO(CYLF_DEF, "ui_timer_init error.\n");
     }
 
 }
@@ -1696,7 +1699,7 @@ void update_device_connection_state(device_connection_state_t state)
 void start_ble_adv(lv_event_t *e)
 {
     UNUSED_PARAM(e);
-    printf("CM55: Start BLE ADV\r\n");
+    LOG_INFO(CYLF_DEF, "CM55: Start BLE ADV\r\n");
 
     prov_method = PROV_MAPP_BLE;
 
@@ -1762,6 +1765,10 @@ void update_notifcation_label(notification_type type, notification_status_t stat
                         lv_label_set_text(ui_notificationlabel, "Disconnected from WiFi network.");
                         break;
 
+                    case DEV_ST_NO_INTERNET:
+                        lv_label_set_text(ui_notificationlabel, "Oops! No Internet, Try again.");
+                        break;
+
                     default:
                         break;
                 }
@@ -1779,6 +1786,9 @@ void update_notifcation_label(notification_type type, notification_status_t stat
                 lv_label_set_text(ui_notificationlabel, "Failed to set fan mode.");
                 break;
 
+            case NOTIFY_FW_UPDATE:
+                lv_label_set_text(ui_notificationlabel, "Latest firmware installed, no update.");
+                break;
             default:
                 break;
         }
@@ -1971,7 +1981,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
-            printf("Mode set to ECO\n");
+            LOG_INFO(CYLF_DEF, "Mode set to ECO\n");
             break;
 
         case MODE_RAPID:
@@ -1979,7 +1989,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
-            printf("Mode set to RAPID\n");
+            LOG_INFO(CYLF_DEF, "Mode set to RAPID\n");
             break;
 
         case MODE_AUTO:
@@ -1987,7 +1997,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_automode_png_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
-            printf("Mode set to AUTO\n");
+            LOG_INFO(CYLF_DEF, "Mode set to AUTO\n");
             update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT_C);
             break;
 
@@ -1995,7 +2005,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_mode, &ui_img_mode_select_fan_png);
             lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
-            printf("Mode set to FAN\n");
+            LOG_INFO(CYLF_DEF, "Mode set to FAN\n");
 
             /* If temperature increase decrease timer running, stop it */
             if (temp_timer)
@@ -2054,7 +2064,7 @@ void toggle_mode(lv_event_t *e)
 
 void open_notifcaiton_ex(void)
 {
-    printf("Notification popup clicked.\n");
+    LOG_INFO(CYLF_DEF, "Notification popup clicked.\n");
 
 }
 void delete_wifi_cred(lv_event_t *e)
@@ -2113,7 +2123,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
-            printf("Mode set to ECO\n");
+            LOG_INFO(CYLF_DEF, "Mode set to ECO\n");
             break;
 
         case MODE_RAPID:
@@ -2121,7 +2131,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
-            printf("Mode set to RAPID\n");
+            LOG_INFO(CYLF_DEF, "Mode set to RAPID\n");
             break;
 
         case MODE_AUTO:
@@ -2129,7 +2139,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_ecoLP, &ui_img_mode_select_auto_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
-            printf("Mode set to AUTO\n");
+            LOG_INFO(CYLF_DEF, "Mode set to AUTO\n");
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
                 update_device_temp(AUTO_MODE_TARGET_TEMP_DEFAULT_C);
@@ -2144,7 +2154,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             lv_img_set_src(ui_mode, &ui_img_mode_select_fan_png);
             lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
-            printf("Mode set to FAN\n");
+            LOG_INFO(CYLF_DEF, "Mode set to FAN\n");
             break;
 
         default:
@@ -2158,11 +2168,9 @@ void update_thermostat_mode(thermostat_mode_t mode)
 
 void update_device_temp(uint8_t temp)
 {
-	printf("Temperature %d \r\n", temp);
-
 	if((temp < current_min_temp) || (temp > current_max_temp) || (temp == current_temp))
 	{
-		printf("Temp is not in range or same as current temp!");
+	    LOG_INFO(CYLF_DEF, "Temp is not in range or same as current temp!");
 		return;
 	}
 
@@ -2281,7 +2289,7 @@ void update_device_temp(uint8_t temp)
     }
     else
     {
-        printf("Increase temperature error. Device in Off mode.\n");
+        LOG_INFO(CYLF_DEF, "Increase temperature error. Device in Off mode.\n");
     }
 
 //    /* Update status over MApp/Cloud if connected. */
@@ -2417,7 +2425,7 @@ void change_idle_timeout(lv_event_t *e)
 
     /* Read timeout value from the UI drop down element */
     uint16_t timeout = lv_dropdown_get_selected(ui_timeoutdropdown);
-    printf("Idle Timeout: %d\n", timeout);
+    LOG_INFO(CYLF_DEF, "Idle Timeout: %d\n", timeout);
 
     /* Set screen timeout period */
     set_idle_timeout(timeout);
@@ -2437,11 +2445,11 @@ void update_temperature(lv_event_t *e)
     int temperature = lv_arc_get_value(ui_temperaturearc);
     if (dev_unit == TEMP_UNIT_CELSIUS)
     {
-        printf("Temperature arc value: %d°c\n", temperature);
+        LOG_INFO(CYLF_DEF, "Temperature arc value: %d°c\n", temperature);
     }
     else
     {
-        printf("Temperature arc value: %d°F\n", temperature);
+        LOG_INFO(CYLF_DEF, "Temperature arc value: %d°F\n", temperature);
     }
 
     /* Set the target temperature to the temperature set by
@@ -2497,31 +2505,31 @@ void set_idle_timeout(idle_timeout_t time)
     switch (time)
     {
         case TIMEOUT_3S:
-            printf("Timeout = 3 seconds\n");
+            LOG_INFO(CYLF_DEF, "Timeout = 3 seconds\n");
             break;
 
         case TIMEOUT_5S:
-            printf("Timeout = 5 seconds\n");
+            LOG_INFO(CYLF_DEF, "Timeout = 5 seconds\n");
             break;
 
         case TIMEOUT_10S:
-            printf("Timeout = 10 seconds\n");
+            LOG_INFO(CYLF_DEF, "Timeout = 10 seconds\n");
             break;
 
         case TIMEOUT_20S:
-            printf("Timeout = 20 seconds\n");
+            LOG_INFO(CYLF_DEF, "Timeout = 20 seconds\n");
             break;
 
         case TIMEOUT_30S:
-            printf("Timeout = 30 seconds\n");
+            LOG_INFO(CYLF_DEF, "Timeout = 30 seconds\n");
             break;
 
         case TIMEOUT_NEVER:
-            printf("Timeout = Never\n");
+            LOG_INFO(CYLF_DEF, "Timeout = Never\n");
             break;
 
         default:
-            printf("Invalid timeout option\n");
+            LOG_ERROR(CYLF_DEF, "Invalid timeout option\n");
             break;
     }
 
@@ -2541,7 +2549,7 @@ void change_volume(lv_event_t *e)
 
     /* Read audio level info from the drop-down UI element */
     audio_level_t level = lv_dropdown_get_selected(ui_audoleveldropdown);
-    printf("Selected Volume:%d\n", level);
+    LOG_INFO(CYLF_DEF, "Selected Volume:%d\n", level);
 
     /* Update system volume according to the selected level */
     set_volume(level);
@@ -2579,7 +2587,7 @@ void set_system_unit(lv_event_t *e)
     /* If enabled, degree set to deg F */
     if (is_checked)
     {
-        printf("System Unit set to deg F.\n");
+        LOG_INFO(CYLF_DEF, "System Unit set to deg F.\n");
         current_settings.system.temperature_unit = TEMP_UNIT_FAHRENHEIT;
 
         /* If previous unit was deg C, convert to deg F */
@@ -2608,7 +2616,7 @@ void set_system_unit(lv_event_t *e)
     }
     else
     {
-        printf("System Unit set to deg C.\n");
+        LOG_INFO(CYLF_DEF, "System Unit set to deg C.\n");
         current_settings.system.temperature_unit = TEMP_UNIT_CELSIUS;
 
         /* If previous unit was deg F, convert to deg C */
@@ -2828,12 +2836,32 @@ void update_device_config_ipc(void)
 
 void start_inactivity_timer(void)
 {
+    uint32_t addn_timeout_ms = 0;
     /* Start inactivity timer if Screen timeout is not set to Never */
     if (TIMEOUT_NEVER != current_settings.system.idle_timeout)
     {
+        if (person_detected == true)
+        {
+            /* Add additional timeout when person detected so screen doesn't immediately transition */
+            addn_timeout_ms = 5000 /* 5 seconds */;
+        }
         /* Start timer with screen timeout duration */
-        start_active_state_timer(get_timeout_ms(current_settings.system.idle_timeout));
+        start_active_state_timer(addn_timeout_ms + get_timeout_ms(current_settings.system.idle_timeout));
     }
+}
+
+// TODO - this is temp, idle transition should be done on completion of absence UI update
+void start_inactivity_timer_addn(uint32_t additional_timeout_ms)
+{
+    /* If configured timeout is set to never, do nothing */
+    if (TIMEOUT_NEVER == current_settings.system.idle_timeout)
+    {
+        return;
+    }
+
+    uint32_t base_ms = get_timeout_ms(current_settings.system.idle_timeout);
+
+    start_active_state_timer(base_ms + additional_timeout_ms);
 }
 
 void cancel_dev_conn_current_opt(lv_event_t *e)
@@ -2951,7 +2979,7 @@ void cancel_dev_conn_current_opt(lv_event_t *e)
     }
     else
     {
-        printf("Un-handled cancel event received: Current event: %d\n", dev_current_conn_state);
+        LOG_ERROR(CYLF_DEF, "Un-handled cancel event received: Current event: %d\n", dev_current_conn_state);
     }
 }
 
@@ -3040,6 +3068,10 @@ void switch_to_active_screen(void)
     {
         _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
         app_state = APP_ST_ACTIVE;
+        
+        /* Update sensor sampling interval to 1s */
+        /* Set sensor sampling interval to IDLE state */
+        set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
     }
 
     start_inactivity_timer();
@@ -3052,6 +3084,8 @@ void switch_to_ble(lv_event_t *e)
 
     /* Send switch to BLE command to CM33 core using IPC */
     send_switch_to_ble_cmd();
+
+    is_device_connected = false;
 }
 
 static void update_time_labels(void)
@@ -3209,7 +3243,8 @@ void update_date_time_rtc(lv_event_t * e)
         else
         {
             // Handle error, e.g., RTC was busy
-            handle_app_error();
+//            handle_app_error();
+            APP_ERROR(1);
         }
 
         stop_minute_sync_timer();
@@ -3244,8 +3279,11 @@ void update_calendar_date(lv_event_t * e)
 
 static void update_firmware_label(lv_timer_t *timer)
 {
-    // Write "2.0.0" to the hidden firmware details label.
-    lv_label_set_text(ui_getfwverdetails, "2.0.0");
+	if(new_FW_version[0] != 0)
+	{
+
+		// Write "2.0.0" to the hidden firmware details label.
+		lv_label_set_text(ui_getfwverdetails, new_FW_version);
 
     // Hide the spinner once the text is updated.
     _ui_flag_modify(ui_fwcheckspinner, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
@@ -3256,14 +3294,37 @@ static void update_firmware_label(lv_timer_t *timer)
     /* Hide the check update button */
     _ui_flag_modify(ui_checkupdtbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
-    /* UnHide the download update button */
-    _ui_flag_modify(ui_downloadfwbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+		/* UnHide the download update button */
+		_ui_flag_modify(ui_downloadfwbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+
+	}
+	else
+	{
+		// Hide the spinner once the text is updated.
+		_ui_flag_modify(ui_fwcheckspinner, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+
+		revert_fw_update_screen();
+	}
+}
+
+void revert_fw_update_screen()
+{
+	if(NULL != ui_checkupdtbtn)
+	{
+        /* UnHide the check update button */
+        _ui_flag_modify(ui_checkupdtbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+
+        /* UnHide the download update button */
+        _ui_flag_modify(ui_downloadfwbtn, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+	}
 }
 
 void check_fw_update_version(lv_event_t * e)
 {
     // Create an LVGL timer to show the firmware version after 5 seconds
-    lv_timer_create(update_firmware_label, 5000, NULL);
+	memset(new_FW_version, 0, MAX_FW_VERSION_LEN);
+	get_latest_OTA_version();
+    lv_timer_create(update_firmware_label, 3000, NULL);
 }
 
 void update_fw_download_status(uint8_t percent)
@@ -3273,7 +3334,16 @@ void update_fw_download_status(uint8_t percent)
 
 void trigger_ota(lv_event_t * e)
 {
-
+	if(strcmp(m55_current_OTA_version, new_FW_version) == 0)
+	{
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_ActiveScreen_screen_init);
+        enqueue_notification(NOTIFY_FW_UPDATE, NOTIF_FAIL, DEV_ST_FW_HAVE_SAME_VERSION);
+	}
+	else
+	{
+		trigger_ota_update();
+		_ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 230, 0, &ui_FWUpdateScreen_screen_init);
+	}
 }
 
 void display_fan_anim(void)
@@ -3422,12 +3492,14 @@ void display_temp_change_anim(void)
         /* Show the red container for heating animation. */
         _ui_flag_modify(ui_redcontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
     }
     else if (current_state == STATE_COOLING)
     {
         /* Show the blue container for cooling animation. */
         _ui_flag_modify(ui_bluecontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         lv_obj_remove_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_flag(ui_settolbl, LV_OBJ_FLAG_HIDDEN);
     }
 }
 

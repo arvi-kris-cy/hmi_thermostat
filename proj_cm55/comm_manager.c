@@ -256,4 +256,23 @@ void send_switch_to_ble_cmd(void)
     cm55_send_msg_cm33(&cm55_msg_data);
 }
 
+void trigger_ota_update(void)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_TRIGGER_OTA_START;
+	cm55_msg_data.data = 0;
+
+    cm55_send_msg_cm33(&cm55_msg_data);
+}
+
+void get_latest_OTA_version(void)
+{
+	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
+	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
+	cm55_msg_data.cmd = IPC_CMD_OTA_VERSION;
+	cm55_msg_data.data = 0;
+
+    cm55_send_msg_cm33(&cm55_msg_data);
+}
 /* [] END OF FILE */

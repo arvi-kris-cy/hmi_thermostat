@@ -96,7 +96,8 @@ void app_i2s_init(void)
     cy_en_tdm_status_t result = Cy_AudioTDM_Init(TDM_STRUCT0, &CYBSP_TDM_CONTROLLER_0_config);
     if (result != CY_RSLT_SUCCESS)
     {
-    	handle_app_error();
+//    	handle_app_error();
+        APP_ERROR(1);
     }
 }
 
@@ -260,7 +261,9 @@ void tlv_codec_i2c_init(void)
     result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW, &CYBSP_I2C_CONTROLLER_config, &MW_I2C_context);
     if (result != CY_RSLT_SUCCESS)
     {
-    	handle_app_error();
+//    	handle_app_error();
+        APP_ERROR(result);
+
     }
 
     /* Enable I2C hardware. */
@@ -270,14 +273,16 @@ void tlv_codec_i2c_init(void)
     hal_result = mtb_hal_i2c_setup(&MW_I2C_hal_obj, &CYBSP_I2C_CONTROLLER_hal_config, &MW_I2C_context, NULL);
     if (hal_result != CY_RSLT_SUCCESS)
     {
-    	handle_app_error();
+        APP_ERROR(hal_result);
+//    	handle_app_error();
     }
 
     /* Configure the I2C block. Controller/Target specific functions only work when the block is configured to desired mode */
     hal_result = mtb_hal_i2c_configure(&MW_I2C_hal_obj, &i2c_config);
     if (hal_result != CY_RSLT_SUCCESS)
     {
-    	handle_app_error();
+//    	handle_app_error();
+        APP_ERROR(hal_result);
     }
 }
 

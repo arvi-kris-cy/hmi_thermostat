@@ -60,9 +60,9 @@
 
 #if defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
 #define CTP_RESET_PORT       GPIO_PRT16
-#define CTP_RESET_PIN        (6U)
-#define CTP_IRQ_PORT         GPIO_PRT10
-#define CTP_IRQ_PIN          (7U)
+#define CTP_RESET_PIN        (7U)
+#define CTP_IRQ_PORT         GPIO_PRT11
+#define CTP_IRQ_PIN          (6U)
 #endif
 
 extern lv_obj_t *label;
@@ -74,13 +74,14 @@ lv_indev_t * indev_touchpad;
 #if defined(MTB_CTP_FT5446)
 mtb_ctp_ft5446_config_t ctp_ft5446_cfg =
 {
-  .scb_inst            = CYBSP_I2C_CONTROLLER_HW,
+  .scb_inst            = CYBSP_I2C_CONTROLLER_2_HW,
   .i2c_context         = &disp_touch_i2c_controller_context,
   .rst_port            = CTP_RESET_PORT,
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_17_IRQn,
+  .irq_num             = ioss_interrupts_gpio_11_IRQn,
+
   .touch_event         = false,
 };
 #endif

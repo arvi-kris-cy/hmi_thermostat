@@ -6,7 +6,7 @@
  *
  * Related Document: See README.md
  *
-********************************************************************************
+ *******************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
@@ -50,10 +50,10 @@
 #include "cy_retarget_io.h"
 #include "mtb_syspm_callbacks.h"
 
+
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-
 /* retarget-io deepsleep callback macros */
 #define DEBUG_UART_RTS_PORT     (NULL)
 #define DEBUG_UART_RTS_PIN      (0U)
@@ -62,11 +62,14 @@
 #define SYSPM_SKIP_MODE         (0U)
 #define SYSPM_CALLBACK_ORDER    (1U)
 
+#define APP_ERROR(error_code) app_error_handler(error_code, __FILE__, __LINE__)
 
 /*******************************************************************************
 * Function prototypes
 *******************************************************************************/
 void init_retarget_io(void);
+void app_error_handler(uint32_t error_code, const char *file, int line);
+
 
 /*******************************************************************************
 * Function Name: handle_app_error
@@ -83,12 +86,18 @@ void init_retarget_io(void);
 *******************************************************************************/
 __STATIC_INLINE void handle_app_error(void)
 {
-    /* Disable all interrupts. */
-    __disable_irq();
+   /* Disable all interrupts. */
+   __disable_irq();
+   printf("handle_app_error\n");
 
-    CY_ASSERT(0);
+   /* Optional: allow debug breakpoint */
+   // CY_ASSERT(0);
+
+   /* Perform software reset */
+   NVIC_SystemReset();
 }
 
 #endif /* _RETARGET_IO_INIT_H_ */
+
 
 /* [] END OF FILE */

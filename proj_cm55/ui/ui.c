@@ -781,6 +781,7 @@ void ui_demo_init(void)
     ui_AudioSettings_screen_init();
     ui_SystemSettings_screen_init();
     ui_DateTimeSettings_screen_init();
+    ui_FWUpdateScreen_screen_init();
 
     // Show the boot screen first
     lv_disp_load_scr(ui_BootScreen);

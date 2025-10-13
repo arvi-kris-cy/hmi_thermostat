@@ -67,6 +67,16 @@ void update_conn_state(uint32_t state)
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
 
+
+void update_current_screen(screen_id_t screen)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_UPDATE_CURRENT_SCREEN;
+	cm33_msg_data.data = screen;
+	cm33_msg_data.data_len = 1;
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
 void response_uid_req(char *uid)
 {
 	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
@@ -130,3 +140,47 @@ void set_datetime_ui(DateTime *timestamp)
     cm33_send_msg_cm55(&cm33_msg_data);
 }
 
+void OTA_Tigger_On_ui(void)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_TRIGGER_OTA_START;
+	cm33_msg_data.data = 0;
+	cm33_msg_data.data_len = 1;
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void send_available_FW_version(char *version)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_OTA_VERSION;
+    memset(&cm33_msg_data.fw_version, 0, strlen(version) + 1);
+    memcpy(&cm33_msg_data.fw_version, version, strlen(version));
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void abort_OTA(void)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_ABORT_OTA;
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void no_internet_connected_send_to_ui(void)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_NO_INTERNET_NOTIFY;
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+
+void disable_touch(void)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_DISABLE_TOUCH;
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}

@@ -79,72 +79,42 @@ bool eeprom_wr_setting = false;
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
 
-/**
- * @brief Processes unrecoverable system errors.
- *
- * This function handles critical errors such as component initialization
- * failures. It turns on USER LED1, prints the provided error message to the
- * debug terminal, and halts the processor in the debug state using an assert.
- *
- * @param status  Error status code.
- * @param message Error message to be printed on the serial terminal.
- */
-static void process_error(uint32_t status, char *message);
-
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
 
-static void process_error(uint32_t status, char *message)
-{
-    if (status)
-    {
-        if (MTB_EM_EEPROM_REDUNDANT_COPY_USED != status)
-        {
-            if (NULL != message)
-            {
-                printf("%s", message);
-            }
-        }
-        else
-        {
-            printf("%s", "Main copy is corrupted. Redundant copy in Emulated EEPROM is used \r\n");
-        }
-    }
-}
-
-void app_eeprom_init(void)
+uint32_t app_eeprom_init(void)
 {
     /* Initialize the flash start address in EEPROM configuration structure. */
     em_eeprom_config.userFlashStartAddr = (uint32_t) eeprom_storage;
 
     /* Initialize the emulated EEPROM */
-    cy_rslt_t result = Cy_Em_EEPROM_Init(&em_eeprom_config, &em_eeprom_context);
-    process_error(result, "Emulated EEPROM initialization failed.\r\n");
+    cy_en_em_eeprom_status_t result = Cy_Em_EEPROM_Init(&em_eeprom_config, &em_eeprom_context);
+    if (CY_EM_EEPROM_SUCCESS != result)
+    {
+        LOG_ERROR(CYLF_DEF, "EEPROM initialization error.\n");
+    }
+    else
+    {
+        LOG_INFO(CYLF_DEF, "Emulated EEPROM initialization Ok.\n");
+    }
+
+    return result;
 }
 
 uint32_t app_eeprom_write(device_settings_t *settings)
 {
-    cy_rslt_t result;
-    static uint8_t retries = 0;
+    cy_en_em_eeprom_status_t result = MTB_EM_EEPROM_BAD_PARAM;
 
     /* Write device settings at given address. */
     result = Cy_Em_EEPROM_Write(LOGICAL_EEPROM_START, settings, sizeof(device_settings_t), &em_eeprom_context);
-    process_error(result, "Emulated EEPROM write failed.\r\n");
-
-    if (result == 0)
+    if (CY_EM_EEPROM_SUCCESS != result)
     {
-        eeprom_wr_setting = false;
-        retries = 0;
+        LOG_ERROR(CYLF_DEF, "EEPROM write failed. Error code : %ld\n", result);
     }
-
-    retries++;
-
-    /* Retry attempts */
-    if (retries == 5)
+    else
     {
-        eeprom_wr_setting = false;
-        retries = 0;
+        LOG_DEBUG(CYLF_DEF, "EEPROM write success\n");
     }
 
     return result;
@@ -152,11 +122,18 @@ uint32_t app_eeprom_write(device_settings_t *settings)
 
 uint32_t app_eeprom_read(device_settings_t *settings)
 {
-    cy_rslt_t result;
+    cy_en_em_eeprom_status_t result = MTB_EM_EEPROM_BAD_PARAM;
 
     /* Read device settings at given address. */
     result = Cy_Em_EEPROM_Read(LOGICAL_EEPROM_START, settings, sizeof(device_settings_t), &em_eeprom_context);
-    process_error(result, "Emulated EEPROM read failed.\r\n");
+    if (CY_EM_EEPROM_SUCCESS != result)
+    {
+        LOG_ERROR(CYLF_DEF, "EEPROM read failed. Error code : %ld\n", result);
+    }
+    else
+    {
+        LOG_DEBUG(CYLF_DEF, "EEPROM read success\n");
+    }
 
     return result;
 }

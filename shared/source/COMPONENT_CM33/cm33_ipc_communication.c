@@ -144,8 +144,7 @@ int cm33_send_msg_cm55(ipc_msg_t *msg)
 {
 	int ret = -1;
 
-    vTaskDelay(10);
-	if(CY_RSLT_SUCCESS == cy_rtos_mutex_get(&cm33_ipc_mutex, 1000))
+	if(CY_RSLT_SUCCESS == cy_rtos_mutex_get(&cm33_ipc_mutex, IPC_MUTEX_TIMEOUT))
 	{
 		if(NULL != msg)
 		{
@@ -166,12 +165,12 @@ int cm33_send_msg_cm55(ipc_msg_t *msg)
 		}
 
 		ret = 0;
+		cy_rtos_mutex_set(&cm33_ipc_mutex);
 	}
 	else
 	{
 		ret = -1;
 	}
 
-	cy_rtos_mutex_set(&cm33_ipc_mutex);
 	return ret;
 }

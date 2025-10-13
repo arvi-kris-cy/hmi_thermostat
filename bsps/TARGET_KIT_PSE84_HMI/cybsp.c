@@ -53,6 +53,11 @@
 extern "C" {
 #endif
 
+#if defined(CYBSP_POST_CFG_INIT)
+/* If this BSP requires a step immediately after init_cycfg_all, declare it */
+cy_rslt_t cybsp_post_cfg_init();
+#endif // defined(CYBSP_POST_CFG_INIT)
+
 // The sysclk deep sleep callback is recommended to be the last callback that is executed before
 // entry into deep sleep mode and the first one upon exit the deep sleep mode.
 // Doing so minimizes the time spent on low power mode entry and exit.
@@ -324,6 +329,15 @@ cy_rslt_t cybsp_init(void)
     // and MPU for the core
     init_cycfg_all();
 
+    #if defined(CYBSP_POST_CFG_INIT)
+    /* Perform custom initialization step */
+    result = cybsp_post_cfg_init();
+    if (result != CY_RSLT_SUCCESS)
+    {
+        return result;
+    }
+	#endif
+
     #if !defined(CYBSP_DISABLE_SRF_INIT)
     // Set up the SRF and register the PDL module
     result = mtb_srf_init(&cybsp_srf_context);
@@ -368,6 +382,15 @@ cy_rslt_t cybsp_init(void)
     // Needs to happen on every core because MPU can only be
     // initialized from the core to which it applies
     init_cycfg_protection();
+
+    #if defined(CYBSP_POST_CFG_INIT)
+    /* Perform custom initialization step */
+    result = cybsp_post_cfg_init();
+    if (result != CY_RSLT_SUCCESS)
+    {
+        return result;
+    }
+	#endif
     #endif // (CY_SYSTEM_CPU_M33) && defined(COMPONENT_SECURE_DEVICE)
     // Always initialize peripheral-related data structures
 

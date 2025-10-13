@@ -82,6 +82,7 @@ extern volatile bool sensor_data_available;
 extern uint16_t read_ppm;
 extern int32_t read_temperature, read_humidity;
 extern SemaphoreHandle_t i2c_mutex;
+extern TimerHandle_t restart_sensor_timer;
 
 /*******************************************************************************
  *                                FUNCTION PROTOTYPES
@@ -125,6 +126,23 @@ void sensor_task(void *arg);
  * @param interval_ms   Sampling interval in milliseconds
  */
 void set_sensor_sampling_interval(uint32_t interval_ms);
+
+/**
+ * @brief Initializes the Sensor Task and its retry mechanism.
+ *
+ * This function creates the Sensor Task, which is responsible for
+ * initializing and managing sensor operations.
+ *
+ * If the Sensor Task creation fails, an error message is printed.
+ * If successful, the task begins execution immediately.
+ *
+ * @note The retry timer (5 seconds) is used in conjunction with the
+ *       `restart_sensor_task_timer_cb()` callback to recreate the task after failure.
+ *
+ * @retval None
+ */
+void app_sensor_task_init(void);
+
 
 #endif /* APP_SENSOR_H_ */
 

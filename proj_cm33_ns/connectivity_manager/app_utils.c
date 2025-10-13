@@ -42,6 +42,7 @@
  ******************************************************************************/
 #include "stdio.h"
 #include "app_utils.h"
+#include "app_common.h"
 
 /*******************************************************************************
  * FUNCTION DEFINITIONS
@@ -62,7 +63,7 @@
 *******************************************************************************/
 void print_bd_address(wiced_bt_device_address_t bdadr)
 {
-    printf("%02X:%02X:%02X:%02X:%02X:%02X",bdadr[0],bdadr[1],bdadr[2],bdadr[3],
+    LOG_INFO(CYLF_DEF, "%02X:%02X:%02X:%02X:%02X:%02X",bdadr[0],bdadr[1],bdadr[2],bdadr[3],
             bdadr[4],bdadr[5]);
 }
 

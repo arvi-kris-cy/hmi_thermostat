@@ -63,8 +63,7 @@
 /*******************************************************************************
  *                              GLOBAL VARIABLES
  *******************************************************************************/
-extern volatile uint32_t msg_val;
-extern volatile uint32_t msg_cmd;
+extern QueueHandle_t xUiRxQueue;
 extern TaskHandle_t cm33_ui_rx_task_handle;
 
 /*******************************************************************************
@@ -77,7 +76,7 @@ extern TaskHandle_t cm33_ui_rx_task_handle;
  * messages for the user interface.
  */
 void ui_rx_thread_init(void);
-
+void get_latet_FW_version(void);
 #endif /* PROJ_CM33_NS_APP_INCLUDE_APP_UI_RECEIVER_H_ */
 
 /* [] END OF FILE */

@@ -120,23 +120,6 @@ void handle_ipc_command(ipc_msg_t *msg, device_state_t *state)
 				break;
 			}
 
-			// OTA
-		case IPC_CMD_TRIGGER_OTA_START:
-			{
-				state->ota.ota_available = (uint8_t)msg->data;
-				break;
-			}
-		case IPC_CMD_OTA_PROGRESS:
-			{
-				state->ota.ota_progress = (uint8_t)msg->data;
-				break;
-			}
-		case IPC_CMD_OTA_STATUS:
-			{
-				state->ota.ota_final_status = (uint8_t)msg->data;
-				break;
-			}
-
 		default:
 			{
 				//handle error

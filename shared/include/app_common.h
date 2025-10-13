@@ -43,6 +43,7 @@
 #include "app_config.h"
 #include "ipc_communication.h"
 #include "cy_device.h"
+#include "cy_log.h"
 
 #ifndef SHARED_INCLUDE_APP_COMMON_H_
 #define SHARED_INCLUDE_APP_COMMON_H_
@@ -55,7 +56,22 @@
 #define APP_RRAM_NVM_MAIN_NS_START        0x22000000
 #define APP_NVM_DEVICE_SETTINGS_OFFSET	  0x00002000
 
+#define MAX_FW_VERSION_LEN                  (10U)
+
 #define UNUSED_PARAM(x) (void)(x)
+
+// Macro for logging an INFO message
+#define LOG_INFO(tag, msg, ...) \
+    cy_log_msg(tag, CY_LOG_INFO, msg, ##__VA_ARGS__)
+
+// Macro for logging an ERROR message
+#define LOG_ERROR(tag, msg, ...) \
+    cy_log_msg(tag, CY_LOG_ERR, msg, ##__VA_ARGS__)
+
+// Macro for logging a DEBUG message
+#define LOG_DEBUG(tag, msg, ...) \
+    cy_log_msg(tag, CY_LOG_DEBUG, msg, ##__VA_ARGS__)
+
 
 /*******************************************************************************
  *                                Data Types
@@ -158,7 +174,18 @@ typedef enum {
     DEV_ST_BLE_CONNECTED,
     DEV_ST_SWITCH_WIFI,
     DEV_ST_SWITCH_BLE,
+    DEV_ST_FW_HAVE_SAME_VERSION,
+    DEV_ST_NO_INTERNET,
 } device_connection_state_t;
+
+typedef enum {
+    SCREEN_MAIN,
+    SCREEN_SETTINGS,
+    SCREEN_FW,
+    SCREEN_DATE_TIME,
+    SCREEN_SETTINGS_SYSTEM,
+    SCREEN_SETTINGS_AUDIO
+} screen_id_t;
 
 typedef enum {
     BLE_CONN_RETRY_LIMITED,
@@ -224,12 +251,19 @@ typedef enum {
     IPC_CMD_GET_AUDIO_LEVEL,                // Get audio output level
 
     // OTA
+    IPC_CMD_OTA_VERSION,                    // OTA version
     IPC_CMD_TRIGGER_OTA_START,              // Start OTA update
+	IPC_CMD_ABORT_OTA,                      //OTA Abort
     IPC_CMD_OTA_PROGRESS,               	// Query OTA progress
     IPC_CMD_OTA_STATUS,                  	// Query OTA active status (in progress or not)
+    IPC_CMD_DISABLE_TOUCH,
+
 
 	IPC_CMD_SWITCH_TO_BLE,
     IPC_CMD_SET_DATE_TIME,                  //Set date time
+
+    IPC_CMD_UPDATE_CURRENT_SCREEN,          //Switch Screen
+    IPC_CMD_NO_INTERNET_NOTIFY,             //No internet notification on UI
 
     IPC_CMD_MAX
 } ipc_command_e;
