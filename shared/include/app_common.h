@@ -265,7 +265,17 @@ typedef enum {
     IPC_CMD_UPDATE_CURRENT_SCREEN,          //Switch Screen
     IPC_CMD_NO_INTERNET_NOTIFY,             //No internet notification on UI
 
-    IPC_CMD_MAX
+    IPC_CMD_MAX,
+    IPC_CMD_WEATHER_SYNC,                // Weather sync
+    IPC_CMD_LOCATION_SYNC,               // Location sync
+    IPC_CMD_HOUR_SYNC ,                  // Time sync   
+    IPC_CMD_MINUTE_SYNC,                 // Minute sync
+    IPC_CMD_SECOND_SYNC,                 // Second sync
+    IPC_CMD_DATE_SYNC,                   // Date sync
+    IPC_CMD_MONTH_SYNC,                  // Month sync
+    IPC_CMD_VAAR_SYNC,                   // Vaar sync
+    IPC_CMD_YEAR_SYNC,                   // Year sync 
+
 } ipc_command_e;
 
 // A simple structure to hold the parsed date and time components.

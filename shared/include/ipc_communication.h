@@ -108,6 +108,7 @@ typedef struct
     	char unique_id[13];		/* Unique id created using MAC addr. */
         DateTime datetime;
         char fw_version[MAX_FW_VERSION_LEN];
+        char char_value[32];       /* Used for single character values */
     };
 
 } ipc_msg_t;

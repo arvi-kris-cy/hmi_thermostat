@@ -640,7 +640,7 @@ void mqtt_client_task(void *pvParameters)
                     {
 						if(false == mqtt_init_status)
 						{
-							result = mqtt_init();
+							// result = mqtt_init();
 							if(CY_RSLT_SUCCESS == result)
 							{
 								mqtt_init_status = true;
@@ -653,7 +653,7 @@ void mqtt_client_task(void *pvParameters)
 						}
 
 
-						result = mqtt_connect();
+						// result = mqtt_connect();
 						if(CY_RSLT_SUCCESS == result)
 						{
 							ble_disconnect();

@@ -54,10 +54,15 @@
 #include "app_ui_receiver.h"
 #include "app_radar.h"
 #include "app_common.h"
+#include "secure_http_client.h"
 
 /******************************************************************************
  * Macros
  ******************************************************************************/
+#define HTTPS_TASK_NAME                             ("HTTPS Client")
+#define HTTPS_CLIENT_TASK_STACK_SIZE                (1024U * 2U)
+#define HTTPS_CLIENT_TASK_PRIORITY                  (4U)
+
 /* The timeout value in microsecond used to wait for core to be booted */
 #define CM55_BOOT_WAIT_TIME_US            (10U)
 /* App boot address for CM55 project */
@@ -86,10 +91,6 @@ extern TaskHandle_t wifi_task_handle;
 
 char current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
 ipc_msg_t *ipc_recv_msg;
-
-
-
-
 
 /*****************************************************************************
  * Function Definitions
@@ -336,7 +337,7 @@ int main(void)
 #endif /* FEATURE_RADAR */
 
     /* Initialize WiFi Tasks */
-    if(xTaskCreate(wifi_task, "WiFiTask", WIFI_TASK_STACK_SIZE, NULL,
+    if(xTaskCreate(wifi_task, "WiFi Task", WIFI_TASK_STACK_SIZE, NULL,
                 WIFI_TASK_PRIORITY, &wifi_task_handle) != pdPASS)
     {
 //        handle_app_error();
@@ -344,9 +345,11 @@ int main(void)
     }
 
     /* Create the MQTT Client task. */
-    result = xTaskCreate(mqtt_client_task, "MQTTTask", MQTT_CLIENT_TASK_STACK_SIZE,
-                NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
+    result = xTaskCreate(mqtt_client_task, MQTT_TASK_NAME, MQTT_CLIENT_TASK_STACK_SIZE,
+                            NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
 
+    result = xTaskCreate(https_client_task, HTTPS_TASK_NAME, HTTPS_CLIENT_TASK_STACK_SIZE,
+                            NULL, HTTPS_CLIENT_TASK_PRIORITY, NULL);
 
     if( pdPASS == result )
     {

@@ -67,12 +67,16 @@ CORE_NAME=CM33_0
 # by default, or otherwise not found by the build system.
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
 SOURCES+=$(wildcard ../shared/source/*.c)
+SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/core_http_client.c
+SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 SEARCH+=../components
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
 INCLUDES+=../shared/include
+INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/include
+INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser
 
 # Custom configuration of mbedtls library.
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
@@ -84,7 +88,7 @@ DEFINES += CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
 # above.
-CFLAGS+=
+CFLAGS+=-Wno-implicit-function-declaration
 
 # Additional / custom C++ compiler flags.
 #
@@ -135,6 +139,9 @@ DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
 ifeq ($(TOOLCHAIN),LLVM_ARM)
 DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
 endif
+
+DEFINES += HTTP_DO_NOT_USE_CUSTOM_CONFIG
+DEFINES += MQTT_DO_NOT_USE_CUSTOM_CONFIG
 
 DEFINES+= APP_VERSION_MAJOR=$(APP_VERSION_MAJOR) \
           APP_VERSION_MINOR=$(APP_VERSION_MINOR) \

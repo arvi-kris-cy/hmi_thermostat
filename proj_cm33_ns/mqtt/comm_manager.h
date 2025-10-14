@@ -32,4 +32,14 @@ void abort_OTA(void);
 void no_internet_connected_send_to_ui(void);
 void disable_touch(void);
 
+void set_weather_sync(const char *value);
+void set_location_sync(const char *value);
+void set_hour_sync(const char *value);
+void set_minute_sync(const char *value);
+void set_second_sync(const char *value);
+void set_date_sync(const char *value);
+void set_month_sync(const char *value);
+void set_vaar_sync(const char *value);
+void set_year_sync(const char *value);
+
 #endif /* COMM_MANAGER_H_ */

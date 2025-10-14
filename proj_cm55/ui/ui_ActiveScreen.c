@@ -1007,11 +1007,11 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_height(ui_WeatherTextactive, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WeatherTextactive, -43);
     lv_obj_set_y(ui_WeatherTextactive, -23);
-    lv_obj_set_align(ui_WeatherTextactive, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive, "Nuremberg");
+    lv_obj_set_align(ui_WeatherTextactive, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_WeatherTextactive, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_container1text = lv_label_create(ui_weathercontainer1);
     lv_obj_set_width(ui_container1text, LV_SIZE_CONTENT);   /// 1
@@ -1060,11 +1060,11 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_height(ui_WeatherTextactive2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WeatherTextactive2, -44);
     lv_obj_set_y(ui_WeatherTextactive2, -25);
-    lv_obj_set_align(ui_WeatherTextactive2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive2, "Nuremberg");
+    lv_obj_set_align(ui_WeatherTextactive2, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_WeatherTextactive2, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive2, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive2, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_container2text = lv_label_create(ui_weathercontainer2);
     lv_obj_set_width(ui_container2text, LV_SIZE_CONTENT);   /// 1
@@ -1113,11 +1113,11 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_height(ui_WeatherTextactive3, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WeatherTextactive3, -48);
     lv_obj_set_y(ui_WeatherTextactive3, -25);
-    lv_obj_set_align(ui_WeatherTextactive3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive3, "Bengaluru");
+    lv_obj_set_align(ui_WeatherTextactive3, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_WeatherTextactive3, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive3, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive3, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_humidity3 = lv_label_create(ui_weathercontainer3);
     lv_obj_set_width(ui_humidity3, LV_SIZE_CONTENT);   /// 1

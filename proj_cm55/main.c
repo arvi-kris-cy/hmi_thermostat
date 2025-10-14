@@ -242,6 +242,15 @@ char *intent_text;
 bool handle_ww_for_ui = false;
 bool handle_command_for_ui = false;
 
+char weather_sync_value[32];
+char location_sync_value[32];
+char hour_sync_value[8];
+char minute_sync_value[8];
+char second_sync_value[8];
+char date_sync_value[8];
+char month_sync_value[8];
+char vaar_sync_value[8];
+char year_sync_value[8];
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
@@ -516,6 +525,21 @@ static void handle_sensor_update(void)
 
         /** Clear the flag to indicate the data has been processed. */
         sensor_data_available = false;
+    }
+}
+
+void update_date_labels(void)
+{
+    if (strlen(month_sync_value) > 0 && strlen(vaar_sync_value) > 0 && strlen(date_sync_value) > 0)
+    {
+        char date_str[32];
+        snprintf(date_str, sizeof(date_str), "%s %s %s", vaar_sync_value, date_sync_value, month_sync_value);
+
+        // Update the UI labels
+        lv_label_set_text(ui_Dateactive, date_str);
+        lv_label_set_text(ui_DateLP, date_str);
+
+        LOG_INFO(CYLF_DEF, "Updated date labels: %s\n", date_str);
     }
 }
 
@@ -815,8 +839,108 @@ static void handle_system_event(void)
                 break;
             }
 
-        default:
-            break;
+            case IPC_CMD_WEATHER_SYNC:
+                LOG_INFO(CYLF_DEF, "\nWeather data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the weather data
+                memset(weather_sync_value, 0, sizeof(weather_sync_value));
+                strncpy(weather_sync_value, ipc_recv_msg->char_value, sizeof(weather_sync_value) - 1);
+
+                // Update UI label
+                lv_label_set_text(ui_container1text, weather_sync_value);
+                lv_label_set_text(ui_container2text, weather_sync_value);
+                lv_label_set_text(ui_container3text, weather_sync_value);
+                break;
+
+            case IPC_CMD_LOCATION_SYNC:
+                LOG_INFO(CYLF_DEF, "\nLocation data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the location data
+                memset(location_sync_value, 0, sizeof(location_sync_value));
+                strncpy(location_sync_value, ipc_recv_msg->char_value, sizeof(location_sync_value) - 1);
+
+                // Update Weather Text UI
+                // lv_label_set_text(ui_WeatherTextactive, location_sync_value);
+                // lv_label_set_text(ui_WeatherTextactive2, location_sync_value);
+                // lv_label_set_text(ui_WeatherTextactive3, location_sync_value);
+                break;
+
+            case IPC_CMD_HOUR_SYNC:
+                LOG_INFO(CYLF_DEF, "\nHour sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the hour sync data
+                memset(hour_sync_value, 0, sizeof(hour_sync_value));
+                strncpy(hour_sync_value, ipc_recv_msg->char_value, sizeof(hour_sync_value) - 1);
+
+                // Update Hour Sync Text UI
+                lv_label_set_text(ui_TimeHactive, hour_sync_value);
+                lv_label_set_text(ui_TimeHLP, hour_sync_value);
+                break;
+
+            case IPC_CMD_MINUTE_SYNC:
+                LOG_INFO(CYLF_DEF, "\nMinute sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the minute sync data
+                memset(minute_sync_value, 0, sizeof(minute_sync_value));
+                strncpy(minute_sync_value, ipc_recv_msg->char_value, sizeof(minute_sync_value) - 1);
+
+                // Update Minute Sync Text UI
+                lv_label_set_text(ui_TimeMactive, minute_sync_value);
+                lv_label_set_text(ui_TimeMLP, minute_sync_value);
+                break;
+
+            case IPC_CMD_SECOND_SYNC:
+                LOG_INFO(CYLF_DEF, "\nSecond sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the second sync data
+                memset(second_sync_value, 0, sizeof(second_sync_value));
+                strncpy(second_sync_value, ipc_recv_msg->char_value, sizeof(second_sync_value) - 1);
+
+                // Update Second Sync Text UI
+                lv_label_set_text(ui_TimeSLP, second_sync_value);
+                break;
+
+            case IPC_CMD_DATE_SYNC:
+                LOG_INFO(CYLF_DEF, "Month sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(date_sync_value, 0, sizeof(date_sync_value));
+                strncpy(date_sync_value, ipc_recv_msg->char_value, sizeof(date_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Date stored: %s\n", date_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_MONTH_SYNC:
+                LOG_INFO(CYLF_DEF, "Month sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(month_sync_value, 0, sizeof(month_sync_value));
+                strncpy(month_sync_value, ipc_recv_msg->char_value, sizeof(month_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Month stored: %s\n", month_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_VAAR_SYNC:
+                LOG_INFO(CYLF_DEF, "Vaar sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(vaar_sync_value, 0, sizeof(vaar_sync_value));
+                strncpy(vaar_sync_value, ipc_recv_msg->char_value, sizeof(vaar_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Vaar stored: %s\n", vaar_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_YEAR_SYNC:
+                LOG_INFO(CYLF_DEF, "Year sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(year_sync_value, 0, sizeof(year_sync_value));
+                strncpy(year_sync_value, ipc_recv_msg->char_value, sizeof(year_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Year stored: %s\n", year_sync_value);
+                break;
+
+            default:
+                break;
         }
         cm55_pipe2_msg_received = false;
     }
