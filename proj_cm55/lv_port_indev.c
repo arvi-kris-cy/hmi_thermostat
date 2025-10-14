@@ -158,33 +158,42 @@ static void touchpad_init(void)
 *******************************************************************************/
 static void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 {
+    cy_rslt_t result = CY_RSLT_SUCCESS;
     static int touch_x = 0;
     static int touch_y = 0;
-    cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    data->state = LV_INDEV_STATE_REL;
+    /* Wait for sensor task to acquire the i2c bus. */
+    if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
+    {
+        data->state = LV_INDEV_STATE_REL;
 
-    #if defined(MTB_CTP_FT5446)
-    result = mtb_ctp_ft5446_get_single_touch(&touch_x, &touch_y);
+#if defined(MTB_CTP_FT5446)
+        result = mtb_ctp_ft5446_get_single_touch(&touch_x, &touch_y);
 
-    if ((CY_RSLT_SUCCESS == result))
-            {
-                  data->state = LV_INDEV_STATE_PR;
-            }
-    #elif defined(MTB_CTP_P4100TP)
-    result = mtb_ctp_p4100tp_get_single_touch(&touch_x, &touch_y);
-    if ((CY_RSLT_SUCCESS == result))
-	        {
-	              data->state = LV_INDEV_STATE_PR;
-touch_detected = true;
-	        }   
-    #endif
+        if ((CY_RSLT_SUCCESS == result))
+        {
+            data->state = LV_INDEV_STATE_PR;
+            touch_detected = true;
+        }
+#elif defined(MTB_CTP_P4100TP)
+        result = mtb_ctp_p4100tp_get_single_touch(&touch_x, &touch_y);
 
-    #if defined(MTB_CTP_ILI2511) || defined(MTB_CTP_GT911) || defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
+        if ((CY_RSLT_SUCCESS == result))
+        {
+            data->state = LV_INDEV_STATE_PR;
+            touch_detected = true;
+        }   
+#endif
+      }
+
+      // Release the mutex, allowing other tasks to use the bus.
+      xSemaphoreGive(i2c_mutex);
+
+#if defined(MTB_CTP_ILI2511) || defined(MTB_CTP_GT911) || defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
     /* Set the last pressed coordinates */
-     data->point.x = touch_x;
-     data->point.y = touch_y;
-    #endif
+    data->point.x = touch_x;
+    data->point.y = touch_y;
+#endif
 }
 
 

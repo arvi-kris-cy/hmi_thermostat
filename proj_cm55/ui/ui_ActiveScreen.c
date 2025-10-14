@@ -2861,7 +2861,7 @@ void ui_ActiveScreen_screen_init(void)
 
     ui_Roller1 = lv_roller_create(ui_voicecmdlistpanel);
     lv_roller_set_options(ui_Roller1,
-            "Set temperature 20 degrees\nSet temperature to 20 degrees\nSwitch off heating\nSwitch off screen\nSwitch off the screen\nSwitch on heating\nSwitch on screen\nSwitch on the screen\nSwitch cooling\nSwitch to cooling\nEnable fan mode\nDisable fan mode\nIs system on\nIs the system on\nConnect wifi\nConnect to wifi\nDecrease brightness\nDecrease screen brightness\nDecrease temperature 10 degrees\nDecrease temperature by 10 degrees\nIncrease brightness\nIncrease screen brightness\nIncrease temperature 10 degrees\nIncrease temperature by 10 degrees\nUnmute Volume\nMute Volume\nGo sleep\nGo to sleep\nGo setting\nGo to setting\nWhat is current temperature\nWhat is the current temperature\nWhat is wifi status\nWhat is the wifi status",
+            "Increase temperature\nSet temperature to 20 degrees\nDecrease brightness\nIncrease brightness\nGo to setting\nMute Volume\nUnmute Volume",
 			LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(ui_Roller1, 3, LV_ANIM_OFF);
     lv_obj_set_width(ui_Roller1, 383);
