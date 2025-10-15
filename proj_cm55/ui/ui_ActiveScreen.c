@@ -909,7 +909,7 @@ void ui_ActiveScreen_screen_init(void)
     // lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-#if 0 // use color gradient for bg
+#if 1 // use color gradient for bg
     lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x18AB9B), LV_PART_MAIN | LV_STATE_DEFAULT);
