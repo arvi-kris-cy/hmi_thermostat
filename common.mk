@@ -47,7 +47,7 @@ TOOLCHAIN=ARM
 # 
 # If CONFIG is manually edited, ensure to update or regenerate 
 # launch configurations for your IDE.
-CONFIG=Debug
+CONFIG=Release
 
 MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
 

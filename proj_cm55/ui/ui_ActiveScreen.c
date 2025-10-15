@@ -1007,7 +1007,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_height(ui_WeatherTextactive, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WeatherTextactive, -43);
     lv_obj_set_y(ui_WeatherTextactive, -23);
-    lv_obj_set_align(ui_WeatherTextactive, LV_ALIGN_LEFT_MID);
+    lv_obj_set_align(ui_WeatherTextactive, LV_ALIGN_CENTER);
     lv_label_set_text(ui_WeatherTextactive, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1058,10 +1058,10 @@ void ui_ActiveScreen_screen_init(void)
     ui_WeatherTextactive2 = lv_label_create(ui_weathercontainer2);
     lv_obj_set_width(ui_WeatherTextactive2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_WeatherTextactive2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_WeatherTextactive2, -44);
-    lv_obj_set_y(ui_WeatherTextactive2, -25);
-    lv_obj_set_align(ui_WeatherTextactive2, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_WeatherTextactive2, "            Mountain View, CA");
+    lv_obj_set_x(ui_WeatherTextactive2, -23);
+    lv_obj_set_y(ui_WeatherTextactive2, -26);
+    lv_obj_set_align(ui_WeatherTextactive2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_WeatherTextactive2, "Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_WeatherTextactive2, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1088,15 +1088,16 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_humidity2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_humidity2, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_weatheractive2 = lv_image_create(ui_weathercontainer2);
-    lv_image_set_src(ui_weatheractive2, &ui_img_sun_png);
+    ui_weatheractive2 = lv_img_create(ui_weathercontainer2);
+    lv_img_set_src(ui_weatheractive2, &ui_img_sun_png);
     lv_obj_set_width(ui_weatheractive2, LV_SIZE_CONTENT);   /// 70
     lv_obj_set_height(ui_weatheractive2, LV_SIZE_CONTENT);    /// 70
-    lv_obj_set_x(ui_weatheractive2, 65);
-    lv_obj_set_y(ui_weatheractive2, -12);
+    lv_obj_set_x(ui_weatheractive2, 68);
+    lv_obj_set_y(ui_weatheractive2, 0);
     lv_obj_set_align(ui_weatheractive2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_weatheractive2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_remove_flag(ui_weatheractive2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_weatheractive2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_weatheractive2, 240);
 
     ui_weathercontainer3 = lv_obj_create(ui_Container1);
     lv_obj_remove_style_all(ui_weathercontainer3);
@@ -1113,7 +1114,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_height(ui_WeatherTextactive3, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WeatherTextactive3, -48);
     lv_obj_set_y(ui_WeatherTextactive3, -25);
-    lv_obj_set_align(ui_WeatherTextactive3, LV_ALIGN_LEFT_MID);
+    lv_obj_set_align(ui_WeatherTextactive3, LV_ALIGN_CENTER);
     lv_label_set_text(ui_WeatherTextactive3, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -2861,7 +2862,7 @@ void ui_ActiveScreen_screen_init(void)
 
     ui_Roller1 = lv_roller_create(ui_voicecmdlistpanel);
     lv_roller_set_options(ui_Roller1,
-            "Increase temperature\nSet temperature to 20 degrees\nDecrease brightness\nIncrease brightness\nGo to setting\nMute Volume\nUnmute Volume",
+            "Set temperature to <14 - 30>\nIncrease / Decrease temperature\nIncrease / Decrease brightness\nGo to setting\nMute / Unmute volume",
 			LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(ui_Roller1, 3, LV_ANIM_OFF);
     lv_obj_set_width(ui_Roller1, 383);

@@ -103,11 +103,11 @@ void go_to_sleepmode()
 void decrease_screen_brightness()
 {
     brightness_level  = lv_slider_get_value(ui_Slider2);
-    if(brightness_level%10 !=0)
+    if(brightness_level%20 !=0)
     {
-        brightness_level = ((brightness_level) - (brightness_level%10) + 10);
+        brightness_level = ((brightness_level) - (brightness_level%20) + 20);
     }
-    brightness_level  -= 10;
+    brightness_level  -= 20;
 
     if(brightness_level > lv_slider_get_min_value(ui_Slider2) && brightness_level < lv_slider_get_max_value(ui_Slider2))
     {
@@ -121,11 +121,11 @@ void decrease_screen_brightness()
 void increase_screen_brightness()
 {
     brightness_level  = lv_slider_get_value(ui_Slider2);
-    if(brightness_level%10 !=0)
+    if(brightness_level%20 !=0)
     {
-        brightness_level = ((brightness_level) - (brightness_level%10) + 10);
+        brightness_level = ((brightness_level) - (brightness_level%20) + 20);
     }
-    brightness_level  += 10;
+    brightness_level  += 20;
     
     if(brightness_level > lv_slider_get_min_value(ui_Slider2) && brightness_level < lv_slider_get_max_value(ui_Slider2))
     {
