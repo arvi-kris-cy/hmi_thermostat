@@ -98,6 +98,7 @@ LV_IMG_DECLARE(ui_img_qrcode_png);    // assets/qrcode.png
 LV_IMG_DECLARE(ui_img_bleadv120_png);    // assets/bleadv120.png
 LV_IMG_DECLARE(ui_img_wifi_connected_png);    // assets/wifi_connected.png
 LV_IMG_DECLARE(ui_img_ble_connected_120_png);    // assets/ble_connected_120.png
+LV_IMG_DECLARE(ui_img_ble_connected_50_png);    // assets/ble_connected_50.png
 LV_IMG_DECLARE(ui_img_wifidelete_png);    // assets/wifidelete.png
 LV_IMG_DECLARE(ui_img_cloud_outline_png);    // assets/cloud_outline.png
 LV_IMG_DECLARE(ui_img_gobackicon_png);    // assets/gobackicon.png

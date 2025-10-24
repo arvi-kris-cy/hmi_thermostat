@@ -84,8 +84,13 @@
 #define AUTO_MODE_TARGET_TEMP_DEFAULT_C 22
 #define AUTO_MODE_TARGET_TEMP_DEFAULT_F CELSIUS_TO_FAHRENHEIT(AUTO_MODE_TARGET_TEMP_DEFAULT_C)
 
-//Notifcation related
-#define MAX_NOTIF_QUEUE 5
+/* Notification related */
+#define MAX_NOTIF_QUEUE     5U
+
+/* Temperature arc angle */
+#define TEMPERATURE_ARC_START_ANGLE 120U
+#define TEMPERATURE_ARC_END_ANGLE   420U
+#define TEMPERATURE_ARC_ANGLE_PER_STEP 18U
 
 /*******************************************************************************
  *                             GLOBAL VARIABLES
@@ -156,7 +161,7 @@ static animation_state_t current_state = STATE_NONE;
 
 static bool person_detected = false;
 static uint8_t person_count = 0;
-static int weather_temp = 28;
+static int weather_temp = 11;
 static uint32_t current_test_state_idx = 0;
 static qr_manager_t qr_manager;
 
@@ -339,6 +344,8 @@ static void hide_notification_ready_cb(lv_anim_t *a);
 
 static void increase_temp_step(lv_timer_t *timer);
 static void decrease_temp_step(lv_timer_t *timer);
+static int temp_to_heating_arc_angle(int temperature);
+static int temp_to_cooling_arc_angle(int temperature);
 
 /**
  * @brief This is a helper function to update the time labels on the UI.
@@ -725,6 +732,9 @@ void increase_temp(lv_event_t *e)
     {
         if (temperature < current_max_temp)
         {
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+
             target_temp = ++temperature;
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
@@ -764,7 +774,10 @@ void increase_temp(lv_event_t *e)
             }
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_remove_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_arc_set_value(ui_heatingtemparc, current_temp); // Replace current_temp with your value
         }
     }
     else
@@ -779,6 +792,9 @@ void decrease_temp(lv_event_t *e)
     {
         if (temperature > current_min_temp)
         {
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+
             target_temp = --temperature;
 
             if (dev_unit == TEMP_UNIT_CELSIUS)
@@ -818,7 +834,10 @@ void decrease_temp(lv_event_t *e)
             }
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_remove_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_arc_set_value(ui_coolingtemparc, current_temp); // Replace current_temp with your value
         }
         else
         {
@@ -853,8 +872,29 @@ static void increase_temp_step(lv_timer_t *timer)
             lv_label_set_text_fmt(ui_Mainroomtextactive, ". . . Heating . . .");
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
             current_state = STATE_HEATING;
+
+//            lv_obj_set_style_arc_color(ui_temperaturearc, lv_color_hex(0xFF5A5A), LV_PART_INDICATOR);
+
+            lv_obj_remove_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+//            lv_arc_set_value(ui_heatingtemparc, current_temp); // Replace current_temp with your value
+
+//            lv_arc_set_value(ui_heatingtemparc, (target_temp - current_temp)); // Replace current_temp with your value
+
+            //            lv_arc_set_value(ui_heatingtemparc, current_temp);
+                        int start_angle = temp_to_heating_arc_angle(current_temp);
+                        int end_angle   = temp_to_heating_arc_angle(target_temp);
+
+                        printf("Updated Start angle: %d, End Angle: %d\n", start_angle, end_angle);
+                        printf("Updated CT: %d, TT: %d\n", current_temp, target_temp);
+
+                        lv_arc_set_range(ui_heatingtemparc, 0, abs(target_temp - current_temp));
+                        lv_arc_set_value(ui_heatingtemparc, abs(target_temp - current_temp)); // Replace current_temp with your value
+
+                        lv_arc_set_bg_start_angle(ui_heatingtemparc, start_angle);
+                        lv_arc_set_bg_end_angle(ui_heatingtemparc, end_angle);
+
         }
         if (current_temp == target_temp)
         {
@@ -885,6 +925,9 @@ static void increase_temp_step(lv_timer_t *timer)
             enqueue_notification(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
             dev_info.thermostat_settings.time_remains = 0;
             current_state = STATE_NONE;
+
+//            lv_obj_set_style_arc_color(ui_temperaturearc, lv_color_hex(0x191C26), LV_PART_INDICATOR);
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
         }
 
         dev_info.environment.current_temp = current_temp;
@@ -921,8 +964,23 @@ static void decrease_temp_step(lv_timer_t *timer)
 
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
             current_state = STATE_COOLING;
+
+            lv_obj_remove_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+//            lv_arc_set_value(ui_coolingtemparc, current_temp); // Replace current_temp with your value
+            int start_angle = temp_to_cooling_arc_angle(current_temp);
+            int end_angle   = temp_to_cooling_arc_angle(target_temp);
+
+            printf("Start angle: %d, End Angle: %d\n", start_angle, end_angle);
+            printf("CT: %d, TT: %d\n", current_temp, target_temp);
+
+            lv_arc_set_range(ui_coolingtemparc, 0, abs(target_temp - current_temp));
+            lv_arc_set_value(ui_coolingtemparc, abs(target_temp - current_temp)); // Replace current_temp with your value
+
+            lv_arc_set_bg_start_angle(ui_coolingtemparc, end_angle);
+            lv_arc_set_bg_end_angle(ui_coolingtemparc, start_angle);
+
         }
         if (current_temp == target_temp)
         {
@@ -951,6 +1009,8 @@ static void decrease_temp_step(lv_timer_t *timer)
             enqueue_notification(NOTIFY_TEMP_UPDATE, NOTIF_SUCCESS, current_temp);
             dev_info.thermostat_settings.time_remains = 0;
             current_state = STATE_NONE;
+
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
         }
 
         dev_info.environment.current_temp = current_temp;
@@ -968,24 +1028,9 @@ void weather_change(lv_event_t *e)
     static int index = 0;
 
     // Hide all containers
-    lv_obj_add_flag(ui_weathercontainer1, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_weathercontainer3, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
 
-    switch (index)
-    {
-        case 0:
-            lv_obj_clear_flag(ui_weathercontainer1, LV_OBJ_FLAG_HIDDEN);
-            break;
-        case 1:
-            lv_obj_clear_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
-            break;
-        case 2:
-            lv_obj_clear_flag(ui_weathercontainer3, LV_OBJ_FLAG_HIDDEN);
-            break;
-    }
-
-    index = (index + 1) % 3;
 }
 
 void update_fan_mode(fan_speed_t mode)
@@ -1083,16 +1128,12 @@ void weatherup(lv_event_t *e)
 
     if (dev_unit == TEMP_UNIT_CELSIUS)
     {
-        lv_label_set_text_fmt(ui_container1text, "%d°c", weather_temp);
         lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
-        lv_label_set_text_fmt(ui_container3text, "%d°c", weather_temp);
 
     }
     else
     {
-        lv_label_set_text_fmt(ui_container1text, "%d°F", weather_temp);
         lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
-        lv_label_set_text_fmt(ui_container3text, "%d°F", weather_temp);
     }
 
 }
@@ -1102,15 +1143,11 @@ void weatherdown(lv_event_t *e)
     weather_temp--;
     if (dev_unit == TEMP_UNIT_CELSIUS)
     {
-        lv_label_set_text_fmt(ui_container1text, "%d°c", weather_temp);
         lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
-        lv_label_set_text_fmt(ui_container3text, "%d°c", weather_temp);
     }
     else
     {
-        lv_label_set_text_fmt(ui_container1text, "%d°F", weather_temp);
         lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
-        lv_label_set_text_fmt(ui_container3text, "%d°F", weather_temp);
     }
 }
 
@@ -1334,7 +1371,8 @@ void hide_connectivity_screen(void)
         display_temp_change_anim();
         display_mic_state();
         display_presence_detection_status();
-        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+//        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_TempArcContanier, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
 
@@ -1390,7 +1428,8 @@ void update_device_connection_state(device_connection_state_t state)
     lv_obj_add_flag(ui_wifidisccconnectedimg, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleconnected120, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homebleadv, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homewifidisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
@@ -1405,16 +1444,15 @@ void update_device_connection_state(device_connection_state_t state)
     lv_obj_add_flag(ui_switchtowififromble, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_switchtowififrombleinfolbl, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_devconwificonnectionscreen, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleconswitchtoKeybd, LV_OBJ_FLAG_HIDDEN);
-     lv_obj_add_flag(ui_bleconmappinfolabel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_bleconmappinfolabel, LV_OBJ_FLAG_HIDDEN);
 
     /* Delete all running animations */
     lv_anim_del(ui_bleadv, NULL);
     lv_anim_del(ui_wificonnecting120, NULL);
     lv_anim_del(ui_wifi, NULL);
-    lv_anim_del(ui_homebleadv, NULL);
+    lv_anim_del(ui_homebleconnected, NULL);
     lv_anim_del(ui_wifi, NULL);
     lv_anim_del(ui_connectionprg1, NULL);
     lv_anim_del(ui_connectionprg2, NULL);
@@ -1556,9 +1594,9 @@ void update_device_connection_state(device_connection_state_t state)
             state_text = "Waiting for mobile connection . . .";
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homebleadv, LV_OBJ_FLAG_HIDDEN);
-            bleadvpulse_Animation(ui_homebleadv, 0);
-            lv_obj_set_style_opa(ui_homebleadv, 255, 0);
+            lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
+            wifi_Animation(ui_homebleconnected, 0);
+            lv_obj_set_style_opa(ui_homebleconnected, 255, 0);
 
             ble_conn_state = false;
             break;
@@ -1579,9 +1617,9 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homebleadv, LV_OBJ_FLAG_HIDDEN);
-            miclisteninganime_Animation(ui_homebleadv, 0);
-            lv_obj_set_style_opa(ui_homebleadv, 255, 0);
+            lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
+            miclisteninganime_Animation(ui_homebleconnected, 0);
+            lv_obj_set_style_opa(ui_homebleconnected, 255, 0);
             break;
 
         case DEV_ST_UNPROVISIONED:
@@ -1675,8 +1713,8 @@ void update_device_connection_state(device_connection_state_t state)
             state_text = "BLE Connected";
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homebleconnected, 255, 0);
+            lv_obj_clear_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_opa(ui_bleconnected50, 190, 0);
 
             /* Start timer to hide the pop-up screen */
             ui_timer_stop();
@@ -2166,6 +2204,22 @@ void update_thermostat_mode(thermostat_mode_t mode)
     dev_current_mode = mode;
 }
 
+static int temp_to_heating_arc_angle(int temperature)
+{
+    if (temperature < TEMP_MIN) temperature = TEMP_MIN;
+    if (temperature > TEMP_MAX) temperature = TEMP_MAX;
+
+    return TEMPERATURE_ARC_START_ANGLE + (temperature - TEMP_MIN) * TEMPERATURE_ARC_ANGLE_PER_STEP;
+}
+
+static int temp_to_cooling_arc_angle(int temperature)
+{
+    if (temperature < TEMP_MIN) temperature = TEMP_MIN;
+    if (temperature > TEMP_MAX) temperature = TEMP_MAX;
+
+    return TEMPERATURE_ARC_END_ANGLE - ((TEMP_MAX - temperature) * TEMPERATURE_ARC_ANGLE_PER_STEP);
+}
+
 void update_device_temp(uint8_t temp)
 {
 	if((temp < current_min_temp) || (temp > current_max_temp) || (temp == current_temp))
@@ -2208,6 +2262,9 @@ void update_device_temp(uint8_t temp)
          * red arrows along with animation and heating status on UI. */
         if (target_temp > current_temp)
         {
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+
             lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xF44336), LV_PART_MAIN | LV_STATE_DEFAULT);
             temp_timer = lv_timer_create(increase_temp_step, deg2sec, NULL);
             lv_obj_add_flag(ui_bluecontainer, LV_OBJ_FLAG_HIDDEN);
@@ -2229,13 +2286,31 @@ void update_device_temp(uint8_t temp)
             /* Update UI with time remaining info to reach target temperature */
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_remove_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+//            lv_arc_set_value(ui_heatingtemparc, current_temp);
+            int start_angle = temp_to_heating_arc_angle(current_temp);
+            int end_angle   = temp_to_heating_arc_angle(target_temp);
+
+            printf("Start angle: %d, End Angle: %d\n", start_angle, end_angle);
+            printf("CT: %d, TT: %d\n", current_temp, target_temp);
+
+            lv_arc_set_range(ui_heatingtemparc, 0, abs(target_temp - current_temp));
+            lv_arc_set_value(ui_heatingtemparc, abs(target_temp - current_temp)); // Replace current_temp with your value
+
+            lv_arc_set_bg_start_angle(ui_heatingtemparc, start_angle);
+            lv_arc_set_bg_end_angle(ui_heatingtemparc, end_angle);
+
         }
         /* If target temperature is less then current temp., start
          * timer to decrease the current temperature and display the
          * blue arrows with animation along with the cooling status on UI. */
         else if (target_temp < current_temp)
         {
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+
             lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xC6FFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_add_flag(ui_redcontainer, LV_OBJ_FLAG_HIDDEN);
             if (popup_overlay_visible == false)
@@ -2257,12 +2332,30 @@ void update_device_temp(uint8_t temp)
             /* Update UI with time remaining info to reach target temperature */
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             lv_label_set_text(ui_homescreensubmsg, subinfo);
-            lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_remove_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+//            lv_arc_set_value(ui_coolingtemparc, current_temp);
+
+            int end_angle = temp_to_cooling_arc_angle(current_temp);
+            int start_angle   = temp_to_cooling_arc_angle(target_temp);
+
+            printf("Start angle: %d, End Angle: %d\n", start_angle, end_angle);
+            printf("CT: %d, TT: %d\n", current_temp, target_temp);
+
+            lv_arc_set_range(ui_coolingtemparc, 0, abs(target_temp - current_temp));
+            lv_arc_set_value(ui_coolingtemparc, abs(target_temp - current_temp)); // Replace current_temp with your value
+
+            lv_arc_set_bg_start_angle(ui_coolingtemparc, start_angle);
+            lv_arc_set_bg_end_angle(ui_coolingtemparc, end_angle);
         }
         /* If target temperature is set to current temp., stop all timer
          * and hide all red/blue arrow animations from UI. */
         else
         {
+            lv_obj_add_flag(ui_heatingtemparc, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_coolingtemparc, LV_OBJ_FLAG_HIDDEN);
+
             _ui_flag_modify(ui_redcontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
             _ui_flag_modify(ui_bluecontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
             current_state = STATE_NONE;
@@ -2310,12 +2403,14 @@ void display_ble_pairing_window(bool hide, char *code)
         if(wifi_popup_state != true)
         {
             lv_obj_add_flag(ui_popupoverlay,LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(ui_temperaturearc,LV_OBJ_FLAG_HIDDEN);
+//            lv_obj_clear_flag(ui_temperaturearc,LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_TempArcContanier,LV_OBJ_FLAG_HIDDEN);
         }
     }
     else
     {
         lv_obj_add_flag(ui_temperaturearc,LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_TempArcContanier,LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_commissionMapp,LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_commissionKeyboard,LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_devconnstatecontianer,LV_OBJ_FLAG_HIDDEN);
@@ -2361,9 +2456,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container1text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
-        lv_label_set_text_fmt(ui_container3text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, current_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2379,9 +2472,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container1text, "11°c");
         lv_label_set_text(ui_container2text, "11°c");
-        lv_label_set_text(ui_container3text, "11°c");
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, current_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
@@ -2602,9 +2693,7 @@ void set_system_unit(lv_event_t *e)
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container1text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
-        lv_label_set_text_fmt(ui_container3text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2631,9 +2720,7 @@ void set_system_unit(lv_event_t *e)
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container1text, "11°c");
         lv_label_set_text(ui_container2text, "11°c");
-        lv_label_set_text(ui_container3text, "11°c");
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
@@ -2668,9 +2755,7 @@ void update_system_unit(temp_unit_t unit)
         lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container1text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
-        lv_label_set_text_fmt(ui_container3text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2693,9 +2778,7 @@ void update_system_unit(temp_unit_t unit)
         lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container1text, "11°c");
         lv_label_set_text(ui_container2text, "11°c");
-        lv_label_set_text(ui_container3text, "11°c");
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
@@ -2788,7 +2871,8 @@ void device_factory_reset(lv_event_t *e)
         lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
     }
 
-    _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+//    _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    _ui_flag_modify(ui_TempArcContanier, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     lv_scr_load(ui_ActiveScreen);
 
     /* Send factory reset command over IPC
@@ -3398,7 +3482,8 @@ void stop_homescreen_connectivity_state(void)
     lv_obj_add_flag(ui_wifidisccconnectedimg, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleconnected120, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homebleadv, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homewifidisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
@@ -3414,6 +3499,7 @@ void stop_homescreen_connectivity_state(void)
     lv_obj_add_flag(ui_switchtowififrombleinfolbl, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_devconwificonnectionscreen, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
     //lv_obj_add_flag(ui_bleswitchbtnlbl, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
 
@@ -3421,7 +3507,7 @@ void stop_homescreen_connectivity_state(void)
     lv_anim_del(ui_bleadv, NULL);
     lv_anim_del(ui_wificonnecting120, NULL);
     lv_anim_del(ui_wifi, NULL);
-    lv_anim_del(ui_homebleadv, NULL);
+    lv_anim_del(ui_homebleconnected, NULL);
     lv_anim_del(ui_wifi, NULL);
     lv_anim_del(ui_connectionprg1, NULL);
     lv_anim_del(ui_connectionprg2, NULL);

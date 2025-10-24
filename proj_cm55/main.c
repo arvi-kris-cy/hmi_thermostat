@@ -847,9 +847,7 @@ static void handle_system_event(void)
                 strncpy(weather_sync_value, ipc_recv_msg->char_value, sizeof(weather_sync_value) - 1);
 
                 // Update UI label
-                lv_label_set_text(ui_container1text, weather_sync_value);
                 lv_label_set_text(ui_container2text, weather_sync_value);
-                lv_label_set_text(ui_container3text, weather_sync_value);
                 break;
 
             case IPC_CMD_LOCATION_SYNC:
