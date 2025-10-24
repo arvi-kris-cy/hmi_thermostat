@@ -41,7 +41,7 @@ void ui_FWUpdateScreen_screen_init(void)
 {
     ui_FWUpdateScreen = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_FWUpdateScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_FWUpdateScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_FWUpdateScreen, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_FWUpdateScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_fwupdtcontinaer = lv_obj_create(ui_FWUpdateScreen);

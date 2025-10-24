@@ -140,7 +140,7 @@ void ui_DateTimeSettings_screen_init(void)
 {
     ui_DateTimeSettings = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_DateTimeSettings, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_DateTimeSettings, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_DateTimeSettings, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_DateTimeSettings, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_datetimecontainer = lv_obj_create(ui_DateTimeSettings);

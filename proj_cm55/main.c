@@ -42,14 +42,19 @@
 /*******************************************************************************
 * Header Files
 *******************************************************************************/
+#include "cybsp.h"
+
 #include "retarget_io_init.h"
+
 #include "vg_lite.h"
 #include "vg_lite_platform.h"
 
+/* RTOS includes */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
+
 #include "cy_time.h"
 #include "semphr.h"
 #include "lvgl.h"
@@ -76,6 +81,10 @@
 #include "app_sensor.h"
 #include "app_speaker.h"
 #include "xensiv_pasco2_mtb.h"
+
+/* Application related includes */
+#include "app_voice_control.h"
+#include "voice_assistant.h"
 #include "app_rtc.h"
 
 /*******************************************************************************
@@ -86,9 +95,13 @@
 
 #define GFX_TASK_NAME                       ("CM55 Gfx Task")
 /* stack size in words */
-#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 32)
+#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 20)
 
 #define GFX_TASK_PRIORITY                   (configMAX_PRIORITIES - 1)
+
+// #define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
+// #define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 32)
+// #define VOICE_ASSISTANT_TASK_PRIORITY           (configMAX_PRIORITIES - 2)
 
 #define APP_BUFFER_COUNT                    (2U)
 /* 64 KB */
@@ -133,7 +146,6 @@
 #define TCPWM_TIMER_INT_PRIORITY            (1U)
 #endif
 
-
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -144,9 +156,7 @@ static volatile uint32_t msg_val = RESET_VAL;
 static volatile uint32_t msg_cmd = RESET_VAL;
 
 bool is_device_provisioned = false;
-bool is_mic_clicked = false;
-static bool cur_voice_active = false;
-static bool pre_voice_active = false;
+
 /* Heap memory for VGLite to allocate memory for buffers, command, and
  * tessellation buffers 
  */
@@ -155,6 +165,7 @@ CY_SECTION(".cy_gpu_buf") uint8_t contiguous_mem[VGLITE_HEAP_SIZE] = { 0xFF };
 volatile void *vglite_heap_base = &contiguous_mem;
 
 TaskHandle_t rtos_cm55_gfx_task_handle = NULL;
+TaskHandle_t rtos_cm55_voice_task_handle = NULL;
 TaskHandle_t rtos_cm55_sensor_task_handle = NULL;
 
 char m55_current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
@@ -225,6 +236,21 @@ extern lv_display_t * disp;
 /* Mutex to guard the I2C instance for Sensor/Touhpad */
 SemaphoreHandle_t i2c_mutex = NULL;
 
+/* VA Variables */
+char *intent_text;
+
+bool handle_ww_for_ui = false;
+bool handle_command_for_ui = false;
+
+char weather_sync_value[32];
+char location_sync_value[32];
+char hour_sync_value[8];
+char minute_sync_value[8];
+char second_sync_value[8];
+char date_sync_value[8];
+char month_sync_value[8];
+char vaar_sync_value[8];
+char year_sync_value[8];
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
@@ -499,6 +525,21 @@ static void handle_sensor_update(void)
 
         /** Clear the flag to indicate the data has been processed. */
         sensor_data_available = false;
+    }
+}
+
+void update_date_labels(void)
+{
+    if (strlen(month_sync_value) > 0 && strlen(vaar_sync_value) > 0 && strlen(date_sync_value) > 0)
+    {
+        char date_str[32];
+        snprintf(date_str, sizeof(date_str), "%s %s %s", vaar_sync_value, date_sync_value, month_sync_value);
+
+        // Update the UI labels
+        lv_label_set_text(ui_Dateactive, date_str);
+        lv_label_set_text(ui_DateLP, date_str);
+
+        LOG_INFO(CYLF_DEF, "Updated date labels: %s\n", date_str);
     }
 }
 
@@ -798,8 +839,108 @@ static void handle_system_event(void)
                 break;
             }
 
-        default:
-            break;
+            case IPC_CMD_WEATHER_SYNC:
+                LOG_INFO(CYLF_DEF, "\nWeather data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the weather data
+                memset(weather_sync_value, 0, sizeof(weather_sync_value));
+                strncpy(weather_sync_value, ipc_recv_msg->char_value, sizeof(weather_sync_value) - 1);
+
+                // Update UI label
+                lv_label_set_text(ui_container1text, weather_sync_value);
+                lv_label_set_text(ui_container2text, weather_sync_value);
+                lv_label_set_text(ui_container3text, weather_sync_value);
+                break;
+
+            case IPC_CMD_LOCATION_SYNC:
+                LOG_INFO(CYLF_DEF, "\nLocation data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the location data
+                memset(location_sync_value, 0, sizeof(location_sync_value));
+                strncpy(location_sync_value, ipc_recv_msg->char_value, sizeof(location_sync_value) - 1);
+
+                // Update Weather Text UI
+                // lv_label_set_text(ui_WeatherTextactive, location_sync_value);
+                // lv_label_set_text(ui_WeatherTextactive2, location_sync_value);
+                // lv_label_set_text(ui_WeatherTextactive3, location_sync_value);
+                break;
+
+            case IPC_CMD_HOUR_SYNC:
+                LOG_INFO(CYLF_DEF, "\nHour sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the hour sync data
+                memset(hour_sync_value, 0, sizeof(hour_sync_value));
+                strncpy(hour_sync_value, ipc_recv_msg->char_value, sizeof(hour_sync_value) - 1);
+
+                // Update Hour Sync Text UI
+                lv_label_set_text(ui_TimeHactive, hour_sync_value);
+                lv_label_set_text(ui_TimeHLP, hour_sync_value);
+                break;
+
+            case IPC_CMD_MINUTE_SYNC:
+                LOG_INFO(CYLF_DEF, "\nMinute sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the minute sync data
+                memset(minute_sync_value, 0, sizeof(minute_sync_value));
+                strncpy(minute_sync_value, ipc_recv_msg->char_value, sizeof(minute_sync_value) - 1);
+
+                // Update Minute Sync Text UI
+                lv_label_set_text(ui_TimeMactive, minute_sync_value);
+                lv_label_set_text(ui_TimeMLP, minute_sync_value);
+                break;
+
+            case IPC_CMD_SECOND_SYNC:
+                LOG_INFO(CYLF_DEF, "\nSecond sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                // Clear and copy the second sync data
+                memset(second_sync_value, 0, sizeof(second_sync_value));
+                strncpy(second_sync_value, ipc_recv_msg->char_value, sizeof(second_sync_value) - 1);
+
+                // Update Second Sync Text UI
+                lv_label_set_text(ui_TimeSLP, second_sync_value);
+                break;
+
+            case IPC_CMD_DATE_SYNC:
+                LOG_INFO(CYLF_DEF, "Month sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(date_sync_value, 0, sizeof(date_sync_value));
+                strncpy(date_sync_value, ipc_recv_msg->char_value, sizeof(date_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Date stored: %s\n", date_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_MONTH_SYNC:
+                LOG_INFO(CYLF_DEF, "Month sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(month_sync_value, 0, sizeof(month_sync_value));
+                strncpy(month_sync_value, ipc_recv_msg->char_value, sizeof(month_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Month stored: %s\n", month_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_VAAR_SYNC:
+                LOG_INFO(CYLF_DEF, "Vaar sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(vaar_sync_value, 0, sizeof(vaar_sync_value));
+                strncpy(vaar_sync_value, ipc_recv_msg->char_value, sizeof(vaar_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Vaar stored: %s\n", vaar_sync_value);
+                update_date_labels();
+                break;
+
+            case IPC_CMD_YEAR_SYNC:
+                LOG_INFO(CYLF_DEF, "Year sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(year_sync_value, 0, sizeof(year_sync_value));
+                strncpy(year_sync_value, ipc_recv_msg->char_value, sizeof(year_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Year stored: %s\n", year_sync_value);
+                break;
+
+            default:
+                break;
         }
         cm55_pipe2_msg_received = false;
     }
@@ -996,7 +1137,7 @@ static void gpu_irq_handler(void)
 *******************************************************************************/
 static void disp_touch_i2c_controller_interrupt(void)
 {
-    #if defined(MTB_DISPLAY_R4INCH_TFT)
+#if defined(MTB_DISPLAY_R4INCH_TFT)
     Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_2_HW, &disp_touch_i2c_controller_context);
 #else
 	Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_HW, &disp_touch_i2c_controller_context);
@@ -1140,11 +1281,11 @@ static void cm55_gfx_task(void *arg)
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
 
 
-    if(CY_RSLT_SUCCESS != i2c_result)
-    {
-        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
-        handle_app_error();
-    }
+	    if(CY_RSLT_SUCCESS != i2c_result)
+	    {
+	        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
+	        handle_app_error();
+	    }
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Enable the I2C */
@@ -1237,12 +1378,15 @@ static void cm55_gfx_task(void *arg)
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
 
-        if(boot_config)
-            {
-                load_thermostat_config(current_settings.thermostat_setting.mode);
-                update_device_config_ipc();
-                boot_config = false;
-            }
+        // ww_to_ui();
+        // intent_to_ui(intent_text);
+        
+    	if(boot_config)
+    	{
+    		load_thermostat_config(current_settings.thermostat_setting.mode);
+    		update_device_config_ipc();
+    		boot_config = false;
+    	}
 
     	/* If eeprom write operation pending */
         handle_eeprom_write();
@@ -1405,27 +1549,35 @@ int main(void)
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
                               GFX_TASK_STACK_SIZE, NULL,
                               GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
-
-
-    if (pdPASS == task_return)
+    
+    if (pdPASS != task_return)
     {
-        printf("****************** "
-               "PSOC Edge MCU: Graphics LVGL Demo "
-               "****************** \r\n\n");
-
-        /* Start the RTOS Scheduler */
-        vTaskStartScheduler();
-
-        /* Should never get here! */
+        printf("Error: Failed to create cm55_gfx_task.\r\n");
 //        handle_app_error();
         APP_ERROR(1);
     }
-    else
-    {
-        printf("Error: Failed to create cm55_gfx_task.\r\n");
-        //        handle_app_error();
-        APP_ERROR(1);
-    }
+
+//     task_return = xTaskCreate(voice_assistant_task,
+//                             	VOICE_ASSISTANT_TASK_NAME,
+//                             	VOICE_ASSISTANT_TASK_STACK_SIZE, NULL,
+//                             	VOICE_ASSISTANT_TASK_PRIORITY, &rtos_cm55_voice_task_handle);
+  	
+//   	if (pdPASS != task_return)
+//     {
+//         printf("Error: Failed to create voice_assistant_task.\r\n");
+// //        handle_app_error();
+//         APP_ERROR(1);
+//     }
+
+	printf("****************** "
+           "PSOC Edge MCU: HMI Thermostat Demo "
+           "****************** \r\n\n");
+
+    /* Start the RTOS Scheduler */
+    vTaskStartScheduler();
+
+    /* Should never get here! */
+    handle_app_error();
 }
 
 

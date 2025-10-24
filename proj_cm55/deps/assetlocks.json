@@ -54,5 +54,9 @@
     {
         "asset-name": "se-rt-services-utils",
         "locked-commit": "release-v1.2.0"
+    },
+    {
+        "asset-name": "speech-onset-detection",
+        "locked-commit": "release-v1.0.1"
     }
 ]

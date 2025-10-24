@@ -12,6 +12,7 @@ SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 # The search paths for the included middleware
 SEARCH_btstack-integration=../../mtb_shared/btstack-integration/release-v6.2.1
 SEARCH_btstack=../../mtb_shared/btstack/release-v4.1.4
+SEARCH_http-client=../../mtb_shared/http-client/release-v1.8.1
 SEARCH_mqtt=../../mtb_shared/mqtt/release-v4.7.0
 SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
 SEARCH_serial-memory=../../mtb_shared/serial-memory/release-v3.0.0
@@ -49,6 +50,7 @@ SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/releas
 # Search libraries added to build
 SEARCH_MTB_MK+=$(SEARCH_btstack-integration)
 SEARCH_MTB_MK+=$(SEARCH_btstack)
+SEARCH_MTB_MK+=$(SEARCH_http-client)
 SEARCH_MTB_MK+=$(SEARCH_mqtt)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
 SEARCH_MTB_MK+=$(SEARCH_serial-memory)
@@ -86,6 +88,7 @@ SEARCH_MTB_MK+=$(SEARCH_wpa3-external-supplicant)
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
 COMPONENTS += MW_BTSTACK_INTEGRATION
 COMPONENTS += MW_BTSTACK
+COMPONENTS += MW_HTTP_CLIENT
 COMPONENTS += MW_MQTT
 COMPONENTS += MW_RETARGET_IO
 COMPONENTS += MW_SERIAL_MEMORY
@@ -253,6 +256,34 @@ mtb_help_tool_smartio-configurator:
 mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
+
+config_ml:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
+.PHONY: config_ml
+
+CY_HELP_config_ml=Launches the ML Configurator 3.0 GUI for the target's mtbml file
+CY_HELP_config_ml_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
+mtb_help_tool_config_ml:
+	@:
+	$(info $(MTB__SPACE)config_ml           $(CY_HELP_config_ml))
+
+mtb_help_tools_end: mtb_help_tool_config_ml
+mtb_help_tool_config_ml: mtb_help_tools_start
+.PHONY: mtb_help_tool_config_ml
+
+ml-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
+.PHONY: ml-configurator
+
+CY_HELP_ml-configurator=Launches the ML Configurator 3.0 GUI for the target's mtbml file
+CY_HELP_ml-configurator_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
+mtb_help_tool_ml-configurator:
+	@:
+	$(info $(MTB__SPACE)ml-configurator     $(CY_HELP_ml-configurator))
+
+mtb_help_tools_end: mtb_help_tool_ml-configurator
+mtb_help_tool_ml-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_ml-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

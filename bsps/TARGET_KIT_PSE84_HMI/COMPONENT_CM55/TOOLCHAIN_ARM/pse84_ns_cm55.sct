@@ -103,6 +103,76 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *cyabs_*.* (+RO)
     *cy_worker_thread.* (+RO)
     *cmsis*.* (+RO)
+    */cmsis*.* (+RO)
+    */lvgl/src*.* (+RO)
+    *abstraction-rtos*.* (+RO)
+    
+    ; Libraries 
+    *sp_enh* (+RO, +RW, +ZI)
+    *libusbd_base_d_cm55f_armc6* (+RO, +RW, +ZI)
+    *libusbd_base_r_cm55f_armc6* (+RO, +RW, +ZI)
+    *ifx_va* (+RO, +RW, +ZI)
+    *libnlu* (+RO, +RW, +ZI)
+    *libwwd* (+RO, +RW, +ZI)
+    
+    ;Application
+    *app_voice_control* (+RO)
+
+    ; Inferencing
+    *voice_assistant* (+RO)
+
+    ; Audio Enhancement
+    *audio_enhancement* (+RO)
+    *app_afe_tuner* (+RO)
+   
+    ;Middleware, Software, Modules
+    *app_logger* (+RO)
+    *pdm_mic_interface* (+RO)
+    
+    *audio_usb_send_utils* (+RO)
+    *audio_send_task* (+RO)
+    *audio_receive_task* (+RO)
+    *audio_app* (+RO)
+    *usb_audio_interface* (+RO)
+    
+    *audio_conv_utils* (+RO)
+    
+    *app_i2s* (+RO)
+    *mtb_tlv320dac3100* (+RO)
+    
+    *profiler* (+RO)
+    
+    *cy_retarget_io* (+RO)
+    *cy_afe_audio_process* (+RO)
+    *cy_afe_audio_speech_enh* (+RO)
+    *cy_afe_audio_task* (+RO)
+    *cy_afe_audio_utils* (+RO)
+    *cy_buffer_pool* (+RO)
+    
+    *cy_afe* (+RO)
+    *cy_afe_audio_debug* (+RO)
+    *cy_afe_profiler* (+RO)
+    *cy_afe_tuner_commands* (+RO)
+    *cy_afe_tuner_task* (+RO)
+    
+    *cy_sp_enh* (+RO)
+    *cy_afe_tuner_process* (+RO)
+    *ifx_sp_enh* (+RO)
+    *ifx_sp_enh_process* (+RO)
+    *supportFunctions* (+RO)
+
+    *cy_arm_freertos* (+RO)
+    *cyhal_uart* (+RO)
+    
+    *cyhal_i2s* (+RO)
+    *usbd_config* (+RO)
+    *usbd_config_io* (+RO)
+    *usbd_os_abs_rtos* (+RO)
+    *cyhal_pdmpcm* (+RO)
+    *cy_pdm_pcm_v2* (+RO)
+    *cyhal_audio_common* (+RO)
+    
+    *(.itcm_data)
   }
 
   /* The execution region for less performance-sensitive or critical functions that might be executed in SOC memory */
@@ -116,12 +186,22 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
   {
     *(.cy_dtcm)
     .ANY (+RW +ZI)
+    . = ALIGN(4);
+    *(.dtcm_data)
+    . = ALIGN(4);
   }
 
   /* A section for initialized data in SOC memory */
   cy_socmem_data CYMEM_CM55_0_m55_data_secondary_START CYMEM_CM55_0_m55_data_secondary_SIZE
   {
     *(.cy_socmem_data)
+    *(.wwd_nlu_data0)
+    *(.wwd_nlu_data1)
+    *(.wwd_nlu_data2)
+    *(.wwd_nlu_data3)
+    *(.wwd_nlu_data4)
+    *(.wwd_nlu_data5)
+    *(.wwd_nlu_data6)
   }
 
   /* A region for shared RAM memory where only the Cortex-M55 can allocate data but all cores can access*/

@@ -180,7 +180,7 @@ cy_rslt_t sensor_init(void)
         LOG_ERROR(CYLF_DEF, "CO2 sensor initialization failed after retries!\r\n");
         return result;
     }
-
+#if 0
     /* Initialize SHT40 sensor with retry */
     for (retry = 0; retry < max_retries; retry++)
     {
@@ -198,7 +198,7 @@ cy_rslt_t sensor_init(void)
         LOG_ERROR(CYLF_DEF, "SHT40 sensor initialization failed after retries!\r\n");
         return result;
     }
-
+#endif
     LOG_INFO(CYLF_DEF, "All sensors initialized successfully.\r\n");
     return CY_RSLT_SUCCESS;
 }
@@ -235,7 +235,7 @@ void sensor_task(void *arg)
     for (;;)
     {
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(sensor_sampling_intv));
-
+#if 0
         /* Wait for sensor task to acquire the i2c bus. */
         if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
         {
@@ -257,7 +257,7 @@ void sensor_task(void *arg)
             xSemaphoreGive(i2c_mutex);
             vTaskDelay(pdMS_TO_TICKS(70));
         }
-
+#endif
         /* Wait for sensor task to acquire the i2c bus. */
         if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
         {

@@ -27,17 +27,17 @@ include ../common.mk
 
 ################################################################################
 # Basic Configuration
-################################################################################
+###############################################################################
 
 # Name of application (used to derive name of final linked file).
 #
 # If APPNAME is edited, ensure to update or regenerate launch
 # configurations for your IDE.
 APPNAME=proj_cm33_ns
+#APPTYPE=flash
 
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
-
 
 ################################################################################
 # Advanced Configuration
@@ -53,10 +53,10 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE 
+COMPONENTS += FREERTOS RTOS_AWARE  
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS= 
+DISABLE_COMPONENTS=
 
 CORE=CM33
 CORE_NAME=CM33_0
@@ -67,40 +67,28 @@ CORE_NAME=CM33_0
 # by default, or otherwise not found by the build system.
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
 SOURCES+=$(wildcard ../shared/source/*.c)
+SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/core_http_client.c
+SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 SEARCH+=../components
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
 INCLUDES+=../shared/include
+INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/include
+INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser
 
 # Custom configuration of mbedtls library.
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
-
-# Default configuration of mbedtls library.
-DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
-# PSA configuration of mbedtls library.
-DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
-
-ifeq ($(TOOLCHAIN),LLVM_ARM)
-DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
-endif
-
-DEFINES+= APP_VERSION_MAJOR=$(APP_VERSION_MAJOR) \
-          APP_VERSION_MINOR=$(APP_VERSION_MINOR) \
-          APP_VERSION_BUILD=$(APP_VERSION_BUILD) \
-
-# Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT+=
+DEFINES += CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 
 # Additional / custom C compiler flags.
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
 # above.
-CFLAGS+=
+CFLAGS+=-Wno-implicit-function-declaration
 
 # Additional / custom C++ compiler flags.
 #
@@ -122,12 +110,42 @@ LDLIBS+=
 
 # Path to the linker script to use (if empty, use the default linker script).
 LINKER_SCRIPT=
-
 # Custom pre-build commands to run.
-PREBUILD=
+PREBUILD+=
 
 # Custom post-build commands to run.
-POSTBUILD=
+POSTBUILD+=
+
+
+################################################################################
+# Application specific Configurations to use COMPONENTS, DEFINES and flags.
+################################################################################
+
+#Application Logger
+#COMPONENTS += APP_LOGGER 
+
+COMPONENTS+=LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE 
+
+# Custom configuration of mbedtls library.
+MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
+
+DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
+
+# Default configuration of mbedtls library.
+DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
+# PSA configuration of mbedtls library.
+DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
+
+ifeq ($(TOOLCHAIN),LLVM_ARM)
+DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
+endif
+
+DEFINES += HTTP_DO_NOT_USE_CUSTOM_CONFIG
+DEFINES += MQTT_DO_NOT_USE_CUSTOM_CONFIG
+
+DEFINES+= APP_VERSION_MAJOR=$(APP_VERSION_MAJOR) \
+          APP_VERSION_MINOR=$(APP_VERSION_MINOR) \
+          APP_VERSION_BUILD=$(APP_VERSION_BUILD) \
 
 ################################################################################
 # Paths
@@ -140,16 +158,33 @@ CY_APP_PATH=
 
 # Relative path to the shared repo location.
 #
-# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> 
-# field begins with $$ASSET_REPO$$, then the repo is deposited in the path 
-# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one 
-# directory level above the current app directory.
-# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the 
-# directory name.
+# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> field 
+# begins with $$ASSET_REPO$$, then the repo is deposited in the path specified by 
+# the CY_GETLIBS_SHARED_PATH variable. The default location is one directory level 
+# above the current app directory.
+# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
 CY_GETLIBS_SHARED_PATH=../..
 
 # Directory name of the shared repo location.
 #
 CY_GETLIBS_SHARED_NAME=mtb_shared
+
+# Absolute path to the compiler's "bin" directory.
+#
+# The default depends on the selected TOOLCHAIN (GCC_ARM uses the ModusToolbox
+# IDE provided compiler by default).
+CY_COMPILER_PATH?=
+
+CY_AVC_PATH=$(SEARCH_audio-voice-core)
+
+CY_IGNORE += $(SEARCH_ml-middleware)
+CY_IGNORE += $(SEARCH_ml-tflite-micro)
+CY_IGNORE += $(SEARCH_nnkernel)
+CY_IGNORE += $(SEARCH_emusb-device)
+CY_IGNORE += $(SEARCH_speech-onset-detection)
+CY_IGNORE += $(SEARCH_staged-voice-control)
+CY_IGNORE += imports/emusb-device
+CY_IGNORE += ${CY_AVC_PATH}
+
 
 include $(CY_TOOLS_DIR)/make/start.mk

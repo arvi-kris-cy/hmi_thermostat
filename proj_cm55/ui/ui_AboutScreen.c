@@ -71,7 +71,7 @@ void ui_AboutScreen_screen_init(void)
 {
     ui_AboutScreen = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_AboutScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_AboutScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_AboutScreen, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_AboutScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Container6 = lv_obj_create(ui_AboutScreen);

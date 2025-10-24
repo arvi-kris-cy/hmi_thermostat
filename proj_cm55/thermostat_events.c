@@ -3063,16 +3063,18 @@ void update_co2_data_ui(uint16_t ppm)
 void switch_to_active_screen(void)
 {
     lv_obj_t *current_screen = lv_scr_act();
+
     if(current_screen == ui_LPScreen)
     {
         _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
         app_state = APP_ST_ACTIVE;
-        start_inactivity_timer();
-
+        
         /* Update sensor sampling interval to 1s */
         /* Set sensor sampling interval to IDLE state */
         set_sensor_sampling_interval(SENSOR_SAMPLING_INTERVAL_ACTIVE);
     }
+
+    start_inactivity_timer();
 }
 
 void switch_to_ble(lv_event_t *e)

@@ -6,7 +6,7 @@
 bsp-assistant capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator edge-protect-configurator :
 	make -C proj_cm33_s $@
 
-config_bt bt-configurator config_lin lin-configurator secure-policy-configurator :
+config_bt bt-configurator config_lin lin-configurator config_ml secure-policy-configurator :
 	$(error $@ configurator cannot be executed at the application level. Run this command from the desired project directory.)
 
-.PHONY: bsp-assistant config_bt bt-configurator capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager config_lin lin-configurator qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator secure-policy-configurator edge-protect-configurator
+.PHONY: bsp-assistant config_bt bt-configurator capsense-configurator capsense-tuner config device-configurator dfuh-tool config_ezpd ez-pd-configurator modlibs library-manager config_lin lin-configurator qspi-configurator seglcd-configurator smartio-configurator config_usbdev usbdev-configurator config_ml secure-policy-configurator edge-protect-configurator

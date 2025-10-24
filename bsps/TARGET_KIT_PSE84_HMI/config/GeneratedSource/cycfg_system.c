@@ -114,12 +114,12 @@ const mtb_srf_protection_range_s_t socmem_0_mpc_0_srf_protection_range_s[socmem_
 {
     {
         .start = (void *) 0x26000000 ,
-        .length = 0x60000U,
+        .length = 0x2EC000U,
         .is_secure = false,
     },
     {
-        .start = (void *) 0x26060000 ,
-        .length = 0x4A0000U,
+        .start = (void *) 0x262EC000 ,
+        .length = 0x214000U,
         .is_secure = false,
     },
 };

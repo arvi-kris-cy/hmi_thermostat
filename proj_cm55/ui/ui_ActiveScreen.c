@@ -902,7 +902,7 @@ void ui_ActiveScreen_screen_init(void)
 {
     ui_ActiveScreen = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_ActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    // lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    // lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x18AB9B), LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_set_style_bg_main_stop(ui_ActiveScreen, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -910,13 +910,13 @@ void ui_ActiveScreen_screen_init(void)
     // lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 #if 1 // use color gradient for bg
-    lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x08665C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ActiveScreen, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x18AB9B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_main_stop(ui_ActiveScreen, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
-    #else // use image for bg
+    // lv_obj_set_style_bg_grad_color(ui_ActiveScreen, lv_color_hex(0x06534B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    // lv_obj_set_style_bg_main_stop(ui_ActiveScreen, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // lv_obj_set_style_bg_grad_stop(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // lv_obj_set_style_bg_grad_dir(ui_ActiveScreen, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
+#else // use image for bg
     ui_backgroundimage = lv_image_create(ui_ActiveScreen);
     lv_image_set_src(ui_backgroundimage, &ui_img_background_png);
     lv_obj_set_width(ui_backgroundimage, LV_SIZE_CONTENT);   /// 480
@@ -1008,10 +1008,10 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_x(ui_WeatherTextactive, -43);
     lv_obj_set_y(ui_WeatherTextactive, -23);
     lv_obj_set_align(ui_WeatherTextactive, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive, "Nuremberg");
+    lv_label_set_text(ui_WeatherTextactive, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_container1text = lv_label_create(ui_weathercontainer1);
     lv_obj_set_width(ui_container1text, LV_SIZE_CONTENT);   /// 1
@@ -1058,13 +1058,13 @@ void ui_ActiveScreen_screen_init(void)
     ui_WeatherTextactive2 = lv_label_create(ui_weathercontainer2);
     lv_obj_set_width(ui_WeatherTextactive2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_WeatherTextactive2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_WeatherTextactive2, -44);
-    lv_obj_set_y(ui_WeatherTextactive2, -25);
+    lv_obj_set_x(ui_WeatherTextactive2, -23);
+    lv_obj_set_y(ui_WeatherTextactive2, -26);
     lv_obj_set_align(ui_WeatherTextactive2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive2, "Nuremberg");
+    lv_label_set_text(ui_WeatherTextactive2, "Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive2, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive2, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_container2text = lv_label_create(ui_weathercontainer2);
     lv_obj_set_width(ui_container2text, LV_SIZE_CONTENT);   /// 1
@@ -1088,15 +1088,16 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_humidity2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_humidity2, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_weatheractive2 = lv_image_create(ui_weathercontainer2);
-    lv_image_set_src(ui_weatheractive2, &ui_img_sun_png);
+    ui_weatheractive2 = lv_img_create(ui_weathercontainer2);
+    lv_img_set_src(ui_weatheractive2, &ui_img_sun_png);
     lv_obj_set_width(ui_weatheractive2, LV_SIZE_CONTENT);   /// 70
     lv_obj_set_height(ui_weatheractive2, LV_SIZE_CONTENT);    /// 70
-    lv_obj_set_x(ui_weatheractive2, 65);
-    lv_obj_set_y(ui_weatheractive2, -12);
+    lv_obj_set_x(ui_weatheractive2, 68);
+    lv_obj_set_y(ui_weatheractive2, 0);
     lv_obj_set_align(ui_weatheractive2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_weatheractive2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_remove_flag(ui_weatheractive2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_weatheractive2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_weatheractive2, 240);
 
     ui_weathercontainer3 = lv_obj_create(ui_Container1);
     lv_obj_remove_style_all(ui_weathercontainer3);
@@ -1114,10 +1115,10 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_x(ui_WeatherTextactive3, -48);
     lv_obj_set_y(ui_WeatherTextactive3, -25);
     lv_obj_set_align(ui_WeatherTextactive3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeatherTextactive3, "Bengaluru");
+    lv_label_set_text(ui_WeatherTextactive3, "            Mountain View, CA");
     lv_obj_set_style_text_color(ui_WeatherTextactive3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeatherTextactive3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeatherTextactive3, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeatherTextactive3, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_humidity3 = lv_label_create(ui_weathercontainer3);
     lv_obj_set_width(ui_humidity3, LV_SIZE_CONTENT);   /// 1
@@ -2861,7 +2862,7 @@ void ui_ActiveScreen_screen_init(void)
 
     ui_Roller1 = lv_roller_create(ui_voicecmdlistpanel);
     lv_roller_set_options(ui_Roller1,
-            "Set temperature 20 degrees\nSet temperature to 20 degrees\nSwitch off heating\nSwitch off screen\nSwitch off the screen\nSwitch on heating\nSwitch on screen\nSwitch on the screen\nSwitch cooling\nSwitch to cooling\nEnable fan mode\nDisable fan mode\nIs system on\nIs the system on\nConnect wifi\nConnect to wifi\nDecrease brightness\nDecrease screen brightness\nDecrease temperature 10 degrees\nDecrease temperature by 10 degrees\nIncrease brightness\nIncrease screen brightness\nIncrease temperature 10 degrees\nIncrease temperature by 10 degrees\nUnmute Volume\nMute Volume\nGo sleep\nGo to sleep\nGo setting\nGo to setting\nWhat is current temperature\nWhat is the current temperature\nWhat is wifi status\nWhat is the wifi status",
+            "Set temperature to <14 - 30>\nIncrease / Decrease temperature\nIncrease / Decrease brightness\nGo to setting\nMute / Unmute volume",
 			LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(ui_Roller1, 3, LV_ANIM_OFF);
     lv_obj_set_width(ui_Roller1, 383);

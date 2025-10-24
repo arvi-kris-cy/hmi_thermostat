@@ -10,13 +10,19 @@
 SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
+SEARCH_audio-front-end=../../mtb_shared/audio-front-end/release-v1.0.2
+SEARCH_audio-voice-core=../../mtb_shared/audio-voice-core/release-v1.0.1
 SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
 SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/release-v1.0.0
 SEARCH_emeeprom=../../mtb_shared/emeeprom/release-v2.60.0
+SEARCH_emusb-device=../../mtb_shared/emusb-device/release-v2.1.0
 SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.2
 SEARCH_lvgl=../../mtb_shared/lvgl/release-v9.2.0
+SEARCH_ml-middleware=../../mtb_shared/ml-middleware/release-v3.1.0
+SEARCH_ml-tflite-micro=../../mtb_shared/ml-tflite-micro/release-v3.1.0
 SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
 SEARCH_touch-ctp-ft5406=../../mtb_shared/touch-ctp-ft5406/release-v1.0.0
+SEARCH_voice-assistant=../../mtb_shared/voice-assistant/release-v1.0.0
 SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.0
 SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
 SEARCH_block-storage=../../mtb_shared/block-storage/release-v1.3.1
@@ -29,15 +35,22 @@ SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.0.0
 SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.0.0
 SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
 SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
+SEARCH_speech-onset-detection=../../mtb_shared/speech-onset-detection/release-v1.0.1
 
 # Search libraries added to build
+SEARCH_MTB_MK+=$(SEARCH_audio-front-end)
+SEARCH_MTB_MK+=$(SEARCH_audio-voice-core)
 SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-4-3-lcd)
 SEARCH_MTB_MK+=$(SEARCH_emeeprom)
+SEARCH_MTB_MK+=$(SEARCH_emusb-device)
 SEARCH_MTB_MK+=$(SEARCH_freertos)
 SEARCH_MTB_MK+=$(SEARCH_lvgl)
+SEARCH_MTB_MK+=$(SEARCH_ml-middleware)
+SEARCH_MTB_MK+=$(SEARCH_ml-tflite-micro)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
 SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ft5406)
+SEARCH_MTB_MK+=$(SEARCH_voice-assistant)
 SEARCH_MTB_MK+=$(SEARCH_abstraction-rtos)
 SEARCH_MTB_MK+=$(SEARCH_async-transfer)
 SEARCH_MTB_MK+=$(SEARCH_block-storage)
@@ -50,15 +63,22 @@ SEARCH_MTB_MK+=$(SEARCH_mtb-dsl-pse8xxgp)
 SEARCH_MTB_MK+=$(SEARCH_mtb-ipc)
 SEARCH_MTB_MK+=$(SEARCH_mtb-srf)
 SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
+SEARCH_MTB_MK+=$(SEARCH_speech-onset-detection)
 
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
+COMPONENTS += MW_AUDIO_FRONT_END
+COMPONENTS += MW_AUDIO_VOICE_CORE
 COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_4_3_LCD
 COMPONENTS += MW_EMEEPROM
+COMPONENTS += MW_EMUSB_DEVICE
 COMPONENTS += MW_FREERTOS
 COMPONENTS += MW_LVGL
+COMPONENTS += MW_ML_MIDDLEWARE
+COMPONENTS += MW_ML_TFLITE_MICRO
 COMPONENTS += MW_RETARGET_IO
 COMPONENTS += MW_TOUCH_CTP_FT5406
+COMPONENTS += MW_VOICE_ASSISTANT
 COMPONENTS += MW_ABSTRACTION_RTOS
 COMPONENTS += MW_ASYNC_TRANSFER
 COMPONENTS += MW_BLOCK_STORAGE
@@ -71,6 +91,7 @@ COMPONENTS += MW_MTB_DSL_PSE8XXGP
 COMPONENTS += MW_MTB_IPC
 COMPONENTS += MW_MTB_SRF
 COMPONENTS += MW_SE_RT_SERVICES_UTILS
+COMPONENTS += MW_SPEECH_ONSET_DETECTION
 
 # Register map file
 DEVICE_PSE846GPS2DBZC4A_SVD=$(SEARCH_mtb-dsl-pse8xxgp)/pdl/svd/pse84.svd
@@ -205,6 +226,34 @@ mtb_help_tool_smartio-configurator:
 mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
+
+config_ml:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
+.PHONY: config_ml
+
+CY_HELP_config_ml=Launches the ML Configurator 3.0 GUI for the target's mtbml file
+CY_HELP_config_ml_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
+mtb_help_tool_config_ml:
+	@:
+	$(info $(MTB__SPACE)config_ml           $(CY_HELP_config_ml))
+
+mtb_help_tools_end: mtb_help_tool_config_ml
+mtb_help_tool_config_ml: mtb_help_tools_start
+.PHONY: mtb_help_tool_config_ml
+
+ml-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
+.PHONY: ml-configurator
+
+CY_HELP_ml-configurator=Launches the ML Configurator 3.0 GUI for the target's mtbml file
+CY_HELP_ml-configurator_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
+mtb_help_tool_ml-configurator:
+	@:
+	$(info $(MTB__SPACE)ml-configurator     $(CY_HELP_ml-configurator))
+
+mtb_help_tools_end: mtb_help_tool_ml-configurator
+mtb_help_tool_ml-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_ml-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

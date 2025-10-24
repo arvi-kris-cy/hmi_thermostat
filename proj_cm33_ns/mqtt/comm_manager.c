@@ -184,3 +184,112 @@ void disable_touch(void)
 
     cm33_send_msg_cm55(&cm33_msg_data);
 }
+
+void set_weather_sync(const char *value)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_WEATHER_SYNC;
+
+    // Clear and copy the string safely
+    memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+    strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_location_sync(const char *value)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_LOCATION_SYNC;
+
+    // Clear and copy the string safely
+    memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+    strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_hour_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_HOUR_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_minute_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_MINUTE_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_second_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_SECOND_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_date_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_DATE_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_month_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_MONTH_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_vaar_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_VAAR_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+
+void set_year_sync(const char *value)
+{
+	cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+	cm33_msg_data.cmd = IPC_CMD_YEAR_SYNC;
+
+	// Clear and copy the string safely
+	memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+	strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+	cm33_send_msg_cm55(&cm33_msg_data);
+}
+

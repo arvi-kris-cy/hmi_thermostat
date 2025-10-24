@@ -633,7 +633,7 @@ cy_stc_gfx_gpu_cfg_t GFXSS_gpu_config =
 };
 cy_stc_mipidsi_display_params_t GFXSS_mipidsi_display_params =
 {
-    .pixel_clock = 12676,
+    .pixel_clock = 11268,
     .hdisplay = 512,
     .hsync_width = 8,
     .hfp = 12,

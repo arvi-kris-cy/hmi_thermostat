@@ -68,6 +68,8 @@ cy_wcm_connect_params_t wifi_conn_param;
 wifi_details_t wifi_details;
 
 bool is_wifi_connection_cancel = false;
+
+bool is_wifi_connected = false;
 /******************************************************************************
  * Extern Functions and Variables
  ******************************************************************************/
