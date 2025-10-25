@@ -1333,16 +1333,27 @@ void recreate_mic_idle(void)
     }
 
     // Recreate the mic image object
-    ui_micdisabled = lv_img_create(ui_ActiveScreen);
-    lv_img_set_src(ui_micdisabled, &ui_img_voice_home_icon_png);
-    lv_obj_set_width(ui_micdisabled, LV_SIZE_CONTENT);   // 50
-    lv_obj_set_height(ui_micdisabled, LV_SIZE_CONTENT);  // 50
-    lv_obj_set_x(ui_micdisabled, 75);
-    lv_obj_set_y(ui_micdisabled, 189);
+    // ui_micdisabled = lv_img_create(ui_ActiveScreen);
+    // lv_img_set_src(ui_micdisabled, &ui_img_voice_home_icon_png);
+    // lv_obj_set_width(ui_micdisabled, LV_SIZE_CONTENT);   // 50
+    // lv_obj_set_height(ui_micdisabled, LV_SIZE_CONTENT);  // 50
+    // lv_obj_set_x(ui_micdisabled, 75);
+    // lv_obj_set_y(ui_micdisabled, 189);
+    // lv_obj_set_align(ui_micdisabled, LV_ALIGN_CENTER);
+    // lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_remove_flag(ui_micdisabled, LV_OBJ_FLAG_SCROLLABLE);
+    // lv_obj_set_style_opa(ui_micdisabled, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_micdisabled = lv_image_create(ui_ActiveScreen);
+    lv_image_set_src(ui_micdisabled, &ui_img_voice_home_icon_png);
+    lv_obj_set_width(ui_micdisabled, LV_SIZE_CONTENT);   /// 50
+    lv_obj_set_height(ui_micdisabled, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_x(ui_micdisabled, -13);
+    lv_obj_set_y(ui_micdisabled, 184);
     lv_obj_set_align(ui_micdisabled, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_remove_flag(ui_micdisabled, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_opa(ui_micdisabled, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_remove_flag(ui_micdisabled, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_opa(ui_micdisabled, 60, LV_PART_MAIN | LV_STATE_DEFAULT);
+
 
     current_mic_state = MIC_IDLE;
 }

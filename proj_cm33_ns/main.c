@@ -348,8 +348,8 @@ int main(void)
     result = xTaskCreate(mqtt_client_task, MQTT_TASK_NAME, MQTT_CLIENT_TASK_STACK_SIZE,
                             NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
 
-    result = xTaskCreate(https_client_task, HTTPS_TASK_NAME, HTTPS_CLIENT_TASK_STACK_SIZE,
-                            NULL, HTTPS_CLIENT_TASK_PRIORITY, NULL);
+    // result = xTaskCreate(https_client_task, HTTPS_TASK_NAME, HTTPS_CLIENT_TASK_STACK_SIZE,
+    //                         NULL, HTTPS_CLIENT_TASK_PRIORITY, NULL);
 
     if( pdPASS == result )
     {

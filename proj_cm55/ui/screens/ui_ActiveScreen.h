@@ -238,6 +238,8 @@ extern lv_obj_t * ui_MainTempactive;
 extern lv_obj_t * ui_temperaturearc;
 extern lv_obj_t * ui_heatingtemparc;
 extern lv_obj_t * ui_coolingtemparc;
+extern lv_obj_t * ui_Panel3;
+extern lv_obj_t * ui_Panel5;
 
 // CUSTOM VARIABLES
 
