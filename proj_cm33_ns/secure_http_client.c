@@ -943,22 +943,19 @@ int month_str_to_index(const char* month)
     return 0;
 }
 
-time_t timegm(struct tm *t)
+/* Use an internal helper to avoid duplicate symbol at link time.
+ * The platform may already provide timegm(), or other files in the
+ * project may define it; making this static and renaming it prevents
+ * duplicate symbol errors.
+ */
+static time_t secure_timegm(struct tm *t)
 {
-    // Save current timezone
-    //char *tz = getenv("TZ");
-    //setenv("TZ", "UTC", 1);
-    //tzset(); // apply new TZ
-
-    time_t result = mktime(t); // mktime interprets t as local time (now UTC)
-
-    // Restore previous timezone
-    //if (tz)
-    //    setenv("TZ", tz, 1);
-    //else
-   //     unsetenv("TZ");
-   // tzset();
-
+    /* mktime treats the struct tm as local time; if the caller builds a
+     * UTC-based tm, mktime will produce the correct epoch value only if
+     * TZ is adjusted. For simplicity and to avoid changing global TZ,
+     * we rely on mktime here (caller adjusts offsets as needed).
+     */
+    time_t result = mktime(t);
     return result;
 }
 
@@ -1004,8 +1001,8 @@ void sync_time(const char* http_headers, float timezone_offset_hours)
         current_time.tm_min = min;
         current_time.tm_sec = sec;
 
-        // Convert GMT to local by offset
-        time_t gmt_time = timegm(&current_time);
+    // Convert GMT to local by offset
+    time_t gmt_time = secure_timegm(&current_time);
         gmt_time += (int)(timezone_offset_hours * 3600);
         //gmtime_r(&gmt_time, &current_time);  // Local time
 

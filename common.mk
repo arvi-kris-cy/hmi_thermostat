@@ -37,7 +37,7 @@ TARGET=KIT_PSE84_HMI
 # LLVM_ARM	-- LLVM Embedded Toolchain (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
-TOOLCHAIN=ARM
+TOOLCHAIN=LLVM_ARM
 
 # Default build configuration. Options include:
 #

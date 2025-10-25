@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Memories xmlns=":/dtd/cydatamemories_v1.xsd" xml_version="1">
+  <PhysicalMemories>
+    <ExternalMemory memoryId="SMIF0MEM0" displayName="Serial Memory Interface block 0, memory 0 (S28HS01GT)" description="S28HS01GT 1-Gb (128-MB) 1.8-V Semper Flash for up to 25 MHz clock frequency.&#10;     &#10;    WARNING: Memory device must be pre-configured before using this configuration.&#10;    Address Byte Length must be set to 4 byte instruction" size="0x2000000" eraseSize="262144" reservationId="XIP_PORT0" offset="0x00000000">
+      <Capabilities>
+        <Capability>Executable</Capability>
+        <Capability>Readable</Capability>
+        <Capability>Programmable</Capability>
+        <Capability>Nonvolatile</Capability>
+      </Capabilities>
+    </ExternalMemory>
+    <ExternalMemory memoryId="SMIF1MEM2" displayName="Serial Memory Interface block 1, memory 2 (S70KS1283)" description="S70KS1283 128-Mb (16-MB) 1.8-V self-refresh DRAM for up to 200 MHz clock frequency" size="0x4000000" eraseSize="16777216" reservationId="XIP_PORT1" offset="0x00000000">
+      <Capabilities>
+        <Capability>Executable</Capability>
+        <Capability>Readable</Capability>
+        <Capability>Nonvolatile</Capability>
+      </Capabilities>
+    </ExternalMemory>
+  </PhysicalMemories>
+</Memories>
