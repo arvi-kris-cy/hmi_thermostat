@@ -1001,8 +1001,8 @@ void sync_time(const char* http_headers, float timezone_offset_hours)
         current_time.tm_min = min;
         current_time.tm_sec = sec;
 
-    // Convert GMT to local by offset
-    time_t gmt_time = secure_timegm(&current_time);
+        // Convert GMT to local by offset
+        time_t gmt_time = secure_timegm(&current_time);
         gmt_time += (int)(timezone_offset_hours * 3600);
         //gmtime_r(&gmt_time, &current_time);  // Local time
 
