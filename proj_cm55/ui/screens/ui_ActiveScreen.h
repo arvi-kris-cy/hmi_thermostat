@@ -191,7 +191,7 @@ extern lv_obj_t * ui_modelbl;
 extern lv_obj_t * ui_commandlbl;
 extern lv_obj_t * ui_connectlbl;
 extern lv_obj_t * ui_settolbl;
-extern lv_obj_t * ui_temperaturearc;
+extern lv_obj_t * ui_ArcTemperatureSetPoint;
 extern void ui_event_voicecmdoverlaycontainer(lv_event_t * e);
 extern lv_obj_t * ui_voicecmdoverlaycontainer;
 extern lv_obj_t * ui_voicecmdoverlaysubcontainer;
@@ -230,14 +230,14 @@ extern lv_obj_t * ui_bleswitchbtnicon;
 extern lv_obj_t * ui_bleconswitchtoKeybd;
 extern lv_obj_t * ui_bleconkeybdimg;
 extern lv_obj_t * ui_bleconmappinfolabel;
-extern lv_obj_t * ui_TempArcContanier;
-extern lv_obj_t * ui_arcbg;
-extern lv_obj_t * ui_tempbg;
-extern lv_obj_t * ui_tempnumbg;
+extern lv_obj_t * ui_ArcGroup;
+extern lv_obj_t * ui_ArcBgOuter;
+extern lv_obj_t * ui_PanelTemperatureBgOuter;
+extern lv_obj_t * ui_PanelTemperatureBgInner;
 extern lv_obj_t * ui_MainTempactive;
-extern lv_obj_t * ui_temperaturearc;
-extern lv_obj_t * ui_heatingtemparc;
-extern lv_obj_t * ui_coolingtemparc;
+extern lv_obj_t * ui_ArcTemperatureSetPoint;
+extern lv_obj_t * ui_ArcTemperatureHeating;
+extern lv_obj_t * ui_ArcTemperatureCooling;
 
 // CUSTOM VARIABLES
 
