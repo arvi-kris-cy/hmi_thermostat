@@ -216,8 +216,8 @@ void app_rtc_init(void)
 {
     Cy_RTC_Init(&CYBSP_RTC_config);
 
-    cy_stc_rtc_config_t current_time = { .sec = 0, .min = 30, .hour = 13, .hrFormat = CY_RTC_24_HOURS, .dayOfWeek =
-            CY_RTC_MONDAY, .date = 1, .month = 9, .year = 25 };
+    cy_stc_rtc_config_t current_time = { .sec = 0, .min = 30, .hour = 17, .hrFormat = CY_RTC_24_HOURS, .dayOfWeek =
+            CY_RTC_MONDAY, .date = 27, .month = 10, .year = 25 };
 
     /* Set current time */
     Cy_RTC_SetDateAndTime(&current_time);

@@ -94,6 +94,12 @@ typedef struct {
     uint32_t value;
 } notification_data_t;
 
+typedef enum
+{
+    TEMP_MIN = 14,
+    TEMP_MAX = 30
+} temperature_range_t;
+
 /*******************************************************************************
  *                                GLOBAL VARIABLES
  *******************************************************************************/

@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+
+
 // SCREEN: ui_ActiveScreen
 extern void ui_ActiveScreen_screen_init(void);
 extern void ui_ActiveScreen_screen_destroy(void);
@@ -23,10 +25,7 @@ extern lv_obj_t * ui_TimeColonactive;
 extern lv_obj_t * ui_TimeHactive;
 extern lv_obj_t * ui_TimeMactive;
 extern lv_obj_t * ui_Dateactive;
-extern lv_obj_t * ui_weathercontainer1;
-extern lv_obj_t * ui_WeatherTextactive;
 extern lv_obj_t * ui_homescreensubmsg;
-extern lv_obj_t * ui_container1text;
 extern lv_obj_t * ui_Image3;
 extern lv_obj_t * ui_humidity;
 extern lv_obj_t * ui_weathercontainer2;
@@ -34,12 +33,7 @@ extern lv_obj_t * ui_WeatherTextactive2;
 extern lv_obj_t * ui_container2text;
 extern lv_obj_t * ui_humidity2;
 extern lv_obj_t * ui_weatheractive2;
-extern lv_obj_t * ui_weathercontainer3;
-extern lv_obj_t * ui_WeatherTextactive3;
-extern lv_obj_t * ui_humidity3;
-extern lv_obj_t * ui_container3text;
 extern lv_obj_t * ui_Image5;
-extern lv_obj_t * ui_RoomTempactive;
 extern void ui_event_swiperightgesture(lv_event_t * e);
 extern lv_obj_t * ui_swiperightgesture;
 extern lv_obj_t * ui_smalluparrow;
@@ -48,11 +42,6 @@ extern lv_obj_t * ui_Mainroomtextactive;
 extern void ui_event_mode(lv_event_t * e);
 extern lv_obj_t * ui_mode;
 extern lv_obj_t * ui_settings;
-extern void ui_event_TempIncbutton(lv_event_t * e);
-extern lv_obj_t * ui_TempIncbutton;
-extern void ui_event_TempDecbutton(lv_event_t * e);
-extern lv_obj_t * ui_TempDecbutton;
-extern lv_obj_t * ui_biguparrow;
 extern void ui_event_gesturebutton(lv_event_t * e);
 extern lv_obj_t * ui_gesturebutton;
 extern lv_obj_t * ui_wifi;
@@ -81,7 +70,6 @@ extern lv_obj_t * ui_red1;
 extern lv_obj_t * ui_red2;
 extern lv_obj_t * ui_red3;
 extern lv_obj_t * ui_red4;
-extern lv_obj_t * ui_modehelperlbl;
 extern void ui_event_changescreenbuttonACT(lv_event_t * e);
 extern lv_obj_t * ui_changescreenbuttonACT;
 extern void ui_event_Settingsbutton(lv_event_t * e);
@@ -141,6 +129,7 @@ extern lv_obj_t * ui_devstatelabel;
 extern lv_obj_t * ui_wificonnectedimg;
 extern lv_obj_t * ui_wifidisccconnectedimg;
 extern lv_obj_t * ui_bleconnected120;
+extern lv_obj_t * ui_bleconnected50;
 extern lv_obj_t * ui_wifideletebtn;
 extern lv_obj_t * ui_qrcodeicon1;
 extern lv_obj_t * ui_cloudconnecting;
@@ -169,7 +158,6 @@ extern lv_obj_t * ui_qrcodelabel;
 extern void ui_event_qrcodegobackbtn(lv_event_t * e);
 extern lv_obj_t * ui_qrcodegobackbtn;
 extern lv_obj_t * ui_qrgobackimg;
-extern void ui_event_presence(lv_event_t * e);
 extern lv_obj_t * ui_presence;
 extern lv_obj_t * ui_presencecountcircle;
 extern lv_obj_t * ui_presencecountlabel;
@@ -242,6 +230,14 @@ extern lv_obj_t * ui_bleswitchbtnicon;
 extern lv_obj_t * ui_bleconswitchtoKeybd;
 extern lv_obj_t * ui_bleconkeybdimg;
 extern lv_obj_t * ui_bleconmappinfolabel;
+extern lv_obj_t * ui_TempArcContanier;
+extern lv_obj_t * ui_arcbg;
+extern lv_obj_t * ui_tempbg;
+extern lv_obj_t * ui_tempnumbg;
+extern lv_obj_t * ui_MainTempactive;
+extern lv_obj_t * ui_temperaturearc;
+extern lv_obj_t * ui_heatingtemparc;
+extern lv_obj_t * ui_coolingtemparc;
 
 // CUSTOM VARIABLES
 
