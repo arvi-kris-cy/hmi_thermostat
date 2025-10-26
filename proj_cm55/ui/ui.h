@@ -22,15 +22,10 @@ extern "C" {
 #include "screens/ui_ActiveScreen.h"
 #include "screens/ui_LPScreen.h"
 #include "screens/ui_SettingsScreen.h"
-#include "screens/ui_AboutScreen.h"
-#include "screens/ui_AudioSettings.h"
-#include "screens/ui_DisplaySettings.h"
-#include "screens/ui_Sensor_Settings.h"
-#include "screens/ui_SystemSettings.h"
-#include "screens/ui_PerformanceSettings.h"
 #include "screens/ui_BootScreen.h"
 #include "screens/ui_FWUpdateScreen.h"
 #include "screens/ui_DateTimeSettings.h"
+#include "screens/ui_AboutScreen.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -124,6 +119,13 @@ LV_IMG_DECLARE(ui_img_bootscreenimgb120_png);    // assets/bootscreen.png
 LV_IMG_DECLARE(ui_img_bootimg_cmp_png);    // assets/bootscreen.png
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(downarrow);
+LV_IMG_DECLARE(ui_img_brightness_png);
+LV_IMG_DECLARE(ui_img_icn_back_png);
+LV_IMG_DECLARE(ui_img_info_png);
+LV_IMG_DECLARE(ui_img_undo_png);
+LV_IMG_DECLARE(ui_img_149480563);
+LV_IMG_DECLARE(ui_img_icn_home_png);
+
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Roboto80);

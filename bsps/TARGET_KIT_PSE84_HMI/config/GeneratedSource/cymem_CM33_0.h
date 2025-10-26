@@ -34,12 +34,12 @@
 #define CYMEM_CM33_0_m33_trailer_OFFSET 0x00540000u
 #define CYMEM_CM33_0_m55_nvm_START 0x60580000u
 #define CYMEM_CM33_0_m55_nvm_C_START 0x08580000u
-#define CYMEM_CM33_0_m55_nvm_SIZE 0x003C0000u
+#define CYMEM_CM33_0_m55_nvm_SIZE 0x00400000u
 #define CYMEM_CM33_0_m55_nvm_OFFSET 0x00580000u
-#define CYMEM_CM33_0_m55_trailer_START 0x60940000u
-#define CYMEM_CM33_0_m55_trailer_C_START 0x08940000u
+#define CYMEM_CM33_0_m55_trailer_START 0x60980000u
+#define CYMEM_CM33_0_m55_trailer_C_START 0x08980000u
 #define CYMEM_CM33_0_m55_trailer_SIZE 0x00040000u
-#define CYMEM_CM33_0_m55_trailer_OFFSET 0x00940000u
+#define CYMEM_CM33_0_m55_trailer_OFFSET 0x00980000u
 #define CYMEM_CM33_0_m55_code_secondary_START 0x26000000u
 #define CYMEM_CM33_0_m55_code_secondary_C_START 0x06000000u
 #define CYMEM_CM33_0_m55_code_secondary_SIZE 0x00001000u

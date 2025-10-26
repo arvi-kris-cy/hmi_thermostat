@@ -2650,7 +2650,7 @@ void change_volume(lv_event_t *e)
     UNUSED_PARAM(e);
 
     /* Read audio level info from the drop-down UI element */
-    audio_level_t level = lv_dropdown_get_selected(ui_audoleveldropdown);
+    audio_level_t level = lv_dropdown_get_selected(ui_Dropdown2);
     LOG_INFO(CYLF_DEF, "Selected Volume:%d\n", level);
 
     /* Update system volume according to the selected level */
@@ -2673,7 +2673,7 @@ void update_thermostat_volume(audio_level_t level)
     set_volume(level);
 
     /* Update the drop-down UI element to this level */
-    lv_dropdown_set_selected(ui_audoleveldropdown, (uint16_t) level);
+    lv_dropdown_set_selected(ui_Dropdown2, (uint16_t) level);
 
     /* Update audio level info. */
     dev_info.preferences.audio_level = level;
@@ -3424,7 +3424,7 @@ void check_fw_update_version(lv_event_t * e)
 
 void update_fw_download_status(uint8_t percent)
 {
-    lv_bar_set_value(ui_Bar2, percent, LV_ANIM_OFF);
+    //lv_bar_set_value(ui_Bar2, percent, LV_ANIM_OFF);
 }
 
 void trigger_ota(lv_event_t * e)

@@ -776,10 +776,7 @@ void ui_demo_init(void)
     ui_BootScreen_screen_init();
     ui_ActiveScreen_screen_init();
     ui_LPScreen_screen_init();
-    ui_DisplaySettings_screen_init();
     ui_SettingsScreen_screen_init();
-    ui_AudioSettings_screen_init();
-    ui_SystemSettings_screen_init();
     ui_DateTimeSettings_screen_init();
     ui_FWUpdateScreen_screen_init();
 
@@ -797,7 +794,4 @@ void ui_destroy(void)
     ui_LPScreen_screen_destroy();
     ui_SettingsScreen_screen_destroy();
     ui_BootScreen_screen_destroy();
-    ui_DisplaySettings_screen_destroy();
-    ui_AudioSettings_screen_destroy();
-    ui_SystemSettings_screen_destroy();
 }

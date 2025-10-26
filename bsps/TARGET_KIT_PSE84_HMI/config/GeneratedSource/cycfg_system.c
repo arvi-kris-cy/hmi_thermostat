@@ -91,7 +91,7 @@ const mtb_srf_protection_range_s_t smif_0_mpc_0_srf_protection_range_s[smif_0_mp
     },
     {
         .start = (void *) 0x60580000 ,
-        .length = 0x400000U,
+        .length = 0x440000U,
         .is_secure = false,
     },
     {
@@ -106,7 +106,7 @@ const mtb_srf_protection_range_s_t smif_0_mpc_0_srf_protection_range_s[smif_0_mp
     },
     {
         .start = (void *) 0x60580000,
-        .length = 0x400000U,
+        .length = 0x440000U,
         .is_secure = false,
     },
 };

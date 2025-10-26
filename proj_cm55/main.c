@@ -770,7 +770,7 @@ static void handle_system_event(void)
                 break;
 
             case IPC_CMD_ABORT_OTA:
-                ui_FWUpdateScreen_update_msg("Rebooting device as error with\n firmware update or no \nupdate available!\n");
+                //ui_FWUpdateScreen_update_msg("Rebooting device as error with\n firmware update or no \nupdate available!\n");
                 //is_need_to_reboot = 1;
                 /* Enable the I2C interrupts. */
 //                Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
@@ -807,11 +807,6 @@ static void handle_system_event(void)
                     // LOG_INFO(CYLF_DEF, "Displaying Main Screen\n");
                     break;
 
-                case SCREEN_SETTINGS:
-                    _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_SystemSettings_screen_init);
-                    LOG_INFO(CYLF_DEF, "Displaying Settings Screen\n");
-                    break;
-
                 case SCREEN_FW:
                     _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_FWUpdateScreen_screen_init);
                     LOG_INFO(CYLF_DEF, "Displaying Firmware Screen\n");
@@ -822,15 +817,6 @@ static void handle_system_event(void)
                     LOG_INFO(CYLF_DEF, "Displaying Date & Time Screen\n");
                     break;
 
-                case SCREEN_SETTINGS_SYSTEM:
-                    _ui_screen_change(&ui_SystemSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_SystemSettings_screen_init);
-                    LOG_INFO(CYLF_DEF, "Displaying System Settings Subscreen\n");
-                    break;
-
-                case SCREEN_SETTINGS_AUDIO:
-                    _ui_screen_change(&ui_AudioSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_AudioSettings_screen_init);
-                    LOG_INFO(CYLF_DEF, "Displaying Audio Settings Subscreen\n");
-                    break;
 
                 default:
                     printf("Unknown Screen\n");

@@ -16,7 +16,7 @@ extern "C" {
 extern void ui_ActiveScreen_screen_init(void);
 extern void ui_ActiveScreen_screen_destroy(void);
 extern lv_obj_t * ui_ActiveScreen;
-extern lv_obj_t * ui_SystemSettings;
+extern lv_obj_t * ui_SettingsScreen;
 
 extern lv_obj_t * ui_backgroundimage;
 extern lv_obj_t * ui_Container1;
@@ -34,7 +34,6 @@ extern lv_obj_t * ui_container2text;
 extern lv_obj_t * ui_humidity2;
 extern lv_obj_t * ui_weatheractive2;
 extern lv_obj_t * ui_Image5;
-extern void ui_event_swiperightgesture(lv_event_t * e);
 extern lv_obj_t * ui_swiperightgesture;
 extern lv_obj_t * ui_smalluparrow;
 extern lv_obj_t * ui_bigdownarrow;
