@@ -74,7 +74,7 @@
 #define APP_SDIO_FREQUENCY_HZ                        (25000000U)
 #define SDHC_SDIO_64BYTES_BLOCK                      (64U)
 #define INITIAL_VALUE                                (0U)
-#define HTTPS_CLIENT_TASK_DELAY_MS                  (1000U * 60U) /* 60 seconds */
+#define HTTPS_CLIENT_TASK_DELAY_MS                  (10U * 60U * 1000U) /* 10 Minutes */
 
 /*******************************************************************************
 * Global Variables
@@ -157,11 +157,11 @@ static char formatted_time[32];
 
 bool syncedAll = true;
 
-static bool temperatureSynced = false;
-static bool humiditySynced = false;
-static bool windSynced = false;
-static bool rainSynced = false;
-static bool locationSynced = false;
+// static bool temperatureSynced = false;
+// static bool humiditySynced = false;
+// static bool windSynced = false;
+// static bool rainSynced = false;
+// static bool locationSynced = false;
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -903,8 +903,8 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
 
     if (result == CY_RSLT_SUCCESS)
     {
-        // printf("Time(GMT): %s\n", timedata);
         printf("Temperature: %s �C\n", temperature);
+        // printf("Time(GMT): %s\n", timedata);
         // printf("Humidity: %s %%\n", hummidity);
         // printf("Wind Speed: %s km/h\n", windspeed);
         // printf("Weather Code: %s\n", weathercode);
@@ -918,10 +918,10 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
         printf("JSON parsing failed! Error: 0x%08lX\n", (long)result);
     }
 
-    temperatureSynced = false;
-    humiditySynced = false;
-    windSynced = false;
-    rainSynced = false;
+    // temperatureSynced = false;
+    // humiditySynced = false;
+    // windSynced = false;
+    // rainSynced = false;
 
     free(json_buf);
 }

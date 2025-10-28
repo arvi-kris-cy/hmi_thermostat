@@ -242,7 +242,7 @@ char *intent_text;
 bool handle_ww_for_ui = false;
 bool handle_command_for_ui = false;
 
-char weather_sync_value[32];
+char weather_sync_value[32] = "11";
 char location_sync_value[32];
 char hour_sync_value[8];
 char minute_sync_value[8];
@@ -843,8 +843,13 @@ static void handle_system_event(void)
                 memset(weather_sync_value, 0, sizeof(weather_sync_value));
                 strncpy(weather_sync_value, ipc_recv_msg->char_value, sizeof(weather_sync_value) - 1);
 
-                // Update UI label
-                lv_label_set_text(ui_container2text, weather_sync_value);
+                // int roundoffTemp = atoi(weather_sync_value);
+
+                // // Update UI label
+                // char label_text[32];
+                // snprintf(label_text, sizeof(label_text), "%d°c", roundoffTemp);
+                // lv_label_set_text(ui_container2text, label_text);
+                lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
                 break;
 
             case IPC_CMD_LOCATION_SYNC:

@@ -189,6 +189,7 @@ static volatile bool ble_conn_state = false;
 static volatile bool wifi_conn_state = false;
 static volatile bool cloud_conn_state = false;
 
+extern char weather_sync_value[32];
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
@@ -2477,7 +2478,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
+        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, current_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2493,7 +2494,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container2text, "11°c");
+        lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, current_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
@@ -2714,7 +2715,7 @@ void set_system_unit(lv_event_t *e)
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
+        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2741,7 +2742,7 @@ void set_system_unit(lv_event_t *e)
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container2text, "11°c");
+        lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
@@ -2776,7 +2777,7 @@ void update_system_unit(temp_unit_t unit)
         lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_MainTempactive, "%d°F", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
-        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(11));
+        lv_label_set_text_fmt(ui_container2text, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_F_MAX_VALUE;
@@ -2799,7 +2800,7 @@ void update_system_unit(temp_unit_t unit)
         lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_MainTempactive, "%d°c", current_temp);
         lv_label_set_text_fmt(ui_MainTemptextLP, "%d°c", current_temp);
-        lv_label_set_text(ui_container2text, "11°c");
+        lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
         lv_arc_set_range(ui_temperaturearc, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_temperaturearc, target_temp);
         current_max_temp = TEMPERATURE_DEG_C_MAX_VALUE;
