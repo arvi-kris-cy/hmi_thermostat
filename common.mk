@@ -73,7 +73,7 @@ CONFIG_VOICE_CORE_MODE=FULL
 # Set the name of the project created in DEEPCRAFT Voice Assistant cloud tool 
 # and placed in the va_models/ folder.
 
-DEEPCRAFT_PROJECT_NAME=VA_HMI_Thermostat
+DEEPCRAFT_PROJECT_NAME=VA_HMI_Thermostat_Demo
 
 ############################# Display module ###################################
 # Option to choose the display module to realize the graphics application.

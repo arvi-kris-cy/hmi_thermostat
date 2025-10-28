@@ -95,12 +95,12 @@
 
 #define GFX_TASK_NAME                       ("CM55 Gfx Task")
 /* stack size in words */
-#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 20)
+#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 15)
 
 #define GFX_TASK_PRIORITY                   (configMAX_PRIORITIES - 1)
 
 // #define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
-// #define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 32)
+// #define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 15)
 // #define VOICE_ASSISTANT_TASK_PRIORITY           (configMAX_PRIORITIES - 2)
 
 #define APP_BUFFER_COUNT                    (2U)
@@ -1325,10 +1325,6 @@ static void cm55_gfx_task(void *arg)
             lv_port_indev_init();
             ui_demo_init();
             ui_timer_init();
-
-           /* Start sensor task */
-            app_sensor_task_init();
-
         }
         else
         {
@@ -1491,9 +1487,6 @@ int main(void)
         APP_ERROR(pipeStatus);
     }
 
-    /* Power pasco2 sensor */
-    power_co2_sensor();
-
     /* Initialize I2C SCB */
     init_i2c_controller();
 
@@ -1503,6 +1496,7 @@ int main(void)
     if (i2c_mutex == NULL) {
         LOG_INFO(CYLF_DEF, "I2C mutex creation error.\n");
     }
+    xSemaphoreGive(i2c_mutex);
 
     /* Initialize Speaker */
     app_speaker_init();
@@ -1532,6 +1526,10 @@ int main(void)
     dev_info.environment.target_temp = dev_info.environment.current_temp;
 
     /* Create the FreeRTOS Task */
+    /* Start sensor task */
+    app_sensor_task_init();
+
+    /* Start GFX task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
                               GFX_TASK_STACK_SIZE, NULL,
                               GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
@@ -1539,7 +1537,6 @@ int main(void)
     if (pdPASS != task_return)
     {
         printf("Error: Failed to create cm55_gfx_task.\r\n");
-//        handle_app_error();
         APP_ERROR(1);
     }
 

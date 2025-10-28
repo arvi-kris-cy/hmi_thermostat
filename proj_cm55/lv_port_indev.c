@@ -163,7 +163,7 @@ static void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
     static int touch_y = 0;
 
     /* Wait for sensor task to acquire the i2c bus. */
-    if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
+    if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE)
     {
         data->state = LV_INDEV_STATE_REL;
 
@@ -184,10 +184,9 @@ static void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
             touch_detected = true;
         }   
 #endif
-      }
-
-      // Release the mutex, allowing other tasks to use the bus.
-      xSemaphoreGive(i2c_mutex);
+        // Release the mutex, allowing other tasks to use the bus.
+        xSemaphoreGive(i2c_mutex);
+    }
 
 #if defined(MTB_CTP_ILI2511) || defined(MTB_CTP_GT911) || defined(MTB_CTP_FT5446) || defined(MTB_CTP_P4100TP)
     /* Set the last pressed coordinates */

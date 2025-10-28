@@ -73,37 +73,18 @@ static uint32_t sensor_sampling_intv = SENSOR_SAMPLING_INTERVAL_ACTIVE;
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
-/**
- * @brief Timer callback to restart the Sensor Task after a failure.
- *
- * This is a FreeRTOS one-shot timer callback function. When triggered, it
- * attempts to recreate the Sensor Task that may have previously failed
- * during initialization. The task is created with predefined stack size
- * and priority.
- *
- * @param[in] xTimer  Handle of the timer that triggered this callback.
- *
- * @note This function is typically invoked by the retry timer created in
- *       `app_sensor_task_init()`.
- *
- * @retval None
- */
-static void restart_sensor_task_timer_cb(TimerHandle_t xTimer);
+
 
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
 
-static void restart_sensor_task_timer_cb(TimerHandle_t xTimer)
-{
-    xTaskCreate(sensor_task, SENSOR_TASK_NAME, SENSOR_TASK_STACK_SIZE, NULL,
-            SENSOR_TASK_PRIORITY, &rtos_cm55_sensor_task_handle);
-}
-
 void power_co2_sensor(void)
 {
+    Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 0u);
+    vTaskDelay(100);
     Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 1u);
-    Cy_SysLib_Delay(WAIT_SENSOR_RDY_MS);
+    vTaskDelay(WAIT_SENSOR_RDY_MS);
 }
 
 cy_rslt_t pasco2_sensor_init(void)
@@ -166,7 +147,14 @@ cy_rslt_t sensor_init(void)
     /* Initialize CO2 sensor with retry */
     for (retry = 0; retry < max_retries; retry++)
     {
-        result = pasco2_sensor_init();
+        /* Wait for sensor task to acquire the i2c bus. */
+        if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE)
+        {
+            result = pasco2_sensor_init();
+
+            xSemaphoreGive(i2c_mutex);
+        }
+        
         if (result == CY_RSLT_SUCCESS)
         {
             break;
@@ -210,6 +198,9 @@ void sensor_task(void *arg)
 
     LOG_INFO(CYLF_DEF, "Sensor task running.\n");
 
+    /* Power pasco2 sensor */
+    power_co2_sensor();
+    
     /* Initialize all sensors */
     result = sensor_init();
     if (result != CY_RSLT_SUCCESS)
@@ -217,74 +208,86 @@ void sensor_task(void *arg)
         LOG_INFO(CYLF_DEF, "Sensor initialization failed! Halting task.\r\n");
 
         /* Start timer to recreate this task after 5 sec */
-        if (restart_sensor_timer != NULL)
-        {
-            Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 0u);
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 1u);
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            xTimerStart(restart_sensor_timer, 0);
-        }
+        // if (restart_sensor_timer != NULL)
+        // {
+        //     Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 0u);
+        //     vTaskDelay(pdMS_TO_TICKS(2000));
+        //     Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 1u);
+        //     vTaskDelay(pdMS_TO_TICKS(2000));
+        //     xTimerStart(restart_sensor_timer, 0);
+        // }
 
-        vTaskSuspend(NULL);
+        // vTaskSuspend(NULL);
+        CY_ASSERT(0);
     }
 
     /* Initial delay to allow other tasks to start */
     vTaskDelay(pdMS_TO_TICKS(1000));
+    
+    /* Wait for sensor task to acquire the i2c bus. */
+    if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE)
+    {
+	    /* Configure sensor in single shot mode (Idle Mode -> Single shot mode) */
+	    xensiv_pasco2_start_single_mode(&xensiv_pasco2);
+	    
+        // Release the mutex, allowing other tasks to use the bus.
+        xSemaphoreGive(i2c_mutex);
+    }
 
     for (;;)
     {
-        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(sensor_sampling_intv));
+        if(0 == ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(sensor_sampling_intv)))
+        {
+			/* Read sensor only at sensor_sampling_intv period. Ignore when task notify update done for interval update during screen change */
 #if 0
-        /* Wait for sensor task to acquire the i2c bus. */
-        if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
-        {
-            /* Read temperature and humidity from SHT40 */
-            result = mtb_sht4x_measure_low_precision(&CYBSP_I2C_CONTROLLER_2_hal_obj, &read_temperature,
-                    &read_humidity);
-            if (result == CY_RSLT_SUCCESS)
-            {
-                //            printf("Humidity    : %ld milli RH\r\n", (long)humidity);
-                //            printf("Temperature : %ld milli degC\r\n", (long)temperature);
-            }
-            else
-            {
-                LOG_ERROR(CYLF_DEF, "SHT40 measurement failed. Resetting sensor...\r\n");
-                sht4x_soft_reset();
-            }
-
-            // Release the mutex, allowing other tasks to use the bus.
-            xSemaphoreGive(i2c_mutex);
-            vTaskDelay(pdMS_TO_TICKS(70));
-        }
+	        /* Wait for sensor task to acquire the i2c bus. */
+	        if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE)
+	        {
+	            /* Read temperature and humidity from SHT40 */
+	            result = mtb_sht4x_measure_low_precision(&CYBSP_I2C_CONTROLLER_2_hal_obj, &read_temperature,
+	                    &read_humidity);
+	            if (result == CY_RSLT_SUCCESS)
+	            {
+	                //            printf("Humidity    : %ld milli RH\r\n", (long)humidity);
+	                //            printf("Temperature : %ld milli degC\r\n", (long)temperature);
+	            }
+	            else
+	            {
+	                LOG_ERROR(CYLF_DEF, "SHT40 measurement failed. Resetting sensor...\r\n");
+	                sht4x_soft_reset();
+	            }
+	
+	            // Release the mutex, allowing other tasks to use the bus.
+	            xSemaphoreGive(i2c_mutex);
+	            vTaskDelay(pdMS_TO_TICKS(70));
+	        }
 #endif
-        /* Wait for sensor task to acquire the i2c bus. */
-        if (xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
-        {
-            /* Read CO2 data */
-            result = xensiv_pasco2_mtb_read(&xensiv_pasco2, DEFAULT_PRESSURE_REF_HPA, &read_ppm);
-            if (result == CY_RSLT_SUCCESS)
-            {
-                //            printf("CO2 concentration: %d ppm\r\n", ppm);
-                sensor_data_available = true;
-            }
-            else if (result == XENSIV_PASCO2_RSLT_READ_NRDY)
-            {
-                LOG_ERROR(CYLF_DEF,  "CO2 sensor data not ready.\n");
-            }
-            else
-            {
-                LOG_ERROR(CYLF_DEF, "Error reading CO2 sensor data\n");
-            }
-
-            /* Configure sensor in single shot mode (Idle Mode -> Single shot mode) */
-            xensiv_pasco2_start_single_mode(&xensiv_pasco2);
-
-            // Release the mutex, allowing other tasks to use the bus.
-            xSemaphoreGive(i2c_mutex);
-            vTaskDelay(pdMS_TO_TICKS(70));
-        }
-
+	        /* Wait for sensor task to acquire the i2c bus. */
+	        if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE)
+	        {
+	            /* Read CO2 data */
+	            result = xensiv_pasco2_mtb_read(&xensiv_pasco2, DEFAULT_PRESSURE_REF_HPA, &read_ppm);
+	            if (result == CY_RSLT_SUCCESS)
+	            {
+	                //            printf("CO2 concentration: %d ppm\r\n", ppm);
+	                sensor_data_available = true;
+	            }
+	            else if (result == XENSIV_PASCO2_RSLT_READ_NRDY)
+	            {
+	                LOG_ERROR(CYLF_DEF,  "CO2 sensor data not ready.\n");
+	            }
+	            else
+	            {
+	                LOG_ERROR(CYLF_DEF, "Error reading CO2 sensor data\n");
+	            }
+	
+	            /* Configure sensor in single shot mode (Idle Mode -> Single shot mode) */
+	            xensiv_pasco2_start_single_mode(&xensiv_pasco2);
+	
+	            // Release the mutex, allowing other tasks to use the bus.
+	            xSemaphoreGive(i2c_mutex);
+	        }
+		}
     }
 }
 
@@ -298,12 +301,6 @@ void app_sensor_task_init(void)
 {
     BaseType_t task_return = pdFAIL;
 
-    /* Create one-shot timer for 5-second retry delay */
-    restart_sensor_timer = xTimerCreate("SensorRestartTimer",
-                                        pdMS_TO_TICKS(5000),
-                                        pdFALSE,
-                                        NULL,
-                                        restart_sensor_task_timer_cb);
     /* Start sensor task */
     task_return = xTaskCreate(sensor_task, SENSOR_TASK_NAME,
                                            SENSOR_TASK_STACK_SIZE, NULL,
@@ -313,6 +310,7 @@ void app_sensor_task_init(void)
     if(task_return == pdFAIL)
     {
         LOG_ERROR(CYLF_DEF, "App. sensor task create failed.\n");
+        CY_ASSERT(0);
     }
     else
     {

@@ -193,6 +193,7 @@ void set_temperature(int *value)
 /*******************************************************************************
  * Function Name: Intent to ui changes
  *******************************************************************************/
+#if 0
 va_rslt_t intent_to_ui(const char *command)
 {
     if(handle_command_for_ui)
@@ -391,6 +392,274 @@ va_rslt_t intent_to_ui(const char *command)
     // Successfully handled the command
     return VA_RSLT_SUCCESS;
 }
+#endif
+
+va_rslt_t intent_to_ui(const char *command)
+{
+    if(handle_command_for_ui)
+    {
+        handle_command_for_ui = false;
+
+        if (NULL == command)
+        {
+            // printf("No command received.\n");
+            return VA_RSLT_INVALID_ARGUMENT;  // Return immediately for invalid input
+        }
+
+        /** Switch to Active screen */
+        switch_to_active_screen();
+
+        // Map the command string to an enum value
+        va_detect_cmd_t cmd = va_command_to_id(command);
+
+        // Handle the command using a switch statement
+        switch (cmd) 
+        {
+            case SETTEMPERATURE:
+            {
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(intent_value));
+            		printf("Handling SETTEMPERATURE command.\n");
+            	}
+            	else
+            	{
+            		printf("Temperature not defined.\n");
+            	}
+                break;
+            }
+            case INCREASETEMPERATURE:
+            {
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() + (uint8_t)(intent_value)));
+            	}
+            	else
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() + 1));
+            	}
+                printf("Handling INCREASETEMPERATURE command.\n");
+                break;
+            }
+            case DECREASETEMPERATURE:
+            {
+            	if(intent_value)
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() - (uint8_t)(intent_value)));
+            	}
+            	else
+            	{
+            		update_device_temp((uint8_t)(get_current_temperature() - 1));
+            	}
+                printf("Handling DECREASETEMPERATURE command.\n");
+                break;
+            }
+            case INCREASESCREENBRIGHTNESS:
+            {
+                increase_screen_brightness();
+                printf("Handling INCREASESCREENBRIGHTNESS command.\n");
+                break;
+            }
+            case DECREASESCREENBRIGHTNESS:
+            {
+                decrease_screen_brightness();
+                printf("Handling DECREASESCREENBRIGHTNESS command.\n");
+                break;
+            }
+            case INCREASEFANSPEED:
+            {
+                fan_speed_t fan_mode = get_current_fan_mode();
+
+                if(fan_mode != FAN_HIGH)
+                {
+                    if (fan_mode == FAN_OFF)
+                    {
+                        fan_mode = FAN_LOW;  // Start cycle at LOW
+
+                        update_thermostat_mode(MODE_ECO);
+                    }
+                    else if (fan_mode == FAN_LOW)
+                    {
+                        fan_mode = FAN_MED;
+                    }
+                    else if (fan_mode == FAN_MED)
+                    {
+                        fan_mode = FAN_HIGH;
+                    }
+
+                    current_settings.thermostat_setting.fan_mode = fan_mode;
+
+                    update_fan_mode(fan_mode);
+                    update_current_device_setting();
+                }
+
+                printf("Handling INCREASEFANSPEED command.\n");
+                break;
+            }
+            case DECREASEFANSPEED:
+            {
+                fan_speed_t fan_mode = get_current_fan_mode();
+
+                if((fan_mode != FAN_OFF) && (fan_mode != FAN_LOW))
+                {
+                    if (fan_mode == FAN_HIGH)
+                    {
+                        fan_mode = FAN_MED;  // Start cycle at LOW
+                    }
+                    else if (fan_mode == FAN_MED)
+                    {
+                        fan_mode = FAN_LOW;
+                    }
+                    //else if (fan_mode == FAN_LOW)
+                    //{
+                    //    fan_mode = FAN_OFF;
+                    //}
+
+                    current_settings.thermostat_setting.fan_mode = fan_mode;
+
+                    update_fan_mode(fan_mode);
+                    update_current_device_setting();
+                }
+
+                printf("Handling DECREASEFANSPEED command.\n");
+                break;
+            }
+            case TURNONCMD:
+            {
+                thermostat_mode_t current_mode = get_current_device_mode();
+				
+                if(intent_value)
+                {	
+                    if(current_mode == MODE_OFF)
+                    {
+                        update_thermostat_mode(MODE_ECO);
+
+                        current_settings.thermostat_setting.fan_mode = FAN_LOW;
+
+                        update_fan_mode(FAN_LOW);
+                        update_thermostat_mode_timer();
+                        update_current_device_setting();
+                    }
+                }
+
+                printf("Handling TURNONCMD command.\n");
+                break;
+            }
+            case TURNOFFCMD:
+            {
+                thermostat_mode_t current_mode = get_current_device_mode();
+
+                if(intent_value)
+                {
+                    if(current_mode != MODE_OFF)
+                    {
+                        update_thermostat_mode(MODE_OFF);
+
+                        current_settings.thermostat_setting.fan_mode = FAN_OFF;
+
+                        update_fan_mode(FAN_OFF);
+                        update_thermostat_mode_timer();
+                        update_current_device_setting();
+                    }
+                }
+
+                printf("Handling TURNOFFCMD command.\n");
+                break;
+            }
+            case SETTINGMODE:
+            {
+                go_to_setting();
+                printf("Handling SETTINGMODE command.\n");
+                break;
+            }
+            case THERMOSTATMODE:
+            {
+                thermostat_mode_t current_mode = get_current_device_mode();
+
+                if(intent_value)
+                {
+					const char* command = MTB_NLU_VARIABLE_PHRASE_LIST(PROJECT_PREFIX)[intent_value];
+					
+					if (strcmp(command, "eco") == 0)
+					{	
+                    	current_mode = MODE_ECO;
+					}
+					else if (strcmp(command, "rapid") == 0)
+					{
+						current_mode = MODE_RAPID;
+					}
+					else if (strcmp(command, "auto") == 0)
+					{
+						current_mode = MODE_AUTO;
+					}
+                }
+                else
+                {
+                    if(current_mode == MODE_OFF)
+                    {
+                        current_mode = MODE_ECO;
+                    }
+                    else if(current_mode == MODE_ECO)
+                    {
+                        current_mode = MODE_RAPID;
+                    }
+                    else if(current_mode == MODE_RAPID)
+                    {
+                        current_mode = MODE_AUTO;
+                    }
+                    else if(current_mode == MODE_AUTO)
+                    {
+                        current_mode = MODE_ECO;
+                    }
+                }
+
+                update_thermostat_mode(current_mode);
+                current_settings.thermostat_setting.mode = current_mode;
+                current_settings.thermostat_setting.fan_mode = get_current_fan_mode();
+                update_thermostat_mode_timer();
+                update_current_device_setting();
+
+                printf("Handling THERMOSTATMODE command.\n");
+                break;
+            }
+            case WIFISTATUS:
+            {
+                printf("Handling WIFISTATUS command.\n");
+                break;
+            }
+            case MUTEVOLUME:
+            {
+                update_thermostat_volume(AUDIO_OFF);
+                printf("Handling MUTEVOLUME command.\n");
+                break;
+            }
+            case UNMUTEVOLUME:
+            {
+                update_thermostat_volume(AUDIO_MED);
+                printf("Handling UNMUTEVOLUME command.\n");
+                break;
+            }
+
+            default:
+            {
+                // Handle unknown commands
+                if (command && command[0] != '\0')
+                {
+                    printf("Unknown command: %s\n", command);
+                }
+                else
+                {
+                    printf("Unknown or empty command received.\n");
+                }
+
+                return VA_RSLT_INVALID_ARGUMENT;  // Return an error for unknown commands
+            }
+        }
+    }
+
+    // Successfully handled the command
+    return VA_RSLT_SUCCESS;
+}
 
 void ww_to_ui()
 {
@@ -566,6 +835,9 @@ void voice_assistant_task(void * arg)
         /* Read the user button state */
         if (check_button_pressed() || is_mic_clicked)
         {
+            /** Switch to Active screen  */
+            switch_to_active_screen();
+
             printf("Push to Talk Button detected! Speak a command!\r\n");
             Cy_GPIO_Set(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_NUM);
 
