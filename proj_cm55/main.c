@@ -528,18 +528,29 @@ static void handle_sensor_update(void)
     }
 }
 
-void update_date_labels(void)
+void update_date_via_http(void)
 {
-    if (strlen(month_sync_value) > 0 && strlen(vaar_sync_value) > 0 && strlen(date_sync_value) > 0)
+    if (strlen(year_sync_value) > 0 && strlen(month_sync_value) > 0 && strlen(date_sync_value) > 0 && strlen(hour_sync_value) && strlen(minute_sync_value) && strlen(second_sync_value))
     {
-        char date_str[32];
-        snprintf(date_str, sizeof(date_str), "%s %s %s", vaar_sync_value, date_sync_value, month_sync_value);
+        DateTime rx_datetime;
 
-        // Update the UI labels
-        lv_label_set_text(ui_Dateactive, date_str);
-        lv_label_set_text(ui_DateLP, date_str);
+        rx_datetime.year = atoi(year_sync_value);
+        rx_datetime.month = atoi(month_sync_value);
+        rx_datetime.day = atoi(date_sync_value);
+        rx_datetime.hour = atoi(hour_sync_value);
+        rx_datetime.minute = atoi(minute_sync_value);
+        rx_datetime.second = atoi(second_sync_value);
 
-        LOG_INFO(CYLF_DEF, "Updated date labels: %s\n", date_str);
+        set_date_time_rtc(&rx_datetime);
+
+        enqueue_notification(NOTIFY_HTTP_SYNC, NOTIF_SUCCESS, DEV_ST_SYNCED_HTTP);
+
+        hour_sync_value[0] = '\0';
+        minute_sync_value[0] = '\0';
+        second_sync_value[0] = '\0';
+        date_sync_value[0] = '\0';
+        month_sync_value[0] = '\0';
+        year_sync_value[0] = '\0';
     }
 }
 
@@ -843,6 +854,7 @@ static void handle_system_event(void)
                 memset(location_sync_value, 0, sizeof(location_sync_value));
                 strncpy(location_sync_value, ipc_recv_msg->char_value, sizeof(location_sync_value) - 1);
 
+                // Update Weather Text UI
                 lv_label_set_text(ui_WeatherTextactive2, location_sync_value);
                 break;
 
@@ -852,10 +864,7 @@ static void handle_system_event(void)
                 // Clear and copy the hour sync data
                 memset(hour_sync_value, 0, sizeof(hour_sync_value));
                 strncpy(hour_sync_value, ipc_recv_msg->char_value, sizeof(hour_sync_value) - 1);
-
-                // Update Hour Sync Text UI
-                lv_label_set_text(ui_TimeHactive, hour_sync_value);
-                lv_label_set_text(ui_TimeHLP, hour_sync_value);
+                update_date_via_http();
                 break;
 
             case IPC_CMD_MINUTE_SYNC:
@@ -864,10 +873,7 @@ static void handle_system_event(void)
                 // Clear and copy the minute sync data
                 memset(minute_sync_value, 0, sizeof(minute_sync_value));
                 strncpy(minute_sync_value, ipc_recv_msg->char_value, sizeof(minute_sync_value) - 1);
-
-                // Update Minute Sync Text UI
-                lv_label_set_text(ui_TimeMactive, minute_sync_value);
-                lv_label_set_text(ui_TimeMLP, minute_sync_value);
+                update_date_via_http();
                 break;
 
             case IPC_CMD_SECOND_SYNC:
@@ -876,9 +882,7 @@ static void handle_system_event(void)
                 // Clear and copy the second sync data
                 memset(second_sync_value, 0, sizeof(second_sync_value));
                 strncpy(second_sync_value, ipc_recv_msg->char_value, sizeof(second_sync_value) - 1);
-
-                // Update Second Sync Text UI
-                lv_label_set_text(ui_TimeSLP, second_sync_value);
+                update_date_via_http();
                 break;
 
             case IPC_CMD_DATE_SYNC:
@@ -888,7 +892,7 @@ static void handle_system_event(void)
                 strncpy(date_sync_value, ipc_recv_msg->char_value, sizeof(date_sync_value) - 1);
 
                 LOG_INFO(CYLF_DEF, "Date stored: %s\n", date_sync_value);
-                update_date_labels();
+                update_date_via_http();
                 break;
 
             case IPC_CMD_MONTH_SYNC:
@@ -898,7 +902,7 @@ static void handle_system_event(void)
                 strncpy(month_sync_value, ipc_recv_msg->char_value, sizeof(month_sync_value) - 1);
 
                 LOG_INFO(CYLF_DEF, "Month stored: %s\n", month_sync_value);
-                update_date_labels();
+                update_date_via_http();
                 break;
 
             case IPC_CMD_VAAR_SYNC:
@@ -908,7 +912,7 @@ static void handle_system_event(void)
                 strncpy(vaar_sync_value, ipc_recv_msg->char_value, sizeof(vaar_sync_value) - 1);
 
                 LOG_INFO(CYLF_DEF, "Vaar stored: %s\n", vaar_sync_value);
-                update_date_labels();
+                // update_date_via_http();
                 break;
 
             case IPC_CMD_YEAR_SYNC:
@@ -918,6 +922,7 @@ static void handle_system_event(void)
                 strncpy(year_sync_value, ipc_recv_msg->char_value, sizeof(year_sync_value) - 1);
 
                 LOG_INFO(CYLF_DEF, "Year stored: %s\n", year_sync_value);
+                update_date_via_http();
                 break;
 
             default:

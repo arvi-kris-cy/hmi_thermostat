@@ -54,7 +54,7 @@
 /* Task parameters for MQTT Client Task. */
 #define MQTT_TASK_NAME                             ("MQTT Client")
 #define MQTT_CLIENT_TASK_PRIORITY       	        (1U)
-#define MQTT_CLIENT_TASK_STACK_SIZE     	        (1024U * 4U)
+#define MQTT_CLIENT_TASK_STACK_SIZE     	        (1024U * 2U)
 
 #define MQTT_TOPIC_SIZE 					(16U)
 

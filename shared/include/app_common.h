@@ -176,6 +176,7 @@ typedef enum {
     DEV_ST_SWITCH_BLE,
     DEV_ST_FW_HAVE_SAME_VERSION,
     DEV_ST_NO_INTERNET,
+    DEV_ST_SYNCED_HTTP
 } device_connection_state_t;
 
 typedef enum {

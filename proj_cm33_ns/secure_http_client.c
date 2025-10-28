@@ -37,7 +37,6 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
-#include <stdlib.h>
 
 /* Header file includes */
 #include "cybsp.h"
@@ -154,6 +153,7 @@ static char temperature[16];
 static char hummidity[16];
 static char windspeed[16];
 static char weathercode[16];
+static char formatted_time[32];
 
 bool syncedAll = true;
 
@@ -176,6 +176,7 @@ static cy_rslt_t wifi_connect(void);
 
 void parse_json_payload(const char* payload);
 void parse_json_weather_payload(const char* payload, uint32_t payload_len);
+void parse_json_time_payload(const char* payload, uint32_t payload_len);
 /*******************************************************************************
 * Function Definitions
 *******************************************************************************/
@@ -404,6 +405,8 @@ static void disconnect_callback_handler(cy_http_client_t handle,
 {
     printf("\nApplication Disconnect callback triggered for handle = "
             "%p type=%d\n", handle, type);
+
+    time_synced = false;
 
     retry_fetching_data(handle);
 }
@@ -651,7 +654,34 @@ static void fetch_https_client_method(void)
     else{
         parse_json_weather_payload((const char *)response.body, response.body_len);
 
-        sync_time((const char *)response.header, PDT);
+        // sync_time((const char *)response.header, PDT);
+    }
+
+    char timezone_path[256] = {0};
+    snprintf(timezone_path, sizeof(timezone_path),
+             "/v2.1/get-time-zone?key=OASF0WKZLRVD&format=json&by=position&lat=%s&lng=%s", latitude, longitude);
+
+    /* Step 4: Fetch timezone data (remaining steps are unchanged) */
+    printf("\nFetching timezone data from timezonedb...\n");
+    result = configure_https_client(TIMEZONE_SERVER_HOST, TIMEZONE_PORT);
+    if (CY_RSLT_SUCCESS != result) {
+        ERR_INFO(("Failed to configure HTTP client for timezone API.\n"));
+        return;
+    }
+
+    result = cy_http_client_connect(https_client, TRANSPORT_SEND_RECV_TIMEOUT_MS, TRANSPORT_SEND_RECV_TIMEOUT_MS);
+    if (CY_RSLT_SUCCESS != result) {
+        ERR_INFO(("Failed to connect to timezone server.\n"));
+        return;
+    }
+
+    printf("\nSending request to timezone API...\n");
+    result = send_http_request(https_client, http_client_method, timezone_path);
+    if (CY_RSLT_SUCCESS != result) {
+        ERR_INFO(("Failed to fetch timezone data.\n"));
+    }
+    else{
+        parse_json_time_payload((const char *)response.body, response.body_len);
     }
 
     syncedAll = false;
@@ -663,29 +693,30 @@ static void fetch_https_client_method(void)
 * Summary:
 *  The function handles an http request operation.
 *******************************************************************************/
-static void http_request(void)
-{
-    cy_rslt_t result = CY_RSLT_SUCCESS;
+// static void http_request(void)
+// {
+//     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-   /* Send the HTTP request and body to the server, and receive the response
-    * from it.
-    */
-    result = send_http_request(https_client, http_client_method, GEO_PATH);
+//    /* Send the HTTP request and body to the server, and receive the response
+//     * from it.
+//     */
+//     result = send_http_request(https_client, http_client_method, GEO_PATH);
 
-    if(CY_RSLT_SUCCESS != result)
-    {
-        ERR_INFO(("Failed to send the http request.\n"));
-    }
-    else
-    {
-        printf("\r\nSuccessfully sent GET request to http server\r\n");
-        printf("\r\nThe http status code is :: %d\r\n",
-                 http_response.status_code);
-    }
-}
+//     if(CY_RSLT_SUCCESS != result)
+//     {
+//         ERR_INFO(("Failed to send the http request.\n"));
+//     }
+//     else
+//     {
+//         printf("\r\nSuccessfully sent GET request to http server\r\n");
+//         printf("\r\nThe http status code is :: %d\r\n",
+//                  http_response.status_code);
+//     }
+// }
 
+/*****************************************************************************************************************************************************/
 /* [] END OF FILE */
-
+/*****************************************************************************************************************************************************/
 /* Callback for JSON parsing */
 cy_rslt_t json_callback(cy_JSON_object_t* json_object, void* arg) 
 {
@@ -779,6 +810,26 @@ static cy_rslt_t json_weather_cb(cy_JSON_object_t *object, void *arg)
     return CY_RSLT_SUCCESS;
 }
 
+static cy_rslt_t json_time_cb(cy_JSON_object_t *object, void *arg)
+{
+    if (object == NULL || object->object_string == NULL)
+        return CY_RSLT_SUCCESS;
+
+    if (object->object_string_length == (sizeof("formatted") - 1) &&
+        strncmp(object->object_string, "formatted", object->object_string_length) == 0 &&
+        object->value_type == JSON_STRING_TYPE)
+    {
+        // Ensure proper bounds and null-termination
+        size_t n = (object->value_length < sizeof(formatted_time) - 1)
+                    ? object->value_length
+                    : sizeof(formatted_time) - 1;
+        memcpy(formatted_time, object->value, n);
+        formatted_time[n] = '\0';
+    }
+
+    return CY_RSLT_SUCCESS;
+}
+
 void parse_json_payload(const char* payload) {
     if (payload == NULL || strlen(payload) == 0) {
         printf("Error: Payload is empty or NULL!\n");
@@ -852,11 +903,11 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
 
     if (result == CY_RSLT_SUCCESS)
     {
-        printf("Time(GMT): %s\n", timedata);
+        // printf("Time(GMT): %s\n", timedata);
         printf("Temperature: %s �C\n", temperature);
-        printf("Humidity: %s %%\n", hummidity);
-        printf("Wind Speed: %s km/h\n", windspeed);
-        printf("Weather Code: %s\n", weathercode);
+        // printf("Humidity: %s %%\n", hummidity);
+        // printf("Wind Speed: %s km/h\n", windspeed);
+        // printf("Weather Code: %s\n", weathercode);
 
         vTaskDelay(pdMS_TO_TICKS(50)); 
         set_weather_sync(temperature);
@@ -875,6 +926,130 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
     free(json_buf);
 }
 
+// Parse "YYYY-MM-DD HH:MM:SS" into integers.
+// Returns 0 on success, non-zero on failure.
+static int parse_formatted_to_components(const char* fmt,
+                                         int* year, int* month, int* day,
+                                         int* hour, int* minute, int* second)
+{
+    if (fmt == NULL) return -1;
+
+    // Prefer sscanf for simplicity; width specifiers constrain the read.
+    // Example: "2025-10-27 15:10:59"
+    int y, m, d, hh, mm, ss;
+    int n = sscanf(fmt, "%4d-%2d-%2d %2d:%2d:%2d", &y, &m, &d, &hh, &mm, &ss);
+    if (n != 6) {
+        return -2;
+    }
+
+    // Basic range checks
+    if (m < 1 || m > 12) return -3;
+    if (d < 1 || d > 31) return -4;
+    if (hh < 0 || hh > 23) return -5;
+    if (mm < 0 || mm > 59) return -6;
+    if (ss < 0 || ss > 59) return -7;
+
+    *year = y; *month = m; *day = d;
+    *hour = hh; *minute = mm; *second = ss;
+    return 0;
+}
+
+// Compute weekday from a Gregorian date using Sakamoto’s algorithm.
+// Returns 0=Sun, 1=Mon, ..., 6=Sat
+static int weekday_from_date(int y, int m, int d)
+{
+    static const int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+    if (m < 3) y -= 1;
+    int w = (y + y/4 - y/100 + y/400 + t[m-1] + d) % 7;
+    return w;
+}
+
+void parse_json_time_payload(const char* payload, uint32_t payload_len)
+{
+    if(!time_synced)
+    {
+        if (payload == NULL || payload_len == 0) {
+            printf("Error: Payload is NULL or empty!\n");
+            return;
+        }
+
+        char *json_buf = malloc(payload_len + 1);
+        if (!json_buf) {
+            printf("Error: malloc failed!\n");
+            return;
+        }
+        memcpy(json_buf, payload, payload_len);
+        json_buf[payload_len] = '\0';
+
+        cy_rslt_t reg_result = cy_JSON_parser_register_callback(json_time_cb, NULL);
+        if (reg_result != CY_RSLT_SUCCESS) {
+            printf("Error: Failed to register JSON callback! Error: %ld\n", (long)reg_result);
+            free(json_buf);
+            return;
+        }
+
+        cy_rslt_t result = cy_JSON_parser(json_buf, payload_len);
+
+        if (result == CY_RSLT_SUCCESS)
+        {
+            printf("Time(Local): %s\n", formatted_time);
+        }
+        else
+        {
+            printf("JSON parsing failed! Error: 0x%08lX\n", (long)result);
+        }
+
+        if (formatted_time == NULL || formatted_time[0] == '\0') {
+            printf("Error: formatted time is missing!\n");
+            return;
+        }
+
+        int year, month, day, hour, minute, second;
+        if (parse_formatted_to_components(formatted_time, &year, &month, &day, &hour, &minute, &second) != 0) {
+            printf("Error: failed to parse formatted time: '%s'\n", formatted_time);
+            return;
+        }
+
+        // Zero-padded strings
+        char hour_str[3], min_str[3], sec_str[3], day_str[3], month_str[3], year_str[5];
+
+        snprintf(hour_str, sizeof(hour_str),  "%02d", hour);
+        snprintf(min_str,  sizeof(min_str),   "%02d", minute);
+        snprintf(sec_str,  sizeof(sec_str),   "%02d", second);
+        snprintf(day_str,  sizeof(day_str),   "%02d", day);
+        snprintf(month_str,sizeof(month_str), "%02d", month);
+        snprintf(year_str, sizeof(year_str),  "%04d", year);
+
+        // Sync in requested order with delays
+        set_hour_sync(hour_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        set_minute_sync(min_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        set_second_sync(sec_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        // Weekday sync
+        const char* weekdays[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+        int wday = weekday_from_date(year, month, day);
+        set_vaar_sync(weekdays[wday]);
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        set_year_sync(year_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        set_month_sync(month_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        set_date_sync(day_str);
+        vTaskDelay(pdMS_TO_TICKS(250));
+
+        free(json_buf);
+        
+        time_synced = true;
+    }
+}
 
 /*******************************************************************************
  * Data Sync
@@ -931,122 +1106,122 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
 //     }
 // }
 
-int month_str_to_index(const char* month)
-{
-    const char* months[] = {"Jan","Feb","Mar","Apr","May","Jun",
-                            "Jul","Aug","Sep","Oct","Nov","Dec"};
-    for(int i=0;i<12;i++)
-    {
-        if(strncmp(months[i], month, 3) == 0)
-            return i;
-    }
-    return 0;
-}
+// int month_str_to_index(const char* month)
+// {
+//     const char* months[] = {"Jan","Feb","Mar","Apr","May","Jun",
+//                             "Jul","Aug","Sep","Oct","Nov","Dec"};
+//     for(int i=0;i<12;i++)
+//     {
+//         if(strncmp(months[i], month, 3) == 0)
+//             return i;
+//     }
+//     return 0;
+// }
 
-time_t timegm(struct tm *t)
-{
-    // Save current timezone
-    //char *tz = getenv("TZ");
-    //setenv("TZ", "UTC", 1);
-    //tzset(); // apply new TZ
+// time_t timegm(struct tm *t)
+// {
+//     // Save current timezone
+//     char *tz = getenv("TZ");
+//     setenv("TZ", "UTC", 1);
+//     tzset(); // apply new TZ
 
-    time_t result = mktime(t); // mktime interprets t as local time (now UTC)
+//     time_t result = mktime(t); // mktime interprets t as local time (now UTC)
 
-    // Restore previous timezone
-    //if (tz)
-    //    setenv("TZ", tz, 1);
-    //else
-   //     unsetenv("TZ");
-   // tzset();
+//     // Restore previous timezone
+//     if (tz)
+//         setenv("TZ", tz, 1);
+//     else
+//         unsetenv("TZ");
+//     tzset();
 
-    return result;
-}
+//     return result;
+// }
 
-void sync_time(const char* http_headers, float timezone_offset_hours)
-{
-    if(time_synced || http_headers == NULL)
-        return;
+// void sync_time(const char* http_headers, float timezone_offset_hours)
+// {
+//     if(time_synced || http_headers == NULL)
+//         return;
 
-    char exact_time[64] = {0};
+//     char exact_time[64] = {0};
 
-    // Extract Date header
-    char *date_ptr = strstr(http_headers, "Date:");
-    if(date_ptr)
-    {
-        date_ptr += 5;
-        while(*date_ptr == ' ') date_ptr++;
-        char *end = strpbrk(date_ptr, "\r\n");
-        if(end != NULL && (end - date_ptr) < sizeof(exact_time))
-        {
-            strncpy(exact_time, date_ptr, end - date_ptr);
-            exact_time[end - date_ptr] = '\0';
-        }
-        else
-        {
-            strncpy(exact_time, date_ptr, sizeof(exact_time)-1);
-            exact_time[sizeof(exact_time)-1] = '\0';
-        }
-    }
+//     // Extract Date header
+//     char *date_ptr = strstr(http_headers, "Date:");
+//     if(date_ptr)
+//     {
+//         date_ptr += 5;
+//         while(*date_ptr == ' ') date_ptr++;
+//         char *end = strpbrk(date_ptr, "\r\n");
+//         if(end != NULL && (end - date_ptr) < sizeof(exact_time))
+//         {
+//             strncpy(exact_time, date_ptr, end - date_ptr);
+//             exact_time[end - date_ptr] = '\0';
+//         }
+//         else
+//         {
+//             strncpy(exact_time, date_ptr, sizeof(exact_time)-1);
+//             exact_time[sizeof(exact_time)-1] = '\0';
+//         }
+//     }
 
-    if(strlen(exact_time) == 0)
-        return;
+//     if(strlen(exact_time) == 0)
+//         return;
 
-    // Parse GMT time
-    int day, month, year, hour, min, sec;
-    char month_str[4];
-    if(sscanf(exact_time, "%*3s, %d %3s %d %d:%d:%d",
-              &day, month_str, &year, &hour, &min, &sec) == 6)
-    {
-        current_time.tm_year = year - 1900;
-        current_time.tm_mon = month_str_to_index(month_str);
-        current_time.tm_mday = day;
-        current_time.tm_hour = hour;
-        current_time.tm_min = min;
-        current_time.tm_sec = sec;
+//     // Parse GMT time
+//     int day, month, year, hour, min, sec;
+//     char month_str[4];
+//     if(sscanf(exact_time, "%*3s, %d %3s %d %d:%d:%d",
+//               &day, month_str, &year, &hour, &min, &sec) == 6)
+//     {
+//         current_time.tm_year = year - 1900;
+//         current_time.tm_mon = month_str_to_index(month_str);
+//         current_time.tm_mday = day;
+//         current_time.tm_hour = hour;
+//         current_time.tm_min = min;
+//         current_time.tm_sec = sec;
 
-        // Convert GMT to local by offset
-        time_t gmt_time = timegm(&current_time);
-        gmt_time += (int)(timezone_offset_hours * 3600);
-        //gmtime_r(&gmt_time, &current_time);  // Local time
+//         // Convert GMT to local by offset
+//         time_t gmt_time = timegm(&current_time);
+//         gmt_time += (int)(timezone_offset_hours * 3600);
+//         gmtime_r(&gmt_time, &current_time);  // Local time
 
-        // Sync each field to userspace/UI
-        char hour_str[3], min_str[3], sec_str[3], year_str[5], day_str[3];
-        snprintf(hour_str, sizeof(hour_str), "%02d", current_time.tm_hour);
-        snprintf(min_str, sizeof(min_str), "%02d", current_time.tm_min);
-        snprintf(sec_str, sizeof(sec_str), "%02d", current_time.tm_sec);
-        snprintf(year_str, sizeof(year_str), "%04d", current_time.tm_year + 1900);
-        snprintf(day_str, sizeof(day_str), "%02d", current_time.tm_mday);
+//         // Sync each field to userspace/UI
+//         char hour_str[3], min_str[3], sec_str[3], year_str[5], day_str[3];
+//         snprintf(hour_str, sizeof(hour_str), "%02d", current_time.tm_hour);
+//         snprintf(min_str, sizeof(min_str), "%02d", current_time.tm_min);
+//         snprintf(sec_str, sizeof(sec_str), "%02d", current_time.tm_sec);
+//         snprintf(year_str, sizeof(year_str), "%04d", current_time.tm_year + 1900);
+//         snprintf(day_str, sizeof(day_str), "%02d", current_time.tm_mday);
 
-        set_hour_sync(hour_str);
-        vTaskDelay(pdMS_TO_TICKS(200)); 
-        set_minute_sync(min_str);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        set_second_sync(sec_str);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        set_month_sync(month_str);
-        vTaskDelay(pdMS_TO_TICKS(200));
+//         set_hour_sync(hour_str);
+//         vTaskDelay(pdMS_TO_TICKS(200)); 
+//         set_minute_sync(min_str);
+//         vTaskDelay(pdMS_TO_TICKS(200));
+//         set_second_sync(sec_str);
+//         vTaskDelay(pdMS_TO_TICKS(200));
+//         set_month_sync(month_str);
+//         vTaskDelay(pdMS_TO_TICKS(200));
 
-        const char* weekdays[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-        set_vaar_sync(weekdays[current_time.tm_wday]);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        set_year_sync(year_str);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        set_date_sync(day_str);
-        vTaskDelay(pdMS_TO_TICKS(200));
+//         const char* weekdays[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+//         set_vaar_sync(weekdays[current_time.tm_wday]);
+//         vTaskDelay(pdMS_TO_TICKS(200));
+//         set_year_sync(year_str);
+//         vTaskDelay(pdMS_TO_TICKS(200));
+//         set_date_sync(day_str);
+//         vTaskDelay(pdMS_TO_TICKS(200));
 
-        time_synced = true;
-    }
-}
+//         time_synced = true;
+//     }
+// }
 
-void sync_location(bool flag)
-{
-    if(!flag)
-    {
-        char buffer[40];
-        sprintf(buffer, "%s", city);
+// void sync_location(bool flag)
+// {
+//     if(!flag)
+//     {
+//         char buffer[40];
+//         sprintf(buffer, "%s", city);
     
-        // lv_label_set_text(ui_Location, buffer);
+//         // lv_label_set_text(ui_Location, buffer);
 
-        flag = true;
-    }
-}
+//         flag = true;
+//     }
+// }

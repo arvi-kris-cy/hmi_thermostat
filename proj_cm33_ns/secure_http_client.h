@@ -86,6 +86,9 @@
 #define GEO_SERVER_HOST                             "ipinfo.io"
 #define GEO_PORT                                    (80)
 #define GEO_PATH                                    "/json"
+#define TIMEZONE_SERVER_HOST                        "api.timezonedb.com"
+#define TIMEZONE_PORT                               (80)
+#define TIMEZONE_PATH                               "/v2.1/get-time-zone?key=OASF0WKZLRVD&format=json&by=position&lat=12.9719&lng=77.5937"
 
 #define TRANSPORT_SEND_RECV_TIMEOUT_MS           (10000)
 #define HTTP_GET_BUFFER_LENGTH                   (2048 * 4)

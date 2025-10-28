@@ -75,7 +75,8 @@ typedef enum {
     NOTIFY_TEMP_UPDATE,
     NOTIFY_MODE_UPDATE,
     NOTIFY_FAN_MODE_UPDATE,
-    NOTIFY_FW_UPDATE
+    NOTIFY_FW_UPDATE,
+    NOTIFY_HTTP_SYNC
 } notification_type;
 
 typedef enum {

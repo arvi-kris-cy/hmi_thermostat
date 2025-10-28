@@ -1838,6 +1838,11 @@ void update_notifcation_label(notification_type type, notification_status_t stat
             case NOTIFY_FW_UPDATE:
                 lv_label_set_text(ui_notificationlabel, "Latest firmware installed, no update.");
                 break;
+
+            case NOTIFY_HTTP_SYNC:
+                lv_label_set_text(ui_notificationlabel, "Failed to sync Location, Weather, Timezone");
+                break;
+
             default:
                 break;
         }
@@ -1885,6 +1890,11 @@ void update_notifcation_label(notification_type type, notification_status_t stat
             case NOTIFY_FAN_MODE_UPDATE:
                 lv_label_set_text_fmt(ui_notificationlabel, "Fan mode set to %u.", value); // Same here
                 break;
+
+            case NOTIFY_HTTP_SYNC:
+                lv_label_set_text(ui_notificationlabel, "Synced Location, Weather, Timezone");
+                break;
+
             default:
                 break;
         }
