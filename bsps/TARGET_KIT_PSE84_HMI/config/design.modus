@@ -907,6 +907,7 @@
                         <Aliases>
                             <Alias value="CYBSP_I2C_SCL"/>
                             <Alias value="CYBSP_I2C_SCL_1V8"/>
+                            <Alias value="CYBSP_I2C_SCL_RTC"/>
                         </Aliases>
                     </Block>
                     <Parameters>
@@ -929,6 +930,7 @@
                         <Aliases>
                             <Alias value="CYBSP_I2C_SDA"/>
                             <Alias value="CYBSP_I2C_SDA_1V8"/>
+                            <Alias value="CYBSP_I2C_SDA_RTC"/>
                         </Aliases>
                     </Block>
                     <Parameters>

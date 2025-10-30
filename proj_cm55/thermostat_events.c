@@ -1024,15 +1024,15 @@ static void decrease_temp_step(lv_timer_t *timer)
     }
 }
 
-void weather_change(lv_event_t *e)
-{
-    static int index = 0;
+// void weather_change(lv_event_t *e)
+// {
+//     static int index = 0;
 
-    // Hide all containers
-    lv_obj_add_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
+//     // Hide all containers
+//     lv_obj_add_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
+//     lv_obj_clear_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
 
-}
+// }
 
 void update_fan_mode(fan_speed_t mode)
 {
@@ -1123,34 +1123,34 @@ void show_presence_icon_bubble(void)
     _ui_flag_modify(ui_presencecountcircle, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 }
 
-void weatherup(lv_event_t *e)
-{
-    weather_temp++;
+// void weatherup(lv_event_t *e)
+// {
+//     weather_temp++;
 
-    if (dev_unit == TEMP_UNIT_CELSIUS)
-    {
-        lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
+//     if (dev_unit == TEMP_UNIT_CELSIUS)
+//     {
+//         lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
 
-    }
-    else
-    {
-        lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
-    }
+//     }
+//     else
+//     {
+//         lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
+//     }
 
-}
+// }
 
-void weatherdown(lv_event_t *e)
-{
-    weather_temp--;
-    if (dev_unit == TEMP_UNIT_CELSIUS)
-    {
-        lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
-    }
-    else
-    {
-        lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
-    }
-}
+// void weatherdown(lv_event_t *e)
+// {
+//     weather_temp--;
+//     if (dev_unit == TEMP_UNIT_CELSIUS)
+//     {
+//         lv_label_set_text_fmt(ui_container2text, "%d°c", weather_temp);
+//     }
+//     else
+//     {
+//         lv_label_set_text_fmt(ui_container2text, "%d°F", weather_temp);
+//     }
+// }
 
 void update_display_brightness(uint8_t level)
 {
@@ -3473,8 +3473,8 @@ void stop_fan_anim(void)
     lv_obj_add_flag(ui_fanactivemed, LV_OBJ_FLAG_HIDDEN);
 
     /* Clear the hidden flag for the main fan image and start the animation from a stopped state. */
-    lv_obj_clear_flag(ui_fanactive, LV_OBJ_FLAG_HIDDEN);
-    fanspeed_Animation(ui_fanactive, 0);
+    // lv_obj_clear_flag(ui_fanactive, LV_OBJ_FLAG_HIDDEN);
+    // fanspeed_Animation(ui_fanactive, 0);
 }
 
 void update_homescreen_connectivity_state(void)

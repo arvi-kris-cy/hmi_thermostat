@@ -847,9 +847,9 @@ static void handle_system_event(void)
 
                 // // Update UI label
                 // char label_text[32];
-                // snprintf(label_text, sizeof(label_text), "%d°c", roundoffTemp);
+                // snprintf(label_text, sizeof(label_text), "%dï¿½c", roundoffTemp);
                 // lv_label_set_text(ui_container2text, label_text);
-                lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
+                lv_label_set_text_fmt(ui_container2text, "%dÂ°c", atoi(weather_sync_value));
                 break;
 
             case IPC_CMD_LOCATION_SYNC:
