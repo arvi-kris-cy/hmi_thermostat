@@ -359,16 +359,16 @@ static void presence_detection_cb(xensiv_radar_presence_handle_t handle,
     switch (event->state)
     {
         case XENSIV_RADAR_PRESENCE_STATE_MACRO_PRESENCE:
-//            printf("[INFO] macro presence %" PRIi32 " %" PRIi32 "\n\r",
-//                   event->range_bin,
-//                   event->timestamp);
+        //    printf("[INFO] macro presence %" PRIi32 " %" PRIi32 "\n\r",
+        //           event->range_bin,
+        //           event->timestamp);
             status = PRESENCE_DETECTED;
             break;
 
         case XENSIV_RADAR_PRESENCE_STATE_MICRO_PRESENCE:
-//            printf("[INFO] micro presence %" PRIi32 " %" PRIi32 "\n\r",
-//                   event->range_bin,
-//                   event->timestamp);
+        //    printf("[INFO] micro presence %" PRIi32 " %" PRIi32 "\n\r",
+        //           event->range_bin,
+        //           event->timestamp);
             status = PRESENCE_DETECTED;
             break;
 
@@ -411,7 +411,7 @@ static void processing_task(void *pvParameters)
         .macro_threshold                   = 0.5f,
         .micro_threshold                   = 12.5f,
         .min_range_bin                     = 1,
-        .max_range_bin                     = 2,
+        .max_range_bin                     = 16,
         .macro_compare_interval_ms         = 25,       //250
         .macro_movement_validity_ms        = 100,          //1000
         .micro_movement_validity_ms        = 250,          //4000

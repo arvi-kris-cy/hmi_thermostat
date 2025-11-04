@@ -1207,22 +1207,23 @@ void show_presence_icon_and_update_label(uint8_t person_count)
 void update_presence_detection(uint8_t presence_count)
 {
     stop_active_state_timer();
-    LOG_INFO(CYLF_DEF, "Presence count: %d\n", presence_count);
+    LOG_INFO(CYLF_DEF, "Presence : %d\n", presence_count);
     if (presence_count == 0)
     {
         person_detected = false;
+        //_ui_screen_change(&ui_LPScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_LPScreen_screen_init);
         start_inactivity_timer_addn(3000); // 3 seconds
     }
     else 
     {
-        person_count = presence_count;
+        // person_count = presence_count;
         person_detected = true;
         start_inactivity_timer();
-        show_presence_icon_and_update_label(presence_count);
+        // show_presence_icon_and_update_label(presence_count);
+
     }
     display_presence_detection_status();
     return;
-    // _ui_opacity_set(ui_presence, 255); // TODO - check?
 }
 
 void hide_presence_icon(void)

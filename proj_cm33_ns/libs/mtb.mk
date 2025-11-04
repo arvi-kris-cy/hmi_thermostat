@@ -7,7 +7,7 @@
 
 
 # Path to the current BSP
-SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
+SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
 SEARCH_btstack-integration=../../mtb_shared/btstack-integration/release-v6.2.1

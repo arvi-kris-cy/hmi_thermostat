@@ -218,7 +218,8 @@ void sensor_task(void *arg)
         // }
 
         // vTaskSuspend(NULL);
-        CY_ASSERT(0);
+        //CY_ASSERT(0);
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     }
 
     /* Initial delay to allow other tasks to start */

@@ -271,7 +271,6 @@ void ui_event_voicecmdcontainer(lv_event_t *e)
         _ui_opacity_set(ui_weatherbutton, 255);
         display_mic_state();
         display_presence_detection_status();
-//        _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         _ui_flag_modify(ui_TempArcContanier, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
@@ -398,6 +397,7 @@ void ui_event_Button3(lv_event_t *e)
             popup_overlay_visible = true;
             wifi_popup_state = true;
             stop_fan_anim();
+            stop_temp_change_anim();
             _ui_flag_modify(ui_popupoverlay, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 //            _ui_flag_modify(ui_temperaturearc, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
             _ui_flag_modify(ui_TempArcContanier, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
@@ -702,6 +702,7 @@ void ui_event_micbutton(lv_event_t *e)
             _ui_opacity_set(ui_Settingsbutton, 85);
             _ui_opacity_set(ui_changescreenbuttonACT, 85);
             _ui_opacity_set(ui_weatherbutton, 85);
+           _ui_opacity_set(ui_TempArcContanier,255);
             lv_obj_set_style_opa(ui_presence, 60, 0);
 
             /* Stop fan mode animation running in background */

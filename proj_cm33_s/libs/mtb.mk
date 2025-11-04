@@ -7,7 +7,7 @@
 
 
 # Path to the current BSP
-SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
+SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
 SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0

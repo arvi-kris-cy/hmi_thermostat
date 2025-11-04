@@ -7,7 +7,7 @@
 
 
 # Path to the current BSP
-SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
+SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
 SEARCH_audio-front-end=../../mtb_shared/audio-front-end/release-v1.0.2
