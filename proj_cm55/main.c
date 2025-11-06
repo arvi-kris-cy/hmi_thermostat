@@ -251,6 +251,7 @@ char date_sync_value[8];
 char month_sync_value[8];
 char vaar_sync_value[8];
 char year_sync_value[8];
+char weather_code_sync_value[8];
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
@@ -551,6 +552,41 @@ void update_date_via_http(void)
         date_sync_value[0] = '\0';
         month_sync_value[0] = '\0';
         year_sync_value[0] = '\0';
+    }
+}
+
+void update_weather_info_via_http()
+{
+    int weatherCode = atoi(weather_code_sync_value);
+
+    switch (weatherCode) {
+        case 0:
+            printf("Clear Sky \n");
+            break;  // Clear sky
+        case 1: case 2: case 3:
+            printf("Partly Cloudy \n");
+            break;  // Partly cloudy / Mainly Clear
+        case 45: case 48:
+            printf("Fog \n");
+            break; // Cloudy / Foggy
+        case 51: case 53: case 55:
+            printf("Rain \n");
+            break;  // Drizzle / Rain
+        case 56: case 57: case 66: case 67:
+            printf("Snowflake With Rain \n");
+            break;  // Freezing Rain
+        case 71: case 73: case 75: case 77:
+            printf("Snowflake \n");
+            break; // General Snow
+        case 85: case 86:
+            printf("Snowcloud \n");
+            break;  // Heavy Snow / Showers
+        case 95: case 96: case 99:
+            printf("Rain With Thunder \n");
+            break;  // Rain with Thunder
+        default:
+            printf("UNKNOWN WEATHER CODE GROUP!!! \n");
+            break;  // Unknown weather code
     }
 }
 
@@ -928,6 +964,16 @@ static void handle_system_event(void)
 
                 LOG_INFO(CYLF_DEF, "Year stored: %s\n", year_sync_value);
                 update_date_via_http();
+                break;
+
+            case IPC_CMD_WEATHER_CODE_SYNC:
+                LOG_INFO(CYLF_DEF, "Year sync data received in CM55: %s\n", ipc_recv_msg->char_value);
+
+                memset(weather_code_sync_value, 0, sizeof(weather_code_sync_value));
+                strncpy(weather_code_sync_value, ipc_recv_msg->char_value, sizeof(weather_code_sync_value) - 1);
+
+                LOG_INFO(CYLF_DEF, "Weather code stored: %s\n", weather_code_sync_value);
+                update_weather_info_via_http();
                 break;
 
             default:

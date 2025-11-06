@@ -41,5 +41,6 @@ void set_date_sync(const char *value);
 void set_month_sync(const char *value);
 void set_vaar_sync(const char *value);
 void set_year_sync(const char *value);
+void set_weather_code_sync(const char *value);
 
 #endif /* COMM_MANAGER_H_ */

@@ -715,9 +715,8 @@ static void fetch_https_client_method(void)
 // }
 
 /*****************************************************************************************************************************************************/
-/* [] END OF FILE */
+/* JSON Process for Location */
 /*****************************************************************************************************************************************************/
-/* Callback for JSON parsing */
 cy_rslt_t json_callback(cy_JSON_object_t* json_object, void* arg) 
 {
     if (json_object == NULL) {
@@ -775,61 +774,6 @@ cy_rslt_t json_callback(cy_JSON_object_t* json_object, void* arg)
     return CY_RSLT_SUCCESS;
 }
 
-static cy_rslt_t json_weather_cb(cy_JSON_object_t *object, void *arg)
-{
-    if(object == NULL || object->object_string == NULL)
-        return CY_RSLT_SUCCESS;
-
-    if (strncmp(object->object_string, "time", object->object_string_length) == 0 &&
-        object->value_type == JSON_STRING_TYPE)
-    {
-        snprintf(timedata, sizeof(timedata), "%.*s",
-                 (int)object->value_length, object->value);
-    }
-    else if (strncmp(object->object_string, "temperature_2m", object->object_string_length) == 0)
-    {
-        snprintf(temperature, sizeof(temperature), "%.*s",
-                 (int)object->value_length, object->value);
-    }
-    else if (strncmp(object->object_string, "relative_humidity_2m", object->object_string_length) == 0)
-    {
-        snprintf(hummidity, sizeof(hummidity), "%.*s",
-                 (int)object->value_length, object->value);
-    }
-    else if (strncmp(object->object_string, "wind_speed_10m", object->object_string_length) == 0)
-    {
-        snprintf(windspeed, sizeof(windspeed), "%.*s",
-                 (int)object->value_length, object->value);
-    }
-    else if (strncmp(object->object_string, "weather_code", object->object_string_length) == 0)
-    {
-        snprintf(weathercode, sizeof(weathercode), "%.*s",
-                 (int)object->value_length, object->value);
-    }
-
-    return CY_RSLT_SUCCESS;
-}
-
-static cy_rslt_t json_time_cb(cy_JSON_object_t *object, void *arg)
-{
-    if (object == NULL || object->object_string == NULL)
-        return CY_RSLT_SUCCESS;
-
-    if (object->object_string_length == (sizeof("formatted") - 1) &&
-        strncmp(object->object_string, "formatted", object->object_string_length) == 0 &&
-        object->value_type == JSON_STRING_TYPE)
-    {
-        // Ensure proper bounds and null-termination
-        size_t n = (object->value_length < sizeof(formatted_time) - 1)
-                    ? object->value_length
-                    : sizeof(formatted_time) - 1;
-        memcpy(formatted_time, object->value, n);
-        formatted_time[n] = '\0';
-    }
-
-    return CY_RSLT_SUCCESS;
-}
-
 void parse_json_payload(const char* payload) {
     if (payload == NULL || strlen(payload) == 0) {
         printf("Error: Payload is empty or NULL!\n");
@@ -874,6 +818,44 @@ void parse_json_payload(const char* payload) {
     printf("Timezone: %s\n", timezone);
 }
 
+/*****************************************************************************************************************************************************/
+/* JSON Process for Weather */
+/*****************************************************************************************************************************************************/
+static cy_rslt_t json_weather_cb(cy_JSON_object_t *object, void *arg)
+{
+    if(object == NULL || object->object_string == NULL)
+        return CY_RSLT_SUCCESS;
+
+    if (strncmp(object->object_string, "time", object->object_string_length) == 0 &&
+        object->value_type == JSON_STRING_TYPE)
+    {
+        snprintf(timedata, sizeof(timedata), "%.*s",
+                 (int)object->value_length, object->value);
+    }
+    else if (strncmp(object->object_string, "temperature_2m", object->object_string_length) == 0)
+    {
+        snprintf(temperature, sizeof(temperature), "%.*s",
+                 (int)object->value_length, object->value);
+    }
+    else if (strncmp(object->object_string, "relative_humidity_2m", object->object_string_length) == 0)
+    {
+        snprintf(hummidity, sizeof(hummidity), "%.*s",
+                 (int)object->value_length, object->value);
+    }
+    else if (strncmp(object->object_string, "wind_speed_10m", object->object_string_length) == 0)
+    {
+        snprintf(windspeed, sizeof(windspeed), "%.*s",
+                 (int)object->value_length, object->value);
+    }
+    else if (strncmp(object->object_string, "weather_code", object->object_string_length) == 0)
+    {
+        snprintf(weathercode, sizeof(weathercode), "%.*s",
+                 (int)object->value_length, object->value);
+    }
+
+    return CY_RSLT_SUCCESS;
+}
+
 void parse_json_weather_payload(const char* payload, uint32_t payload_len)
 {
     if (payload == NULL || payload_len == 0) {
@@ -912,6 +894,7 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
         vTaskDelay(pdMS_TO_TICKS(50)); 
         set_weather_sync(temperature);
         vTaskDelay(pdMS_TO_TICKS(50)); 
+        set_weather_code_sync(weathercode);
     }
     else
     {
@@ -926,8 +909,29 @@ void parse_json_weather_payload(const char* payload, uint32_t payload_len)
     free(json_buf);
 }
 
-// Parse "YYYY-MM-DD HH:MM:SS" into integers.
-// Returns 0 on success, non-zero on failure.
+/*****************************************************************************************************************************************************/
+/* JSON Process for Timezone */
+/*****************************************************************************************************************************************************/
+static cy_rslt_t json_time_cb(cy_JSON_object_t *object, void *arg)
+{
+    if (object == NULL || object->object_string == NULL)
+        return CY_RSLT_SUCCESS;
+
+    if (object->object_string_length == (sizeof("formatted") - 1) &&
+        strncmp(object->object_string, "formatted", object->object_string_length) == 0 &&
+        object->value_type == JSON_STRING_TYPE)
+    {
+        // Ensure proper bounds and null-termination
+        size_t n = (object->value_length < sizeof(formatted_time) - 1)
+                    ? object->value_length
+                    : sizeof(formatted_time) - 1;
+        memcpy(formatted_time, object->value, n);
+        formatted_time[n] = '\0';
+    }
+
+    return CY_RSLT_SUCCESS;
+}
+
 static int parse_formatted_to_components(const char* fmt,
                                          int* year, int* month, int* day,
                                          int* hour, int* minute, int* second)
@@ -1051,177 +1055,6 @@ void parse_json_time_payload(const char* payload, uint32_t payload_len)
     }
 }
 
-/*******************************************************************************
- * Data Sync
- ********************************************************************************/
-// void sync_temperature(bool flag)
-// {
-//     if(!flag)
-//     {
-//         // lv_label_set_text(ui_Temperature, temperature);
-//         flag = true;
-//     }     
-// }
-
-// void sync_humidity(bool flag)
-// {
-//     if(!flag)
-//     {
-//         // lv_label_set_text(ui_Humidity, hummidity);
-//         flag = true;
-//     }
-// } 
-
-// void sync_windspeed(bool flag)
-// {
-//     if(!flag)
-//     {
-//         // lv_label_set_text(ui_WindSpeed, windspeed);
-//         flag = true;
-//     }
-// }
-
-// void sync_rain(bool flag)
-// {
-//     if(!flag)
-//     {
-//         int code = atoi(weathercode);  // weathercode extracted from JSON
-
-//         // Codes that indicate precipitation
-//         bool is_rain = (
-//                         code == 51 || code == 53 || code == 55 ||   // Drizzle
-//                         code == 56 || code == 57 ||                 // Freezing drizzle
-//                         code == 61 || code == 63 || code == 65 ||   // Rain
-//                         code == 66 || code == 67 ||                 // Freezing rain
-//                         code == 80 || code == 81 || code == 82 ||   // Rain showers
-//                         code == 95 || code == 96 || code == 99      // Thunderstorm / hail
-//                         );
-
-//         // if(is_rain)
-//             // lv_label_set_text(ui_Rain, "Y");
-//         // else
-//             // lv_label_set_text(ui_Rain, "N");
-            
-//         flag = true;
-//     }
-// }
-
-// int month_str_to_index(const char* month)
-// {
-//     const char* months[] = {"Jan","Feb","Mar","Apr","May","Jun",
-//                             "Jul","Aug","Sep","Oct","Nov","Dec"};
-//     for(int i=0;i<12;i++)
-//     {
-//         if(strncmp(months[i], month, 3) == 0)
-//             return i;
-//     }
-//     return 0;
-// }
-
-// time_t timegm(struct tm *t)
-// {
-//     // Save current timezone
-//     char *tz = getenv("TZ");
-//     setenv("TZ", "UTC", 1);
-//     tzset(); // apply new TZ
-
-//     time_t result = mktime(t); // mktime interprets t as local time (now UTC)
-
-//     // Restore previous timezone
-//     if (tz)
-//         setenv("TZ", tz, 1);
-//     else
-//         unsetenv("TZ");
-//     tzset();
-
-//     return result;
-// }
-
-// void sync_time(const char* http_headers, float timezone_offset_hours)
-// {
-//     if(time_synced || http_headers == NULL)
-//         return;
-
-//     char exact_time[64] = {0};
-
-//     // Extract Date header
-//     char *date_ptr = strstr(http_headers, "Date:");
-//     if(date_ptr)
-//     {
-//         date_ptr += 5;
-//         while(*date_ptr == ' ') date_ptr++;
-//         char *end = strpbrk(date_ptr, "\r\n");
-//         if(end != NULL && (end - date_ptr) < sizeof(exact_time))
-//         {
-//             strncpy(exact_time, date_ptr, end - date_ptr);
-//             exact_time[end - date_ptr] = '\0';
-//         }
-//         else
-//         {
-//             strncpy(exact_time, date_ptr, sizeof(exact_time)-1);
-//             exact_time[sizeof(exact_time)-1] = '\0';
-//         }
-//     }
-
-//     if(strlen(exact_time) == 0)
-//         return;
-
-//     // Parse GMT time
-//     int day, month, year, hour, min, sec;
-//     char month_str[4];
-//     if(sscanf(exact_time, "%*3s, %d %3s %d %d:%d:%d",
-//               &day, month_str, &year, &hour, &min, &sec) == 6)
-//     {
-//         current_time.tm_year = year - 1900;
-//         current_time.tm_mon = month_str_to_index(month_str);
-//         current_time.tm_mday = day;
-//         current_time.tm_hour = hour;
-//         current_time.tm_min = min;
-//         current_time.tm_sec = sec;
-
-//         // Convert GMT to local by offset
-//         time_t gmt_time = timegm(&current_time);
-//         gmt_time += (int)(timezone_offset_hours * 3600);
-//         gmtime_r(&gmt_time, &current_time);  // Local time
-
-//         // Sync each field to userspace/UI
-//         char hour_str[3], min_str[3], sec_str[3], year_str[5], day_str[3];
-//         snprintf(hour_str, sizeof(hour_str), "%02d", current_time.tm_hour);
-//         snprintf(min_str, sizeof(min_str), "%02d", current_time.tm_min);
-//         snprintf(sec_str, sizeof(sec_str), "%02d", current_time.tm_sec);
-//         snprintf(year_str, sizeof(year_str), "%04d", current_time.tm_year + 1900);
-//         snprintf(day_str, sizeof(day_str), "%02d", current_time.tm_mday);
-
-//         set_hour_sync(hour_str);
-//         vTaskDelay(pdMS_TO_TICKS(200)); 
-//         set_minute_sync(min_str);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//         set_second_sync(sec_str);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//         set_month_sync(month_str);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-
-//         const char* weekdays[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-//         set_vaar_sync(weekdays[current_time.tm_wday]);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//         set_year_sync(year_str);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//         set_date_sync(day_str);
-//         vTaskDelay(pdMS_TO_TICKS(200));
-
-//         time_synced = true;
-//     }
-// }
-
-// void sync_location(bool flag)
-// {
-//     if(!flag)
-//     {
-//         char buffer[40];
-//         sprintf(buffer, "%s", city);
-    
-//         // lv_label_set_text(ui_Location, buffer);
-
-//         flag = true;
-//     }
-// }
+/*****************************************************************************************************************************************************/
+/* [] END OF FILE */
+/*****************************************************************************************************************************************************/

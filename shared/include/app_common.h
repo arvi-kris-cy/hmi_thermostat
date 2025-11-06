@@ -276,6 +276,7 @@ typedef enum {
     IPC_CMD_MONTH_SYNC,                  // Month sync
     IPC_CMD_VAAR_SYNC,                   // Vaar sync
     IPC_CMD_YEAR_SYNC,                   // Year sync 
+    IPC_CMD_WEATHER_CODE_SYNC,
 
 } ipc_command_e;
 

@@ -293,3 +293,15 @@ void set_year_sync(const char *value)
 	cm33_send_msg_cm55(&cm33_msg_data);
 }
 
+void set_weather_code_sync(const char *value)
+{
+    cm33_msg_data.client_id = CM55_IPC_PIPE_CLIENT_ID;
+    cm33_msg_data.cmd = IPC_CMD_WEATHER_CODE_SYNC;
+
+    // Clear and copy the string safely
+    memset(cm33_msg_data.char_value, 0, sizeof(cm33_msg_data.char_value));
+    strncpy(cm33_msg_data.char_value, value, sizeof(cm33_msg_data.char_value) - 1);  // Null-terminate
+
+    cm33_send_msg_cm55(&cm33_msg_data);
+}
+
