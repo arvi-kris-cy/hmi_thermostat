@@ -51,7 +51,7 @@
 /*******************************************************************************
  *                                Macros
  *******************************************************************************/
-#define APP_BOOTUP_DELAY	4000U
+#define APP_BOOTUP_DELAY	2500U
 
 #define APP_RRAM_NVM_MAIN_NS_START        0x22000000
 #define APP_NVM_DEVICE_SETTINGS_OFFSET	  0x00002000

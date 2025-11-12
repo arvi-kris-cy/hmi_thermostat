@@ -102,15 +102,15 @@ void go_to_sleepmode()
 
 void decrease_screen_brightness()
 {
-    brightness_level  = lv_slider_get_value(ui_Slider2);
+    brightness_level  = lv_slider_get_value(ui_BrightnessSlider);
     
-    if(brightness_level >= (lv_slider_get_min_value(ui_Slider2) + 20))
+    if(brightness_level >= (lv_slider_get_min_value(ui_BrightnessSlider) + 20))
     {
         brightness_level -= 20;
     }
     else 
     {
-        brightness_level = lv_slider_get_min_value(ui_Slider2);
+        brightness_level = lv_slider_get_min_value(ui_BrightnessSlider);
     }
 
     if(brightness_level%20 !=0)
@@ -118,9 +118,9 @@ void decrease_screen_brightness()
         brightness_level = ((brightness_level) - (brightness_level%20));
     }
 
-    if(brightness_level >= lv_slider_get_min_value(ui_Slider2) && brightness_level <= lv_slider_get_max_value(ui_Slider2))
+    if(brightness_level >= lv_slider_get_min_value(ui_BrightnessSlider) && brightness_level <= lv_slider_get_max_value(ui_BrightnessSlider))
     {
-        lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
+        lv_slider_set_value(ui_BrightnessSlider, brightness_level, LV_ANIM_OFF);
         mtb_display_st7701s_set_brightness(brightness_level);
 
         printf("Brightness level %d. \n", brightness_level);
@@ -129,15 +129,15 @@ void decrease_screen_brightness()
 
 void increase_screen_brightness()
 {
-    brightness_level  = lv_slider_get_value(ui_Slider2);
+    brightness_level  = lv_slider_get_value(ui_BrightnessSlider);
   
-    if((brightness_level + 20) <= lv_slider_get_max_value(ui_Slider2))
+    if((brightness_level + 20) <= lv_slider_get_max_value(ui_BrightnessSlider))
     {
         brightness_level += 20;
     }
     else 
     {
-        brightness_level = lv_slider_get_max_value(ui_Slider2);
+        brightness_level = lv_slider_get_max_value(ui_BrightnessSlider);
     }
 
     if(brightness_level%20 !=0)
@@ -145,9 +145,9 @@ void increase_screen_brightness()
         brightness_level = ((brightness_level) - (brightness_level%20));
     }
     
-    if(brightness_level >= lv_slider_get_min_value(ui_Slider2) && brightness_level <= lv_slider_get_max_value(ui_Slider2))
+    if(brightness_level >= lv_slider_get_min_value(ui_BrightnessSlider) && brightness_level <= lv_slider_get_max_value(ui_BrightnessSlider))
     {
-        lv_slider_set_value(ui_Slider2, brightness_level, LV_ANIM_OFF);
+        lv_slider_set_value(ui_BrightnessSlider, brightness_level, LV_ANIM_OFF);
         mtb_display_st7701s_set_brightness(brightness_level);
 
         printf("Brightness level %d. \n", brightness_level);
@@ -187,7 +187,7 @@ void set_temperature(int *value)
     printf("Setting temperature: %s\n", temp_with_unit);
 
     // Update the LVGL label (example function call)
-    lv_label_set_text(ui_MainTempactive, temp_with_unit);
+    lv_label_set_text(ui_TemperatureCurrValueLbl, temp_with_unit);
 }
 
 /*******************************************************************************

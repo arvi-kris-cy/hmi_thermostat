@@ -115,6 +115,8 @@ extern volatile bool is_device_connected;
 extern device_state_t dev_info;
 extern volatile bool hide_conn_screen;
 extern bool is_mic_clicked;
+extern bool voice_popup_state;
+extern volatile bool wifi_popup_state;
 /*******************************************************************************
  *                                FUNCTION PROTOTYPES
  *******************************************************************************/
@@ -123,7 +125,7 @@ void update_mic_state(mic_state_t state);
 void hide_presence_icon(void);
 void update_presence_detection(uint8_t presence_count);
 void mic_icon_click_handler(lv_event_t * e);
-
+void display_presence_detection_status(void);
 /**
  * @brief Starts BLE advertising for provisioning.
  *

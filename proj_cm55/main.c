@@ -502,7 +502,7 @@ static void handle_time_update(void)
         lv_label_set_text(ui_DateLP, date_str);
 
         /** Update the calendar widget's selected date to the current date. */
-        lv_calendar_set_today_date(ui_dtCalendar, year, ui_current_time.month, ui_current_time.date);
+        //lv_calendar_set_today_date(ui_dtCalendar, year, ui_current_time.month, ui_current_time.date);
     }
 }
 
@@ -520,7 +520,7 @@ static void handle_sensor_update(void)
             if(dev_info.environment.current_temp == dev_info.environment.target_temp)
             {
                 /* Update humidity and CO2 levels on MApp via IPC. */
-                update_device_config_ipc();
+                //update_device_config_ipc();
             }
         }
 
@@ -860,7 +860,7 @@ static void handle_system_event(void)
                     break;
 
                 case SCREEN_DATE_TIME:
-                    _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
+                   // _ui_screen_change(&ui_DateTimeSettings, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_DateTimeSettings_screen_init);
                     LOG_INFO(CYLF_DEF, "Displaying Date & Time Screen\n");
                     break;
 
@@ -884,8 +884,8 @@ static void handle_system_event(void)
                 // // Update UI label
                 // char label_text[32];
                 // snprintf(label_text, sizeof(label_text), "%d�c", roundoffTemp);
-                // lv_label_set_text(ui_container2text, label_text);
-                lv_label_set_text_fmt(ui_container2text, "%d°c", atoi(weather_sync_value));
+                // lv_label_set_text(ui_OutdoorTempLabel, label_text);
+                lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°c", atoi(weather_sync_value));
                 break;
 
             case IPC_CMD_LOCATION_SYNC:
@@ -896,7 +896,7 @@ static void handle_system_event(void)
                 strncpy(location_sync_value, ipc_recv_msg->char_value, sizeof(location_sync_value) - 1);
 
                 // Update Weather Text UI
-                lv_label_set_text(ui_WeatherTextactive2, location_sync_value);
+                lv_label_set_text(ui_LocationLabel, location_sync_value);
                 break;
 
             case IPC_CMD_HOUR_SYNC:
