@@ -44,7 +44,7 @@ SEARCH_sensor-dsp=../../mtb_shared/sensor-dsp/release-v1.0.0
 SEARCH_whd-bsp-integration=../../mtb_shared/whd-bsp-integration/release-v2.4.0
 SEARCH_wifi-connection-manager=../../mtb_shared/wifi-connection-manager/release-v4.0.0
 SEARCH_wifi-host-driver=../../mtb_shared/wifi-host-driver/release-v5.0.6
-SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v2.0.4
+SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v3.0.0
 SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/release-v1.3.0
 
 # Search libraries added to build

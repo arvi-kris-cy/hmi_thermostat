@@ -101,7 +101,7 @@
     },
     {
         "asset-name": "wifi-resources",
-        "locked-commit": "release-v2.0.4"
+        "locked-commit": "release-v3.0.0"
     },
     {
         "asset-name": "wpa3-external-supplicant",
