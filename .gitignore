@@ -37,6 +37,7 @@ Release/
 .project
 .mtbLaunchConfigs/
 makefile.init
+.cache/
 
 # Visual Studio Code
 openocd.tcl

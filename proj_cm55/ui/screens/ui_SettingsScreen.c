@@ -14,6 +14,7 @@ lv_obj_t * ui_Timeoutlbl = NULL;
 lv_obj_t * ui_Volumelbl = NULL;
 lv_obj_t * ui_SettingsPanel = NULL;
 lv_obj_t * ui_tempunitswitch = NULL;
+lv_obj_t * ui_BGswitch = NULL;
 lv_obj_t * ui_templabel = NULL;
 lv_obj_t * ui_ResetButton = NULL;
 lv_obj_t * ui_UpdateButton = NULL;
@@ -59,6 +60,15 @@ void ui_event_tempunitswitch(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         set_system_unit(e);
+    }
+}
+
+void ui_event_BGswitch(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        set_background(e);
     }
 }
 
@@ -237,6 +247,16 @@ void ui_SettingsScreen_screen_init(void)
 
     lv_obj_set_style_bg_color(ui_tempunitswitch, lv_color_hex(0xC8C3C3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_tempunitswitch, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    ui_BGswitch = lv_switch_create(ui_SettingsScreen);
+    lv_obj_set_width(ui_BGswitch, 50);
+    lv_obj_set_height(ui_BGswitch, 25);
+    lv_obj_set_x(ui_BGswitch, 192);
+    lv_obj_set_y(ui_BGswitch, 203);
+    lv_obj_set_align(ui_BGswitch, LV_ALIGN_CENTER);
+
+    lv_obj_set_style_bg_color(ui_BGswitch, lv_color_hex(0xC8C3C3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_BGswitch, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
     ui_templabel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_templabel, LV_SIZE_CONTENT);   /// 1
@@ -417,6 +437,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_add_event_cb(ui_timeoutdropdown, ui_event_timeoutdropdown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_VolumeDrodown, ui_event_VolumeDrodown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_tempunitswitch, ui_event_tempunitswitch, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_BGswitch, ui_event_BGswitch, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ResetButton, ui_event_ResetButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_UpdateButton, ui_event_UpdateButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homeimg2, ui_event_homeimg2, LV_EVENT_ALL, NULL);

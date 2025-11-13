@@ -1280,7 +1280,7 @@ void display_mic_state(void)
     }
 }
 
-void mic_icon_click_handler(lv_event_t *e)
+void mic_icon_click_handler(lv_event_t *e)  //voice commands
 {
     lv_anim_del(ui_micactivelisten, NULL);
 
@@ -1288,7 +1288,10 @@ void mic_icon_click_handler(lv_event_t *e)
     lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-
+    lv_obj_clear_flag(ui_voicecmdoverlay, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_ArcGroup, LV_OBJ_FLAG_HIDDEN);
+    stop_fan_anim();
 	is_mic_clicked = true;
 	lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
 }
@@ -1452,6 +1455,8 @@ void update_device_connection_state(device_connection_state_t state)
     lv_obj_add_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
     //lv_obj_add_flag(ui_switchtoKeybd, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_mappinfolabel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_devicestatelabel, LV_OBJ_FLAG_HIDDEN);
+    //lv_obj_clear_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
 
     /* Delete all running animations */
     lv_anim_del(ui_bleadv, NULL);
@@ -1479,13 +1484,14 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_add_flag(ui_autoreconnectpanel, LV_OBJ_FLAG_HIDDEN);
 
             //lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_cloudconnected, LV_OBJ_FLAG_HIDDEN);
             state_text = "Cloud Connected";
-            lv_obj_clear_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_clear_flag(ui_switchtoKeybd, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_qrcodebtn, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_switchtoKeybd, LV_OBJ_FLAG_HIDDEN);
+            
             lv_obj_clear_flag(ui_wifideletebtn, LV_OBJ_FLAG_HIDDEN);
 
             /* Update icon on home screen */
@@ -1548,6 +1554,16 @@ void update_device_connection_state(device_connection_state_t state)
             progress3_Animation(ui_connectionprg3, 0);
             state_text = "Wi-Fi Connecting . . .";
 
+            if(wifi_conn_state) {
+                if(cloud_conn_state) {
+                    update_device_connection_state(DEV_ST_CLOUD_CONNECTED); state_text = "Cloud connected";
+                } 
+                else {
+                    update_device_connection_state(DEV_ST_CLOUD_DISCONNECTED); state_text = "Cloud Disconnected";
+                }
+                break;
+            }
+
             /* Update icon on home screen */
             lv_obj_clear_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_wifi, 255, 0);
@@ -1587,6 +1603,10 @@ void update_device_connection_state(device_connection_state_t state)
             /* Update connection state on popup screen */
             lv_obj_add_flag(ui_progressCancelBtn, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_devicestateimg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_switchtoKeybd, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_mappinfobutton, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_mappinfolabel, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
@@ -1600,8 +1620,8 @@ void update_device_connection_state(device_connection_state_t state)
                 lv_obj_clear_flag(ui_switchtowififromble, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_switchtowififrombleinfolbl, LV_OBJ_FLAG_HIDDEN);
             }
-
             bleadvpulse_Animation(ui_bleadv, 0);
+            if(ble_conn_state){update_device_connection_state(DEV_ST_BLE_CONNECTED); state_text = "BLE Connected"; break;}
             state_text = "Waiting for mobile connection . . .";
 
             /* Update icon on home screen */
@@ -1631,6 +1651,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
             miclisteninganime_Animation(ui_homebleconnected, 0);
             lv_obj_set_style_opa(ui_homebleconnected, 255, 0);
+            
             break;
 
         case DEV_ST_UNPROVISIONED:
@@ -1643,21 +1664,26 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_add_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_qrcodecontainer, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_add_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_commissionKeyboard, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_add_flag(ui_devicestatelabel, LV_OBJ_FLAG_HIDDEN);
+            
+            //lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_devicestateimg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_switchtoKeybd, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_mappinfobutton, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_mappinfolabel, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_devicestatelabel, LV_OBJ_FLAG_HIDDEN);
             
-            state_text = "Wi-Fi not connected\nTap to start mobile pairing";
+            state_text = "Wi-Fi not connected\nTap to start mobile pair";
 
             /* Update icon on home screen */
             lv_obj_add_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_opa(ui_wifi, 130, LV_PART_MAIN | LV_STATE_DEFAULT);
             wifi_conn_state = false;
+            ble_conn_state = false;
             cloud_conn_state = false;
             break;
 
@@ -1670,6 +1696,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_wificonnectedimg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_wifideletebtn, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
             state_text = "Wi-Fi Connected";
 
             /* Update icon on home screen */
@@ -1708,19 +1735,26 @@ void update_device_connection_state(device_connection_state_t state)
         case DEV_ST_BLE_CONNECTED:
             /* Update connection state in cm55 core */
             is_device_connected = true;
-
+            
             /* Update connection state on popup screen */
             lv_obj_add_flag(ui_progressCancelBtn, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
+
             lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_bleconnected120, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_mappinfobutton, LV_OBJ_FLAG_HIDDEN);
+            
 
             /* Only show the switch to WiFi option if device is provisioned  */
-            if ( true == is_device_provisioned)
+            if ( true == is_device_provisioned || wifi_conn_state)
             {
                 lv_obj_clear_flag(ui_switchtowififromble, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_switchtowififrombleinfolbl, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
             }
             else
             {
@@ -1746,7 +1780,7 @@ void update_device_connection_state(device_connection_state_t state)
 
     /* Update device state label in popup screen */
     lv_label_set_text(ui_devstatelabel, state_text);
-
+    
     /* Update device current connection state */
     dev_current_conn_state = state;
     dev_last_conn_state = state;
@@ -1788,7 +1822,7 @@ void update_wifi_cred(lv_event_t *e)
     /* Get the SSID and Password from the text field */
     const char *ssid = lv_textarea_get_text(ui_devstatecontainerssidfield);
     const char *password = lv_textarea_get_text(ui_devstatecontainerpasswordfield);
-
+    
     /* Update UI with Wi-Fi connecting status */
     update_device_connection_state(DEV_ST_WIFI_CONNECTING);
 
@@ -2711,7 +2745,7 @@ void set_system_unit(lv_event_t *e)
             target_temp = CELSIUS_TO_FAHRENHEIT(target_temp);
             temperature = CELSIUS_TO_FAHRENHEIT(temperature);
         }
-
+        //lv_obj_add_flag(ui_activeBG, LV_OBJ_FLAG_HIDDEN);
         /* Update UI for deg F temperature data */
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d°F", current_temp);
@@ -2738,7 +2772,7 @@ void set_system_unit(lv_event_t *e)
             target_temp = FAHRENHEIT_TO_CELSIUS(target_temp);
             temperature = FAHRENHEIT_TO_CELSIUS(temperature);
         }
-
+        //lv_obj_clear_flag(ui_activeBG, LV_OBJ_FLAG_HIDDEN);
         /* Update UI for deg C temperature data */
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d°C", current_temp);
@@ -2758,6 +2792,19 @@ void set_system_unit(lv_event_t *e)
 
     /* Store updated device settings */
     update_current_device_setting();
+}
+
+void set_background(lv_event_t * e){
+    UNUSED_PARAM(e);
+
+    /* Read temperature unit switch (enabled or not) */
+    bool is_checked = lv_obj_has_state(ui_BGswitch, LV_STATE_CHECKED);
+    if(is_checked){
+        lv_obj_add_flag(ui_activeBG, LV_OBJ_FLAG_HIDDEN);
+    }
+    else{
+        lv_obj_clear_flag(ui_activeBG, LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 void update_system_unit(temp_unit_t unit)

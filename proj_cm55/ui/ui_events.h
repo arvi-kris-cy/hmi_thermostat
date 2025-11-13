@@ -24,6 +24,7 @@ void change_brightness(lv_event_t * e);
 void change_idle_timeout(lv_event_t * e);
 void change_volume(lv_event_t * e);
 void set_system_unit(lv_event_t * e);
+void set_background(lv_event_t * e);
 void device_factory_reset(lv_event_t * e);
 
 #ifdef __cplusplus

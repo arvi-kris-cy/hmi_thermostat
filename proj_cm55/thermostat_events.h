@@ -367,6 +367,16 @@ void update_thermostat_volume(audio_level_t level);
 void set_system_unit(lv_event_t * e);
 
 /**
+ * @brief Handles system temperature unit change (°C ↔ °F) triggered by UI toggle.
+ *
+ * This function is invoked when the user toggles the Backgrund switch in the UI.
+ * It toggles the background image for ActiveScreen
+ *
+ * @param e Pointer to the LVGL event (unused).
+ */
+void set_background(lv_event_t * e);
+
+/**
  * @brief Update the system temperature unit and refresh UI elements accordingly.
  *
  * This function updates the device's temperature unit to either Celsius or Fahrenheit.

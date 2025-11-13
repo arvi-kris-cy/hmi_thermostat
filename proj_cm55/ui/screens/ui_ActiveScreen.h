@@ -182,8 +182,11 @@ extern lv_obj_t * ui_voicecmdlistpanel;
 extern lv_obj_t * ui_Roller1;
 extern lv_obj_t * ui_bleconkeybdimg;
 extern lv_obj_t * ui_bleconmappinfolabel;
+extern lv_obj_t * ui_activeBG;
 
 // CUSTOM VARIABLES
+
+
 
 #ifdef __cplusplus
 } /*extern "C"*/
