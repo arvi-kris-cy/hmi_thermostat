@@ -28,6 +28,7 @@ extern lv_obj_t * ui_tempunitswitch;
 extern void ui_event_BGswitch(lv_event_t * e);
 extern lv_obj_t * ui_BGswitch;
 extern lv_obj_t * ui_templabel;
+extern lv_obj_t * ui_BGlabel;
 extern void ui_event_ResetButton(lv_event_t * e);
 extern lv_obj_t * ui_ResetButton;
 extern void ui_event_UpdateButton(lv_event_t * e);

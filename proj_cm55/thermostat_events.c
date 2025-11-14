@@ -1424,6 +1424,7 @@ void update_device_connection_state(device_connection_state_t state)
     lv_obj_add_flag(ui_autoreconnectpanel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_bleconmappinfolabel, LV_OBJ_FLAG_HIDDEN);
     ////lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_qrcodecontainer, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
@@ -1746,7 +1747,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_bleconnected120, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_mappinfobutton, LV_OBJ_FLAG_HIDDEN);
-            
+            lv_obj_clear_flag(ui_bleconmappinfolabel, LV_OBJ_FLAG_HIDDEN);
 
             /* Only show the switch to WiFi option if device is provisioned  */
             if ( true == is_device_provisioned || wifi_conn_state)
@@ -1755,6 +1756,7 @@ void update_device_connection_state(device_connection_state_t state)
                 lv_obj_clear_flag(ui_switchtowififrombleinfolbl, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_connstatekeyboardbtn, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_commissionMapp, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_bleconmappinfolabel, LV_OBJ_FLAG_HIDDEN);
             }
             else
             {
