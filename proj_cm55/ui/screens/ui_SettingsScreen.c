@@ -249,37 +249,40 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_bg_color(ui_tempunitswitch, lv_color_hex(0xC8C3C3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_tempunitswitch, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
-    ui_BGswitch = lv_switch_create(ui_SettingsScreen);
-    lv_obj_set_width(ui_BGswitch, 50);
-    lv_obj_set_height(ui_BGswitch, 25);
-    lv_obj_set_x(ui_BGswitch, 192);
-    lv_obj_set_y(ui_BGswitch, 203);
-    lv_obj_set_align(ui_BGswitch, LV_ALIGN_CENTER);
-
-    lv_obj_set_style_bg_color(ui_BGswitch, lv_color_hex(0xC8C3C3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_BGswitch, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
     ui_templabel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_templabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_templabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_templabel, -163);
-    lv_obj_set_y(ui_templabel, 205);
+    lv_obj_set_y(ui_templabel, 200);
     lv_obj_set_align(ui_templabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_templabel, "°F");
     lv_obj_set_style_text_color(ui_templabel, lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_templabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_templabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_BGswitch = lv_switch_create(ui_SettingsScreen);
+    lv_obj_set_width(ui_BGswitch, 50);
+    lv_obj_set_height(ui_BGswitch, 25);
+    lv_obj_set_x(ui_BGswitch, 185);
+    lv_obj_set_y(ui_BGswitch, 200);
+    lv_obj_set_align(ui_BGswitch, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_BGswitch, LV_STATE_CHECKED);
+    
+    
+    lv_obj_set_style_bg_color(ui_BGswitch, lv_color_hex(0xC8C3C3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_BGswitch, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    
+
     ui_BGlabel = lv_label_create(ui_SettingsScreen);
-    lv_obj_set_width(ui_templabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_templabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_templabel, 142);
-    lv_obj_set_y(ui_templabel, 203);
-    lv_obj_set_align(ui_templabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_templabel, "BG");
-    lv_obj_set_style_text_color(ui_templabel, lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_templabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_templabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_width(ui_BGlabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BGlabel ,LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BGlabel, 135);
+    lv_obj_set_y(ui_BGlabel, 200);
+    lv_obj_set_align(ui_BGlabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_BGlabel ,"BG");
+    lv_obj_set_style_text_color(ui_BGlabel ,lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_BGlabel ,255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_BGlabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ResetButton = lv_button_create(ui_SettingsScreen);
     lv_obj_set_width(ui_ResetButton, 77);
@@ -473,7 +476,7 @@ void ui_SettingsScreen_screen_destroy(void)
     ui_SettingsPanel = NULL;
     ui_tempunitswitch = NULL;
     ui_templabel = NULL;
-    lv_obj_t * ui_BGlabel = NULL;
+    ui_BGlabel = NULL;
     uic_ResetButton = NULL;
     ui_ResetButton = NULL;
     ui_UpdateButton = NULL;

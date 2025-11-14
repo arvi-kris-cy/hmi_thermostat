@@ -1612,6 +1612,7 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_devconnstatecontianer, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_add_flag(ui_blepairingcode, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_bleadv, LV_OBJ_FLAG_HIDDEN);
+            //lv_obj_clear_flag(ui_wificonnecting120, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_progressCancelBtn, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_autoreconnectpanel, LV_OBJ_FLAG_HIDDEN);
 
@@ -2801,7 +2802,7 @@ void set_background(lv_event_t * e){
 
     /* Read temperature unit switch (enabled or not) */
     bool is_checked = lv_obj_has_state(ui_BGswitch, LV_STATE_CHECKED);
-    if(is_checked){
+    if(!is_checked){
         lv_obj_add_flag(ui_activeBG, LV_OBJ_FLAG_HIDDEN);
     }
     else{
