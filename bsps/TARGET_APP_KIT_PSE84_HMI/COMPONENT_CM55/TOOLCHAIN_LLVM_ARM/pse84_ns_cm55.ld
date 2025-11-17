@@ -126,8 +126,116 @@ SECTIONS
         *(.dtors)
         /* Read only code (constants) */
         *(.rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
+ 
         /* Exclude certain files from this section as they will be placed in RAM */
-        *(EXCLUDE_FILE(*cy_syslib.* *cy_syslib_ext.* *cy_smif.* *cy_smif_memnum.* *cy_smif_memslot.* *cy_smif_sfdp.* *cy_smif_hb_flash.* *cyhal_qspi.* *mtb_hal_memoryspi.* *mtb_serial_memory.* *freertos/Source*.* *cy_clib_support*.* *cy_mutex_pool*.* *cy_time.* *cyabs_*.* *cy_worker_thread.* *cmsis*.*) .text*)
+        *(EXCLUDE_FILE(*cy_syslib.*
+        *cy_syslib_ext.*
+        *cy_smif.*
+        *cy_smif_memnum.*
+        *cy_smif_memslot.*
+        *cy_smif_sfdp.*
+        *cy_smif_hb_flash.*
+        *cyhal_qspi.*
+        *mtb_hal_memoryspi.*
+        *mtb_serial_memory.*
+        *freertos*/Source*.*
+        *cy_clib_support*.*
+        *cy_mutex_pool*.*
+        *cy_time.*
+        *cyabs_*.*
+        *cy_worker_thread.*
+        *cmsis*.*
+
+        /*Libraries*/
+        
+        *libusbd_base_r_cm55f_llvm_arm.*
+        *libusbd_base_d_cm55f_llvm_arm.*  
+        *ifx_va.*
+        *libnlu* 
+        *libwwd* 
+        *sp_enh.*
+        *cy_graphics*.*
+        *lv_draw*.*
+        *lv_image*.*
+        *lv_indev*.*
+        *lv_freertos*.*
+        *lv_os.*
+        *lv_timer.* 
+        //*lvgl*/misc*.* 
+        *lv_display.* 
+        *lv_tick.* 
+        *lv_refr.* 
+        *lv_obj.* 
+        *lv_font.* 
+        *lv_layout.* 
+        *lv_sysmon.* 
+        *abstraction-rtos*.*
+        *COMPONENT_AUDIO_MW*.*
+
+        /*Application*/
+        *app_voice_control.*
+        *app_gfx_disp.*
+        *lv_port_indev.*
+        *app_sensor*
+        
+        /*Inferencing*/
+        *voice_assistant.*
+
+        /* Audio Enhancement */
+        *audio_enhancement.*
+        *audio_enhancement_interface.*
+        *app_afe_tuner.*
+
+        /* Use-case */
+        
+        /* Middleware, Software, Modules */
+        *app_logger.*
+        *pdm_mic_interface.*
+
+        *audio_usb_send_utils.*
+        *audio_send_task.*
+        *audio_receive_task.*
+        *audio_app.*
+        *usb_audio_interface.*
+
+        *audio_conv_utils.*
+
+        //*app_i2s.*
+        //*mtb_tlv320dac3100.*
+
+        //*profiler.*
+
+        *cy_retarget_io.*
+        *cy_afe_audio_process.*
+        *cy_afe_audio_speech_enh.*
+        *cy_afe_audio_task.*
+        *cy_afe_audio_utils.*
+        *cy_buffer_pool.*
+
+        *cy_afe.*
+        *cy_afe_audio_debug.*
+        *cy_afe_profiler.*
+        *cy_afe_tuner_commands.*
+        *cy_afe_tuner_task.*
+
+        *cy_sp_enh.*
+        *cy_afe_tuner_process.*
+        *ifx_sp_enh*.*
+        *ifx_sp_enh_process.*
+        *supportFunctions.*
+
+        *cy_arm_freertos.*
+        *cyhal_uart.*
+
+        *cyhal_i2s.*
+        *usbd_config.*
+        *usbd_config_io.*
+        *usbd_os_abs_rtos.*
+        *cyhal_pdmpcm.*
+        *cy_pdm_pcm_v2.*
+        *cyhal_audio_common.*                
+
+        ) .text*)
 
         . = ALIGN(4);
 
@@ -195,8 +303,10 @@ SECTIONS
         /* Reserving the first 16 bytes to avoid debug symbols (that have default address 0x0) to be confused with actual code  */
         . += 16;
         KEEP(*(.cy_itcm))
+        KEEP(*(.itcm_data))
         KEEP(*(.cy_sram_code))
         KEEP(*(.cy_ramfunc))
+        KEEP(*(.text.cy_os_common))
         *cy_syslib_ext.*(.text*)
         *cy_syslib.*(.text*)
         *cy_smif.*(.text*)
@@ -206,13 +316,102 @@ SECTIONS
         *cy_smif_hb_flash.*(.text*)
         *mtb_hal_memoryspi.*(.text*)
         *mtb_serial_memory.*(.text*)
-        *freertos/Source*.*(.text*)
+        *freertos*/Source*.*(.text*)
         *cy_clib_support*.*(.text*)
         *cy_mutex_pool*.*(.text*)
         *cy_time.*(.text*)
         *cyabs_*.*(.text*)
         *cy_worker_thread.*(.text*)
         *cmsis*.*(.text*)
+        
+        /* Voice/Audio related libraries */
+        *ifx_va.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *libnlu* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *libwwd* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *sp_enh.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_graphics*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_draw*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_image*.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_indev*.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_freertos*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_os.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_timer.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        //*lvgl*/misc*.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_display.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_tick.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_refr.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_obj.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_font.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_layout.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_sysmon.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *abstraction-rtos*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *COMPONENT_AUDIO_MW*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+                
+        *libusbd_base_d_cm55f_llvm_arm.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *libusbd_base_r_cm55f_llvm_arm.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        
+        /*Application*/
+        *app_voice_control.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *app_gfx_disp.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_port_indev.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *app_sensor* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        /*Inferencing*/
+        *voice_assistant.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        /* Audio Enhancement */
+        *audio_enhancement.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *audio_enhancement_interface.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *app_afe_tuner.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        /* Use-case */
+        
+        /* Middleware, Software, Modules */
+        *app_logger.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *pdm_mic_interface.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *audio_usb_send_utils.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *audio_send_task.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *audio_receive_task.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *audio_app.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *usb_audio_interface.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *audio_conv_utils.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        //*app_i2s.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        //*mtb_tlv320dac3100.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        //*profiler.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *cy_retarget_io.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_audio_process.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_audio_speech_enh.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_audio_task.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_audio_utils.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_buffer_pool.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *cy_afe.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_audio_debug.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_profiler.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_tuner_commands.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_tuner_task.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *cy_sp_enh.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_afe_tuner_process.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *ifx_sp_enh*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *ifx_sp_enh_process.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *supportFunctions.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *cy_arm_freertos.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cyhal_uart.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+
+        *cyhal_i2s.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *usbd_config.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *usbd_config_io.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *usbd_os_abs_rtos.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cyhal_pdmpcm.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cy_pdm_pcm_v2.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *cyhal_audio_common.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
         . = ALIGN(4);
     } > m55_code_INTERNAL AT > m55_nvm_sel
@@ -281,6 +480,10 @@ SECTIONS
 
         . = ALIGN(4);
 
+        KEEP(*(.dtcm_data))
+
+        . = ALIGN(4);
+                
         __data_end__ = .;
     } > m55_data_INTERNAL AT > m55_nvm_sel
 
@@ -384,6 +587,13 @@ SECTIONS
     .cy_socmem_data : ALIGN(4)
     {
         KEEP(*(.cy_socmem_data))
+        *(.wwd_nlu_data0)
+        *(.wwd_nlu_data1)
+        *(.wwd_nlu_data2)
+        *(.wwd_nlu_data3)
+        *(.wwd_nlu_data4)
+        *(.wwd_nlu_data5)
+        *(.wwd_nlu_data6)
 
         . = ALIGN(4);
     }  > m55_data_secondary AT > m55_nvm_sel

@@ -76,7 +76,89 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *(InRoot$$Sections)
     .ANY (+RO)
     .ANY (+XO)
-    EXCLUDE(*cy_smif.*, *cy_syslib.*, *cy_syslib_ext.*, *cy_smif_memnum.*, *cy_smif_memslot.*, *cy_smif_sfdp.*, *cy_smif_hb_flash.*, *mtb_hal_memoryspi.*, *mtb_serial_memory.*, *freertos/Source*.*, *cy_clib_support*.*, *cy_mutex_pool*.*, *cy_time.*, *cyabs_*.*, *cy_worker_thread.*, *cmsis*.*)
+    EXCLUDE(*cy_syslib.*, 
+            *cy_syslib_ext.*, 
+            *cy_smif.*, 
+            *cy_smif_memnum.*, 
+            *cy_smif_memslot.*, 
+            *cy_smif_sfdp.*, 
+            *cy_smif_hb_flash.*, 
+            *mtb_hal_memoryspi.*, 
+            *mtb_serial_memory.*, 
+            *freertos*/Source*.*, 
+            *cy_clib_support*.*, 
+            *cy_mutex_pool*.*, 
+            *cy_time.*, 
+            *cyabs_*.*, 
+            *cy_worker_thread.*, 
+            *cmsis*.*,
+            *abstraction-rtos*.*,
+            *cy_graphics*.*,
+            *lv_draw*.*,
+            *lv_image*.*,
+            *lv_indev*.*,
+            *lv_freertos*.*,
+            *lv_os.*,
+            *lv_timer.*,
+            *lvgl*/misc*.*,
+            *lv_display.*,
+            *lv_tick.*,
+            *lv_refr.*,
+            *lv_obj.*,
+            *lv_font.*,
+            *lv_layout.*,
+            *lv_sysmon.*,
+            //*lv_vg_lite*.*,
+            *COMPONENT_AUDIO_MW*.*,
+            *sp_enh*,
+            *libusbd_base_d_cm55f_armc6*,
+            *libusbd_base_r_cm55f_armc6*,
+            *ifx_va*,
+            *libnlu*,
+            *libwwd*,
+            *app_voice_control*,
+            *app_gfx_disp*,
+            *lv_port*,
+            *app_sensor*,
+            *voice_assistant*,
+            *audio_enhancement*,
+            *app_afe_tuner*,
+            *app_logger*,
+            *pdm_mic_interface*,
+            *audio_usb_send_utils*,
+            *audio_send_task*,
+            *audio_receive_task*,
+            *audio_app*,
+            *usb_audio_interface*,
+            *audio_conv_utils*,
+            *app_i2s*,
+            *mtb_tlv320dac3100*,
+            *profiler*,
+            *cy_retarget_io*,
+            *cy_afe_audio_process*,
+            *cy_afe_audio_speech_enh*,
+            *cy_afe_audio_task*,
+            *cy_afe_audio_utils*,
+            *cy_buffer_pool*,
+            *cy_afe*,
+            *cy_afe_audio_debug*,
+            *cy_afe_profiler*,
+            *cy_afe_tuner_commands*,
+            *cy_afe_tuner_task*,
+            *cy_sp_enh*,
+            *cy_afe_tuner_process*,
+            *ifx_sp_enh*,
+            *ifx_sp_enh_process*,
+            *supportFunctions*,
+            *cy_arm_freertos*,
+            *cyhal_uart*,
+            *cyhal_i2s*,
+            *usbd_config*,
+            *usbd_config_io*,
+            *usbd_os_abs_rtos*,
+            *cyhal_pdmpcm*,
+            *cy_pdm_pcm_v2*,
+            *cyhal_audio_common*)
   }
 
   /* The execution region for performance-sensitive or critical functions that need to be executed in SRAM */
@@ -96,18 +178,32 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     cy_smif_sfdp.* (+RO)
     mtb_hal_memoryspi.* (+RO)
     mtb_serial_memory.* (+RO)
-    *freertos/Source*.* (+RO)
+    *freertos*/Source*.* (+RO)
     *cy_clib_support*.* (+RO)
     *cy_mutex_pool*.* (+RO)
     *cy_time.* (+RO)
     *cyabs_*.* (+RO)
     *cy_worker_thread.* (+RO)
     *cmsis*.* (+RO)
-    */cmsis*.* (+RO)
-    */lvgl/src*.* (+RO)
     *abstraction-rtos*.* (+RO)
     
     ; Libraries 
+    *cy_graphics*.* (+RO, +RW, +ZI)
+    *lv_draw*.* (+RO, +RW, +ZI)
+    *lv_image*.* (+RO, +RW, +ZI)
+    *lv_indev*.* (+RO, +RW, +ZI)
+    *lv_freertos*.* (+RO, +RW, +ZI)
+    *lv_os.* (+RO, +RW, +ZI)
+    *lvgl*/misc*.* (+RO, +RW, +ZI)
+    *lv_display.* (+RO, +RW, +ZI)
+    *lv_tick.* (+RO, +RW, +ZI)
+    *lv_refr.* (+RO, +RW, +ZI)
+    *lv_obj.* (+RO, +RW, +ZI)
+    *lv_font.* (+RO, +RW, +ZI)
+    *lv_layout.* (+RO, +RW, +ZI)
+    *lv_sysmon.* (+RO, +RW, +ZI)
+    //*lv_vg_lite*.* (+RO, +RW, +ZI)
+    *COMPONENT_AUDIO_MW*.* (+RO, +RW, +ZI)
     *sp_enh* (+RO, +RW, +ZI)
     *libusbd_base_d_cm55f_armc6* (+RO, +RW, +ZI)
     *libusbd_base_r_cm55f_armc6* (+RO, +RW, +ZI)
@@ -117,6 +213,9 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     
     ;Application
     *app_voice_control* (+RO)
+    *app_gfx_disp* (+RO)
+    *lv_port* (+RO)
+    *app_sensor* (+RO)
 
     ; Inferencing
     *voice_assistant* (+RO)

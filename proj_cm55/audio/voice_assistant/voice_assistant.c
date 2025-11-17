@@ -582,6 +582,8 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
             if ((RUNNING_MODE != VA_MODE_WW_MULTI_CMD) && (RUNNING_MODE != VA_MODE_CMD_ONLY))
             {
                 printf("Pre Silence Timeout!\r\n");
+                Cy_GPIO_Clr(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_NUM);
+                cur_voice_active = false;
             }
         }
         else if ( event == VA_EVENT_CMD_DETECTED )
@@ -671,13 +673,6 @@ void run_voice_assistant_process(int16_t *audio_frame)
 
     /* Print the status of the voice assistant */
     print_voice_assistant_status(va_result, va_event, &va_data);
-
-#ifdef USE_LED_DEMO
-	/* Change the status of the LED if a command was detected */
-	if (va_event == VA_EVENT_CMD_DETECTED)
-	{
-		//led_demo(va_data.intent_index, va_data.variable[0].value);
-	}
-#endif
+    
 }
 

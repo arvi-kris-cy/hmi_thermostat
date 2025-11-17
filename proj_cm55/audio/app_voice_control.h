@@ -64,6 +64,7 @@ extern "C" {
 
 void ww_to_ui();
 va_rslt_t intent_to_ui(const char * command);
+bool check_button_pressed(void);
 
 void voice_assistant_task(void * arg);
 

@@ -129,6 +129,7 @@ SECTIONS
     } > m33s_nvm_sel_S
 
     PROVIDE(__nsc_region_start = __nsc_start);
+    PROVIDE(__nsc_region_end = __nsc_end);
     PROVIDE(__nsc_region_size = __nsc_end - __nsc_start);
 
     /* This section is intended to hold the main secure (S) application code for the Cortex-M33 */

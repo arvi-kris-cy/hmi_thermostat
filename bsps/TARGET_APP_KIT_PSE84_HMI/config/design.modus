@@ -3977,7 +3977,7 @@
                         <Param id="offset" value="0x00580000"/>
                         <Param id="regionId" value="m55_nvm"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
-                        <Param id="size" value="0x00400000"/>
+                        <Param id="size" value="0x00800000"/>
                     </Parameters>
                 </Personality>
                 <Personality template="memory_region_data" version="1.0" instance="08NWITXWBE4">
@@ -3986,7 +3986,7 @@
                         <Param id="description" value="CM55 trailer"/>
                         <Param id="domain" value="P8kQl2DRYUQ"/>
                         <Param id="memoryId" value="SMIF0MEM0"/>
-                        <Param id="offset" value="0x00980000"/>
+                        <Param id="offset" value="0x00D80000"/>
                         <Param id="regionId" value="m55_trailer"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
                         <Param id="size" value="0x00040000"/>

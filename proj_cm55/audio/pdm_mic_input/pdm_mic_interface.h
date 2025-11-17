@@ -35,8 +35,8 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
-#ifndef _PDM_MIC_H__
-#define _PDM_MIC_H__
+#ifndef _PDM_MIC_INTERFACE_H__
+#define _PDM_MIC_INTERFACE_H__
 
 #if defined(__cplusplus)
 extern "C" {
@@ -58,11 +58,15 @@ extern "C" {
 #define PDM_MIC_NUM_CHANNEL        		(1u)
 #endif /* ENABLE_STEREO_INPUT_FEED */
 
-#define PDM_MIC_SAMPLES_COUNT    		(160*PDM_MIC_NUM_CHANNEL)
+#define PDM_MIC_SAMPLES_PER_CHANNEL     (160u)
+#define PDM_MIC_SAMPLES_COUNT    		(PDM_MIC_SAMPLES_PER_CHANNEL*PDM_MIC_NUM_CHANNEL)
 
 #define PDM_PCM_MIN_GAIN                        (-105.0)
 #define PDM_PCM_MAX_GAIN                        (105.0)
 #define PDM_MIC_GAIN_VALUE                      (AFE_MIC_INPUT_GAIN_DB)
+
+#define PCM_SOFTWARE_GAIN_LEFT                  (0)
+#define PCM_SOFTWARE_GAIN_RIGHT                 (0)
 
 #ifdef GAIN_CONTROL_ON  
 #define PDM_MAX_GAIN_LIMIT                      (25.0)

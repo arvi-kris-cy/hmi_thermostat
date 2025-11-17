@@ -164,8 +164,8 @@ COMPONENTS += PROFILER
 DEFINES+=PROFILER_ENABLE
 
 #AFE Tuning enablement
-#DEFINES += CY_AFE_ENABLE_TUNING_FEATURE
-#DEFINES+=AE_TUNING_MODE
+DEFINES += CY_AFE_ENABLE_TUNING_FEATURE
+DEFINES+=AE_TUNING_MODE
 
 #USB Audio class
 COMPONENTS += EMUSB
@@ -238,8 +238,10 @@ ifeq (int8x8, $(NN_TYPE))
 endif
 
 #PDM mic settings - EVK 
-#GAIN_CONTROL_ON - to restrict gain level to -25.0dB to 25.0dB
+#GAIN_CONTROL_ON - to restrict max gain level
 DEFINES +=GAIN_CONTROL_ON
+DEFINES +=AFE_MIN_MIC_INPUT_HW_GAIN=-103.0
+DEFINES +=AFE_MAX_MIC_INPUT_HW_GAIN=71.0
 
 ################################################################################
 # Paths

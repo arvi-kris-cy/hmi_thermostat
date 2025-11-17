@@ -71,13 +71,11 @@
 * Macros
 *******************************************************************************/
 /* Debounce counter for button presses (multiply by 10 ms) */
-#define BUTTON_DEBOUNCE_COUNT                   (10U)
+#define BUTTON_DEBOUNCE_COUNT                   (2U)
 
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
-
-bool is_mic_clicked = false;
 
 #ifdef ENABLE_STEREO_INPUT_FEED
 int16_t non_interleaved_audio[2*PDM_MIC_SAMPLES_COUNT] = {0};
@@ -88,8 +86,6 @@ extern bool handle_command_for_ui;
 
 extern int intent_value;
 extern uint8_t brightness_level;
-
-extern bool cur_voice_active;
 
 /*******************************************************************************
 * Function Definitions
@@ -694,7 +690,7 @@ void ww_to_ui()
  *  Returns true if the button is pressed, false otherwise
  *
  *******************************************************************************/
-static bool check_button_pressed(void)
+bool check_button_pressed(void)
 {
     static uint32_t btn_count = 0;
 
@@ -785,14 +781,14 @@ void voice_assistant_task(void * arg)
     cy_profiler_init();
 #endif /* INFERENCING_PROFILE */ 
 
+   /* If AFE is used, initialize the audio enhancement */
+#ifdef USE_AUDIO_ENHANCEMENT
 #if AE_APP_PROFILE
     cy_profiler_init();
     cy_afe_profile(AFE_PROFILE_CMD_ENABLE,NULL);
 #endif /* AE_APP_PROFILE */ 
 
-   /* If AFE is used, initialize the audio enhancement */
-#ifdef USE_AUDIO_ENHANCEMENT
-    ae_result = audio_enhancement_init(NUM_AUDIO_CHANNELS);
+    ae_result = audio_enhancement_init(AFE_INPUT_NUMBER_CHANNELS);
     if (ae_result != AE_RSLT_SUCCESS)
     {
         printf("Error initializing the audio enhancement. Error code=%d\r\n", ae_result);
@@ -802,7 +798,6 @@ void voice_assistant_task(void * arg)
     {
         printf("Audio Enhancement initialized!\r\n");
     }
-#endif /* USE_AUDIO_ENHANCEMENT */
 
 #ifdef AE_TUNING_MODE
     /* Enable USB interface*/
@@ -810,6 +805,7 @@ void voice_assistant_task(void * arg)
     usb_audio_interface_init();
     usb_send_out_dbg_init_channels();
 #endif
+#endif /* USE_AUDIO_ENHANCEMENT */
 
     /* Initialize the PDM microphone */
     pdm_mic_init(); 
@@ -832,27 +828,13 @@ void voice_assistant_task(void * arg)
         /* Get audio data */
         pdm_mic_get_data(&audio_frame);
 
-        /* Read the user button state */
-        if (check_button_pressed() || is_mic_clicked)
-        {
-            /** Switch to Active screen  */
-            switch_to_active_screen();
-
-            printf("Push to Talk Button detected! Speak a command!\r\n");
-            Cy_GPIO_Set(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_NUM);
-
-            is_mic_clicked = false;
-            cur_voice_active = true;
-            voice_assistant_change_state(VA_RUN_CMD);
-        }
-
-#ifdef ENABLE_STEREO_INPUT_FEED
+//#ifdef ENABLE_STEREO_INPUT_FEED
+#if 0    
+        convert_interleaved_to_stereo_non_interleaved((uint16_t *)audio_frame, (uint16_t *)non_interleaved_audio);
     
-    convert_interleaved_to_stereo_non_interleaved((uint16_t *)audio_frame, (uint16_t *)non_interleaved_audio);
-    
-    audio_feed_input = (int16_t*)non_interleaved_audio;
+        audio_feed_input = (int16_t*)non_interleaved_audio;
 #else
-	audio_feed_input = audio_frame;
+	    audio_feed_input = audio_frame;
 #endif /* ENABLE_STEREO_INPUT_FEED */
 
 #ifdef USE_AUDIO_ENHANCEMENT

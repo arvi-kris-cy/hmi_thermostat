@@ -1,9 +1,9 @@
-/******************************************************************************
-* File Name : audio_input_configuration.h
-*
-* Description :
-* Header for Mono/Stereo configuration of input.
-********************************************************************************
+/*******************************************************************************
+ * File Name:  app_gfx_disp.h
+ *
+ * Description: Public interface for the GFX display task routines.
+ *
+ *******************************************************************************
 * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
@@ -36,29 +36,34 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#ifndef __AUDIO_INPUT_CONFIGURATION_H__
-#define __AUDIO_INPUT_CONFIGURATION_H__
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus */
+#ifndef APP_GFX_DISP_H_
+#define APP_GFX_DISP_H_
 
-#include "cy_afe_configurator_settings.h"
+/*******************************************************************************
+ *                                INCLUDES
+ *******************************************************************************/
+#include "cybsp.h"
+#include "retarget_io_init.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cyabs_rtos.h"
+#include "cyabs_rtos_impl.h"
 
-/* Number of audio channels sampled from microphones and processed */
-
-#if AFE_INPUT_NUMBER_CHANNELS == 2
-#define ENABLE_STEREO_INPUT_FEED
-#else
-/* USB audio input is stereo */
-#ifdef USB_AUDIO_INPUT
-#define ENABLE_STEREO_INPUT_FEED
-#endif /* USB_AUDIO_INPUT */
-
-#endif /* AFE_INPUT_NUMBER_CHANNELS */
+/*******************************************************************************
+ *                                CONSTANTS
+ *******************************************************************************/
 
 
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus */
+/*******************************************************************************
+ *                               GLOBAL VARIABLES
+ *******************************************************************************/
 
-#endif /* __AUDIO_INPUT_CONFIGURATION_H__ */
+
+/*******************************************************************************
+ *                              FUNCTION PROTOTYPES
+ *******************************************************************************/
+void cm55_gfx_task(void *arg);
+
+#endif /* APP_GFX_DISP_H_ */
+
+/* [] END OF FILE */

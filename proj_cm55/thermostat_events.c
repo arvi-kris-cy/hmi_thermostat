@@ -95,6 +95,7 @@
 /*******************************************************************************
  *                             GLOBAL VARIABLES
  ******************************************************************************/
+bool is_mic_clicked = false;
 volatile bool popup_overlay_visible = false;
 volatile application_state_t app_state = APP_ST_ACTIVE;
 device_state_t dev_info;
@@ -110,9 +111,10 @@ lv_timer_t *stop_listening_timer = NULL;
 lv_timer_t *state_update_timer = NULL;
 
 device_settings_t current_settings = { 0 };
-extern bool is_device_provisioned;
-extern char new_FW_version[MAX_FW_VERSION_LEN];
-extern char m55_current_OTA_version[MAX_FW_VERSION_LEN];
+bool is_device_provisioned = false;
+
+char new_FW_version[MAX_FW_VERSION_LEN];
+char m55_current_OTA_version[MAX_FW_VERSION_LEN];
 
 /* Device connection state flag in CM55 core */
 volatile bool is_device_connected = false;
@@ -194,7 +196,11 @@ static volatile bool ble_conn_state = false;
 static volatile bool wifi_conn_state = false;
 static volatile bool cloud_conn_state = false;
 
+uint8_t brightness_level = 100;
+audio_level_t audio_level = AUDIO_MED;
+
 extern char weather_sync_value[32];
+
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/

@@ -10,8 +10,8 @@
         "angle_range_a": 0,
         "angle_range_b": 180,
         "bf_state": "off",
-        "interference_canceller": "medium",
-        "mic_distance_mm": 95,
+        "interference_canceller": "low",
+        "mic_distance_mm": 25,
         "num_beams": 1
     },
     "dereverberation": {
@@ -30,7 +30,7 @@
     "input": {
         "frame_rate_sps": 16000,
         "frame_size_ms": 10,
-        "input_gain_db": 25,
+        "input_gain_db": 20,
         "input_source": "mic",
         "number_of_channels": 2,
         "software_input_gain_db1": 0,
@@ -57,7 +57,7 @@
         "channel_0": "Input[0]",
         "channel_1": "Input[1]",
         "channel_2": "Output",
-        "channel_3": "AEC Ref"
+        "channel_3": "BF_Out"
     },
     "usb_output": {
         "outputchannel_0": "Speaker",

@@ -48,6 +48,9 @@
 #include "cyabs_rtos.h"
 
 #include "pdm_mic_interface.h"
+#include "audio_input_configuration.h"
+#include "app_logger.h"
+#include "app_common.h"
 
 /*******************************************************************************
 * Macros
@@ -72,7 +75,7 @@
 /* The number of interrupts to get frame of 10 msec samples.
     5 interrupts of 2msec makes 10msec frame */
 /* 10msec data is 320 samples in STEREO mode*/
-/* 10msec data is 160 samples in STEREO mode*/
+/* 10msec data is 160 samples in MONO mode*/
 #ifdef ENABLE_STEREO_INPUT_FEED
 #define HALF_FIFO_SIZE         			(PDM_PCM_HW_FIFO_SIZE)
 #else
@@ -93,7 +96,7 @@ int16_t audio_buffer1[PDM_MIC_SAMPLES_COUNT] = {0};
 int16_t* active_rx_buffer;
 int16_t* full_rx_buffer;
 
-cy_semaphore_t pdm_mic_sema;
+SemaphoreHandle_t pdm_mic_sema;
 
 /* PDM PCM interrupt configuration parameters */
 const cy_stc_sysint_t PDM_IRQ_cfg =
@@ -106,9 +109,12 @@ const cy_stc_sysint_t PDM_IRQ_cfg =
 /*******************************************************************************
 * Functions Prototypes
 *******************************************************************************/
-//extern void audio_mic_data_feed_cm55(int16_t *audio_data);
 void app_pdm_pcm_activate(void);
 void app_pdm_pcm_deactivate(void);
+
+/*******************************************************************************
+* Functions Definitions
+*******************************************************************************/
 /*******************************************************************************
  * Function Name: pdm_pcm_event_handler
  ********************************************************************************
@@ -125,6 +131,7 @@ void app_pdm_pcm_deactivate(void);
  *******************************************************************************/
 static void pdm_pcm_event_handler(void)
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	static bool buff0_active = true;
     /* Used to track how full the buffer is */
     static uint16_t frame_counter = 0;
@@ -138,44 +145,52 @@ static void pdm_pcm_event_handler(void)
         {
 #if (PDM_MIC_NUM_CHANNEL == 2)
             int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, LEFT_CH_INDEX);
+            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_LEFT, CY_PDM_PCM_16BIT, &pdm_data);
             *(active_rx_buffer) = (int16_t)(pdm_data);
-            active_rx_buffer++;
             
             pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
-            *(active_rx_buffer) = (int16_t)(pdm_data);
+            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
+            *(active_rx_buffer + PDM_MIC_SAMPLES_PER_CHANNEL) = (int16_t)(pdm_data);
+            
             active_rx_buffer++;
-#else            
+#else       
             int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
+            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
             *(active_rx_buffer) = (int16_t)(pdm_data);
             active_rx_buffer++;
 #endif
         }
-        Cy_PDM_PCM_Channel_ClearInterrupt(CYBSP_PDM_HW, RIGHT_CH_INDEX, CY_PDM_PCM_INTR_RX_TRIGGER);
-        frame_counter++;
-    }
-
-    /* Check if the buffer is full */
-    if((NUMBER_INTERRUPTS_FOR_FRAME) <= frame_counter)
-    {
-        /* Flip the active and the next rx buffers */
-        buff0_active = !buff0_active;
         
-        if (buff0_active)
+        Cy_PDM_PCM_Channel_ClearInterrupt(CYBSP_PDM_HW, RIGHT_CH_INDEX, CY_PDM_PCM_INTR_RX_TRIGGER);
+
+        frame_counter++;
+
+        /* Check if the buffer is full */
+        if((NUMBER_INTERRUPTS_FOR_FRAME) <= frame_counter)
         {
-			active_rx_buffer = audio_buffer0;
-			full_rx_buffer = audio_buffer1;
-		}
-		else
-		{
-			active_rx_buffer = audio_buffer1;
-			full_rx_buffer = audio_buffer0;
-		}
+            /* Flip the active and the next rx buffers */
+            buff0_active = !buff0_active;
+            
+            if (buff0_active)
+            {
+                active_rx_buffer = audio_buffer0;
+                full_rx_buffer = audio_buffer1;
+            }
+            else
+            {
+                active_rx_buffer = audio_buffer1;
+                full_rx_buffer = audio_buffer0;
+            }
 
-        /* Set the PDM_PCM flag as true, signaling there is data ready for use */
-        pdm_pcm_flag = true;
-        frame_counter = 0;
+            /* Set the PDM_PCM flag as true, signaling there is data ready for use */
+            pdm_pcm_flag = true;
+            frame_counter = 0;
 
-        cy_rtos_semaphore_set(&pdm_mic_sema);
+            // cy_rtos_semaphore_set(&pdm_mic_sema);
+            xSemaphoreGiveFromISR(pdm_mic_sema, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
+        
     }
 
     /* Clear the remaining interrupts */
@@ -205,13 +220,20 @@ cy_rslt_t pdm_mic_init(void)
     int16_t gain_scale = 0;
 
     /* Init internal semaphore */
-    result = cy_rtos_semaphore_init(&pdm_mic_sema, 5, 0);
+    pdm_mic_sema = xSemaphoreCreateBinary();
 
-    if(CY_RSLT_SUCCESS != result)
+    if (pdm_mic_sema == NULL) 
     {
-        printf("MIC:PDM PCM semaphore init failed %u \r\n",result);
+        LOG_INFO(CYLF_DEF, "MIC:PDM PCM semaphore init failed.\n");
         CY_ASSERT(0);
     }
+    // result = cy_rtos_semaphore_init(&pdm_mic_sema, 5, 0);
+
+    // if(CY_RSLT_SUCCESS != result)
+    // {
+    //     printf("MIC:PDM PCM semaphore init failed %u \r\n",result);
+    //     CY_ASSERT(0);
+    // }
 
     /* Initialize PDM PCM block */
     result = Cy_PDM_PCM_Init(CYBSP_PDM_HW, &CYBSP_PDM_config);
@@ -285,14 +307,19 @@ cy_rslt_t pdm_mic_init(void)
 *******************************************************************************/
 cy_rslt_t pdm_mic_get_data(int16_t **frame)
 {
-    cy_rslt_t result;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    result = cy_rtos_semaphore_get(&pdm_mic_sema, CY_RTOS_NEVER_TIMEOUT);
-
-    if (result == CY_RSLT_SUCCESS)
+    if (xSemaphoreTake(pdm_mic_sema, portMAX_DELAY) == pdTRUE)
     {
         *frame = full_rx_buffer;
     }
+
+    // result = cy_rtos_semaphore_get(&pdm_mic_sema, CY_RTOS_NEVER_TIMEOUT);
+
+    // if (result == CY_RSLT_SUCCESS)
+    // {
+    //     *frame = full_rx_buffer;
+    // }
 
     return result;
 }
