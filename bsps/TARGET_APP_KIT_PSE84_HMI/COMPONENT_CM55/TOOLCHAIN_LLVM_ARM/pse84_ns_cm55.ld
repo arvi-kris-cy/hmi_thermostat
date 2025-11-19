@@ -176,7 +176,7 @@ SECTIONS
         *app_voice_control.*
         *app_gfx_disp.*
         *lv_port_indev.*
-        *app_sensor*
+        //*app_sensor*
         
         /*Inferencing*/
         *voice_assistant.*
@@ -220,14 +220,14 @@ SECTIONS
 
         *cy_sp_enh.*
         *cy_afe_tuner_process.*
-        *ifx_sp_enh*.*
+        *ifx_sp_enh.*
         *ifx_sp_enh_process.*
         *supportFunctions.*
 
         *cy_arm_freertos.*
         *cyhal_uart.*
 
-        *cyhal_i2s.*
+        //*cyhal_i2s.*
         *usbd_config.*
         *usbd_config_io.*
         *usbd_os_abs_rtos.*
@@ -354,7 +354,7 @@ SECTIONS
         *app_voice_control.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *app_gfx_disp.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *lv_port_indev.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
-        *app_sensor* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        //*app_sensor* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
         /*Inferencing*/
         *voice_assistant.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
@@ -398,14 +398,14 @@ SECTIONS
 
         *cy_sp_enh.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *cy_afe_tuner_process.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
-        *ifx_sp_enh*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *ifx_sp_enh.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *ifx_sp_enh_process.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *supportFunctions.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
         *cy_arm_freertos.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *cyhal_uart.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
 
-        *cyhal_i2s.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        //*cyhal_i2s.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *usbd_config.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *usbd_config_io.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *usbd_os_abs_rtos.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)

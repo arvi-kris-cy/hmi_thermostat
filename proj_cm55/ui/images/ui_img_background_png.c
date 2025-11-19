@@ -9,7 +9,7 @@
 #define LV_ATTRIBUTE_BACKGROUND
 #endif
 
-CY_SECTION(".cy_socmem_data")
+CY_SECTION(".cy_gpu_buf")
 LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_BACKGROUND
 uint8_t ui_img_background_png_data[] = {
 

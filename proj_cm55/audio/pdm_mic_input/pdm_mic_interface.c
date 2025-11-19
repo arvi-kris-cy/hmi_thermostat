@@ -145,17 +145,17 @@ static void pdm_pcm_event_handler(void)
         {
 #if (PDM_MIC_NUM_CHANNEL == 2)
             int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, LEFT_CH_INDEX);
-            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_LEFT, CY_PDM_PCM_16BIT, &pdm_data);
+            (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_LEFT, CY_PDM_PCM_16BIT, &pdm_data);
             *(active_rx_buffer) = (int16_t)(pdm_data);
             
             pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
-            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
+            (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
             *(active_rx_buffer + PDM_MIC_SAMPLES_PER_CHANNEL) = (int16_t)(pdm_data);
             
             active_rx_buffer++;
 #else       
             int32_t pdm_data = (int32_t)Cy_PDM_PCM_Channel_ReadFifo(CYBSP_PDM_HW, RIGHT_CH_INDEX);
-            // (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
+            (void)Cy_PDM_PCM_ApplyPCM_Gain (&pdm_data, PCM_SOFTWARE_GAIN_RIGHT, CY_PDM_PCM_16BIT, &pdm_data);
             *(active_rx_buffer) = (int16_t)(pdm_data);
             active_rx_buffer++;
 #endif

@@ -74,7 +74,7 @@
 
 #define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
 #define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 5)
-#define VOICE_ASSISTANT_TASK_PRIORITY           (3U)
+#define VOICE_ASSISTANT_TASK_PRIORITY           (4U)
 
 #define I2C_CONTROLLER_IRQ_PRIORITY         (2UL)
 #define RESET_VAL                           (0U)

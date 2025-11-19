@@ -91,10 +91,12 @@ VFP_SELECT = hardfp
 # above.
 CFLAGS+= -flax-vector-conversions -Wno-nan-infinity-disabled -Wno-implicit-function-declaration
 ifeq ($(TOOLCHAIN),LLVM_ARM)
+    CFLAGS+= -fdata-sections -ffunction-sections
+    LDFLAGS+= -Wl,--gc-sections
     ifeq ($(CONFIG),Debug)
         CFLAGS+=-O1
     else
-        CFLAGS+=-O2
+        CFLAGS+=
     endif
 else
     CFLAGS+=
@@ -164,8 +166,8 @@ COMPONENTS += PROFILER
 DEFINES+=PROFILER_ENABLE
 
 #AFE Tuning enablement
-DEFINES += CY_AFE_ENABLE_TUNING_FEATURE
-DEFINES+=AE_TUNING_MODE
+# DEFINES += CY_AFE_ENABLE_TUNING_FEATURE
+# DEFINES+=AE_TUNING_MODE
 
 #USB Audio class
 COMPONENTS += EMUSB

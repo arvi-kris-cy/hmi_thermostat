@@ -883,17 +883,17 @@ static void increase_temp_step(lv_timer_t *timer)
 //            lv_arc_set_value(ui_ArcTempIndicator, (target_temp - current_temp)); // Replace current_temp with your value
 
             //            lv_arc_set_value(ui_ArcTempIndicator, current_temp);
-                        int start_angle = temp_to_heating_arc_angle(current_temp)+1;
-                        int end_angle   = temp_to_heating_arc_angle(target_temp);
+            int start_angle = temp_to_heating_arc_angle(current_temp)+1;
+            int end_angle   = temp_to_heating_arc_angle(target_temp);
 
-                        printf("Updated Start angle: %d, End Angle: %d\n", start_angle, end_angle);
-                        printf("Updated CT: %d, TT: %d\n", current_temp, target_temp);
+            printf("Updated Start angle: %d, End Angle: %d\n", start_angle, end_angle);
+            printf("Updated CT: %d, TT: %d\n", current_temp, target_temp);
 
                  //       lv_arc_set_range(ui_ArcTempIndicator, 0, abs(target_temp - current_temp));
                         //lv_arc_set_value(ui_ArcTempIndicator, abs(target_temp - current_temp)); // Replace current_temp with your value
 
-                        lv_arc_set_bg_start_angle(ui_ArcTempIndicator, start_angle);
-                        lv_arc_set_bg_end_angle(ui_ArcTempIndicator, end_angle);
+            lv_arc_set_bg_start_angle(ui_ArcTempIndicator, start_angle);
+            lv_arc_set_bg_end_angle(ui_ArcTempIndicator, end_angle);
 
         }
         if (current_temp == target_temp)
@@ -968,6 +968,7 @@ static void decrease_temp_step(lv_timer_t *timer)
 
             lv_obj_remove_flag(ui_ArcTempIndicator, LV_OBJ_FLAG_HIDDEN);
             lv_arc_set_value(ui_ArcTempIndicator, 15); // Replace current_temp with your value
+
             int start_angle = temp_to_cooling_arc_angle(current_temp);
             int end_angle   = temp_to_cooling_arc_angle(target_temp);
 
@@ -2284,18 +2285,38 @@ void update_thermostat_mode(thermostat_mode_t mode)
 
 static int temp_to_heating_arc_angle(int temperature)
 {
-    if (temperature < TEMP_MIN) temperature = TEMP_MIN;
-    if (temperature > TEMP_MAX) temperature = TEMP_MAX;
-
-    return TEMPERATURE_ARC_START_ANGLE + (temperature - TEMP_MIN) * TEMPERATURE_ARC_ANGLE_PER_STEP;
+    if(dev_unit==TEMP_UNIT_FAHRENHEIT){
+        int temp_min, temp_max, angle_per_Step;
+        temp_min = 57; //9/5*TEMP_MIN + 32;
+        temp_max = 86; //9/5*TEMP_MAX + 32;
+        angle_per_Step = 300/(temp_max-temp_min);
+        //if (temperature < temp_min) temperature = temp_min;
+        //if (temperature > temp_max) temperature = temp_max;
+        return TEMPERATURE_ARC_START_ANGLE + (temperature - temp_min) * angle_per_Step;
+    }
+    else{
+        if (temperature < TEMP_MIN) temperature = TEMP_MIN;
+        if (temperature > TEMP_MAX) temperature = TEMP_MAX;
+        return TEMPERATURE_ARC_START_ANGLE + (temperature - TEMP_MIN) * TEMPERATURE_ARC_ANGLE_PER_STEP;
+    }
 }
 
 static int temp_to_cooling_arc_angle(int temperature)
 {
-    if (temperature < TEMP_MIN) temperature = TEMP_MIN;
-    if (temperature > TEMP_MAX) temperature = TEMP_MAX;
-
-    return TEMPERATURE_ARC_END_ANGLE - ((TEMP_MAX - temperature) * TEMPERATURE_ARC_ANGLE_PER_STEP);
+    if(dev_unit==TEMP_UNIT_FAHRENHEIT){
+        int temp_min, temp_max, angle_per_Step;
+        temp_min = 57;//9/5*TEMP_MIN + 32;
+        temp_max = 86;//9/5*TEMP_MAX + 32;
+        angle_per_Step = 300/(temp_max-temp_min);
+        //if (temperature < temp_min) temperature = temp_min;
+        //if (temperature > temp_max) temperature = temp_max;
+        return TEMPERATURE_ARC_END_ANGLE - (temp_max - temperature) * angle_per_Step;
+    }
+    else{
+        if (temperature < TEMP_MIN) temperature = TEMP_MIN;
+        if (temperature > TEMP_MAX) temperature = TEMP_MAX;
+        return TEMPERATURE_ARC_END_ANGLE - ((TEMP_MAX - temperature) * TEMPERATURE_ARC_ANGLE_PER_STEP);
+    }
 }
 
 void update_device_temp(uint8_t temp)
@@ -2363,12 +2384,13 @@ void update_device_temp(uint8_t temp)
 
             lv_obj_remove_flag(ui_ArcTempIndicator, LV_OBJ_FLAG_HIDDEN);
             lv_arc_set_value(ui_ArcTempIndicator, 35);
+            
+        
             int start_angle = temp_to_heating_arc_angle(current_temp)+1;
             int end_angle   = temp_to_heating_arc_angle(target_temp);
 
             printf("Start angle: %d, End Angle: %d\n", start_angle, end_angle);
             printf("CT: %d, TT: %d\n", current_temp, target_temp);
-
           //  lv_arc_set_range(ui_ArcTempIndicator, 0, abs(target_temp - current_temp));
           //  lv_arc_set_value(ui_ArcTempIndicator, abs(target_temp - current_temp)); // Replace current_temp with your value
 

@@ -1220,20 +1220,21 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_x(ui_currenttemp, 2);
     lv_obj_set_y(ui_currenttemp, 88);
     lv_obj_set_align(ui_currenttemp, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_currenttemp, "24°c");
+    lv_label_set_text(ui_currenttemp, "24°C");
     lv_obj_add_flag(ui_currenttemp, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_color(ui_currenttemp, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_currenttemp, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_currenttemp, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_voicecmdcontainer = lv_obj_create(ui_ActiveScreen);
-    lv_obj_remove_style_all(ui_voicecmdcontainer);
+    //lv_obj_remove_style_all(ui_voicecmdcontainer);
     lv_obj_set_width(ui_voicecmdcontainer, 475);
     lv_obj_set_height(ui_voicecmdcontainer, 479);
     lv_obj_set_x(ui_voicecmdcontainer, -14);
     lv_obj_set_y(ui_voicecmdcontainer, -2);
-    lv_obj_set_style_bg_color(ui_voicecmdoverlay, lv_color_hex(0x343333), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_voicecmdoverlay, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_voicecmdcontainer, lv_color_hex(0x7E7B7B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_voicecmdcontainer, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_voicecmdcontainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_align(ui_voicecmdcontainer, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_remove_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -1260,6 +1261,8 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_align(ui_cmdlistheader, LV_ALIGN_CENTER);
     lv_label_set_text(ui_cmdlistheader, "                      Voice Command List                        ");
     lv_obj_add_flag(ui_cmdlistheader, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_set_style_bg_color(ui_cmdlistheader, lv_color_hex(0x343333), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_cmdlistheader, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_cmdlistheader, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_cmdlistheader, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_cmdlistheader, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -2275,7 +2278,6 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_remove_flag(ui_micidle, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_opa(ui_micidle, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
 
     lv_obj_add_event_cb(ui_switchLPscreenBTN, ui_event_switchLPscreenBTN, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_WifiConnectButton, ui_event_WifiConnectButton, LV_EVENT_ALL, NULL);

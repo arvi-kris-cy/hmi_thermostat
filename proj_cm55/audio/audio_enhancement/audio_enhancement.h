@@ -57,7 +57,7 @@ extern "C" {
 * Macros
 *******************************************************************************/
 #ifdef PROFILER_ENABLE
-#define AE_APP_PROFILE                                (1)
+#define AE_APP_PROFILE                                (0)
 #define INFERENCING_PROFILE                           (0)
 #endif /* PROFILER_ENABLE */
 
