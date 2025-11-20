@@ -109,6 +109,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *lv_layout.*,
             *lv_sysmon.*,
             //*lv_vg_lite*.*,
+            *touch-ctp*.*,
             *COMPONENT_AUDIO_MW*.*,
             *sp_enh*,
             *libusbd_base_d_cm55f_armc6*,
@@ -116,6 +117,8 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *ifx_va*,
             *libnlu*,
             *libwwd*,
+            *mtb_wwd*,
+            *mtb_nlu*,
             *app_voice_control*,
             *app_gfx_disp*,
             *lv_port*,
@@ -203,6 +206,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *lv_layout.* (+RO, +RW, +ZI)
     *lv_sysmon.* (+RO, +RW, +ZI)
     //*lv_vg_lite*.* (+RO, +RW, +ZI)
+    *touch-ctp*.* (+RO, +RW, +ZI)
     *COMPONENT_AUDIO_MW*.* (+RO, +RW, +ZI)
     *sp_enh* (+RO, +RW, +ZI)
     *libusbd_base_d_cm55f_armc6* (+RO, +RW, +ZI)
@@ -210,6 +214,8 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *ifx_va* (+RO, +RW, +ZI)
     *libnlu* (+RO, +RW, +ZI)
     *libwwd* (+RO, +RW, +ZI)
+    *mtb_wwd* (+RO)
+    *mtb_nlu* (+RO)
     
     ;Application
     *app_voice_control* (+RO)
@@ -271,7 +277,6 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *cy_pdm_pcm_v2* (+RO)
     *cyhal_audio_common* (+RO)
     
-    *(.itcm_data)
   }
 
   /* The execution region for less performance-sensitive or critical functions that might be executed in SOC memory */
@@ -287,6 +292,8 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     .ANY (+RW +ZI)
     . = ALIGN(4);
     *(.dtcm_data)
+    . = ALIGN(4);
+    *(.itcm_data)
     . = ALIGN(4);
   }
 

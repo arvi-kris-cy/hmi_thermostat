@@ -3415,7 +3415,7 @@ void update_date_time_rtc(lv_event_t * e)
             if (rtc_status != CY_RTC_SUCCESS)
             {
                 // Delay for 1ms before retrying to allow the RTC to become ready
-                Cy_SysLib_Delay(1);
+                vTaskDelay(pdMS_TO_TICKS(1));
             }
         } while ((rtc_status != CY_RTC_SUCCESS) && (retry_count > 0));
 

@@ -2795,7 +2795,7 @@
                         </Aliases>
                     </Block>
                     <Parameters>
-                        <Param id="intDivider" value="32"/>
+                        <Param id="intDivider" value="10"/>
                         <Param id="startOnReset" value="true"/>
                     </Parameters>
                 </Personality>
@@ -3176,7 +3176,7 @@
                     <Parameters>
                         <Param id="AcceptAddress" value="false"/>
                         <Param id="AcceptGeneralCall" value="false"/>
-                        <Param id="DataRate" value="100"/>
+                        <Param id="DataRate" value="400"/>
                         <Param id="EnableRxFifo" value="true"/>
                         <Param id="EnableTxFifo" value="true"/>
                         <Param id="EnableWakeup" value="false"/>

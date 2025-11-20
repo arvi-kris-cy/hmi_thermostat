@@ -161,6 +161,7 @@ SECTIONS
         *lv_freertos*.*
         *lv_os.*
         *lv_timer.* 
+        *lv_ll*.*
         //*lvgl*/misc*.* 
         *lv_display.* 
         *lv_tick.* 
@@ -303,7 +304,6 @@ SECTIONS
         /* Reserving the first 16 bytes to avoid debug symbols (that have default address 0x0) to be confused with actual code  */
         . += 16;
         KEEP(*(.cy_itcm))
-        KEEP(*(.itcm_data))
         KEEP(*(.cy_sram_code))
         KEEP(*(.cy_ramfunc))
         KEEP(*(.text.cy_os_common))
@@ -336,6 +336,7 @@ SECTIONS
         *lv_freertos*.*(.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *lv_os.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *lv_timer.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
+        *lv_ll*.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         //*lvgl*/misc*.* (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *lv_display.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
         *lv_tick.*  (.text* .rodata .rodata* .constdata .constdata* .conststring .conststring*)
@@ -481,6 +482,10 @@ SECTIONS
         . = ALIGN(4);
 
         KEEP(*(.dtcm_data))
+
+        . = ALIGN(4);
+
+        KEEP(*(.itcm_data))
 
         . = ALIGN(4);
                 

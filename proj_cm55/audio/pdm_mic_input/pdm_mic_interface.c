@@ -91,8 +91,8 @@
 volatile bool pdm_pcm_flag = false;
 
 /* Set up one buffer for data collection and one for processing */
-int16_t audio_buffer0[PDM_MIC_SAMPLES_COUNT] = {0};
-int16_t audio_buffer1[PDM_MIC_SAMPLES_COUNT] = {0};
+int16_t audio_buffer0[PDM_MIC_SAMPLES_COUNT] __attribute__((section(".dtcm_data"), aligned(4))) = {0};
+int16_t audio_buffer1[PDM_MIC_SAMPLES_COUNT] __attribute__((section(".dtcm_data"), aligned(4))) = {0};
 int16_t* active_rx_buffer;
 int16_t* full_rx_buffer;
 

@@ -82,7 +82,7 @@ static uint32_t sensor_sampling_intv = SENSOR_SAMPLING_INTERVAL_ACTIVE;
 void power_co2_sensor(void)
 {
     Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 0u);
-    vTaskDelay(3000);
+    vTaskDelay(5000);
     Cy_GPIO_Write(CYBSP_CO2_5V_EN_PORT, CYBSP_CO2_5V_EN_PIN, 1u);
     vTaskDelay(WAIT_SENSOR_RDY_MS);
 }

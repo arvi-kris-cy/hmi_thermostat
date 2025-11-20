@@ -28,6 +28,9 @@
  *******************************************************************************/
 #include "mtb_ctp_ft5446.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 /*******************************************************************************
  * Macros
  *******************************************************************************/
@@ -100,7 +103,8 @@ static cy_en_scb_i2c_status_t mtb_ctp_ft5446_i2c_controller_write ( uint8_t *wri
             do
             {
                 i2c_status = Cy_SCB_I2C_MasterGetStatus(ctp_config->scb_inst, ctp_config->i2c_context);
-                Cy_SysLib_Delay(I2C_DELAY_MS);
+                // Cy_SysLib_Delay(I2C_DELAY_MS);
+                vTaskDelay(pdMS_TO_TICKS(I2C_DELAY_MS));
                 timeout_count--;
             } while ( (CY_SCB_I2C_MASTER_BUSY & i2c_status) && timeout_count );
 
@@ -169,7 +173,8 @@ static cy_en_scb_i2c_status_t mtb_ctp_ft5446_i2c_controller_read ( uint8_t *read
             do
             {
                 i2c_status = Cy_SCB_I2C_MasterGetStatus(ctp_config->scb_inst, ctp_config->i2c_context);
-                Cy_SysLib_Delay(I2C_DELAY_MS);
+                // Cy_SysLib_Delay(I2C_DELAY_MS);
+                vTaskDelay(pdMS_TO_TICKS(I2C_DELAY_MS));
                 timeout_count--;
             } while ( (CY_SCB_I2C_MASTER_BUSY & i2c_status) && timeout_count );
 

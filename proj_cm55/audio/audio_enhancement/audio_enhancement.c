@@ -75,7 +75,7 @@ uint8_t ae_output_buffer[AE_FRAME_BUFFER_MEMORY] __attribute__((section(".dtcm_d
 cy_afe_t ae_handle = NULL;
 void    *ae_dsns_mem = NULL;
 void    *ae_dses_mem = NULL;
-ae_buffer_info_t ae_output_buffer_info = {0};
+ae_buffer_info_t ae_output_buffer_info __attribute__((section(".dtcm_data"), aligned(4))) = {0};
 
 /*******************************************************************************
 * Local functions

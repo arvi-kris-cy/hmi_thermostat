@@ -187,7 +187,7 @@ void setup_run_time_stats_timer(void)
 *  uint32_t: TCPWM 0 GRP 0 Counter 0 value
 *
 *******************************************************************************/
-CY_SECTION(".itcm_data") uint32_t get_run_time_counter_value(void)
+CY_SECTION(".cy_itcm") uint32_t get_run_time_counter_value(void)
 {
    return (Cy_TCPWM_Counter_GetCounter(CYBSP_GENERAL_PURPOSE_TIMER_HW, 
                                        CYBSP_GENERAL_PURPOSE_TIMER_NUM));
@@ -208,7 +208,7 @@ CY_SECTION(".itcm_data") uint32_t get_run_time_counter_value(void)
 *  uint32_t: CPU idle percentage
 *
 *******************************************************************************/
-CY_SECTION(".itcm_data") uint32_t calculate_idle_percentage(void)
+CY_SECTION(".cy_itcm") uint32_t calculate_idle_percentage(void)
 {
 
     static uint32_t previousIdleTime = 0;
@@ -246,7 +246,7 @@ CY_SECTION(".itcm_data") uint32_t calculate_idle_percentage(void)
 *  void
 *
 *******************************************************************************/
-CY_SECTION(".itcm_data") void cm55_msg_callback(uint32_t * msgData)
+CY_SECTION(".cy_itcm") void cm55_msg_callback(uint32_t * msgData)
 {
     if (msgData != NULL)
     {
@@ -274,7 +274,7 @@ CY_SECTION(".itcm_data") void cm55_msg_callback(uint32_t * msgData)
 *  void
 *
 *******************************************************************************/
-CY_SECTION(".itcm_data") static void lptimer_interrupt_handler(void)
+CY_SECTION(".cy_itcm") static void lptimer_interrupt_handler(void)
 {
     mtb_hal_lptimer_process_interrupt(&lptimer_obj);
 }
@@ -371,7 +371,7 @@ static void setup_tickless_idle_timer(void)
 *  void
 *
 *******************************************************************************/
-CY_SECTION(".itcm_data") static void disp_touch_i2c_controller_interrupt(void)
+CY_SECTION(".cy_itcm") static void disp_touch_i2c_controller_interrupt(void)
 {
 #if defined(MTB_DISPLAY_R4INCH_TFT)
     Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_2_HW, &disp_touch_i2c_controller_context);
