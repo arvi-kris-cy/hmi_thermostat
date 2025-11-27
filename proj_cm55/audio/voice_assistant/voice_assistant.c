@@ -545,8 +545,6 @@ static void print_mcps(void)
  *******************************************************************************/
 static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_data_t *va_data)
 {
-    char command_text[COMMAND_STRING_SIZE] = {0};
-
     if (result == VA_RSLT_LICENSE_ERROR)
     {
         printf("ERROR! Voice Assistant license expired!\r\n");
@@ -588,6 +586,8 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
         }
         else if ( event == VA_EVENT_CMD_DETECTED )
         {
+            char command_text[COMMAND_STRING_SIZE] = {0};
+            
             printf("Command detected: ");
             if (CY_RSLT_SUCCESS == voice_assistant_get_command(command_text))
             {

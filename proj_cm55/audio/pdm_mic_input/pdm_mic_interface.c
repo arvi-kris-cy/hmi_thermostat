@@ -58,10 +58,6 @@
 /* PDM PCM interrupt priority */
 #define PDM_PCM_ISR_PRIORITY 			(3u)
 
-/* Channel Index */
-#define LEFT_CH_INDEX         			(2u)
-#define RIGHT_CH_INDEX                  (3u)
-
 /* Channel Configurations */
 #define LEFT_CH_CONFIG                  channel_2_config
 #define RIGHT_CH_CONFIG                 channel_3_config
@@ -234,6 +230,8 @@ cy_rslt_t pdm_mic_init(void)
     //     printf("MIC:PDM PCM semaphore init failed %u \r\n",result);
     //     CY_ASSERT(0);
     // }
+
+    //pdm_rx_dma_init();
 
     /* Initialize PDM PCM block */
     result = Cy_PDM_PCM_Init(CYBSP_PDM_HW, &CYBSP_PDM_config);

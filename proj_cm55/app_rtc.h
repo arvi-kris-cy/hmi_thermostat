@@ -111,6 +111,23 @@ extern const cy_stc_sysint_t rtc_intr_config;
 extern volatile bool update_timestamp;
 extern cy_stc_rtc_config_t ui_current_time;
 
+typedef struct {
+    uint8_t seconds; // 0..59
+    uint8_t minutes; // 0..59
+    uint8_t hours;   // 0..23
+    uint8_t dow;     // 1..7 (arbitrary)
+    uint8_t day;     // 1..31
+    uint8_t month;   // 1..12
+    uint8_t year;    // 0..99
+} rtc_time_t;
+
+typedef struct {
+    bool   power_fail_flag;  // WKDAY bit4
+    uint8_t pwr_down_min;    // BCD converted to decimal
+    uint8_t pwr_down_hr;     // BCD converted to decimal (24h)
+    uint8_t pwr_up_min;      // BCD converted to decimal
+    uint8_t pwr_up_hr;       // BCD converted to decimal
+} rtc_pwr_status_t;
 /*******************************************************************************
  *                              FUNCTION PROTOTYPES
  *******************************************************************************/
@@ -129,6 +146,30 @@ void update_time_on_ui(void);
 void set_date_time_rtc(DateTime *info);
 void start_minute_sync_timer(void);
 void stop_minute_sync_timer(void);
+
+/**
+ * @brief RTC Reg
+ * 
+ * @return cy_rslt_t 
+ */
+cy_rslt_t rtc_init(void);
+cy_rslt_t rtc_set_time(rtc_time_t* t);
+cy_rslt_t rtc_get_time(rtc_time_t* t);
+cy_rslt_t rtc_configure_bit(uint8_t reg, uint8_t positions, uint8_t value);
+cy_rslt_t rtc_write_register(uint8_t reg, uint8_t value);
+cy_rslt_t rtc_read_register(uint8_t reg, uint8_t* value);
+cy_rslt_t rtc_write_registers(uint8_t start_reg, const uint8_t* data, size_t len);
+cy_rslt_t rtc_read_registers(uint8_t start_reg, uint8_t* data, size_t len);
+cy_rslt_t rtc_clear_power_fail_flag(void);
+cy_rslt_t rtc_start_oscillator(void);
+bool rtc_is_running(void);
+bool rtc_time_is_valid(const rtc_time_t* t);
+
+void rtc_debug_check(void);
+void rtc_boot_once(void);
+
+cy_rslt_t rtc_set_time_safe_from_http(uint16_t year, uint8_t month, uint8_t day,
+                                             uint8_t hour, uint8_t minute, uint8_t second);
 
 #endif /* APP_RTC_H_ */
 

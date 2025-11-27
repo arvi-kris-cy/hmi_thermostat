@@ -122,6 +122,9 @@
 #define GPU_MEM_BASE                        (0x0U)
 #define VG_PARAMS_POS                       (0UL)
 
+#define TARGET_NUM_FRAMES                   (45U)
+
+
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -190,6 +193,10 @@ char month_sync_value[8];
 char vaar_sync_value[8];
 char year_sync_value[8];
 char weather_code_sync_value[8];
+DateTime rx_datetime;
+rtc_time_t now;
+
+uint32_t idle_percent = 0;
 
 extern bool is_device_provisioned;
 extern char new_FW_version[MAX_FW_VERSION_LEN];
@@ -271,6 +278,7 @@ static void handle_sensor_update(void);
  */
 static void handle_system_event(void);
 
+void calculate_fps(void);
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
@@ -319,21 +327,21 @@ static void handle_time_update(void)
     {
         /** Clear the flag to prevent redundant updates. */
         update_timestamp = false;
-        char time_str[3];
+        char time_str[6];
         char date_str[20];
 
         /** Update the hour labels for the main screen and low-power screen. */
-        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.hour);
+        snprintf(time_str, sizeof(time_str), "%02u :", ui_current_time.hour);
         lv_label_set_text(ui_TimeHactive, time_str);
         lv_label_set_text(ui_TimeHLP, time_str);
 
         /** Update the minute labels. */
-        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.min);
+        snprintf(time_str, sizeof(time_str), " %02u", ui_current_time.min);
         lv_label_set_text(ui_TimeMactive, time_str);
         lv_label_set_text(ui_TimeMLP, time_str);
 
         /** Update the second label on the low-power screen. */
-        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.sec);
+        snprintf(time_str, sizeof(time_str), " : %02u", ui_current_time.sec);
         lv_label_set_text(ui_TimeSLP, time_str);
 
         /** Use the standard C library for date formatting. */
@@ -358,6 +366,15 @@ static void handle_time_update(void)
 
         /** Update the calendar widget's selected date to the current date. */
         //lv_calendar_set_today_date(ui_dtCalendar, year, ui_current_time.month, ui_current_time.date);
+
+        cy_rslt_t result = rtc_get_time(&now);
+        if (result == CY_RSLT_SUCCESS) {
+        //     printf("RTC Time: %02u:%02u:%02u  DOW:%u  %02u/%02u/%02u\r\n",
+        //         now.hours, now.minutes, now.seconds,
+        //         now.dow, now.day, now.month, now.year);
+        } else {
+            printf("RTC Read time failed: 0x%08lx\r\n", (unsigned long)result);
+        }
     }
 }
 
@@ -368,7 +385,10 @@ static void handle_sensor_update(void)
     {
         /** Update CO2 level on the UI. */
         update_co2_data_ui(read_ppm);
-
+        
+        /* Update CO2 arc color */
+        update_co2_arc_color(read_ppm);
+        
         /* Update sensor data if device is connected */
         if (true == is_device_connected)
         {
@@ -384,31 +404,123 @@ static void handle_sensor_update(void)
     }
 }
 
+void sync_ui_via_rtc()
+{
+    rx_datetime.year   = now.year + 2000;
+    rx_datetime.month  = now.month;
+    rx_datetime.day    = now.day;
+    rx_datetime.hour   = now.hours;
+    rx_datetime.minute = now.minutes;
+    rx_datetime.second = now.seconds;
+
+    set_date_time_rtc(&rx_datetime);
+    printf("Sync via RTC\n");
+}
+
+void sync_ui_via_http(int year, int month, int day, int hour, int minute, int second)
+{
+    rx_datetime.year   = year;
+    rx_datetime.month  = month;
+    rx_datetime.day    = day;
+    rx_datetime.hour   = hour;
+    rx_datetime.minute = minute;
+    rx_datetime.second = second;
+
+    set_date_time_rtc(&rx_datetime);
+    printf("Sync via HTTPs\n");
+
+    (void)rtc_set_time_safe_from_http(year, month, day, hour, minute, second);
+}
+
 void update_date_via_http(void)
 {
-    if (strlen(year_sync_value) > 0 && strlen(month_sync_value) > 0 && strlen(date_sync_value) > 0 && strlen(hour_sync_value) && strlen(minute_sync_value) && strlen(second_sync_value))
+    if (strlen(year_sync_value) > 0 && strlen(month_sync_value) > 0 &&
+        strlen(date_sync_value) > 0 && strlen(hour_sync_value) > 0 &&
+        strlen(minute_sync_value) > 0 && strlen(second_sync_value) > 0)
     {
-        DateTime rx_datetime;
+        // Parse HTTP time
+        int year   = atoi(year_sync_value);   // e.g., 2025
+        int month  = atoi(month_sync_value);  // 1..12
+        int day    = atoi(date_sync_value);   // 1..31
+        int hour   = atoi(hour_sync_value);   // 0..23
+        int minute = atoi(minute_sync_value); // 0..59
+        int second = atoi(second_sync_value); // 0..59
 
-        rx_datetime.year = atoi(year_sync_value);
-        rx_datetime.month = atoi(month_sync_value);
-        rx_datetime.day = atoi(date_sync_value);
-        rx_datetime.hour = atoi(hour_sync_value);
-        rx_datetime.minute = atoi(minute_sync_value);
-        rx_datetime.second = atoi(second_sync_value);
-
-        set_date_time_rtc(&rx_datetime);
+        // HTTP is newer -> update UI and also program external RTC
+        sync_ui_via_http(year, month, day, hour, minute, second);
 
         enqueue_notification(NOTIFY_HTTP_SYNC, NOTIF_SUCCESS, DEV_ST_SYNCED_HTTP);
 
-        hour_sync_value[0] = '\0';
+        // Clear buffers
+        hour_sync_value[0]   = '\0';
         minute_sync_value[0] = '\0';
         second_sync_value[0] = '\0';
-        date_sync_value[0] = '\0';
-        month_sync_value[0] = '\0';
-        year_sync_value[0] = '\0';
+        date_sync_value[0]   = '\0';
+        month_sync_value[0]  = '\0';
+        year_sync_value[0]   = '\0';
     }
 }
+
+void show_clear_icon()
+{
+    lv_obj_clear_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show_rain_icon()
+{
+    lv_obj_clear_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show_snow_icon()
+{
+    lv_obj_clear_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show_partlycloud_icon()
+{
+    lv_obj_clear_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show_thunder_icon()
+{
+    lv_obj_clear_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show_fog_icon()
+{
+    lv_obj_clear_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Clear, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_PartlyCloudy, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Rain, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Snow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_Thunder, LV_OBJ_FLAG_HIDDEN);
+}
+
 
 void update_weather_info_via_http()
 {
@@ -417,27 +529,27 @@ void update_weather_info_via_http()
     switch (weatherCode) {
         case 0:
             printf("Clear Sky \n");
+            show_clear_icon();
             break;  // Clear sky
         case 1: case 2: case 3:
             printf("Partly Cloudy \n");
+            show_partlycloud_icon();
             break;  // Partly cloudy / Mainly Clear
         case 45: case 48:
             printf("Fog \n");
+            show_fog_icon();
             break; // Cloudy / Foggy
-        case 51: case 53: case 55:
+        case 51: case 53: case 55: case 61: case 63: case 65: case 80: case 81: case 82:
             printf("Rain \n");
+            show_rain_icon();
             break;  // Drizzle / Rain
-        case 56: case 57: case 66: case 67:
-            printf("Snowflake With Rain \n");
-            break;  // Freezing Rain
-        case 71: case 73: case 75: case 77:
+        case 56: case 57: case 66: case 67: case 71: case 73: case 75: case 77: case 85: case 86:
             printf("Snowflake \n");
-            break; // General Snow
-        case 85: case 86:
-            printf("Snowcloud \n");
-            break;  // Heavy Snow / Showers
+            show_snow_icon();
+            break;  // Freezing Rain
         case 95: case 96: case 99:
             printf("Rain With Thunder \n");
+            show_thunder_icon();
             break;  // Rain with Thunder
         default:
             printf("UNKNOWN WEATHER CODE GROUP!!! \n");
@@ -460,11 +572,13 @@ static void handle_system_event(void)
                     /** Switch to Active screen and display presence status. */
                     switch_to_active_screen();
                     update_presence_detection(1); // TODO get actual person count
+                    lv_obj_set_style_bg_image_opa(ui_presencelbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 else if ((presence_status_t) msg_val == ABSENCE_DETECTED)
                 {
                     /** Update absence status. */
                     update_presence_detection(0);
+                    lv_obj_set_style_bg_image_opa(ui_presencelbl, 150, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 break;
 
@@ -839,6 +953,48 @@ static void handle_system_event(void)
 }
 
 /*******************************************************************************
+* Function Name: calculate_fps
+********************************************************************************
+* Summary:  
+*  This function calculates the frames per second (FPS) based on the number of
+*  frames rendered and the elapsed time since the last calculation.
+*  It resets the frame count and start time after reaching the target number of
+*  frames.
+
+* Parameters:
+*  void   
+*  
+* Return:
+*  None
+*******************************************************************************/
+void calculate_fps(void)
+{
+    static uint32_t start_time_ms = RESET_VAL;
+    static uint32_t num_frames    = RESET_VAL;
+    static uint32_t time_ms       = RESET_VAL;
+    static uint32_t fps_x_1000    = RESET_VAL; 
+    num_frames++;
+    
+    if (TARGET_NUM_FRAMES <= num_frames)
+    {
+        idle_percent = calculate_idle_percentage();
+        time_ms = get_time_ms() - start_time_ms;
+        fps_x_1000 = (num_frames * 1000 * 1000) / time_ms;
+
+        // printf("\rFPS: %u.%03u | CPU usage: %3u%%", (uint8_t)(fps_x_1000 / 1000),
+        //             (uint16_t)(fps_x_1000 % 1000),
+        //             (uint8_t)(100 - idle_percent));
+        // fflush(stdout);
+
+        lv_label_set_text_fmt(ui_FPSlabel,"FPS: %d CPU: %2u%%", (uint8_t)(fps_x_1000 / 1000),
+                    (uint8_t)(100 - idle_percent));
+        
+        num_frames = RESET_VAL;
+        start_time_ms = get_time_ms();
+    }
+
+}
+/*******************************************************************************
 * Function Name: dc_irq_handler
 ********************************************************************************
 * Summary:
@@ -916,6 +1072,7 @@ void cm55_gfx_task(void *arg)
 
     uint32_t time_till_next = 0;
     static bool boot_config = true;
+    static bool RTCtimeUISynced = false;
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
     vg_lite_error_t vglite_status = VG_LITE_SUCCESS;
@@ -1106,6 +1263,8 @@ void cm55_gfx_task(void *arg)
     	/* Update time on UI */
     	handle_time_update();
 
+        calculate_fps();
+
     	/* Hide connectivity pop-up screen
     	 * if BLE/Cloud connected state  */
     	if (hide_conn_screen)
@@ -1113,7 +1272,43 @@ void cm55_gfx_task(void *arg)
             hide_connectivity_screen();
             hide_conn_screen = false;
         }
+        
+        /* FW Update available check from UI */
+		if (fw_update_timeout == true)
+		{
+			/* Hide spinner and label */
+			lv_obj_add_flag(ui_FWUpdatespinner, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_Fwupdatespinrlabel, LV_OBJ_FLAG_HIDDEN);
+		
+			/* Check if new Firmware version available */
+			if (is_new_fw_available == true)
+			{
+				char msg[50];
+		
+				/* Update the FW version */
+				snprintf(msg, sizeof(msg), "F.W version %s available.",
+						 new_FW_version);
+				lv_label_set_text(ui_Fwupdatelatestlbl, msg);
+				lv_obj_clear_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
+				lv_obj_clear_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_HIDDEN);
+			}
+			else
+			{
+				lv_obj_clear_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
+				lv_obj_add_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_HIDDEN);
+			}
+		
+			fw_update_timeout = false;
+		}
+
+        if(!RTCtimeUISynced)
+        {
+            // Sync UI time with current RTC
+            sync_ui_via_rtc();
+            RTCtimeUISynced = true;
+        }
     }
 }
+
 
 /* [] END OF FILE */

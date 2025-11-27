@@ -22,6 +22,15 @@ void ui_event_homeimg(lv_event_t * e)
     }
 }
 
+void ui_event_fwdownloadbtnlbl(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        start_ota_process(e);
+    }
+}
+
 // build funtions
 
 void ui_FWUpdateScreen_screen_init(void)
@@ -73,20 +82,23 @@ void ui_FWUpdateScreen_screen_init(void)
     lv_obj_set_width(ui_Fwupdatelatestlbl, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Fwupdatelatestlbl, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Fwupdatelatestlbl, -14);
-    lv_obj_set_y(ui_Fwupdatelatestlbl, -108);
+    lv_obj_set_y(ui_Fwupdatelatestlbl, -80);
     lv_obj_set_align(ui_Fwupdatelatestlbl, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Fwupdatelatestlbl, "Firmware is up to date.");
     lv_obj_add_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_font(ui_Fwupdatelatestlbl, &ui_font_sans30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_Fwupdatelatestlbl, lv_color_hex(0xFEFCFC), LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_fwdownloadbtnlbl = lv_label_create(ui_FWUpdateScreen);
     lv_obj_set_width(ui_fwdownloadbtnlbl, 176);
     lv_obj_set_height(ui_fwdownloadbtnlbl, 54);
     lv_obj_set_x(ui_fwdownloadbtnlbl, -11);
-    lv_obj_set_y(ui_fwdownloadbtnlbl, -37);
+    lv_obj_set_y(ui_fwdownloadbtnlbl, -15);
     lv_obj_set_align(ui_fwdownloadbtnlbl, LV_ALIGN_CENTER);
     lv_label_set_text(ui_fwdownloadbtnlbl, "Download");
     lv_obj_add_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_set_style_text_color(ui_fwdownloadbtnlbl, lv_color_hex(0xFEFCFC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_set_style_text_align(ui_fwdownloadbtnlbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_fwdownloadbtnlbl, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui_fwdownloadbtnlbl, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -118,7 +130,7 @@ void ui_FWUpdateScreen_screen_init(void)
     lv_obj_set_style_shadow_spread(ui_fwpanel, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_homeimg, ui_event_homeimg, LV_EVENT_ALL, NULL);
-
+    lv_obj_add_event_cb(ui_fwdownloadbtnlbl, ui_event_fwdownloadbtnlbl, LV_EVENT_ALL, NULL);
 }
 
 void ui_FWUpdateScreen_screen_destroy(void)

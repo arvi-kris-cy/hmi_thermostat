@@ -87,7 +87,12 @@ void ui_event_UpdateButton(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 250, 0, &ui_FWUpdateScreen_screen_init);
+    	lv_obj_clear_flag(ui_FWUpdatespinner, LV_OBJ_FLAG_HIDDEN);
+    	lv_obj_clear_flag(ui_Fwupdatespinrlabel, LV_OBJ_FLAG_HIDDEN);
+    	lv_obj_add_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
+    	lv_obj_add_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_HIDDEN);
+    	_ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 250, 0, &ui_FWUpdateScreen_screen_init);
+    	start_check_fw_update_timer();
     }
 }
 
@@ -372,7 +377,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_align(ui_brightnessimg, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_brightnessimg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_brightnessimg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
+    
     ui_factoryresetcontianer = lv_obj_create(ui_SettingsScreen);
     lv_obj_remove_style_all(ui_factoryresetcontianer);
     lv_obj_set_width(ui_factoryresetcontianer, 441);
@@ -385,7 +390,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_radius(ui_factoryresetcontianer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_factoryresetcontianer, lv_color_hex(0x212020), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_factoryresetcontianer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
+    
     ui_Factoryresetlabel = lv_label_create(ui_factoryresetcontianer);
     lv_obj_set_width(ui_Factoryresetlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Factoryresetlabel, LV_SIZE_CONTENT);    /// 1
@@ -399,7 +404,11 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_line_space(ui_Factoryresetlabel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_Factoryresetlabel, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Factoryresetlabel, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
-
+    lv_obj_set_style_shadow_width(ui_Factoryresetlabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_Factoryresetlabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_Factoryresetlabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(ui_Factoryresetlabel, lv_color_hex(0x212020), LV_PART_MAIN | LV_STATE_DEFAULT);
+    
     ui_warninglabel = lv_label_create(ui_factoryresetcontianer);
     lv_obj_set_width(ui_warninglabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_warninglabel, LV_SIZE_CONTENT);    /// 1

@@ -56,14 +56,14 @@
  *                                MACROS
  *******************************************************************************/
 #define SENSOR_TASK_NAME                ("SensorTask")
-#define SENSOR_TASK_STACK_SIZE          (configMINIMAL_STACK_SIZE * 4)
+#define SENSOR_TASK_STACK_SIZE          (configMINIMAL_STACK_SIZE * 1)
 #define SENSOR_TASK_PRIORITY            (2U)
 
 #define WAIT_SENSOR_RDY_MS              (1000)
 
 #define DEFAULT_PRESSURE_REF_HPA        (0x3F7)
 
-#define SENSOR_SAMPLING_INTERVAL_ACTIVE 1000U   /* Active state interval for sampling (1s) */
+#define SENSOR_SAMPLING_INTERVAL_ACTIVE 2000U   /* Active state interval for sampling (2s) */
 #define SENSOR_SAMPLING_INTERVAL_IDLE   10000U   /* Idle state interval for sampling (10s) */
 
 /*******************************************************************************

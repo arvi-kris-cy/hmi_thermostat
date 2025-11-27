@@ -50,7 +50,25 @@
  *                              CONSTANTS
  ******************************************************************************/
 #define READ_RTC_DATA_MS        1000U   /* Read RTC time update interval */
+#define RTC_ADDRESS             (0x6F)
 
+#define REG_RTCSEC              (0x00)  // Time Second (bit7 = ST)
+#define REG_RTCMIN              (0x01)  // Time Minute
+#define REG_RTCHOUR             (0x02)  // Time Hour (bit6 = 12/24 hour)
+#define REG_RTCWKDAY            (0x03)  // Day-of-Week (bit3 = VBATEN, bit4 = PWRFAIL)
+#define REG_RTCDATE             (0x04)  // Day
+#define REG_RTCMTH              (0x05)  // Month
+#define REG_RTCYEAR             (0x06)  // Year (00..99)
+#define REG_CONTROL             (0x07)  // Control
+#define REG_OSCTRIM             (0x08)  // Oscillator digital trim
+#define REG_PWRDNMIN            (0x18)  // Power Failure Time Minute
+#define REG_PWRDNHR             (0x19)  // Power Failure Time Hour
+#define REG_PWRUPMIN            (0x1C)  // Power Restore Time Minute
+#define REG_PWRUPHR             (0x1D)  // Power Restore Time Hour
+
+#define I2C_TIMEOUT_MS          (50)
+#define RTC_SRAM_MAGIC_ADDR  0x20    // start of battery-backed SRAM
+#define RTC_SRAM_MAGIC_LEN   4
 /*******************************************************************************
  *                              GLOBAL VARIABLES
  ******************************************************************************/
@@ -63,6 +81,11 @@ const cy_stc_sysint_t rtc_intr_config = { .intrSrc = srss_interrupt_rtc_IRQn, .i
  ******************************************************************************/
 static TimerHandle_t minute_sync_timer = NULL;
 static bool rtc_init_state = false;
+
+extern mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
+// extern cy_stc_scb_i2c_context_t CYBSP_I2C_CONTROLLER_context;
+
+static const uint8_t rtc_magic[RTC_SRAM_MAGIC_LEN] = { 'I','F','X','R' };
 
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
@@ -287,6 +310,414 @@ void set_date_time_rtc(DateTime *info)
     stop_minute_sync_timer();
     start_minute_sync_timer();
     update_timestamp = true;
+}
+
+/********************************************************************
+ * @brief RTC Reg
+ * 
+ * @param reg 
+ * @param value 
+ * @return cy_rslt_t 
+ ********************************************************************/
+cy_rslt_t rtc_init(void)
+{
+    cy_rslt_t rslt;
+
+    // Reset control (optional, safe)
+    rslt = rtc_write_register(REG_CONTROL, 0x00);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // Optional: set digital trim (match your design/calibration)
+    rslt = rtc_write_register(REG_OSCTRIM, 0x45);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // 24-hour mode: clear bit6 in RTCHOUR
+    rslt = rtc_configure_bit(REG_RTCHOUR, 6, 0x00);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // Enable battery backup (VBATEN bit3). Safe to call every boot.
+    rslt = rtc_configure_bit(REG_RTCWKDAY, 3, 0x01);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // If oscillator is already running, do nothing more
+    if (rtc_is_running()) {
+        return CY_RSLT_SUCCESS;
+    }
+
+    // If oscillator is not running, just start it without overwriting the time registers
+    // (time will continue from whatever is in the registers; see note in comments).
+    rslt = rtc_configure_bit(REG_RTCSEC, 7, 0x01);
+    return rslt;
+}
+
+// BCD helpers
+static uint8_t to_bcd(uint8_t dec)   { return ((dec / 10) << 4) | (dec % 10); }
+static uint8_t from_bcd(uint8_t bcd) { return ((bcd >> 4) * 10) + (bcd & 0x0F); }
+
+cy_rslt_t rtc_configure_bit(uint8_t reg, uint8_t positions, uint8_t value)
+{
+    uint8_t regval = 0;
+    cy_rslt_t rslt = rtc_read_register(reg, &regval);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    if (value) regval |=  (1u << positions);
+    else       regval &= ~(1u << positions);
+
+    return rtc_write_register(reg, regval);
+}
+
+cy_rslt_t rtc_write_register(uint8_t reg, uint8_t value)
+{
+    return rtc_write_registers(reg, &value, 1);
+}
+cy_rslt_t rtc_read_register(uint8_t reg, uint8_t* value)
+{
+    return rtc_read_registers(reg, value, 1);
+}
+
+// Write a buffer to a register (first byte is register address, followed by data)
+cy_rslt_t rtc_write_registers(uint8_t start_reg, const uint8_t* data, size_t len)
+{
+    // Prepare a tx buffer: [reg][data...]
+    uint8_t temp[1 + 16]; // adjust if you need larger writes
+    if (len > 16) return CY_RSLT_TYPE_ERROR;
+    temp[0] = start_reg;
+    for (size_t i = 0; i < len; ++i) temp[1 + i] = data[i];
+
+    // Write with a STOP
+    return mtb_hal_i2c_controller_write(&CYBSP_I2C_CONTROLLER_hal_obj,
+                                    RTC_ADDRESS,
+                                    temp, (1 + len),
+                                    I2C_TIMEOUT_MS, true);
+}
+
+// Read N bytes starting at a register address (write reg, repeated-start, read data)
+cy_rslt_t rtc_read_registers(uint8_t start_reg, uint8_t* data, size_t len)
+{
+    cy_rslt_t rslt;
+
+    // Write the register pointer without STOP to allow repeated-start
+    rslt = mtb_hal_i2c_controller_write(&CYBSP_I2C_CONTROLLER_hal_obj,
+                                    RTC_ADDRESS,
+                                    &start_reg, 1,
+                                    I2C_TIMEOUT_MS, false);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // Now read data with STOP
+    rslt = mtb_hal_i2c_controller_read(&CYBSP_I2C_CONTROLLER_hal_obj,
+                                   RTC_ADDRESS,
+                                   data, len,
+                                   I2C_TIMEOUT_MS, true);
+    return rslt;
+}
+
+// Set the RTC time (24-hour mode). Recommended sequence: write all time/date with ST=0, then set ST=1.
+cy_rslt_t rtc_set_time(rtc_time_t* t)
+{
+    if (!t) return CY_RSLT_TYPE_ERROR;
+    cy_rslt_t rslt;
+    uint8_t buf[7];
+
+    buf[0] = to_bcd(t->seconds) & 0x7F; // ST=0 while writing
+    buf[1] = to_bcd(t->minutes) & 0x7F;
+    buf[2] = to_bcd(t->hours)   & 0x3F; // 24-hour mode
+    buf[3] = to_bcd(t->dow)     & 0x07; // VBATEN will be re-set below
+    buf[4] = to_bcd(t->day)     & 0x3F;
+    buf[5] = to_bcd(t->month)   & 0x1F;
+    buf[6] = to_bcd(t->year);
+
+    rslt = rtc_write_registers(REG_RTCSEC, buf, 7);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // Re-enable VBATEN (WKDAY bit3) because writing WKDAY clobbers control bits
+    rslt = rtc_configure_bit(REG_RTCWKDAY, 3, 0x01);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    // Start oscillator
+    rslt = rtc_configure_bit(REG_RTCSEC, 7, 0x01);
+    return rslt;
+}
+
+cy_rslt_t rtc_set_time_safe(const rtc_time_t* t)
+{
+    if (!t) return CY_RSLT_TYPE_ERROR;
+    cy_rslt_t r;
+
+    // 1) Clear ST while loading seconds (write seconds with bit7=0)
+    uint8_t sec = to_bcd(t->seconds) & 0x7F;
+    r = rtc_write_register(REG_RTCSEC, sec);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    // 2) Write other fields individually (do NOT touch WKDAY here)
+    r = rtc_write_register(REG_RTCMIN,  to_bcd(t->minutes) & 0x7F); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCHOUR, to_bcd(t->hours)   & 0x3F); if (r != CY_RSLT_SUCCESS) return r; // 24-hour mode
+    r = rtc_write_register(REG_RTCDATE, to_bcd(t->day)     & 0x3F); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCMTH,  to_bcd(t->month)   & 0x1F); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCYEAR, to_bcd(t->year));           if (r != CY_RSLT_SUCCESS) return r;
+
+    // 3) Update WKDAY with the new DOW, preserving VBATEN (bit3) and letting PWRFAIL clear as per spec
+    uint8_t wkday_old = 0;
+    r = rtc_read_register(REG_RTCWKDAY, &wkday_old);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    uint8_t new_wkday = (wkday_old & 0xF8) | (to_bcd(t->dow) & 0x07); // keep bit3 (VBATEN), clear bit4 by write, preserve bit5 status
+    r = rtc_write_register(REG_RTCWKDAY, new_wkday);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    // 4) Start oscillator by setting ST bit
+    r = rtc_configure_bit(REG_RTCSEC, 7, 0x01);
+    return r;
+}
+
+// Read the current RTC time
+cy_rslt_t rtc_get_time(rtc_time_t* t)
+{
+    if (!t) return CY_RSLT_TYPE_ERROR;
+    uint8_t buf[7];
+    cy_rslt_t rslt = rtc_read_registers(REG_RTCSEC, buf, 7);
+    if (rslt != CY_RSLT_SUCCESS) return rslt;
+
+    t->seconds = from_bcd(buf[0] & 0x7F);
+    t->minutes = from_bcd(buf[1] & 0x7F);
+    t->hours   = from_bcd(buf[2] & 0x3F);
+    t->dow     = from_bcd(buf[3] & 0x07);
+    t->day     = from_bcd(buf[4] & 0x3F);
+    t->month   = from_bcd(buf[5] & 0x1F);
+    t->year    = from_bcd(buf[6]);
+
+    return CY_RSLT_SUCCESS;
+}
+
+// Clear the power fail flag (WKDAY bit4)
+cy_rslt_t rtc_clear_power_fail_flag(void)
+{
+    return rtc_configure_bit(REG_RTCWKDAY, 4, 0x00);
+}
+
+// Status helpers
+bool rtc_is_running(void)
+{
+    uint8_t sec = 0;
+    if (rtc_read_register(REG_RTCSEC, &sec) != CY_RSLT_SUCCESS) return false;
+    return (sec & 0x80) != 0; // ST bit
+}
+
+cy_rslt_t rtc_start_oscillator(void)
+{
+    return rtc_configure_bit(REG_RTCSEC, 7, 0x01);
+}
+
+bool rtc_time_is_valid(const rtc_time_t* t)
+{
+    if (!t) return false;
+
+    // Basic range checks for 24-hour mode and BCD-decoded fields
+    bool ranges_ok =
+        (t->seconds <= 59) &&
+        (t->minutes <= 59) &&
+        (t->hours   <= 23) &&
+        (t->dow     >= 1 && t->dow <= 7) &&
+        (t->day     >= 1 && t->day <= 31) &&
+        (t->month   >= 1 && t->month <= 12) &&
+        (t->year    <= 99);
+
+    // Consider all-zero time/date as invalid
+    bool all_zero = (t->seconds == 0) && (t->minutes == 0) && (t->hours == 0) &&
+                    (t->dow == 1) && (t->day == 1) && (t->month == 1) && (t->year == 1);
+
+    return ranges_ok && !all_zero;
+}
+
+void rtc_debug_check(void)
+{
+    uint8_t wkday = 0;
+    if (rtc_read_register(REG_RTCWKDAY, &wkday) == CY_RSLT_SUCCESS) {
+        bool vbat_en   = (wkday & 0x08) != 0; // bit3
+        bool pwr_fail  = (wkday & 0x10) != 0; // bit4
+        printf("WKDAY=0x%02X  VBATEN=%u  PWRFAIL=%u\r\n", wkday, vbat_en, pwr_fail);
+
+        if (pwr_fail) {
+            uint8_t pwrDn[2] = {0}, pwrUp[2] = {0};
+            if (rtc_read_registers(REG_PWRDNMIN, pwrDn, 2) == CY_RSLT_SUCCESS &&
+                rtc_read_registers(REG_PWRUPMIN, pwrUp, 2) == CY_RSLT_SUCCESS) {
+                uint8_t dn_min = ((pwrDn[0] >> 4) * 10) + (pwrDn[0] & 0x0F);
+                uint8_t dn_hr  = ((pwrDn[1] >> 4) * 10) + (pwrDn[1] & 0x0F);
+                uint8_t up_min = ((pwrUp[0] >> 4) * 10) + (pwrUp[0] & 0x0F);
+                uint8_t up_hr  = ((pwrUp[1] >> 4) * 10) + (pwrUp[1] & 0x0F);
+                printf("PWRDN %02u:%02u  PWRUP %02u:%02u\r\n", dn_hr, dn_min, up_hr, up_min);
+            } else {
+                printf("Failed to read PWRDN/PWRUP registers\r\n");
+            }
+        }
+    } else {
+        printf("Failed to read WKDAY\r\n");
+    }
+
+    // Also dump raw time/date registers to see what is actually stored at boot
+    uint8_t sec=0, min=0, hr=0, dt=0, mth=0, yr=0;
+    rtc_read_register(REG_RTCSEC,  &sec);
+    rtc_read_register(REG_RTCMIN,  &min);
+    rtc_read_register(REG_RTCHOUR, &hr);
+    rtc_read_register(REG_RTCDATE, &dt);
+    rtc_read_register(REG_RTCMTH,  &mth);
+    rtc_read_register(REG_RTCYEAR, &yr);
+    printf("Raw: SEC=0x%02X MIN=0x%02X HR=0x%02X DATE=0x%02X MTH=0x%02X YEAR=0x%02X\r\n",
+           sec, min, hr, dt, mth, yr);
+}
+
+cy_rslt_t rtc_service_power_fail(void)
+{
+    cy_rslt_t r;
+    uint8_t wkday = 0;
+    r = rtc_read_register(REG_RTCWKDAY, &wkday);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    if ((wkday & 0x10) != 0) {
+        // Read power-down/up timestamps while the flag is still set
+        uint8_t pwrDn[2] = {0}, pwrUp[2] = {0};
+        r = rtc_read_registers(REG_PWRDNMIN, pwrDn, 2);
+        if (r != CY_RSLT_SUCCESS) return r;
+        r = rtc_read_registers(REG_PWRUPMIN, pwrUp, 2);
+        if (r != CY_RSLT_SUCCESS) return r;
+
+        uint8_t dn_min = ((pwrDn[0] >> 4) * 10) + (pwrDn[0] & 0x0F);
+        uint8_t dn_hr  = ((pwrDn[1] >> 4) * 10) + (pwrDn[1] & 0x0F);
+        uint8_t up_min = ((pwrUp[0] >> 4) * 10) + (pwrUp[0] & 0x0F);
+        uint8_t up_hr  = ((pwrUp[1] >> 4) * 10) + (pwrUp[1] & 0x0F);
+
+        printf("Power Failure Detected: PWRDN %02u:%02u, PWRUP %02u:%02u\r\n", dn_hr, dn_min, up_hr, up_min);
+
+        // Clear PWRFAIL so the next event will be logged
+        r = rtc_clear_power_fail_flag();
+        if (r != CY_RSLT_SUCCESS) return r;
+    }
+    return CY_RSLT_SUCCESS;
+}
+
+cy_rslt_t rtc_sram_write_magic(void)
+{
+    return rtc_write_registers(RTC_SRAM_MAGIC_ADDR, rtc_magic, RTC_SRAM_MAGIC_LEN);
+}
+
+cy_rslt_t rtc_sram_read_magic(bool* present)
+{
+    if (!present) return CY_RSLT_TYPE_ERROR;
+    uint8_t buf[RTC_SRAM_MAGIC_LEN] = {0};
+    cy_rslt_t r = rtc_read_registers(RTC_SRAM_MAGIC_ADDR, buf, RTC_SRAM_MAGIC_LEN);
+    if (r != CY_RSLT_SUCCESS) return r;
+    *present = (buf[0] == rtc_magic[0] &&
+                buf[1] == rtc_magic[1] &&
+                buf[2] == rtc_magic[2] &&
+                buf[3] == rtc_magic[3]);
+    return CY_RSLT_SUCCESS;
+}
+
+// Compute DOW in range 1..7 (user-defined; here 1=Monday, 7=Sunday)
+// You can change mapping if you prefer 1=Sunday.
+static uint8_t dow_from_date(uint16_t year, uint8_t month, uint8_t day)
+{
+    // Zeller’s congruence (Gregorian) adapted to produce 1..7
+    // Map: 1=Monday, 7=Sunday
+    int y = (month < 3) ? (year - 1) : year;
+    int m = (month < 3) ? (month + 12) : month;
+    int K = y % 100;
+    int J = y / 100;
+    int h = (day + (13*(m + 1))/5 + K + (K/4) + (J/4) + (5*J)) % 7; // 0=Saturday, 1=Sunday, 2=Monday...
+    int d = ((h + 5) % 7) + 1; // 1=Monday ... 7=Sunday
+    return (uint8_t)d;
+}
+
+// Use this instead of set_date_time_rtc (UI-only). This writes the hardware RTC safely.
+cy_rslt_t rtc_set_time_safe_from_http(uint16_t year, uint8_t month, uint8_t day,
+                                             uint8_t hour, uint8_t minute, uint8_t second)
+{
+    cy_rslt_t r;
+
+    // 1) Stop oscillator while setting seconds (write seconds with ST=0)
+    r = rtc_write_register(REG_RTCSEC, (to_bcd(second) & 0x7F));
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    // 2) Write other time/date fields individually (do NOT write WKDAY yet)
+    r = rtc_write_register(REG_RTCMIN,  (to_bcd(minute) & 0x7F)); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCHOUR, (to_bcd(hour)   & 0x3F)); if (r != CY_RSLT_SUCCESS) return r; // 24h mode
+    r = rtc_write_register(REG_RTCDATE, (to_bcd(day)    & 0x3F)); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCMTH,  (to_bcd(month)  & 0x1F)); if (r != CY_RSLT_SUCCESS) return r;
+    r = rtc_write_register(REG_RTCYEAR,  to_bcd((uint8_t)(year % 100))); if (r != CY_RSLT_SUCCESS) return r;
+
+    // 3) Compose WKDAY: new DOW, preserve VBATEN (bit3), writing WKDAY clears PWRFAIL by design
+    uint8_t wkday_old = 0;
+    r = rtc_read_register(REG_RTCWKDAY, &wkday_old);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    uint8_t dow = dow_from_date(year, month, day); // 1..7
+    uint8_t new_wkday = (wkday_old & 0xF8) | (to_bcd(dow) & 0x07); // keep VBATEN (bit3), OSCRUN (bit5)
+    new_wkday |= 0x08; // ensure VBATEN stays set
+
+    r = rtc_write_register(REG_RTCWKDAY, new_wkday);
+    if (r != CY_RSLT_SUCCESS) return r;
+
+    // 4) Start oscillator: set ST bit in seconds register
+    r = rtc_configure_bit(REG_RTCSEC, 7, 0x01);
+    return r;
+}
+
+void rtc_boot_once(void)
+{
+    cy_rslt_t r = rtc_init();
+    if (r != CY_RSLT_SUCCESS) {
+        printf("RTC init failed: 0x%08lx\r\n", (unsigned long)r);
+        return;
+    }
+
+    // Service any power-fail record BEFORE any WKDAY write or time block writes
+    r = rtc_service_power_fail();
+    if (r != CY_RSLT_SUCCESS) {
+        printf("Power-fail service failed: 0x%08lx\r\n", (unsigned long)r);
+    }
+
+    // Check if RTC was previously initialized (SRAM signature)
+    bool initialized = false;
+    r = rtc_sram_read_magic(&initialized);
+    if (r != CY_RSLT_SUCCESS) {
+        printf("SRAM read magic failed: 0x%08lx\r\n", (unsigned long)r);
+    }
+
+    // Read current time
+    rtc_time_t now;
+    r = rtc_get_time(&now);
+    if (r != CY_RSLT_SUCCESS) {
+        printf("RTC read failed: 0x%08lx\r\n", (unsigned long)r);
+        return;
+    }
+
+    // Decide whether to seed
+    if (!initialized || !rtc_time_is_valid(&now)) {
+        rtc_time_t init_time = { .seconds=0, .minutes=52, .hours=10, .dow=7, .day=4, .month=4, .year=25 };
+        r = rtc_set_time_safe(&init_time);
+        if (r == CY_RSLT_SUCCESS) {
+            // Write the signature to indicate the RTC was initialized
+            (void)rtc_sram_write_magic();
+            printf("RTC seeded once and oscillator started.\r\n");
+        } else {
+            printf("Set time failed: 0x%08lx\r\n", (unsigned long)r);
+        }
+    } else {
+        // Ensure oscillator is running; don’t overwrite time
+        if (!rtc_is_running()) {
+            r = rtc_start_oscillator();
+            if (r != CY_RSLT_SUCCESS) {
+                printf("Oscillator start failed: 0x%08lx\r\n", (unsigned long)r);
+            }
+        }
+    }
+
+    // Final read and print
+    r = rtc_get_time(&now);
+    if (r == CY_RSLT_SUCCESS) {
+        printf("Current Time: %02u:%02u:%02u  DOW:%u  %02u/%02u/%02u\r\n",
+               now.hours, now.minutes, now.seconds, now.dow,
+               now.day, now.month, now.year);
+    }
 }
 
 /* [] END OF FILE */

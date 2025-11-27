@@ -69,6 +69,11 @@ LV_IMG_DECLARE(ui_img_eco_png);    // assets/eco.png
 LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_voice_home_icon_png);    // assets/Voice_home_icon.png
 LV_IMG_DECLARE(ui_img_presence_home_icon_png);    // assets/presence_home_icon.png
+LV_IMG_DECLARE(ui_img_rain_png);    // assets/rain.png
+LV_IMG_DECLARE(ui_img_thunder_png);    // assets/Thunder.png
+LV_IMG_DECLARE(ui_img_snowflake_png);    // assets/snowflake.png
+LV_IMG_DECLARE(ui_img_clear_png);    // assets/clear.png
+LV_IMG_DECLARE(ui_img_fog_png);    // assets/fog.png
 LV_IMG_DECLARE(ui_img_mapp_ble_png);    // assets/Mapp_ble.png
 LV_IMG_DECLARE(ui_img_keyboard_icon1_png);    // assets/keyboard_icon1.png
 LV_IMG_DECLARE(ui_img_info_img_png);    // assets/info_img.png
@@ -109,6 +114,8 @@ LV_IMG_DECLARE(ui_img_bootimg_cmp_png);
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
+LV_IMG_DECLARE(ui_img_background_5_png);
+LV_IMG_DECLARE(ui_img_background_6_png);
 
 
 // FONTS

@@ -49,10 +49,17 @@ extern lv_obj_t * ui_fanactivemed;
 extern void ui_event_ModeButton(lv_event_t * e);
 extern lv_obj_t * ui_ModeButton;
 extern lv_obj_t * ui_ModeLabel;
+extern lv_obj_t * ui_BottomPanel;
+extern lv_obj_t * ui_FPSlabel;
 extern lv_obj_t * ui_weathercontainer;
 extern lv_obj_t * ui_LocationLabel;
 extern lv_obj_t * ui_OutdoorTempLabel;
-extern lv_obj_t * ui_WeatherIcon;
+extern lv_obj_t * ui_PartlyCloudy;
+extern lv_obj_t * ui_Rain;
+extern lv_obj_t * ui_Thunder;
+extern lv_obj_t * ui_Snow;
+extern lv_obj_t * ui_Clear;
+extern lv_obj_t * ui_Fog;
 extern lv_obj_t * ui_ArcGroup;
 extern lv_obj_t * ui_TemperatureArcBgPanel;
 extern lv_obj_t * ui_TemperatureCurrValueLbl;
@@ -139,8 +146,7 @@ extern lv_obj_t * ui_fanmodeimg;
 extern lv_obj_t * ui_homebleadvimg;
 extern lv_obj_t * ui_homewifidisconnimg;
 extern lv_obj_t * ui_homecloudconnimg;
-extern lv_obj_t * ui_micidle;
-extern lv_obj_t * ui_BottomPanel;
+//extern lv_obj_t * ui_micidle;
 extern void ui_event_commandlbl(lv_event_t * e);
 extern lv_obj_t * ui_commandlbl;
 extern lv_obj_t * ui_presencelbl;
@@ -182,7 +188,7 @@ extern lv_obj_t * ui_voicecmdlistpanel;
 extern lv_obj_t * ui_Roller1;
 extern lv_obj_t * ui_bleconkeybdimg;
 extern lv_obj_t * ui_bleconmappinfolabel;
-extern lv_obj_t * ui_activeBG;
+extern lv_obj_t * ui_activeBGImg;
 
 // CUSTOM VARIABLES
 

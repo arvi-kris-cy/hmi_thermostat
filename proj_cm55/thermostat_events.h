@@ -57,6 +57,14 @@
 /*******************************************************************************
  *                                DATA TYPES
  *******************************************************************************/
+
+/* CO2 color code */ 
+typedef enum {
+    CO2_LVL_GOOD = 0x9BBA43,
+    CO2_LVL_CAUTION = 0xFFC700,
+    CO2_LVL_DANGER = 0xFF5A5A,
+} co2_color_code_t;
+
 typedef enum {
     STATE_NONE,
     STATE_HEATING,
@@ -116,6 +124,9 @@ extern volatile bool hide_conn_screen;
 extern bool is_mic_clicked;
 extern bool voice_popup_state;
 extern volatile bool wifi_popup_state;
+extern bool fw_update_timeout;
+extern bool is_new_fw_available;
+
 /*******************************************************************************
  *                                FUNCTION PROTOTYPES
  *******************************************************************************/
@@ -600,6 +611,27 @@ void update_fw_download_status(uint8_t percent);
 void trigger_ota(lv_event_t * e);
 
 /**
+ * @brief Initiates the Over-the-Air (OTA) firmware update process upon a user event.
+ *
+ * This function prepares and start the actual OTA firmware download and update procedure.
+ *
+ * @param[in] e Pointer to the LVGL event structure (e.g., button click).
+ * @return void
+ */
+void start_ota_process(lv_event_t * e);
+
+/**
+ * @brief Manages the firmware update check timer, ensuring it is created, stopped if active, and then restarted.
+ *
+ * This function is used to trigger a one-shot 10-second timer to check for firmware updates.
+ * It ensures the timer handle exists, and if the timer is already active, it stops
+ * the existing instance before issuing a new start command.
+ *
+ * @return void
+ */
+void start_check_fw_update_timer(void);
+
+/**
  * @brief Starts the fan animation based on the current fan mode.
  *
  * This function calls a separate helper to update the fan animation,
@@ -712,6 +744,22 @@ void ui_timer_start(void);
  */
 void hide_connectivity_screen(void);
 
+/*
+ * @brief Updates the color of the CO2 level indicator arc based on the current CO2 value.
+ *
+ * This function applies conditional styling to the ::ui_ArcCO2 object's indicator 
+ * part to visually represent air quality status using three predefined levels: 
+ * Good, Caution, and Danger.
+ *
+ * The logic follows these thresholds:
+ * - Below 1000 ppm: Color set to ::CO2_LVL_GOOD.
+ * - Above 1500 ppm: Color set to ::CO2_LVL_DANGER.
+ * - Between 1000 ppm and 1500 ppm (inclusive): Color set to ::CO2_LVL_CAUTION.
+ *
+ * @param[in] co2_val The current CO2 concentration value in parts per million (ppm).
+ * @return void
+ */
+void update_co2_arc_color(uint32_t co2_val);
 
 #endif /* THERMOSTAT_EVENTS_H */
 

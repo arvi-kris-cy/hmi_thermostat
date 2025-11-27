@@ -15,6 +15,7 @@ extern void ui_FWUpdateScreen_screen_init(void);
 extern void ui_FWUpdateScreen_screen_destroy(void);
 extern lv_obj_t * ui_FWUpdateScreen;
 extern void ui_event_homeimg(lv_event_t * e);
+extern void ui_event_fwdownloadbtnlbl(lv_event_t * e);
 extern lv_obj_t * ui_homeimg;
 extern lv_obj_t * ui_FWUpdatespinner;
 extern lv_obj_t * ui_Fwupdatespinrlabel;

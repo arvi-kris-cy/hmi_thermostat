@@ -69,15 +69,15 @@
 * Macros
 *******************************************************************************/
 #define GFX_TASK_NAME                       ("CM55 Gfx Task")
-#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 15)
+#define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 12)
 #define GFX_TASK_PRIORITY                   (3U)
 
 #define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
-#define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 5)
+#define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 4)
 #define VOICE_ASSISTANT_TASK_PRIORITY           (4U)
 
 #define I2C_CONTROLLER_IRQ_PRIORITY         (2UL)
-#define RESET_VAL                           (0U)
+
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -129,11 +129,21 @@ static mtb_hal_rtc_t rtc_obj;
 /* Mutex to guard the I2C instance for Sensor/Touchpad */
 SemaphoreHandle_t i2c_mutex = NULL;
 
+/* SCB - I2C IRQ configuration */
+cy_stc_sysint_t i2c_scb_irq_cfg =
+{
+    .intrSrc        = CYBSP_I2C_CONTROLLER_IRQ,
+    .intrPriority   = 2U
+};
+
+mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
+
 extern device_state_t dev_info;
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
 
+uint32_t get_time_ms(void);
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
@@ -198,7 +208,7 @@ CY_SECTION(".cy_itcm") uint32_t get_run_time_counter_value(void)
 * Function Name: calculate_idle_percentage
 ********************************************************************************
 * Summary:
-*  Function to calculate CPU idle percentage. This function is used by LVGL to  
+*  Function to calculate CPU idle percentage. This function is used by LVGL to
 *  showcase CPU usage.
 *
 * Parameters:
@@ -210,7 +220,6 @@ CY_SECTION(".cy_itcm") uint32_t get_run_time_counter_value(void)
 *******************************************************************************/
 CY_SECTION(".cy_itcm") uint32_t calculate_idle_percentage(void)
 {
-
     static uint32_t previousIdleTime = 0;
     static TickType_t previousTick = 0;
     uint32_t time_diff = 0;
@@ -225,7 +234,12 @@ CY_SECTION(".cy_itcm") uint32_t calculate_idle_percentage(void)
     {
         idle_percent = ((currentIdleTime - previousIdleTime) * 100)/time_diff;
     }
-
+    else if ((currentIdleTime >= previousIdleTime) && (currentTick < previousTick))
+    {
+        time_diff = 10000 - previousTick + currentTick;
+        idle_percent = ((currentIdleTime - previousIdleTime) * 100)/time_diff;
+      
+    }
     previousIdleTime = ulTaskGetIdleRunTimeCounter();
     previousTick = portGET_RUN_TIME_COUNTER_VALUE();
 
@@ -425,6 +439,60 @@ static void init_i2c_controller()
     }
 }
 
+static void init_i2c_rtc_controller()
+{
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
+
+    cy_stc_scb_i2c_context_t CYBSP_I2C_CONTROLLER_context;
+
+    // i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW,
+    //         &CYBSP_I2C_CONTROLLER_config,
+    //         &CYBSP_I2C_CONTROLLER_context);
+
+    // if(CY_SCB_I2C_SUCCESS != i2c_result)
+    // {
+    //     printf(" Error : I2C initialization failed !!\r\n");
+    //     handle_app_error();
+    // }
+
+    // NVIC_EnableIRQ((IRQn_Type)i2c_scb_irq_cfg.intrSrc);
+
+    // Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
+
+    /* Configure the I2C master interface with the desired clock frequency */
+    result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_hal_obj,
+            &CYBSP_I2C_CONTROLLER_hal_config,
+            &disp_touch_i2c_controller_context,
+            NULL);
+
+    if(CY_RSLT_SUCCESS != result)
+    {
+        printf(" Error : I2C setup failed !!\r\n");
+        handle_app_error();
+    }
+
+    rtc_boot_once();
+}
+
+/*******************************************************************************
+* Function Name: get_time_ms
+********************************************************************************
+* Summary:
+*  This function gets the current time in milliseconds in FreeRTOS environment.
+*
+* Parameters:
+*  void
+*
+* Return:
+*  uint32_t: current time in milliseconds
+*
+*******************************************************************************/
+uint32_t get_time_ms(void)
+{
+    /* Convert tick count to milliseconds */
+    return (uint32_t) (xTaskGetTickCount() * portTICK_PERIOD_MS);
+}
 /*******************************************************************************
 * Function Name: setup_clib_support
 ********************************************************************************
@@ -522,6 +590,9 @@ int main(void)
     /* Initialize I2C SCB */
     init_i2c_controller();
 
+    /* Initialize I2C SCB */
+    init_i2c_rtc_controller();
+    
     /* Create a binary semaphore to act as a I2C mutex
      * guarding touchpad and sensor. */
     i2c_mutex = xSemaphoreCreateMutex();

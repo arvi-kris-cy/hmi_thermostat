@@ -52,6 +52,10 @@ extern "C" {
 /* PDM PCM sampling rate: 16000 samples every second */
 #define PDM_MIC_SAMPLE_RATE_HZ  		(16000u)
 
+/* Channel Index */
+#define LEFT_CH_INDEX         			(2u)
+#define RIGHT_CH_INDEX                  (3u)
+
 #ifdef ENABLE_STEREO_INPUT_FEED
 #define PDM_MIC_NUM_CHANNEL   			(2u)
 #else
