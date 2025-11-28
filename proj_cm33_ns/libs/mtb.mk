@@ -10,46 +10,47 @@
 SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
-SEARCH_btstack-integration=../../mtb_shared/btstack-integration/release-v6.2.1
-SEARCH_btstack=../../mtb_shared/btstack/release-v4.1.4
-SEARCH_http-client=../../mtb_shared/http-client/release-v1.8.1
-SEARCH_mqtt=../../mtb_shared/mqtt/release-v4.7.0
-SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
-SEARCH_serial-memory=../../mtb_shared/serial-memory/release-v3.0.0
-SEARCH_wifi-core-freertos-lwip-mbedtls=../../mtb_shared/wifi-core-freertos-lwip-mbedtls/release-v3.0.0
-SEARCH_xensiv-radar-presence=../../mtb_shared/xensiv-radar-presence/release-v1.0.0
-SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.0
-SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
+SEARCH_btstack-integration=../../mtb_shared/btstack-integration/latest-v6.X
+SEARCH_btstack=../../mtb_shared/btstack/latest-v4.X
+SEARCH_freertos=../../mtb_shared/freertos/latest-v10.X
+SEARCH_http-client=../../mtb_shared/http-client/latest-v1.X
+SEARCH_mqtt=../../mtb_shared/mqtt/latest-v4.X
+SEARCH_retarget-io=../../mtb_shared/retarget-io/latest-v1.X
+SEARCH_serial-memory=../../mtb_shared/serial-memory/latest-v3.X
+SEARCH_wifi-core-freertos-lwip-mbedtls=../../mtb_shared/wifi-core-freertos-lwip-mbedtls/latest-v3.X
+SEARCH_xensiv-radar-presence=../../mtb_shared/xensiv-radar-presence/latest-v1.X
+SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.12.0
+SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.1.0
 SEARCH_aws-iot-device-sdk-embedded-C=../../mtb_shared/aws-iot-device-sdk-embedded-C/202103.00
 SEARCH_aws-iot-device-sdk-port=../../mtb_shared/aws-iot-device-sdk-port/release-v2.7.0
 SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
-SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.7.0
+SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.8.0
 SEARCH_CMSIS-DSP=../../mtb_shared/CMSIS-DSP/v1.10.1
 SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
 SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
-SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
+SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.6.0
 SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
 SEARCH_cy-mbedtls-acceleration=../../mtb_shared/cy-mbedtls-acceleration/release-v3.0.0
-SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.2
-SEARCH_ifx-mbedtls=../../mtb_shared/ifx-mbedtls/release-v3.6.300
+SEARCH_ifx-mbedtls=../../mtb_shared/ifx-mbedtls/release-v3.6.400
 SEARCH_lwip-freertos-integration=../../mtb_shared/lwip-freertos-integration/release-v1.2.0
 SEARCH_lwip-network-interface-integration=../../mtb_shared/lwip-network-interface-integration/release-v1.7.0
 SEARCH_lwip=../../mtb_shared/lwip/STABLE-2_1_2_RELEASE
-SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.0.0
-SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.0.0
-SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
+SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.1.1
+SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.1.0
+SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.1.0
 SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
-SEARCH_secure-sockets=../../mtb_shared/secure-sockets/release-v3.11.0
+SEARCH_secure-sockets=../../mtb_shared/secure-sockets/release-v3.12.0
 SEARCH_sensor-dsp=../../mtb_shared/sensor-dsp/release-v1.0.0
-SEARCH_whd-bsp-integration=../../mtb_shared/whd-bsp-integration/release-v2.4.0
-SEARCH_wifi-connection-manager=../../mtb_shared/wifi-connection-manager/release-v4.0.0
-SEARCH_wifi-host-driver=../../mtb_shared/wifi-host-driver/release-v5.0.6
+SEARCH_whd-bsp-integration=../../mtb_shared/whd-bsp-integration/release-v2.5.0
+SEARCH_wifi-connection-manager=../../mtb_shared/wifi-connection-manager/release-v4.0.1
+SEARCH_wifi-host-driver=../../mtb_shared/wifi-host-driver/release-v5.0.7
 SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v3.0.0
 SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/release-v1.3.0
 
 # Search libraries added to build
 SEARCH_MTB_MK+=$(SEARCH_btstack-integration)
 SEARCH_MTB_MK+=$(SEARCH_btstack)
+SEARCH_MTB_MK+=$(SEARCH_freertos)
 SEARCH_MTB_MK+=$(SEARCH_http-client)
 SEARCH_MTB_MK+=$(SEARCH_mqtt)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
@@ -68,7 +69,6 @@ SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_core-lib)
 SEARCH_MTB_MK+=$(SEARCH_core-make)
 SEARCH_MTB_MK+=$(SEARCH_cy-mbedtls-acceleration)
-SEARCH_MTB_MK+=$(SEARCH_freertos)
 SEARCH_MTB_MK+=$(SEARCH_ifx-mbedtls)
 SEARCH_MTB_MK+=$(SEARCH_lwip-freertos-integration)
 SEARCH_MTB_MK+=$(SEARCH_lwip-network-interface-integration)
@@ -88,6 +88,7 @@ SEARCH_MTB_MK+=$(SEARCH_wpa3-external-supplicant)
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
 COMPONENTS += MW_BTSTACK_INTEGRATION
 COMPONENTS += MW_BTSTACK
+COMPONENTS += MW_FREERTOS
 COMPONENTS += MW_HTTP_CLIENT
 COMPONENTS += MW_MQTT
 COMPONENTS += MW_RETARGET_IO
@@ -106,7 +107,6 @@ COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_CORE_LIB
 COMPONENTS += MW_CORE_MAKE
 COMPONENTS += MW_CY_MBEDTLS_ACCELERATION
-COMPONENTS += MW_FREERTOS
 COMPONENTS += MW_IFX_MBEDTLS
 COMPONENTS += MW_LWIP_FREERTOS_INTEGRATION
 COMPONENTS += MW_LWIP_NETWORK_INTERFACE_INTEGRATION
@@ -284,6 +284,34 @@ mtb_help_tool_ml-configurator:
 mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
+
+config_audio-fe:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: config_audio-fe
+
+CY_HELP_config_audio-fe=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_config_audio-fe_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_config_audio-fe:
+	@:
+	$(info $(MTB__SPACE)config_audio-fe     $(CY_HELP_config_audio-fe))
+
+mtb_help_tools_end: mtb_help_tool_config_audio-fe
+mtb_help_tool_config_audio-fe: mtb_help_tools_start
+.PHONY: mtb_help_tool_config_audio-fe
+
+audio-fe-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: audio-fe-configurator
+
+CY_HELP_audio-fe-configurator=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_audio-fe-configurator_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_audio-fe-configurator:
+	@:
+	$(info $(MTB__SPACE)audio-fe-configurator $(CY_HELP_audio-fe-configurator))
+
+mtb_help_tools_end: mtb_help_tool_audio-fe-configurator
+mtb_help_tool_audio-fe-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_audio-fe-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

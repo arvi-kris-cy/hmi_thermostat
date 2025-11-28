@@ -10,14 +10,14 @@
 SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
-SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
+SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.1.0
 SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
 SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
-SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
+SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.6.0
 SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
-SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.0.0
-SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.0.0
-SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
+SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.1.1
+SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.1.0
+SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.1.0
 SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
 
 # Search libraries added to build
@@ -203,6 +203,34 @@ mtb_help_tool_ml-configurator:
 mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
+
+config_audio-fe:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: config_audio-fe
+
+CY_HELP_config_audio-fe=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_config_audio-fe_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_config_audio-fe:
+	@:
+	$(info $(MTB__SPACE)config_audio-fe     $(CY_HELP_config_audio-fe))
+
+mtb_help_tools_end: mtb_help_tool_config_audio-fe
+mtb_help_tool_config_audio-fe: mtb_help_tools_start
+.PHONY: mtb_help_tool_config_audio-fe
+
+audio-fe-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: audio-fe-configurator
+
+CY_HELP_audio-fe-configurator=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_audio-fe-configurator_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_audio-fe-configurator:
+	@:
+	$(info $(MTB__SPACE)audio-fe-configurator $(CY_HELP_audio-fe-configurator))
+
+mtb_help_tools_end: mtb_help_tool_audio-fe-configurator
+mtb_help_tool_audio-fe-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_audio-fe-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

@@ -10,37 +10,39 @@
 SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
 
 # The search paths for the included middleware
-SEARCH_audio-front-end=../../mtb_shared/audio-front-end/release-v1.0.2
-SEARCH_audio-voice-core=../../mtb_shared/audio-voice-core/release-v1.0.1
-SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
-SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/release-v1.0.0
-SEARCH_emeeprom=../../mtb_shared/emeeprom/release-v2.60.0
-SEARCH_emusb-device=../../mtb_shared/emusb-device/release-v2.1.0
-SEARCH_freertos=../../mtb_shared/freertos/release-v10.6.2
-SEARCH_lvgl=../../mtb_shared/lvgl/release-v9.2.0
-SEARCH_ml-middleware=../../mtb_shared/ml-middleware/release-v3.1.0
-SEARCH_ml-tflite-micro=../../mtb_shared/ml-tflite-micro/release-v3.1.0
-SEARCH_retarget-io=../../mtb_shared/retarget-io/release-v1.8.0
-SEARCH_touch-ctp-ft5406=../../mtb_shared/touch-ctp-ft5406/release-v1.0.0
-SEARCH_voice-assistant=../../mtb_shared/voice-assistant/release-v1.0.0
-SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.11.0
-SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.0.0
-SEARCH_block-storage=../../mtb_shared/block-storage/release-v1.3.1
+SEARCH_audio-codec-tlv320dac3100=../../mtb_shared/audio-codec-tlv320dac3100/latest-v1.X
+SEARCH_audio-front-end=../../mtb_shared/audio-front-end/latest-v1.X
+SEARCH_audio-voice-core=../../mtb_shared/audio-voice-core/latest-v1.X
+SEARCH_block-storage=../../mtb_shared/block-storage/latest-v1.X
+SEARCH_display-dsi-waveshare-4-3-lcd=../../mtb_shared/display-dsi-waveshare-4-3-lcd/latest-v1.X
+SEARCH_emeeprom=../../mtb_shared/emeeprom/latest-v2.X
+SEARCH_emusb-device=../../mtb_shared/emusb-device/latest-v2.X
+SEARCH_freertos=../../mtb_shared/freertos/latest-v10.X
+SEARCH_lvgl=../../mtb_shared/lvgl/v9.2.0
+SEARCH_ml-middleware=../../mtb_shared/ml-middleware/latest-v3.X
+SEARCH_ml-tflite-micro=../../mtb_shared/ml-tflite-micro/latest-v3.X
+SEARCH_retarget-io=../../mtb_shared/retarget-io/latest-v1.X
+SEARCH_touch-ctp-ft5406=../../mtb_shared/touch-ctp-ft5406/latest-v1.X
+SEARCH_voice-assistant=../../mtb_shared/voice-assistant/latest-v1.X
+SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.12.0
+SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.1.0
 SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
-SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.7.0
+SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.8.0
 SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
-SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.5.0
+SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
+SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.6.0
 SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
-SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.0.0
-SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.0.0
-SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.0.0
+SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.1.1
+SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.1.0
+SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.1.0
 SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
 SEARCH_speech-onset-detection=../../mtb_shared/speech-onset-detection/release-v1.0.1
 
 # Search libraries added to build
+SEARCH_MTB_MK+=$(SEARCH_audio-codec-tlv320dac3100)
 SEARCH_MTB_MK+=$(SEARCH_audio-front-end)
 SEARCH_MTB_MK+=$(SEARCH_audio-voice-core)
-SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
+SEARCH_MTB_MK+=$(SEARCH_block-storage)
 SEARCH_MTB_MK+=$(SEARCH_display-dsi-waveshare-4-3-lcd)
 SEARCH_MTB_MK+=$(SEARCH_emeeprom)
 SEARCH_MTB_MK+=$(SEARCH_emusb-device)
@@ -53,10 +55,10 @@ SEARCH_MTB_MK+=$(SEARCH_touch-ctp-ft5406)
 SEARCH_MTB_MK+=$(SEARCH_voice-assistant)
 SEARCH_MTB_MK+=$(SEARCH_abstraction-rtos)
 SEARCH_MTB_MK+=$(SEARCH_async-transfer)
-SEARCH_MTB_MK+=$(SEARCH_block-storage)
 SEARCH_MTB_MK+=$(SEARCH_bt-fw-mur-cyw55513)
 SEARCH_MTB_MK+=$(SEARCH_clib-support)
 SEARCH_MTB_MK+=$(SEARCH_cmsis)
+SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_core-lib)
 SEARCH_MTB_MK+=$(SEARCH_core-make)
 SEARCH_MTB_MK+=$(SEARCH_mtb-dsl-pse8xxgp)
@@ -66,9 +68,10 @@ SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
 SEARCH_MTB_MK+=$(SEARCH_speech-onset-detection)
 
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
+COMPONENTS += MW_AUDIO_CODEC_TLV320DAC3100
 COMPONENTS += MW_AUDIO_FRONT_END
 COMPONENTS += MW_AUDIO_VOICE_CORE
-COMPONENTS += MW_CONNECTIVITY_UTILITIES
+COMPONENTS += MW_BLOCK_STORAGE
 COMPONENTS += MW_DISPLAY_DSI_WAVESHARE_4_3_LCD
 COMPONENTS += MW_EMEEPROM
 COMPONENTS += MW_EMUSB_DEVICE
@@ -81,10 +84,10 @@ COMPONENTS += MW_TOUCH_CTP_FT5406
 COMPONENTS += MW_VOICE_ASSISTANT
 COMPONENTS += MW_ABSTRACTION_RTOS
 COMPONENTS += MW_ASYNC_TRANSFER
-COMPONENTS += MW_BLOCK_STORAGE
 COMPONENTS += MW_BT_FW_MUR_CYW55513
 COMPONENTS += MW_CLIB_SUPPORT
 COMPONENTS += MW_CMSIS
+COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_CORE_LIB
 COMPONENTS += MW_CORE_MAKE
 COMPONENTS += MW_MTB_DSL_PSE8XXGP
@@ -254,6 +257,34 @@ mtb_help_tool_ml-configurator:
 mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
+
+config_audio-fe:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: config_audio-fe
+
+CY_HELP_config_audio-fe=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_config_audio-fe_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_config_audio-fe:
+	@:
+	$(info $(MTB__SPACE)config_audio-fe     $(CY_HELP_config_audio-fe))
+
+mtb_help_tools_end: mtb_help_tool_config_audio-fe
+mtb_help_tool_config_audio-fe: mtb_help_tools_start
+.PHONY: mtb_help_tool_config_audio-fe
+
+audio-fe-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
+.PHONY: audio-fe-configurator
+
+CY_HELP_audio-fe-configurator=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
+CY_HELP_audio-fe-configurator_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
+mtb_help_tool_audio-fe-configurator:
+	@:
+	$(info $(MTB__SPACE)audio-fe-configurator $(CY_HELP_audio-fe-configurator))
+
+mtb_help_tools_end: mtb_help_tool_audio-fe-configurator
+mtb_help_tool_audio-fe-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_audio-fe-configurator
 
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator

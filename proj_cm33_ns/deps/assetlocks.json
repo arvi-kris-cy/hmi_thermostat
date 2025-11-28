@@ -1,19 +1,15 @@
 [
     {
         "asset-name": "abstraction-rtos",
-        "locked-commit": "release-v1.11.0"
+        "locked-commit": "release-v1.12.0"
     },
     {
         "asset-name": "async-transfer",
-        "locked-commit": "release-v1.0.0"
+        "locked-commit": "release-v1.1.0"
     },
     {
         "asset-name": "aws-iot-device-sdk-port",
         "locked-commit": "release-v2.7.0"
-    },
-    {
-        "asset-name": "bt-fw-ifx-cyw55500a1",
-        "locked-commit": "release-v2.2.0"
     },
     {
         "asset-name": "bt-fw-mur-cyw55513",
@@ -21,7 +17,7 @@
     },
     {
         "asset-name": "clib-support",
-        "locked-commit": "release-v1.7.0"
+        "locked-commit": "release-v1.8.0"
     },
     {
         "asset-name": "cmsis",
@@ -33,7 +29,7 @@
     },
     {
         "asset-name": "core-lib",
-        "locked-commit": "release-v1.5.0"
+        "locked-commit": "release-v1.6.0"
     },
     {
         "asset-name": "core-make",
@@ -45,15 +41,11 @@
     },
     {
         "asset-name": "device-db",
-        "locked-commit": "release-v4.29.0"
-    },
-    {
-        "asset-name": "freertos",
-        "locked-commit": "release-v10.6.2"
+        "locked-commit": "release-v4.33.0"
     },
     {
         "asset-name": "ifx-mbedtls",
-        "locked-commit": "release-v3.6.300"
+        "locked-commit": "release-v3.6.400"
     },
     {
         "asset-name": "lwip-freertos-integration",
@@ -65,15 +57,15 @@
     },
     {
         "asset-name": "mtb-dsl-pse8xxgp",
-        "locked-commit": "release-v1.0.0"
+        "locked-commit": "release-v1.1.1"
     },
     {
         "asset-name": "mtb-ipc",
-        "locked-commit": "release-v1.0.0"
+        "locked-commit": "release-v1.1.0"
     },
     {
         "asset-name": "mtb-srf",
-        "locked-commit": "release-v1.0.0"
+        "locked-commit": "release-v1.1.0"
     },
     {
         "asset-name": "se-rt-services-utils",
@@ -81,7 +73,7 @@
     },
     {
         "asset-name": "secure-sockets",
-        "locked-commit": "release-v3.11.0"
+        "locked-commit": "release-v3.12.0"
     },
     {
         "asset-name": "sensor-dsp",
@@ -89,15 +81,15 @@
     },
     {
         "asset-name": "whd-bsp-integration",
-        "locked-commit": "release-v2.4.0"
+        "locked-commit": "release-v2.5.0"
     },
     {
         "asset-name": "wifi-connection-manager",
-        "locked-commit": "release-v4.0.0"
+        "locked-commit": "release-v4.0.1"
     },
     {
         "asset-name": "wifi-host-driver",
-        "locked-commit": "release-v5.0.6"
+        "locked-commit": "release-v5.0.7"
     },
     {
         "asset-name": "wifi-resources",

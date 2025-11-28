@@ -232,7 +232,7 @@
                         <Param id="display_type" value="GFX_DISP_TYPE_DSI_DPI"/>
                         <Param id="display_width" value="512"/>
                         <Param id="format" value="vivD24"/>
-                        <Param id="fps" value="45"/>
+                        <Param id="fps" value="40"/>
                         <Param id="gpu_enabled" value="true"/>
                         <Param id="hbp" value="15"/>
                         <Param id="hfp" value="12"/>

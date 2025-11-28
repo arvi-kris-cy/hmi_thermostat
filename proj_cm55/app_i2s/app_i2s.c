@@ -121,7 +121,8 @@ void app_tlv_codec_init(void)
     /* TLV codec (TLV320DAC3100) library */
     mtb_tlv320dac3100_init(&MW_I2C_hal_obj);
     /* Configure internal clock dividers to achieve desired sample rate */
-    mtb_tlv320dac3100_configure_clocking(MCLK_HZ, SAMPLE_RATE_HZ, I2S_WORD_LENGTH);
+    mtb_tlv320dac3100_configure_clocking(MCLK_HZ, SAMPLE_RATE_HZ, I2S_WORD_LENGTH, TLV320DAC3100_SPK_AUDIO_OUTPUT);
+    
     /* Activate TLV codec (TLV320DAC3100) */
     mtb_tlv320dac3100_activate();
 }
