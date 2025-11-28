@@ -11,7 +11,6 @@ lv_obj_t * ui_LPScreen = NULL;
 lv_obj_t * ui_LPscreenContainer = NULL;
 lv_obj_t * ui_MainTemptextLP = NULL;
 lv_obj_t * ui_TimeHLP = NULL;
-lv_obj_t * ui_ecoLP = NULL;
 lv_obj_t * ui_DateLP = NULL;
 lv_obj_t * ui_TimeMLP = NULL;
 lv_obj_t * ui_TimeSLP = NULL;
@@ -34,7 +33,7 @@ void ui_event_changescreenLP(lv_event_t * e)
     }
 }
 
-// bu
+
 
 // build funtions
 
@@ -57,10 +56,10 @@ void ui_LPScreen_screen_init(void)
     ui_MainTemptextLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_MainTemptextLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_MainTemptextLP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_MainTemptextLP, 6);
-    lv_obj_set_y(ui_MainTemptextLP, -19);
+    lv_obj_set_x(ui_MainTemptextLP, 5);
+    lv_obj_set_y(ui_MainTemptextLP, -17);
     lv_obj_set_align(ui_MainTemptextLP, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_MainTemptextLP, "24°c");
+    lv_label_set_text(ui_MainTemptextLP, "24");
     lv_obj_set_style_text_color(ui_MainTemptextLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_MainTemptextLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_MainTemptextLP, &ui_font_Roboto80, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -68,67 +67,57 @@ void ui_LPScreen_screen_init(void)
     ui_TimeHLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_TimeHLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_TimeHLP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_TimeHLP, -40);
-    lv_obj_set_y(ui_TimeHLP, -155);
+    lv_obj_set_x(ui_TimeHLP, -59);
+    lv_obj_set_y(ui_TimeHLP, -188);
     lv_obj_set_align(ui_TimeHLP, LV_ALIGN_CENTER);
     lv_label_set_text(ui_TimeHLP, "09");
     lv_obj_set_style_text_color(ui_TimeHLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeHLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_TimeHLP, &ui_font_sans34, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_ecoLP = lv_image_create(ui_LPscreenContainer);
-    lv_image_set_src(ui_ecoLP, &ui_img_eco_png);
-    lv_obj_set_width(ui_ecoLP, LV_SIZE_CONTENT);   /// 50
-    lv_obj_set_height(ui_ecoLP, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_x(ui_ecoLP, 6);
-    lv_obj_set_y(ui_ecoLP, 157);
-    lv_obj_set_align(ui_ecoLP, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ecoLP, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_remove_flag(ui_ecoLP, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_text_font(ui_TimeHLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_DateLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_DateLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_DateLP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_DateLP, 8);
-    lv_obj_set_y(ui_DateLP, -197);
+    lv_obj_set_x(ui_DateLP, 6);
+    lv_obj_set_y(ui_DateLP, -142);
     lv_obj_set_align(ui_DateLP, LV_ALIGN_CENTER);
     lv_label_set_text(ui_DateLP, "Wed 05 Mar");
     lv_obj_set_style_text_color(ui_DateLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_DateLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_DateLP, &ui_font_sans30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_DateLP, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TimeMLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_TimeMLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_TimeMLP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_TimeMLP, 7);
-    lv_obj_set_y(ui_TimeMLP, -155);
+    lv_obj_set_x(ui_TimeMLP, 5);
+    lv_obj_set_y(ui_TimeMLP, -188);
     lv_obj_set_align(ui_TimeMLP, LV_ALIGN_CENTER);
     lv_label_set_text(ui_TimeMLP, "10");
     lv_obj_set_style_text_color(ui_TimeMLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeMLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_TimeMLP, &ui_font_sans34, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_TimeMLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TimeSLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_TimeSLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_TimeSLP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_TimeSLP, 55);
-    lv_obj_set_y(ui_TimeSLP, -155);
+    lv_obj_set_x(ui_TimeSLP, 68);
+    lv_obj_set_y(ui_TimeSLP, -187);
     lv_obj_set_align(ui_TimeSLP, LV_ALIGN_CENTER);
     lv_label_set_text(ui_TimeSLP, "11");
     lv_obj_set_style_text_color(ui_TimeSLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeSLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_TimeSLP, &ui_font_sans34, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_TimeSLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Co2LP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_Co2LP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Co2LP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Co2LP, 9);
-    lv_obj_set_y(ui_Co2LP, 77);
+    lv_obj_set_x(ui_Co2LP, 7);
+    lv_obj_set_y(ui_Co2LP, 135);
     lv_obj_set_align(ui_Co2LP, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Co2LP, "400 ppm");
+    lv_label_set_text(ui_Co2LP, "2000 ppm");
     lv_obj_set_style_text_color(ui_Co2LP, lv_color_hex(0xFDFCFC), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Co2LP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Co2LP, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Co2LP, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_changescreenLP = lv_button_create(ui_LPScreen);
     lv_obj_set_width(ui_changescreenLP, 453);
@@ -156,7 +145,6 @@ void ui_LPScreen_screen_destroy(void)
     ui_LPscreenContainer = NULL;
     ui_MainTemptextLP = NULL;
     ui_TimeHLP = NULL;
-    ui_ecoLP = NULL;
     ui_DateLP = NULL;
     ui_TimeMLP = NULL;
     ui_TimeSLP = NULL;

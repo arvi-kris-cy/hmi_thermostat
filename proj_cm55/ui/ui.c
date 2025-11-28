@@ -9,7 +9,6 @@
 #include "thermostat_events.h"
 
 ///////////////////// VARIABLES ////////////////////
-lv_anim_t * fandrag_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * fanspeed_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * tes_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * wifi_Animation(lv_obj_t * TargetObject, int delay);
@@ -24,6 +23,8 @@ lv_anim_t * fanspeedmed_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * fanspeedhigh_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
+lv_anim_t * fpsdrag_Animation(lv_obj_t * TargetObject, int delay);
+lv_anim_t * fpsdown_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
@@ -36,31 +37,6 @@ lv_obj_t * ui____initial_actions0;
 #endif
 
 ///////////////////// ANIMATIONS ////////////////////
-lv_anim_t * fandrag_Animation(lv_obj_t * TargetObject, int delay)
-{
-    lv_anim_t * out_anim;
-    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_malloc(sizeof(ui_anim_user_data_t));
-    PropertyAnimation_0_user_data->target = TargetObject;
-    PropertyAnimation_0_user_data->val = -1;
-    lv_anim_t PropertyAnimation_0;
-    lv_anim_init(&PropertyAnimation_0);
-    lv_anim_set_time(&PropertyAnimation_0, 650);
-    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
-    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
-    lv_anim_set_values(&PropertyAnimation_0, 0, 113);
-    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
-    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
-    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
-    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
-    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_y);
-    out_anim = lv_anim_start(&PropertyAnimation_0);
-
-    return out_anim;
-}
 lv_anim_t * fanspeed_Animation(lv_obj_t * TargetObject, int delay)
 {
     lv_anim_t * out_anim;
@@ -462,6 +438,54 @@ lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
     lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_x);
+    out_anim = lv_anim_start(&PropertyAnimation_0);
+
+    return out_anim;
+}
+lv_anim_t * fpsdrag_Animation(lv_obj_t * TargetObject, int delay)
+{
+    lv_anim_t * out_anim;
+    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_malloc(sizeof(ui_anim_user_data_t));
+    PropertyAnimation_0_user_data->target = TargetObject;
+    PropertyAnimation_0_user_data->val = -1;
+    lv_anim_t PropertyAnimation_0;
+    lv_anim_init(&PropertyAnimation_0);
+    lv_anim_set_time(&PropertyAnimation_0, 600);
+    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
+    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
+    lv_anim_set_values(&PropertyAnimation_0, 260, 220);
+    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
+    out_anim = lv_anim_start(&PropertyAnimation_0);
+
+    return out_anim;
+}
+lv_anim_t * fpsdown_Animation(lv_obj_t * TargetObject, int delay)
+{
+    lv_anim_t * out_anim;
+    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_malloc(sizeof(ui_anim_user_data_t));
+    PropertyAnimation_0_user_data->target = TargetObject;
+    PropertyAnimation_0_user_data->val = -1;
+    lv_anim_t PropertyAnimation_0;
+    lv_anim_init(&PropertyAnimation_0);
+    lv_anim_set_time(&PropertyAnimation_0, 600);
+    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
+    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
+    lv_anim_set_values(&PropertyAnimation_0, 220, 260);
+    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
     out_anim = lv_anim_start(&PropertyAnimation_0);
 
     return out_anim;

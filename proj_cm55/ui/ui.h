@@ -27,7 +27,6 @@ extern "C" {
 
 ///////////////////// VARIABLES ////////////////////
 
-extern lv_anim_t * fandrag_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fanspeed_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * tes_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * wifi_Animation(lv_obj_t * TargetObject, int delay);
@@ -42,30 +41,25 @@ extern lv_anim_t * fanspeedmed_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fanspeedhigh_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
+extern lv_anim_t * fpsdrag_Animation(lv_obj_t * TargetObject, int delay);
+extern lv_anim_t * fpsdown_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_background_3_png);    // assets/background_3.png
-LV_IMG_DECLARE(ui_img_background_4_png);    // assets/background_4.png
-LV_IMG_DECLARE(ui_img_background_png);    // assets/background_4.png
-LV_IMG_DECLARE(background3);    // assets/background_4.png
 LV_IMG_DECLARE(ui_temp_arc);    // assets/background_4.png
-LV_IMG_DECLARE(ui_img_left_panel);    // assets/background_4.png
 LV_IMG_DECLARE(ui_img_left_panel_1);    // assets/background_4.png
-LV_IMG_DECLARE(ui_img_right_panel);    // assets/background_4.png
 LV_IMG_DECLARE(ui_img_right_panel_1);    // assets/background_4.png
 LV_IMG_DECLARE(ui_img_bleadv50_png);    // assets/bleadv50.png
 LV_IMG_DECLARE(ui_img_clouddisconnected50_png);    // assets/clouddisconnected50.png
 LV_IMG_DECLARE(ui_img_cloudconnected50_png);    // assets/cloudconnected50.png
-LV_IMG_DECLARE(ui_img_left_panel_bg_3_png);    // assets/left_panel_bg_3.png
 LV_IMG_DECLARE(ui_img_wifi_png);    // assets/wifi.png
 LV_IMG_DECLARE(ui_img_settings_png);    // assets/settings.png
-LV_IMG_DECLARE(ui_img_right_panel_bg_3_png);    // assets/right_panel_bg_3.png
 LV_IMG_DECLARE(ui_img_fanactive_png);    // assets/fanactive.png
 LV_IMG_DECLARE(ui_img_eco_png);    // assets/eco.png
+LV_IMG_DECLARE(ui_img_uparrow_png);    // assets/uparrow.png
 LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_voice_home_icon_png);    // assets/Voice_home_icon.png
 LV_IMG_DECLARE(ui_img_presence_home_icon_png);    // assets/presence_home_icon.png
@@ -114,7 +108,6 @@ LV_IMG_DECLARE(ui_img_bootimg_cmp_png);
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
-LV_IMG_DECLARE(ui_img_background_5_png);
 LV_IMG_DECLARE(ui_img_background_6_png);
 
 

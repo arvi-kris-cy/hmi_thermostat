@@ -21,7 +21,8 @@ extern lv_obj_t * ui_FWUpdatespinner;
 extern lv_obj_t * ui_Fwupdatespinrlabel;
 extern lv_obj_t * ui_Fwupdatelatestlbl;
 extern lv_obj_t * ui_fwdownloadbtnlbl;
-extern lv_obj_t * ui_fwpanel;
+extern lv_obj_t * ui_BottomPanel3;
+extern lv_obj_t * ui_FPSlabel3;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

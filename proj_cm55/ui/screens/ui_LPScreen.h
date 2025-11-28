@@ -17,7 +17,6 @@ extern lv_obj_t * ui_LPScreen;
 extern lv_obj_t * ui_LPscreenContainer;
 extern lv_obj_t * ui_MainTemptextLP;
 extern lv_obj_t * ui_TimeHLP;
-extern lv_obj_t * ui_ecoLP;
 extern lv_obj_t * ui_DateLP;
 extern lv_obj_t * ui_TimeMLP;
 extern lv_obj_t * ui_TimeSLP;

@@ -868,12 +868,12 @@ static void increase_temp_step(lv_timer_t *timer)
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
             else
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
 
             lv_label_set_text_fmt(ui_MainModeLabel, ". . . Heating . . .");
@@ -913,12 +913,12 @@ static void increase_temp_step(lv_timer_t *timer)
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
             else
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
 
             lv_arc_set_value(ui_ArcTempControl, current_temp);
@@ -960,12 +960,12 @@ static void decrease_temp_step(lv_timer_t *timer)
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
             else
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
 
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
@@ -999,12 +999,12 @@ static void decrease_temp_step(lv_timer_t *timer)
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
             else
             {
                 lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-                lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+                lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
             }
 
             lv_arc_set_value(ui_ArcTempControl, current_temp);
@@ -1788,7 +1788,7 @@ void update_device_connection_state(device_connection_state_t state)
             /* Start timer to hide the pop-up screen */
             ui_timer_stop();
             ui_timer_start();
-            ble_conn_state = true;
+            ble_conn_state = false;
             break;
 
         default:
@@ -2102,7 +2102,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
         case MODE_ECO:
             //lv_img_set_src(ui_ModeButton, &ui_img_eco_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_eco_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
+            // lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
             LOG_INFO(CYLF_DEF, "Mode set to ECO\n");
@@ -2111,7 +2111,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
         case MODE_RAPID:
             //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_rapid_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_rapid_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
             LOG_INFO(CYLF_DEF, "Mode set to RAPID\n");
@@ -2120,7 +2120,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
         case MODE_AUTO:
             //lv_img_set_src(ui_ModeButton, &ui_img_automode_png_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_automode_png_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_automode_png_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_automode_png_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             LOG_INFO(CYLF_DEF, "Mode set to AUTO\n");
@@ -2130,7 +2130,7 @@ void set_thermostat_mode(thermostat_mode_t mode)
         case MODE_OFF:
             //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_fan_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_fan_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             lv_obj_add_flag(ui_ArcTempIndicator, LV_OBJ_FLAG_HIDDEN);
             LOG_INFO(CYLF_DEF, "Mode set to FAN\n");
@@ -2247,7 +2247,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
         case MODE_ECO:
             //lv_img_set_src(ui_ModeButton, &ui_img_eco_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_eco_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
             LOG_INFO(CYLF_DEF, "Mode set to ECO\n");
@@ -2256,7 +2256,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
         case MODE_RAPID:
             //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_rapid_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_rapid_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
             LOG_INFO(CYLF_DEF, "Mode set to RAPID\n");
@@ -2265,7 +2265,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
         case MODE_AUTO:
             //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_auto_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_auto_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_auto_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_auto_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             LOG_INFO(CYLF_DEF, "Mode set to AUTO\n");
@@ -2282,7 +2282,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
         case MODE_OFF:
             //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_fan_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_fan_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
+            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             LOG_INFO(CYLF_DEF, "Mode set to FAN\n");
             break;
@@ -2556,7 +2556,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, current_temp);
@@ -2572,7 +2572,7 @@ void load_thermostat_config(thermostat_mode_t mode)
         lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°C", atoi(weather_sync_value));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, current_temp);
@@ -2793,7 +2793,7 @@ void set_system_unit(lv_event_t *e)
         /* Update UI for deg F temperature data */
         dev_unit = TEMP_UNIT_FAHRENHEIT;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, target_temp);
@@ -2820,7 +2820,7 @@ void set_system_unit(lv_event_t *e)
         /* Update UI for deg C temperature data */
         dev_unit = TEMP_UNIT_CELSIUS;
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°C", atoi(weather_sync_value));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, target_temp);
@@ -2872,7 +2872,7 @@ void update_system_unit(temp_unit_t unit)
         /* Update all labels on UI (Active and Sleep) screen */
         lv_obj_add_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°F", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°F", CELSIUS_TO_FAHRENHEIT(atoi(weather_sync_value)));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_F_MIN_VALUE, TEMPERATURE_DEG_F_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, target_temp);
@@ -2895,7 +2895,7 @@ void update_system_unit(temp_unit_t unit)
         /* Update all labels on UI (Active and Sleep) screen */
         lv_obj_clear_state(ui_tempunitswitch, LV_STATE_CHECKED);
         lv_label_set_text_fmt(ui_TemperatureCurrValueLbl, "%d", current_temp);
-        lv_label_set_text_fmt(ui_MainTemptextLP, "%d°C", current_temp);
+        lv_label_set_text_fmt(ui_MainTemptextLP, "%d", current_temp);
         lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°C", atoi(weather_sync_value));
         lv_arc_set_range(ui_ArcTempControl, TEMPERATURE_DEG_C_MIN_VALUE, TEMPERATURE_DEG_C_MAX_VALUE);
         lv_arc_set_value(ui_ArcTempControl, target_temp);

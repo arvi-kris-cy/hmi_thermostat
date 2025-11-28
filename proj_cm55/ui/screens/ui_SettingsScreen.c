@@ -12,7 +12,6 @@ lv_obj_t * ui_timeoutdropdown = NULL;
 lv_obj_t * ui_VolumeDrodown = NULL;
 lv_obj_t * ui_Timeoutlbl = NULL;
 lv_obj_t * ui_Volumelbl = NULL;
-lv_obj_t * ui_SettingsPanel = NULL;
 lv_obj_t * ui_tempunitswitch = NULL;
 lv_obj_t * ui_BGswitch = NULL;
 lv_obj_t * ui_templabel = NULL;
@@ -27,6 +26,8 @@ lv_obj_t * ui_Factoryresetlabel = NULL;
 lv_obj_t * ui_warninglabel = NULL;
 lv_obj_t * ui_confirmbtnlabel = NULL;
 lv_obj_t * ui_cancelbtnlabel = NULL;
+lv_obj_t * ui_BottomPanel2 = NULL;
+lv_obj_t * ui_FPSlabel2 = NULL;
 // event funtions
 void ui_event_BrightnessSlider(lv_event_t * e)
 {
@@ -91,7 +92,7 @@ void ui_event_UpdateButton(lv_event_t * e)
     	lv_obj_clear_flag(ui_Fwupdatespinrlabel, LV_OBJ_FLAG_HIDDEN);
     	lv_obj_add_flag(ui_Fwupdatelatestlbl, LV_OBJ_FLAG_HIDDEN);
     	lv_obj_add_flag(ui_fwdownloadbtnlbl, LV_OBJ_FLAG_HIDDEN);
-    	_ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 250, 0, &ui_FWUpdateScreen_screen_init);
+    	_ui_screen_change(&ui_FWUpdateScreen, LV_SCR_LOAD_ANIM_FADE_ON, 50, 0, &ui_FWUpdateScreen_screen_init);
     	start_check_fw_update_timer();
     }
 }
@@ -224,26 +225,6 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_Volumelbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Volumelbl, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SettingsPanel = lv_obj_create(ui_SettingsScreen);
-    lv_obj_set_width(ui_SettingsPanel, 78);
-    lv_obj_set_height(ui_SettingsPanel, 75);
-    lv_obj_set_x(ui_SettingsPanel, -9);
-    lv_obj_set_y(ui_SettingsPanel, -194);
-    lv_obj_set_align(ui_SettingsPanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_SettingsPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_SettingsPanel, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_SettingsPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SettingsPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_SettingsPanel, &ui_img_settings_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_SettingsPanel, lv_color_hex(0x30AD29), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_SettingsPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_SettingsPanel, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_SettingsPanel, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_color(ui_SettingsPanel, lv_color_hex(0x06AD63), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(ui_SettingsPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui_SettingsPanel, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_spread(ui_SettingsPanel, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_tempunitswitch = lv_switch_create(ui_SettingsScreen);
     lv_obj_set_width(ui_tempunitswitch, 50);
     lv_obj_set_height(ui_tempunitswitch, 25);
@@ -258,7 +239,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_width(ui_templabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_templabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_templabel, -163);
-    lv_obj_set_y(ui_templabel, 200);
+    lv_obj_set_y(ui_templabel, 205);
     lv_obj_set_align(ui_templabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_templabel, "°F");
     lv_obj_set_style_text_color(ui_templabel, lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -280,13 +261,13 @@ void ui_SettingsScreen_screen_init(void)
 
     ui_BGlabel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_BGlabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_BGlabel ,LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_BGlabel, 135);
-    lv_obj_set_y(ui_BGlabel, 200);
+    lv_obj_set_height(ui_BGlabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_BGlabel, 137);
+    lv_obj_set_y(ui_BGlabel, 203);
     lv_obj_set_align(ui_BGlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_BGlabel ,"BG");
-    lv_obj_set_style_text_color(ui_BGlabel ,lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_BGlabel ,255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_BGlabel, "BG");
+    lv_obj_set_style_text_color(ui_BGlabel, lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_BGlabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_BGlabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ResetButton = lv_button_create(ui_SettingsScreen);
@@ -362,8 +343,8 @@ void ui_SettingsScreen_screen_init(void)
     lv_image_set_src(ui_homeimg2, &ui_img_icn_home_png);
     lv_obj_set_width(ui_homeimg2, 70);
     lv_obj_set_height(ui_homeimg2, 70);
-    lv_obj_set_x(ui_homeimg2, -9);
-    lv_obj_set_y(ui_homeimg2, 200);
+    lv_obj_set_x(ui_homeimg2, -11);
+    lv_obj_set_y(ui_homeimg2, -202);
     lv_obj_set_align(ui_homeimg2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_homeimg2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_homeimg2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -457,6 +438,29 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_align(ui_cancelbtnlabel, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_cancelbtnlabel, &ui_font_sans22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_BottomPanel2 = lv_obj_create(ui_SettingsScreen);
+    lv_obj_set_width(ui_BottomPanel2, 152);
+    lv_obj_set_height(ui_BottomPanel2, 24);
+    lv_obj_set_x(ui_BottomPanel2, -10);
+    lv_obj_set_y(ui_BottomPanel2, 215);
+    lv_obj_set_align(ui_BottomPanel2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_BottomPanel2, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_remove_flag(ui_BottomPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_BottomPanel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_BottomPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_BottomPanel2, lv_color_hex(0x9BBA43), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_BottomPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_FPSlabel2 = lv_label_create(ui_BottomPanel2);
+    lv_obj_set_width(ui_FPSlabel2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_FPSlabel2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_FPSlabel2, -1);
+    lv_obj_set_y(ui_FPSlabel2, 0);
+    lv_obj_set_align(ui_FPSlabel2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_FPSlabel2, "FPS: 40  CPU: 20%");
+    lv_obj_set_style_text_color(ui_FPSlabel2, lv_color_hex(0xFDFAFA), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_FPSlabel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_BrightnessSlider, ui_event_BrightnessSlider, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_timeoutdropdown, ui_event_timeoutdropdown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_VolumeDrodown, ui_event_VolumeDrodown, LV_EVENT_ALL, NULL);
@@ -482,8 +486,8 @@ void ui_SettingsScreen_screen_destroy(void)
     ui_VolumeDrodown = NULL;
     ui_Timeoutlbl = NULL;
     ui_Volumelbl = NULL;
-    ui_SettingsPanel = NULL;
     ui_tempunitswitch = NULL;
+    ui_BGswitch = NULL;
     ui_templabel = NULL;
     ui_BGlabel = NULL;
     uic_ResetButton = NULL;
@@ -497,5 +501,7 @@ void ui_SettingsScreen_screen_destroy(void)
     ui_warninglabel = NULL;
     ui_confirmbtnlabel = NULL;
     ui_cancelbtnlabel = NULL;
+    ui_BottomPanel2 = NULL;
+    ui_FPSlabel2 = NULL;
 
 }

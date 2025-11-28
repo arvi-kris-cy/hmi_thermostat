@@ -182,7 +182,6 @@ static void pdm_pcm_event_handler(void)
             pdm_pcm_flag = true;
             frame_counter = 0;
 
-            // cy_rtos_semaphore_set(&pdm_mic_sema);
             xSemaphoreGiveFromISR(pdm_mic_sema, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
@@ -223,15 +222,6 @@ cy_rslt_t pdm_mic_init(void)
         LOG_INFO(CYLF_DEF, "MIC:PDM PCM semaphore init failed.\n");
         CY_ASSERT(0);
     }
-    // result = cy_rtos_semaphore_init(&pdm_mic_sema, 5, 0);
-
-    // if(CY_RSLT_SUCCESS != result)
-    // {
-    //     printf("MIC:PDM PCM semaphore init failed %u \r\n",result);
-    //     CY_ASSERT(0);
-    // }
-
-    //pdm_rx_dma_init();
 
     /* Initialize PDM PCM block */
     result = Cy_PDM_PCM_Init(CYBSP_PDM_HW, &CYBSP_PDM_config);
@@ -311,13 +301,6 @@ cy_rslt_t pdm_mic_get_data(int16_t **frame)
     {
         *frame = full_rx_buffer;
     }
-
-    // result = cy_rtos_semaphore_get(&pdm_mic_sema, CY_RTOS_NEVER_TIMEOUT);
-
-    // if (result == CY_RSLT_SUCCESS)
-    // {
-    //     *frame = full_rx_buffer;
-    // }
 
     return result;
 }

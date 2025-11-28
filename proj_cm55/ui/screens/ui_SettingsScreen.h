@@ -22,7 +22,6 @@ extern void ui_event_VolumeDrodown(lv_event_t * e);
 extern lv_obj_t * ui_VolumeDrodown;
 extern lv_obj_t * ui_Timeoutlbl;
 extern lv_obj_t * ui_Volumelbl;
-extern lv_obj_t * ui_SettingsPanel;
 extern void ui_event_tempunitswitch(lv_event_t * e);
 extern lv_obj_t * ui_tempunitswitch;
 extern void ui_event_BGswitch(lv_event_t * e);
@@ -44,6 +43,8 @@ extern void ui_event_confirmbtnlabel(lv_event_t * e);
 extern lv_obj_t * ui_confirmbtnlabel;
 extern void ui_event_cancelbtnlabel(lv_event_t * e);
 extern lv_obj_t * ui_cancelbtnlabel;
+extern lv_obj_t * ui_BottomPanel2;
+extern lv_obj_t * ui_FPSlabel2;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ResetButton;
 

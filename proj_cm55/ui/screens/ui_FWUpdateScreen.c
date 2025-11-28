@@ -11,7 +11,8 @@ lv_obj_t * ui_FWUpdatespinner = NULL;
 lv_obj_t * ui_Fwupdatespinrlabel = NULL;
 lv_obj_t * ui_Fwupdatelatestlbl = NULL;
 lv_obj_t * ui_fwdownloadbtnlbl = NULL;
-lv_obj_t * ui_fwpanel = NULL;
+lv_obj_t * ui_BottomPanel3 = NULL;
+lv_obj_t * ui_FPSlabel3 = NULL;
 // event funtions
 void ui_event_homeimg(lv_event_t * e)
 {
@@ -44,8 +45,8 @@ void ui_FWUpdateScreen_screen_init(void)
     lv_image_set_src(ui_homeimg, &ui_img_icn_home_png);
     lv_obj_set_width(ui_homeimg, 70);
     lv_obj_set_height(ui_homeimg, 70);
-    lv_obj_set_x(ui_homeimg, -13);
-    lv_obj_set_y(ui_homeimg, 174);
+    lv_obj_set_x(ui_homeimg, -10);
+    lv_obj_set_y(ui_homeimg, -204);
     lv_obj_set_align(ui_homeimg, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_homeimg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_homeimg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -109,25 +110,28 @@ void ui_FWUpdateScreen_screen_init(void)
     lv_obj_set_style_pad_top(ui_fwdownloadbtnlbl, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ui_fwdownloadbtnlbl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_fwpanel = lv_obj_create(ui_FWUpdateScreen);
-    lv_obj_set_width(ui_fwpanel, 78);
-    lv_obj_set_height(ui_fwpanel, 75);
-    lv_obj_set_x(ui_fwpanel, -9);
-    lv_obj_set_y(ui_fwpanel, -194);
-    lv_obj_set_align(ui_fwpanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_fwpanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_fwpanel, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_fwpanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_fwpanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_fwpanel, &ui_img_149480563, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_fwpanel, lv_color_hex(0x30AD29), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_fwpanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_fwpanel, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_fwpanel, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_color(ui_fwpanel, lv_color_hex(0x06AD63), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(ui_fwpanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui_fwpanel, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_spread(ui_fwpanel, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_BottomPanel3 = lv_obj_create(ui_FWUpdateScreen);
+    lv_obj_set_width(ui_BottomPanel3, 152);
+    lv_obj_set_height(ui_BottomPanel3, 24);
+    lv_obj_set_x(ui_BottomPanel3, -10);
+    lv_obj_set_y(ui_BottomPanel3, 214);
+    lv_obj_set_align(ui_BottomPanel3, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_BottomPanel3, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_remove_flag(ui_BottomPanel3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_BottomPanel3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_BottomPanel3, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_BottomPanel3, lv_color_hex(0x9BBA43), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_BottomPanel3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_FPSlabel3 = lv_label_create(ui_BottomPanel3);
+    lv_obj_set_width(ui_FPSlabel3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_FPSlabel3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_FPSlabel3, -1);
+    lv_obj_set_y(ui_FPSlabel3, 0);
+    lv_obj_set_align(ui_FPSlabel3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_FPSlabel3, "FPS: 40  CPU: 20%");
+    lv_obj_set_style_text_color(ui_FPSlabel3, lv_color_hex(0xFDFAFA), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_FPSlabel3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_homeimg, ui_event_homeimg, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_fwdownloadbtnlbl, ui_event_fwdownloadbtnlbl, LV_EVENT_ALL, NULL);
@@ -144,6 +148,7 @@ void ui_FWUpdateScreen_screen_destroy(void)
     ui_Fwupdatespinrlabel = NULL;
     ui_Fwupdatelatestlbl = NULL;
     ui_fwdownloadbtnlbl = NULL;
-    ui_fwpanel = NULL;
+    ui_BottomPanel3 = NULL;
+    ui_FPSlabel3 = NULL;
 
 }

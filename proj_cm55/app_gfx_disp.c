@@ -331,13 +331,17 @@ static void handle_time_update(void)
         char date_str[20];
 
         /** Update the hour labels for the main screen and low-power screen. */
-        snprintf(time_str, sizeof(time_str), "%02u :", ui_current_time.hour);
+        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.hour);
         lv_label_set_text(ui_TimeHactive, time_str);
+
+        snprintf(time_str, sizeof(time_str), "%02u :", ui_current_time.hour);
         lv_label_set_text(ui_TimeHLP, time_str);
 
         /** Update the minute labels. */
-        snprintf(time_str, sizeof(time_str), " %02u", ui_current_time.min);
+        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.min);
         lv_label_set_text(ui_TimeMactive, time_str);
+
+        snprintf(time_str, sizeof(time_str), " %02u ", ui_current_time.min);
         lv_label_set_text(ui_TimeMLP, time_str);
 
         /** Update the second label on the low-power screen. */
@@ -987,6 +991,10 @@ void calculate_fps(void)
         // fflush(stdout);
 
         lv_label_set_text_fmt(ui_FPSlabel,"FPS: %d CPU: %2u%%", (uint8_t)(fps_x_1000 / 1000),
+                    (uint8_t)(100 - idle_percent));
+        lv_label_set_text_fmt(ui_FPSlabel2,"FPS: %d CPU: %2u%%", (uint8_t)(fps_x_1000 / 1000),
+                    (uint8_t)(100 - idle_percent));
+        lv_label_set_text_fmt(ui_FPSlabel3,"FPS: %d CPU: %2u%%", (uint8_t)(fps_x_1000 / 1000),
                     (uint8_t)(100 - idle_percent));
         
         num_frames = RESET_VAL;
