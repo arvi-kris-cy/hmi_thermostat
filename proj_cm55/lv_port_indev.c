@@ -94,7 +94,7 @@ mtb_ctp_p4100tp_config_t ctp_p4100tp_cfg =
   .rst_pin             = CTP_RESET_PIN,
   .irq_port            = CTP_IRQ_PORT,
   .irq_pin             = CTP_IRQ_PIN,
-  .irq_num             = ioss_interrupts_gpio_17_IRQn,
+  .irq_num             = ioss_interrupts_gpio_11_IRQn,
   .touch_event         = false,
 };
 #endif
