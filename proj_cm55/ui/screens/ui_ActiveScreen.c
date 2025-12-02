@@ -1403,7 +1403,7 @@ void ui_ActiveScreen_screen_init(void)
 
     ui_Roller1 = lv_roller_create(ui_voicecmdlistpanel);
     lv_roller_set_options(ui_Roller1,
-            "Set temperature to <14 - 30>\nIncrease / Decrease temperature\nIncrease / Decrease brightness\nGo to setting\nMute / Unmute volume",
+            "Set temperature to <14 - 30>\n[Increase/Decrease] temperature\n[Increase/Decrease] brightness\n[Increase/Decrease] fan speed\nSet mode to [Eco/Rapid/Auto]\nTurn [ON/OFF] [heating/cooling]\nGo to settings\n[Mute/Unmute] volume",
 			LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(ui_Roller1, 2, LV_ANIM_OFF);
     lv_obj_set_width(ui_Roller1, 383);
