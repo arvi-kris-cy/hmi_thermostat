@@ -324,7 +324,8 @@ int main(void)
     LOG_INFO(CYLF_DEF, "Thermostat Application Started Version: <V%d.%d.%d>\n", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
     LOG_INFO(CYLF_DEF, "===============================================================\n\n");
 
-
+    sprintf(current_OTA_version, "%d.%d.%d", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
+    
     /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
     Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
 

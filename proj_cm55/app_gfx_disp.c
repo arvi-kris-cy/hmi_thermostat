@@ -198,8 +198,8 @@ rtc_time_t now;
 
 uint32_t idle_percent = 0;
 
-extern bool is_device_provisioned;
-extern char new_FW_version[MAX_FW_VERSION_LEN];
+bool is_device_provisioned;
+char new_FW_version[MAX_FW_VERSION_LEN];
 
 extern bool cm55_pipe2_msg_received;
 extern ipc_msg_t *ipc_recv_msg;
@@ -341,11 +341,11 @@ static void handle_time_update(void)
         snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.min);
         lv_label_set_text(ui_TimeMactive, time_str);
 
-        snprintf(time_str, sizeof(time_str), " %02u ", ui_current_time.min);
+        snprintf(time_str, sizeof(time_str), " %02u :", ui_current_time.min);
         lv_label_set_text(ui_TimeMLP, time_str);
 
         /** Update the second label on the low-power screen. */
-        snprintf(time_str, sizeof(time_str), " : %02u", ui_current_time.sec);
+        snprintf(time_str, sizeof(time_str), " %02u", ui_current_time.sec);
         lv_label_set_text(ui_TimeSLP, time_str);
 
         /** Use the standard C library for date formatting. */
@@ -399,7 +399,7 @@ static void handle_sensor_update(void)
             if(dev_info.environment.current_temp == dev_info.environment.target_temp)
             {
                 /* Update humidity and CO2 levels on MApp via IPC. */
-                //update_device_config_ipc();
+                update_device_config_ipc();
             }
         }
 
@@ -858,7 +858,7 @@ static void handle_system_event(void)
                 // char label_text[32];
                 // snprintf(label_text, sizeof(label_text), "%d?c", roundoffTemp);
                 // lv_label_set_text(ui_OutdoorTempLabel, label_text);
-                lv_label_set_text_fmt(ui_OutdoorTempLabel, "%d°c", atoi(weather_sync_value));
+                lv_label_set_text_fmt(ui_OutdoorTempLabel, "%dÂ°c", atoi(weather_sync_value));
                 break;
 
             case IPC_CMD_LOCATION_SYNC:

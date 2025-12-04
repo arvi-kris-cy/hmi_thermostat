@@ -139,6 +139,8 @@ cy_stc_sysint_t i2c_scb_irq_cfg =
 mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
 
 extern device_state_t dev_info;
+char m55_current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
+static bool is_need_to_reboot = 0;
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
@@ -572,7 +574,10 @@ int main(void)
 
     /* Initialize RTC */
     app_rtc_init();
-
+    
+    /* Update FW version variable */
+    sprintf(m55_current_OTA_version, "%d.%d.%d", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
+	
     /* Setup IPC communication for CM55*/
     cm55_ipc_communication_setup();
 

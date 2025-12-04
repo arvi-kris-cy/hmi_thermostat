@@ -258,34 +258,6 @@ mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
 
-config_audio-fe:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
-.PHONY: config_audio-fe
-
-CY_HELP_config_audio-fe=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
-CY_HELP_config_audio-fe_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
-mtb_help_tool_config_audio-fe:
-	@:
-	$(info $(MTB__SPACE)config_audio-fe     $(CY_HELP_config_audio-fe))
-
-mtb_help_tools_end: mtb_help_tool_config_audio-fe
-mtb_help_tool_config_audio-fe: mtb_help_tools_start
-.PHONY: mtb_help_tool_config_audio-fe
-
-audio-fe-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
-.PHONY: audio-fe-configurator
-
-CY_HELP_audio-fe-configurator=Launches the Audio FE Configurator 1.60 GUI for the target's mtbafe file
-CY_HELP_audio-fe-configurator_VERBOSE=Launches the Audio FE Configurator 1.60 GUI. Check the Audio FE Configurator 1.60 User Guide for more information.
-mtb_help_tool_audio-fe-configurator:
-	@:
-	$(info $(MTB__SPACE)audio-fe-configurator $(CY_HELP_audio-fe-configurator))
-
-mtb_help_tools_end: mtb_help_tool_audio-fe-configurator
-mtb_help_tool_audio-fe-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_audio-fe-configurator
-
 edge-protect-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator
 .PHONY: edge-protect-configurator

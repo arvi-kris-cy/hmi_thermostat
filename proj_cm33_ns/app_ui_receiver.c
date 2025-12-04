@@ -181,6 +181,7 @@ static void ui_rx_task(void *arg)
                     LOG_INFO(CYLF_DEF, "Rx IPC_CMD_SET_TEMPERATURE_DATA.\n");
 
                     static device_state_t temp_data = { 0 };
+                    static device_state_t prev_data = { 0 };
                     static int32_t last_sent_time_minutes = -1;
 
                     temp_data.environment.current_temp = ipc_recv_msg->device_config.environment.current_temp;
@@ -191,9 +192,10 @@ static void ui_rx_task(void *arg)
                     LOG_INFO(CYLF_DEF, "Current T: %u, Target T: %u, RS: %u\n", temp_data.environment.current_temp,
                             temp_data.environment.target_temp, temp_data.thermostat_settings.time_remains);
 
-                    if (temp_data.environment.target_temp != device_status.environment.target_temp)
-                    {
-                        device_status.environment.target_temp = temp_data.environment.target_temp;
+					if (temp_data.environment.target_temp != prev_data.environment.target_temp) 
+					{
+						prev_data.environment.target_temp = temp_data.environment.target_temp;
+						device_status.environment.target_temp = temp_data.environment.target_temp;
 
                         /* Send target temperature multiple times
                          * to avoid delay on Mapp. */
@@ -203,19 +205,21 @@ static void ui_rx_task(void *arg)
                                                   (uint32_t) device_status.environment.target_temp);
                             vTaskDelay(pdMS_TO_TICKS(5));
                         }
-                    }
+					}
 
-                    if (temp_data.environment.current_temp != device_status.environment.current_temp)
+					if (temp_data.environment.current_temp != prev_data.environment.current_temp)
                     {
+                        prev_data.environment.current_temp = temp_data.environment.current_temp;
                         device_status.environment.current_temp = temp_data.environment.current_temp;
                         send_response_numeric(CURRENT_TEMP, OPERATION_READ,
                                 (uint32_t) device_status.environment.current_temp);
                     }
 
                     /* Check if the seconds value has changed. */
-                    if (temp_data.thermostat_settings.time_remains != device_status.thermostat_settings.time_remains)
+                    if (temp_data.thermostat_settings.time_remains != prev_data.thermostat_settings.time_remains)
                     {
                         /* Update the local status first. */
+                        prev_data.thermostat_settings.time_remains = temp_data.thermostat_settings.time_remains;
                         device_status.thermostat_settings.time_remains = temp_data.thermostat_settings.time_remains;
 
                         /* Calculate the current number of minutes for comparison. */

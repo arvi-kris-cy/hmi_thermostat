@@ -115,10 +115,9 @@ lv_timer_t *stop_listening_timer = NULL;
 lv_timer_t *state_update_timer = NULL;
 
 device_settings_t current_settings = { 0 };
-bool is_device_provisioned = false;
-
-char new_FW_version[MAX_FW_VERSION_LEN];
-char m55_current_OTA_version[MAX_FW_VERSION_LEN];
+extern bool is_device_provisioned;
+extern char new_FW_version[MAX_FW_VERSION_LEN];
+extern char m55_current_OTA_version[MAX_FW_VERSION_LEN];
 
 /* Device connection state flag in CM55 core */
 volatile bool is_device_connected = false;
@@ -299,24 +298,6 @@ static void fan_low(void);
  * @param mode The current thermostat mode to display (ECO, RAPID, AUTO, OFF).
  */
 static void update_mode_label(thermostat_mode_t mode);
-
-/**
- * @brief Stop the microphone listening operation.
- *
- * This function disables all microphone-related UI states, ensuring the
- * microphone is no longer in an active or listening state.
- *
- * Sets the current microphone state to `MIC_IDLE`.
- */
-static void mic_stop_listening(void);
-
-/**
- * @brief Activate the microphone listening state.
- *
- * This function transitions the microphone UI from the idle state to the
- *  active listening state.
- */
-static void mic_activate_listening(void);
 
 /**
  * @brief Displays the next notification from the queue.
@@ -709,30 +690,6 @@ static void show_next_notification(void)
     app_speaker_play(notify_audio_type);
 }
 
-static void mic_activate_listening(void)
-{
-    if (current_mic_state == MIC_IDLE)
-    {
-        /* Hide all images first */
-        lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
-        //lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-        miclisteninganime_Animation(ui_micactivelisten, 0);
-        current_mic_state = MIC_ACTIVE;
-    }
-}
-
-static void mic_stop_listening(void)
-{
-    lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
-    //lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-
-    //lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-
-    current_mic_state = MIC_IDLE;
-}
 
 void update_setto_label(lv_event_t *e)
 {
@@ -1252,122 +1209,6 @@ void display_presence_detection_status(void)
     }
 }
 
-void mic_stop_listening_cb(lv_timer_t *timer)
-{
-    stop_listening_timer = NULL; // Timer is one-shot
-
-    if (current_mic_state == MIC_ACTIVE)
-    {
-        mic_stop_listening();
-    }
-    display_mic_state();
-}
-
-void mic_start_listening_cb(lv_timer_t *timer)
-{
-    start_listening_timer = NULL; // Timer is one-shot
-
-    if (current_mic_state == MIC_IDLE)
-    {
-        mic_activate_listening();
-
-        // Start timer to stop listening after 7 seconds
-        stop_listening_timer = lv_timer_create(mic_stop_listening_cb, 3000, NULL);
-        lv_timer_set_repeat_count(stop_listening_timer, 1);  // One-shot
-    }
-}
-
-void display_mic_state(void)
-{
-    // Show selected state and handle animation if needed
-    switch (current_mic_state)
-    {
-        case MIC_DISABLED:
-            _ui_opacity_set(ui_micdisabled, 60);
-            break;
-
-        case MIC_IDLE:
-            //_ui_opacity_set(ui_micidle, 255);
-            break;
-        default:
-            break;
-    }
-}
-
-void mic_icon_click_handler(lv_event_t *e)  //voice commands
-{
-    lv_anim_del(ui_micactivelisten, NULL);
-
-    // Hide all images first
-    lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
-    //lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(ui_voicecmdoverlay, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_ArcGroup, LV_OBJ_FLAG_HIDDEN);
-    stop_fan_anim();
-	is_mic_clicked = true;
-	//lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-}
-
-void update_mic_state(mic_state_t state)
-{
-//    lv_anim_del(ui_micactivelisten, NULL);
-
-    // Hide all images first
-    lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
-    //lv_obj_add_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_micactivelisten, LV_OBJ_FLAG_HIDDEN);
-
-    // Show selected state and handle animation if needed
-    switch (state)
-    {
-        case MIC_DISABLED:
-            lv_obj_clear_flag(ui_micdisabled, LV_OBJ_FLAG_HIDDEN);
-            break;
-
-        case MIC_IDLE:
-            //lv_obj_clear_flag(ui_micidle, LV_OBJ_FLAG_HIDDEN);
-            break;
-        default:
-            break;
-    }
-}
-
-void recreate_mic_idle(void)
-{
-    // Delete the old object if it exists
-    if (ui_micdisabled != NULL)
-    {
-        lv_obj_del(ui_micdisabled);
-        ui_micdisabled = NULL;
-    }
-
-    // Recreate the mic image object
-    // ui_micdisabled = lv_img_create(ui_ActiveScreen);
-    // lv_img_set_src(ui_micdisabled, &ui_img_voice_home_icon_png);
-    // lv_obj_set_width(ui_micdisabled, LV_SIZE_CONTENT);   // 50
-    // lv_obj_set_height(ui_micdisabled, LV_SIZE_CONTENT);  // 50
-    // lv_obj_set_x(ui_micdisabled, 75);
-    // lv_obj_set_y(ui_micdisabled, 189);
-    // lv_obj_set_align(ui_micdisabled, LV_ALIGN_CENTER);
-    // lv_obj_add_flag(ui_micdisabled, LV_OBJ_FLAG_CLICKABLE);
-    // lv_obj_remove_flag(ui_micdisabled, LV_OBJ_FLAG_SCROLLABLE);
-    // lv_obj_set_style_opa(ui_micdisabled, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_micdisabled = lv_image_create(ui_ActiveScreen);
-    lv_image_set_src(ui_micdisabled, &ui_img_voice_home_icon_png);
-    lv_obj_set_width(ui_micdisabled, LV_SIZE_CONTENT);   /// 50
-    lv_obj_set_height(ui_micdisabled, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_x(ui_micdisabled, -13);
-    lv_obj_set_y(ui_micdisabled, 184);
-    lv_obj_set_align(ui_micdisabled, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_micdisabled, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_opa(ui_micdisabled, 60, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-
-    current_mic_state = MIC_IDLE;
-}
 
 void update_pin_label(const char *pin)
 {
@@ -1391,7 +1232,6 @@ void hide_connectivity_screen(void)
         /* Start fan mode animation running in background */
         display_fan_anim();
         display_temp_change_anim();
-        display_mic_state();
         display_presence_detection_status();
 //        _ui_flag_modify(ui_ArcTempControl, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         _ui_flag_modify(ui_ArcGroup, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
@@ -1639,7 +1479,6 @@ void update_device_connection_state(device_connection_state_t state)
             bleadvpulse_Animation(ui_bleadv, 0);
             if(ble_conn_state){update_device_connection_state(DEV_ST_BLE_CONNECTED); state_text = "BLE Connected"; break;}
             state_text = "Waiting for mobile connection . . .";
-
             /* Update icon on home screen */
             lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
             wifi_Animation(ui_homebleconnected, 0);
@@ -1665,7 +1504,7 @@ void update_device_connection_state(device_connection_state_t state)
 
             /* Update icon on home screen */
             lv_obj_clear_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
-            miclisteninganime_Animation(ui_homebleconnected, 0);
+            //miclisteninganime_Animation(ui_homebleconnected, 0);
             lv_obj_set_style_opa(ui_homebleconnected, 255, 0);
             
             break;

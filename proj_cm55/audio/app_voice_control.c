@@ -403,8 +403,9 @@ va_rslt_t intent_to_ui(const char *command)
         }
 
         /** Switch to Active screen */
-        switch_to_active_screen();
-
+        switch_to_active_screen(); 
+        lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
+        display_fan_anim(); 
         // Map the command string to an enum value
         va_detect_cmd_t cmd = va_command_to_id(command);
 
@@ -675,6 +676,7 @@ void ww_to_ui()
 
         /** Switch to Active screen  */
         switch_to_active_screen();
+        display_fan_anim();
     }
 }
 
