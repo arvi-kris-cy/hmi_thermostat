@@ -60,6 +60,10 @@ extern "C" {
 *******************************************************************************/
 extern cy_stc_scb_i2c_context_t disp_touch_i2c_controller_context;
 extern volatile bool touch_detected;
+<<<<<<< HEAD
+=======
+extern SemaphoreHandle_t i2c_mutex;
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Function Prototypes

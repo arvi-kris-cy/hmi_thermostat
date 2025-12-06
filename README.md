@@ -1,321 +1,208 @@
-# PSOC Edge E84 Smart HMI kit :  Thermostat Demo
+# PSOC™ Edge HMI Kit: Smart Thermostat
 
-This code example demonstrates displaying a 2D graphics demo on a RK040HF001 TFT DSI display using the Light and Versatile Graphics Library (LVGL) on PSOC Edge E84 Smart HMI kit. The 2D graphics displays a thermostat application. The LCD is connected via the MIPI Display Serial Interface (DSI) and the code is designed to run in a FreeRTOS environment.
+This code example demonstrates a smart thermostat panel user interface that allows a user to interact, monitor and control room temperature, either directly via the touchscreen, using voice commands or remotely via mobile app over a cloud-connected platform. The system also responds to radar-based presence detection to automatically adjust operating modes.
 
-This code example has a three project structure - CM33 Secure, CM33 Non-Secure, and CM55 projects. All three projects are programmed to the external QSPI flash and executed in XIP mode. Extended Boot launches the CM33 Secure project from a fixed location in the external flash , which then configures the protection settings and launches the CM33 Non-Secure application. Additionally, CM33 Non-Secure application enables CM55 CPU and launches the CM55 application. The CM55 application implements the logic for this code example.
+<!-- This code example has a three project structure: CM33 secure, CM33 non-secure, and CM55 projects. All three projects are programmed to the external QSPI flash and executed in Execute in Place (XIP) mode. Extended boot launches the CM33 secure project from a fixed location in the external flash, which then configures the protection settings and launches the CM33 non-secure application. Additionally, CM33 non-secure application enables CM55 CPU and launches the CM55 application. The CM55 application implements the logic for this code example. -->
 
-> This code example fails to build in "Release" mode as the version of the GCC_ARM toolchain included with ModusToolbox&trade; 3.3 incorrectly parses VCVTNE instruction in the presence of the MVE architecture extension. This happens when the compiler optimization flag "-Os" is used. See the `PSOC_Edge_E84_pack_release_notes.pdf` included in the early access pack for details.
+[View this README on GitHub.](https://gitlab.intra.infineon.com/solutions/psoc-edge-hmi-kit/smart_thermostat/-/tree/develop?ref_type=heads)
+
+See the [Design and implementation](docs/design_and_implementation.md) for the functional description of this code example.
+
 
 ## Requirements
 
-- [ModusToolbox&trade; software](https://www.infineon.com/modustoolbox) v3.3 or later (tested with v3.3)
-- ModusToolbox&trade; PSOC&trade; E84 Early Access Pack. See [Software setup](#software-setup) for more details.
-- Extended Boot v1.1.0.1333 or later. See [Software setup](#software-setup) for more details.
-- Board support package (BSP) minimum required version for:
-   - KIT_PSOCE84_EVK: v0.8.0
-- ModusToolbox&trade; Programming Tools : v1.2.1    
+- [ModusToolbox&trade;](https://www.infineon.com/modustoolbox) v3.6 or later (tested with v3.6)
+- Board support package (BSP) minimum required version: 1.0.0
 - Programming language: C
-- Associated parts: All PSOC&trade; Edge E84 MCU parts
+- Associated parts: All [PSOC&trade; Edge MCU](https://www.infineon.com/products/microcontroller/32-bit-psoc-arm-cortex/32-bit-psoc-edge-arm) parts
+
 
 ## Supported toolchains (make variable 'TOOLCHAIN')
 
-- GNU Arm&reg; embedded compiler v11.3.1 (`GCC_ARM`) - Default value of `TOOLCHAIN`
+- Arm&reg; Compiler v6.22 (`ARM`)
+- LLVM Embedded Toolchain for Arm&reg; v19.1.5 (`LLVM_ARM`)
 
 ## Supported kits (make variable 'TARGET')
 
-- **PSOC Edge E84 Smart HMI kit** (`KIT_PSOCE84_EVK`)
-   
+- `KIT_PSE84_HMI` - Default value of `TARGET` <br> 
 
-## Hardware setup
+<!-- ## Hardware setup
 
 This example uses the board's default configuration. See the kit user guide to ensure that the board is configured correctly.
 
+Ensure the following jumper and pin configuration on board.
+- BOOT SW must be in the HIGH/ON position
+- J20 and J21 must be in the tristate/not connected (NC) position
 
-### Supported Displays and their electrical connections with the PSOC Edge E84 Smart HMI kit
+### Supported display and electrical connection with KIT_PSE84_EVAL 
 
-1. **RK040HF001 TFT DSI 4 inch display:** This display is supported by default.<br>
+1. **Waveshare 4.3 inch Raspberry Pi DSI 800*480 pixel display:** This display is supported by default <br>
 
+   Connect the FPC 15-pin cable between the display connector and the PSOC&trade; Edge E84 evaluation kit's RPI MIPI DSI connector as shown in **Figure 1** <br>
 
+   **Table 1: PSOC&trade; Edge E84 evaluation kit connections**
+
+   Display's Connector | PSOC&trade; Edge E84 Evaluation Kit's connector
+   ------------------- | ----------------------------------------------------
+   DSI connector       | J38
+
+   **Figure 1.  Display connection with PSOC&trade; Edge E84 evaluation kit**
+   
+   ![](images/display-kit-connection.png)
+
+2. **Waveshare 7-inch Raspberry-Pi DSI LCD C 1024*600 pixel display:** <br>
+
+   In this display, few I2C connections are present on the header named `FAN` on display's hardware, it is highlighted in **Figure 2** <br>
+
+   **Figure 2. Waveshare 7-inch Raspberry Pi DSI LCD (C) display's I2C connection (FAN connector)**
+
+   ![](images/ws7p0dsi_panel_i2c_connection.png)
+
+   Interface the display with the PSOC&trade; Edge E84 Evaluation Kit using the connections outlined in **Table 2** <br>
+
+   **Table 2: PSOC&trade; Edge E84 Evaluation Kit connections**
+
+   Display's Connector | PSOC&trade; Edge E84 Evaluation Kit's connector
+   --------------------|----------------------------------------
+   DSI connector       | J39
+   GND (FAN)           | GND (J41)
+   5V  (FAN)           | 5V (J41)
+   SCL (FAN)           | I2C_SCL (J41)
+   SDA (FAN)           | I2C_SDA (J41)
+
+<br>
+
+3. **10.1 inch 1024*600 pixel TFT LCD (WF101JTYAHMNB0):** This setup requires rework on the PSOC&trade; Edge E84 evaluation kit, and the rework instructions are as follows:
+
+   - **Remove:** R22, R23, R24, R25, R26, R27
+   - **Populate:** R28, R29, R30, R31, R32, R33
+
+   **Figure 3. Rework on PSOC™ Edge E84 baseboard**
+
+   ![](images/pse84_kit_mipi_disp_rework.png)
+
+   Interface the display with the PSOC&trade; Edge E84 Evaluation Kit using the connections outlined in **Table 3** <br>
+
+   **Table 3: PSOC&trade; Edge E84 Evaluation Kit connections**
+
+   Display's Connector | PSOC&trade; Edge E84 Evaluation Kit's connector
+   --------------------|----------------------------------------
+   DSI connector       | J38
+   Touch connector     | J37
+
+<br> -->
 
 ## Software setup
 
-See the [ModusToolbox&trade; tools package installation guide](https://www.infineon.com/ModusToolboxInstallguide) for information about installing and configuring the tools package. <br>
-
-<details><summary><b>ModusToolbox&trade; PSOC&trade; E84 Early Access Pack</b></summary>
- 
-1. Download and install the [Infineon Developer Center Launcher](https://www.infineon.com/cms/en/design-support/tools/utilities/infineon-developer-center-idc-launcher/)
-2. Login using your Infineon credentials. 
-3. Download and install the “ModusToolbox&trade; PSOC&trade; E84 Early Access Pack (5921)” from Developer Center Launcher.
-    > **Note:** The default installation directory of the Early Access pack is the root "ModusToolbox" installation directory of the respective operating system.<br>
-
-4. After installing the Early Access Pack, use the following system variable to enable the early access environment
-    > Variable name: <code>MTB_ENABLE_EARLY_ACCESS</code> <br>
-    Variable value: <code>com.ifx.tb.tool.modustoolboxpackpsoce84</code>
-    
-5. Save the Environment variables and restart ModusToolbox&trade; software. 
-
-</details>
-
-<details><summary><b>Extended Boot</b></summary>
-
-The code example expects the Extended Boot version 1.1.0.1333 or later. If your device has an older version, you will have to update it before running this code example. To check the version of Extended Boot, open modus-shell and execute the following command: <br>
->Note: The following command expects edgeprotecttools bin directory in the path environment variable. 
-
-> <code>edgeprotecttools -t pse84 device-info</code>
-
-To update/replace Extended Boot present in the PSOC&trade; Edge device, see section **2.2.2.6  Replacing the Extended Boot** in _AN237849 - Getting Started with PSOC&trade; Edge Security_.
-
-</details>
+See the [ModusToolbox&trade; tools package installation guide](https://www.infineon.com/ModusToolboxInstallguide) for information about installing and configuring the tools package.
 
 Install a terminal emulator if you do not have one. Instructions in this document use [Tera Term](https://teratermproject.github.io/index-en.html).
 
 This example requires no additional software or tools.
 
-## Using the code example
-
-### Create the project
-
-The ModusToolbox&trade; tools package provides the Project Creator as both a GUI tool and a command line tool.
-
-<details><summary><b>Use Project Creator GUI</b></summary>
-
-1. Open the Project Creator GUI tool.
-
-   There are several ways to do this, including launching it from the dashboard or from inside the Eclipse IDE. For more details, see the [Project Creator user guide](https://www.infineon.com/ModusToolboxProjectCreator) (locally available at *{ModusToolbox&trade; install directory}/tools_{version}/project-creator/docs/project-creator.pdf*).
-
-2. On the **Choose Board Support Package (BSP)** page, select a kit supported by this code example. See [Supported kits](#supported-kits-make-variable-target).
-
-   > **Note:** To use this code example for a kit not listed here, you may need to update the source files. If the kit does not have the required resources, the application may not work.
-
-3. On the **Select Application** page:
-
-   a. Select the **Applications(s) Root Path** and the **Target IDE**.
-
-   > **Note:** Depending on how you open the Project Creator tool, these fields may be pre-selected for you.
-
-   b.	Select this code example from the list by enabling its check box.
-
-   > **Note:** You can narrow the list of displayed examples by typing in the filter box.
-
-   c. (Optional) Change the suggested **New Application Name** and **New BSP Name**.
-
-   d. Click **Create** to complete the application creation process.
-
-</details>
-
-<details><summary><b>Use Project Creator CLI</b></summary>
-
-The 'project-creator-cli' tool can be used to create applications from a CLI terminal or from within batch files or shell scripts. This tool is available in the *{ModusToolbox&trade; install directory}/tools_{version}/project-creator/* directory.
-
-Use a CLI terminal to invoke the 'project-creator-cli' tool. On Windows, use the command-line 'modus-shell' program provided in the ModusToolbox&trade; installation instead of a standard Windows command-line application. This shell provides access to all ModusToolbox&trade; tools. You can access it by typing "modus-shell" in the search box in the Windows menu. In Linux and macOS, you can use any terminal application.
-
-The following example clones the "**PSOC Edge Graphics LVGL Demo**" application with the desired name "MyLvglDemo" configured for the *KIT_PSOCE84_EVK* BSP into the specified working directory, *C:/mtb_projects*:
-
-   ```
-   project-creator-cli --board-id KIT_PSOCE84_EVK --app-id mtb-example-psoc-edge-gfx-lvgl-demo --user-app-name MyLvglDemo --target-dir "C:/mtb_projects"
-   ```
-
-The 'project-creator-cli' tool has the following arguments:
-
-Argument | Description | Required/optional
----------|-------------|-----------
-`--board-id` | Defined in the <id> field of the **BSP manifest** | Required
-`--app-id`   | Defined in the <id> field of the **CE manifest** | Required
-`--target-dir`| Specify the directory in which the application is to be created if you prefer not to use the default current working directory | Optional
-`--user-app-name`| Specify the name of the application if you prefer to have a name other than the example's default name | Optional
-
-> **Note:** The project-creator-cli tool uses the `git clone` and `make getlibs` commands to fetch the repository and import the required libraries. For details, see the "Project creator tools" section of the [ModusToolbox&trade; tools package user guide](https://www.infineon.com/ModusToolboxUserGuide) (locally available at {ModusToolbox&trade; install directory}/docs_{version}/mtb_user_guide.pdf).
-
-</details>
-
-### Open the project
-
-After the project has been created, you can open it in your preferred development environment.
-
-<details><summary><b>Eclipse IDE</b></summary>
-
-If you opened the Project Creator tool from the included Eclipse IDE, the project will open in Eclipse automatically.
-
-For more details, see the [Eclipse IDE for ModusToolbox&trade; user guide](https://www.infineon.com/MTBEclipseIDEUserGuide) (locally available at *{ModusToolbox&trade; install directory}/docs_{version}/mt_ide_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>Visual Studio (VS) Code</b></summary>
-
-Launch VS Code manually, and then open the generated *{project-name}.code-workspace* file located in the project directory.
-
-For more details, see the [Visual Studio Code for ModusToolbox&trade; user guide](https://www.infineon.com/MTBVSCodeUserGuide) (locally available at *{ModusToolbox&trade; install directory}/docs_{version}/mt_vscode_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>Keil µVision</b></summary>
-
-Double-click the generated *{project-name}.cprj* file to launch the Keil µVision IDE.
-
-For more details, see the [Keil µVision for ModusToolbox&trade; user guide](https://www.infineon.com/MTBuVisionUserGuide) (locally available at *{ModusToolbox&trade; install directory}/docs_{version}/mt_uvision_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>IAR Embedded Workbench</b></summary>
-
-Open IAR Embedded Workbench manually, and create a new project. Then select the generated *{project-name}.ipcf* file located in the project directory.
-
-For more details, see the [IAR Embedded Workbench for ModusToolbox&trade; user guide](https://www.infineon.com/MTBIARUserGuide) (locally available at *{ModusToolbox&trade; install directory}/docs_{version}/mt_iar_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>Command line</b></summary>
-
-If you prefer to use the CLI, open the appropriate terminal, and navigate to the project directory. On Windows, use the command-line 'modus-shell' program; on Linux and macOS, you can use any terminal application. From there, you can run various `make` commands.
-
-For more details, see the [ModusToolbox&trade; tools package user guide](https://www.infineon.com/ModusToolboxUserGuide) (locally available at *{ModusToolbox&trade; install directory}/docs_{version}/mtb_user_guide.pdf*).
-
-</details>
 
 ## Operation
 
-1. Ensure that the ModusToolbox Programming tools version is 1.2.1
+See [Using the code example](docs/using_the_code_example.md) for instructions on creating a project, opening it in various supported IDEs, and performing tasks, such as building, programming, and debugging the application within the respective IDEs.
 
-2. Connect the board to your PC using the provided USB cable through the KitProg3 USB connector.
+1. Connect the board to your PC using the provided USB cable through the KitProg3 USB connector
 
-3. Open a terminal program and select the KitProg3 COM port. Set the serial port parameters to 8N1 and 115200 baud.
+2. Open a terminal program and select the KitProg3 COM port. Set the serial port parameters to 8N1 and 115200 baud
 
-4. In the lv_port_indev.c file - Make sure the macro "DISPLAY_F" enabled and "DISPLAY_P" is disabled. 
+3. Build and program the application
 
-5. To set the current time update the values in the data array within the "setRTC()" function in the rtc.c file.
-
-6. Build the application.
-
-7. Program the board using one of the following:
-
-   <details><summary><b>Using Eclipse IDE</b></summary>
-
-      1. Select the application project in the Project Explorer.
-
-      2. In the **Quick Panel**, scroll down, and click **\<Application Name> Program (KitProg3_MiniProg4)**.
-   </details>
-
-   <details><summary><b>In other IDEs</b></summary>
-
-   Follow the instructions in your preferred IDE.
-   </details>
-
-   <details><summary><b>Using CLI</b></summary>
-
-     From the terminal, execute the `make program` command to build and program the application using the default toolchain to the default target. The default toolchain is specified in the application's Makefile but you can override this value manually:
-      ```
-      make program TOOLCHAIN=<toolchain>
-      ```
-
-      Example:
-      ```
-      make program TOOLCHAIN=GCC_ARM
-      ```
-   </details><br>
-
-8. After programming, the application starts automatically. Confirm that "PSOC Edge Smart HMI: Thermostat Demo" is displayed on the UART terminal.
-
-9. Observe that the LCD displays a thermostat demo application. 
-
-## Thermostat UI Demo flow 
-
-###  Idle Screen :
-
-1. Displays time, date and the set temperature.Tap anywhere on the screen to transition to active screen.
-   
-   **Idle Screen**
-   
-   ![](./images/idle.png) 
-
-###  Active Screen :
-
-1. Change Room (left) → Tap arrows or swipe up/down to cycle between rooms.
-
-2. Adjust Temperature (middle) → Tap arrows or swipe up/down to adjust temperature.
-
-3. Fan Speed (right) → Tap icon to switch (High, Medium, Low).
-
-4. Settings icon  → Tap Settings icon or swipe right to transition to the settings screen.
-
-5. Tap on the Date/Time to return back to idle screen.
-
-   **Active Screen**
-   
-   ![](./images/active.png) 
-  
-   
-### Settings Screen :
-
-1. Adjust display brightness using slider.
-
-2. Tap Home icon or swipe right to return back to active screen.
-    
-     **Settings Screen**
-   
-   ![](./images/settings.png) 
-
-## Debugging
-
-You can debug the example to step through the code.
-
-<details><summary><b>In Eclipse IDE</b></summary>
-
-Use the **\<Application Name> Debug (KitProg3_MiniProg4)** configuration in the **Quick Panel**. For details, see the "Program and debug" section in the [Eclipse IDE for ModusToolbox&trade; user guide](https://www.infineon.com/MTBEclipseIDEUserGuide).
-
-</details>
-
-<details><summary><b>In other IDEs</b></summary>
-
-Follow the instructions in your preferred IDE.
-</details>
-
+4. After programming, the application starts automatically. Confirm that "Thermostat Application Started Version: <VX.X.0>" is displayed on the UART terminal and on bootup screen you will see infineon logo.
 
 **Table 1. Application Projects**
 
-Project | Description
---------|------------------------
-proj_cm33_s | Project for CM33 Secure Processing Environment (SPE)
-proj_cm33_ns | Project for CM33 Non-secure Processing Environment (NSPE)
-proj_cm55 | CM55 Project
+   ![](images/terminal-output.png)
 
-In this code example, at device reset, the secured boot process starts from the ROM boot with the Secured Enclave as the Root of Trust. From the Secured Enclave, the boot flow is passed on to the System CPU Subsystem where the secure CM33 application is first started. After all necessary secure configurations, the flow is passed on to the non-secure CM33 application. Resource initialization for this example is performed by this CM33 non-secure project. It configures the system clocks, pins, clock to peripheral connections, and other platform resources. It then enables the CM55 core using the Cy_SysEnableCM55() function and allows Idle task to put CM33 in DeepSleep mode.
+   **Figure 2. Bootup Screen**
 
-The CM55 application drives the LCD and renders the image using PSOC&trade; Edge graphics subsystem. The graphics subsystem of PSOC&trade; Edge MCU houses an independent 2.5D graphics processing unit (GPU), a display controller (DC), and a MIPI DSI host controller with MIPI D-PHY physical layer interface.
+   ![](images/BootupScreen.png)
 
-**cm55_ns_gfx_task** initializes the Graphics subsystem and configures the DC and GPU interrupts. After that it initialize the LCD panel based on selection through _<application\>/proj_cm55/Makefile_. Once the panel is initialized, required amount of memory is allocated for VGLite draw/blit functions to be consumed by LVGL library.
-The `lv_init()` function is used to initialize LVGL and set up the essential components required for LVGL to work correctly. The display and touch drivers are initialized using `lv_port_disp_init()` and `lv_port_indev_init()` functions respectively. The thermostat demo UI is displayed on the display by calling the LVGL demo widget API `ui_init()`.
+5. Observe the Smart Thermostat demo application. You can use the touch screen on the HMI kit to set your target temperature or adjust the fan mode. You’ll see an updated temperature or fan speed reflected instantly on the screen.
 
+   **Figure 2. Changing the fan mode**
 
-### Resources and settings
+   ![](images/fanmode.png)
 
-**Table 2. Application resources**
+6. You can control the thermostat hands-free by triggering wake word **Ok Thermostat** & simply say voice commands such as **Increase temperature** or **Switch to cooling mode** to adjust settings. The thermostat will respond by adjusting the settings accordingly.
 
- Resource  |  Alias/object     |    Purpose
- :-------- | :-------------    | :------------
- UART (HAL)|cy_retarget_io_uart_obj| UART HAL object used by retarget-io for the Debug UART port
- GFXSS (PDL)    | gfxss     | Graphics subsystem
+   **Figure 3. Giving "Ok Thermostat" ; "Switch to cooling mode" voice command**
 
-<br />
+   ![](images/voicecommand.png)
+
+7. Step away ( > 2) from the device, and the HMI kit will automatically go into **idle mode** of the display. Step back into approximately 2 meter range, and the thermostat will return to an **active state** of the display.
+
+   **Figure 4. Switching between idle <-> active screen using Radar**
+
+   ![](images/RadarTest.png)
+
+8. Open the MAPP on your phone and pair it with the thermostat via Bluetooth (BLE).
+
+   **Figure 5. Bluetooth pairing with thermostat using MAPP**
+
+   ![](images/BLEOnBoard.png)
+
+9. After pairing with the mobile app, you can use the Bluetooth (BLE) connection to take full control of the thermostat, including temperature, fan speed, modes and configure date-time directly from your phone.
+
+   **Figure 7. Controlling thermostat over Bluetooth using MAPP**
+
+   ![](images/ControlOverBLE.png)
+
+10. On the HMI kit, tap the Wi-Fi icon and enter the Wi-Fi SSID and password into the provided fields. The thermostat will establish a connection to your Wi-Fi network.
+
+      **Figure 6. Wi-Fi on-boarding on thermostat using keyboard**
+
+      ![](images/WIFICloud.png)
+
+11. The thermostat UI automatically fetches **location-based weather (temperature)** information from an HTTP server over wifi connection. You can see real-time updates for local weather conditions displayed on the screen.
+
+12. The thermostat functionality can also present **CO2 levels** changes in the current environment. Observe how the CO2 ppm UI dynamically updates the changes in real time.
+
+13. Access the Settings menu to modify the thermostat’s behavior and customize its features. For more details, refer to the [Design and implementation](docs/design_and_implementation.md) document.
+
+      **Figure 10. Setting Screen**
+
+      ![](images/SettingScreen.png)
+
 
 ## Related resources
 
 Resources  | Links
 -----------|----------------------------------
-Application notes  | **AN235935** – Getting started with PSOC&trade; Edge E84 MCU on ModusToolbox&trade; software
-Code examples  | [Using ModusToolbox&trade; software](https://github.com/Infineon/Code-Examples-for-ModusToolbox-Software) on GitHub 
-Device documentation | PSOC&trade; Edge E84 MCU datasheet 
-Development kits | Select your kits from the [Evaluation board finder](https://www.infineon.com/cms/en/design-support/finder-selection-tools/product-finder/evaluation-board) page
-Libraries  | **mtb-pdl-cat1** – Peripheral driver library (PDL)  <br /> **mtb-hal-cat1** – Hardware abstraction layer (HAL) library <br /> [retarget-io](https://github.com/Infineon/retarget-io) – Utility library to retarget STDIO messages to a UART port
-Tools  | [Eclipse IDE for ModusToolbox&trade; software](https://www.infineon.com/modustoolbox) – ModusToolbox&trade; software is a collection of easy-to-use software and tools enabling rapid development with Infineon MCUs, covering applications from embedded sense and control to wireless and cloud-connected systems using AIROC&trade; Wi-Fi and Bluetooth® connectivity devices. <br />
+Application notes  | [AN235935](https://www.infineon.com/AN235935) – Getting started with PSOC&trade; Edge E8 MCU on ModusToolbox&trade; software <br> [AN239191](https://www.infineon.com/AN239191) – Getting started with graphics on PSOC&trade; Edge MCU
+Code examples  | [Using ModusToolbox&trade;](https://github.com/Infineon/Code-Examples-for-ModusToolbox-Software) on GitHub
+Device documentation | [PSOC&trade; Edge MCU datasheets](https://www.infineon.com/products/microcontroller/32-bit-psoc-arm-cortex/32-bit-psoc-edge-arm#documents) <br> [PSOC&trade; Edge MCU reference manuals](https://www.infineon.com/products/microcontroller/32-bit-psoc-arm-cortex/32-bit-psoc-edge-arm#documents)
+Development kits | Select your kits from the [Evaluation board finder](https://www.infineon.com/cms/en/design-support/finder-selection-tools/product-finder/evaluation-board)
+Libraries  | [mtb-dsl-pse8xxgp](https://github.com/Infineon/mtb-dsl-pse8xxgp) – Device support library for PSE8XXGP <br> [retarget-io](https://github.com/Infineon/retarget-io) – Utility library to retarget STDIO messages to a UART port
+Tools  | [ModusToolbox&trade;](https://www.infineon.com/modustoolbox) – ModusToolbox&trade; software is a collection of easy-to-use libraries and tools enabling rapid development with Infineon MCUs for applications ranging from wireless and cloud-connected systems, edge AI/ML, embedded sense and control, to wired USB connectivity using PSOC&trade; Industrial/IoT MCUs, AIROC&trade; Wi-Fi and Bluetooth&reg; connectivity devices, XMC&trade; Industrial MCUs, and EZ-USB&trade;/EZ-PD&trade; wired connectivity controllers. ModusToolbox&trade; incorporates a comprehensive set of BSPs, HAL, libraries, configuration tools, and provides support for industry-standard IDEs to fast-track your embedded application development
+
+<br>
+
 
 ## Other resources
 
-Infineon provides a wealth of data at www.infineon.com to help you select the right device, and quickly and effectively integrate it into your design.
+Infineon provides a wealth of data at [www.infineon.com](https://www.infineon.com) to help you select the right device, and quickly and effectively integrate it into your design.
+
+
+## Document history
+
+Document title: *CExxxxx* - *PSOC™ Edge HMI Kit: Smart Thermostat*
+
+ Version | Description of change
+ ------- | ---------------------
+ 1.0.0   | New code example <br> Early access release
+ 
+<br>
 
 
 All referenced product or service names and trademarks are the property of their respective owners.
 
 The Bluetooth&reg; word mark and logos are registered trademarks owned by Bluetooth SIG, Inc., and any use of such marks by Infineon is under license.
+
+PSOC&trade;, formerly known as PSoC&trade;, is a trademark of Infineon Technologies. Any references to PSoC&trade; in this document or others shall be deemed to refer to PSOC&trade;.
 
 ---------------------------------------------------------
 
@@ -323,6 +210,4 @@ The Bluetooth&reg; word mark and logos are registered trademarks owned by Blueto
 <br>
 TO THE EXTENT PERMITTED BY APPLICABLE LAW, CYPRESS MAKES NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, WITH REGARD TO THIS DOCUMENT OR ANY SOFTWARE OR ACCOMPANYING HARDWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  No computing device can be absolutely secure.  Therefore, despite security measures implemented in Cypress hardware or software products, Cypress shall have no liability arising out of any security breach, such as unauthorized access to or use of a Cypress product. CYPRESS DOES NOT REPRESENT, WARRANT, OR GUARANTEE THAT CYPRESS PRODUCTS, OR SYSTEMS CREATED USING CYPRESS PRODUCTS, WILL BE FREE FROM CORRUPTION, ATTACK, VIRUSES, INTERFERENCE, HACKING, DATA LOSS OR THEFT, OR OTHER SECURITY INTRUSION (collectively, "Security Breach").  Cypress disclaims any liability relating to any Security Breach, and you shall and hereby do release Cypress from any claim, damage, or other liability arising from any Security Breach.  In addition, the products described in these materials may contain design defects or errors known as errata which may cause the product to deviate from published specifications. To the extent permitted by applicable law, Cypress reserves the right to make changes to this document without further notice. Cypress does not assume any liability arising out of the application or use of any product or circuit described in this document. Any information provided in this document, including any sample design information or programming code, is provided only for reference purposes.  It is the responsibility of the user of this document to properly design, program, and test the functionality and safety of any application made of this information and any resulting product.  "High-Risk Device" means any device or system whose failure could cause personal injury, death, or property damage.  Examples of High-Risk Devices are weapons, nuclear installations, surgical implants, and other medical devices.  "Critical Component" means any component of a High-Risk Device whose failure to perform can be reasonably expected to cause, directly or indirectly, the failure of the High-Risk Device, or to affect its safety or effectiveness.  Cypress is not liable, in whole or in part, and you shall and hereby do release Cypress from any claim, damage, or other liability arising from any use of a Cypress product as a Critical Component in a High-Risk Device. You shall indemnify and hold Cypress, including its affiliates, and its directors, officers, employees, agents, distributors, and assigns harmless from and against all claims, costs, damages, and expenses, arising out of any claim, including claims for product liability, personal injury or death, or property damage arising from any use of a Cypress product as a Critical Component in a High-Risk Device. Cypress products are not intended or authorized for use as a Critical Component in any High-Risk Device except to the limited extent that (i) Cypress's published data sheet for the product explicitly states Cypress has qualified the product for use in a specific High-Risk Device, or (ii) Cypress has given you advance written authorization to use the product as a Critical Component in the specific High-Risk Device and you have signed a separate indemnification agreement.
 <br>
-Cypress, the Cypress logo, and combinations thereof, ModusToolbox, PSOC, CAPSENSE, EZ-USB, F-RAM, and TRAVEO are trademarks or registered trademarks of Cypress or a subsidiary of Cypress in the United States or in other countries. For a more complete list of Cypress trademarks, visit www.infineon.com. Other names and brands may be claimed as property of their respective owners.
-
-
+Cypress, the Cypress logo, and combinations thereof, ModusToolbox, PSoC, CAPSENSE, EZ-USB, F-RAM, and TRAVEO are trademarks or registered trademarks of Cypress or a subsidiary of Cypress in the United States or in other countries. For a more complete list of Cypress trademarks, visit www.infineon.com. Other names and brands may be claimed as property of their respective owners.

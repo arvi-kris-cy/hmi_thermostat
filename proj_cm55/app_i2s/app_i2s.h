@@ -72,16 +72,24 @@ extern "C" {
 #define I2C_FREQUENCY_HZ                  (400000u)
 
 
+<<<<<<< HEAD
 typedef enum {
 	AUDIO_NOTIFICATION,
 	AUDIO_BOOTUP,
 
 } audio_type_t;
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
 extern bool audio_playback_ended;
+<<<<<<< HEAD
+=======
+extern uint16_t *wave_data;
+extern unsigned int wave_data_size;
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Functions Prototypes

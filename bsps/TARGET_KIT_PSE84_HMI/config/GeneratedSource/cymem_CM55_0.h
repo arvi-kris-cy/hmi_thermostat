@@ -8,6 +8,7 @@
 #define CYMEM_CM55_0_m55_code_INTERNAL_START 0x00000000u
 #define CYMEM_CM55_0_m55_code_SIZE 0x00040000u
 #define CYMEM_CM55_0_m55_code_OFFSET 0x00000000u
+<<<<<<< HEAD
 #define CYMEM_CM55_0_m55_nvm_START 0x60580000u
 #define CYMEM_CM55_0_m55_nvm_SIZE 0x002FFC00u
 #define CYMEM_CM55_0_m55_nvm_OFFSET 0x00580000u
@@ -26,5 +27,40 @@
 #define CYMEM_CM55_0_m33_m55_system_shared_START 0x240FD000u
 #define CYMEM_CM55_0_m33_m55_system_shared_SIZE 0x00003000u
 #define CYMEM_CM55_0_m33_m55_system_shared_OFFSET 0x000FD000u
+=======
+#define CYMEM_CM55_0_user_nvm_C_START 0x0202A000u
+#define CYMEM_CM55_0_user_nvm_SIZE 0x00040000u
+#define CYMEM_CM55_0_user_nvm_OFFSET 0x0002A000u
+#define CYMEM_CM55_0_m55_nvm_START 0x60580000u
+#define CYMEM_CM55_0_m55_nvm_SIZE 0x00400000u
+#define CYMEM_CM55_0_m55_nvm_OFFSET 0x00580000u
+#define CYMEM_CM55_0_m55_trailer_START 0x60980000u
+#define CYMEM_CM55_0_m55_trailer_SIZE 0x00040000u
+#define CYMEM_CM55_0_m55_trailer_OFFSET 0x00980000u
+#define CYMEM_CM55_0_m55_code_secondary_START 0x26000000u
+#define CYMEM_CM55_0_m55_code_secondary_SIZE 0x00001000u
+#define CYMEM_CM55_0_m55_code_secondary_OFFSET 0x00000000u
+#define CYMEM_CM55_0_m55_data_secondary_START 0x26001000u
+#define CYMEM_CM55_0_m55_data_secondary_SIZE 0x002EB000u
+#define CYMEM_CM55_0_m55_data_secondary_OFFSET 0x00001000u
+#define CYMEM_CM55_0_m33_m55_shared_START 0x262EC000u
+#define CYMEM_CM55_0_m33_m55_shared_SIZE 0x00001000u
+#define CYMEM_CM55_0_m33_m55_shared_OFFSET 0x002EC000u
+#define CYMEM_CM55_0_gfx_mem_START 0x262ED000u
+#define CYMEM_CM55_0_gfx_mem_SIZE 0x00213000u
+#define CYMEM_CM55_0_gfx_mem_OFFSET 0x002ED000u
+#define CYMEM_CM55_0_m33_data_START 0x240BD000u
+#define CYMEM_CM55_0_m33_data_SIZE 0x00040000u
+#define CYMEM_CM55_0_m33_data_OFFSET 0x000BD000u
+#define CYMEM_CM55_0_m33s_allocatable_shared_START 0x240FD000u
+#define CYMEM_CM55_0_m33s_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM55_0_m33s_allocatable_shared_OFFSET 0x000FD000u
+#define CYMEM_CM55_0_m33_allocatable_shared_START 0x240FE000u
+#define CYMEM_CM55_0_m33_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM55_0_m33_allocatable_shared_OFFSET 0x000FE000u
+#define CYMEM_CM55_0_m55_allocatable_shared_START 0x240FF000u
+#define CYMEM_CM55_0_m55_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM55_0_m55_allocatable_shared_OFFSET 0x000FF000u
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #endif /* CYMEM_CM55_0_H */

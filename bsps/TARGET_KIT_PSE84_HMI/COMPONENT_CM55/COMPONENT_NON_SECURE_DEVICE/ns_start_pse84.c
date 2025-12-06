@@ -1,13 +1,58 @@
+<<<<<<< HEAD
+/***************************************************************************//**
+* \file ns_start_pse84.c
+* \version 1.0
+*
+* The device system-startup file.
+*
+********************************************************************************/
+/*
+ * Copyright (c) 2009-2021 Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * CMSIS Device Startup file modified to adapt for PSOC Edge Device.
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "startup_edge.h"
+=======
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
+#include "cy_device_headers.h"
 #include "startup_cat1d.h"
+#include "system_cat1d.h"
+========
+#include "startup_edge.h"
+>>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #include "cy_sysint.h"
 #include "cy_syspm.h"
 #include "cy_syslib.h"
 #include "cmsis_compiler.h"
 
+<<<<<<< HEAD
 #define SCB_NS_CPACR_CP10_CP11_ENABLE      (0xFUL << 20u)
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 CY_MISRA_FP_BLOCK_START('MISRA C-2012 Rule 8.6', 3, \
 'Checked manually. The definition is a part of linker script or application.')
@@ -31,9 +76,18 @@ extern uint32_t Region$$Table$$Limit;
 typedef  void(*pGenericFunction)(uint8_t *pSrc, uint8_t* pDst, uint32_t len);     /* typedef for the generic function pointers */
 #endif
 
-#define CY_SYSINT_EWIC_CTL            (0xE0047000U)   /**< EWIC control register */
-#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U)          /**< EWIC enable mask */
+<<<<<<< HEAD
+#define CY_SYSINT_EWIC_CTL            (0xE0047000U)	  /**< EWIC control register */
+#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U) 		  /**< EWIC enable mask */
 
+=======
+<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
+========
+#define CY_SYSINT_EWIC_CTL            (0xE0047000U)	  /**< EWIC control register */
+#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U) 		  /**< EWIC enable mask */
+
+>>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 __WEAK void Reset_Handler(void);
 void MemManage_Handler(void);
 void BusFault_Handler(void);
@@ -59,23 +113,27 @@ void Cy_RuntimeInit(void);
 extern void _start(void);
 extern unsigned int __stack;
 extern uint32_t __stack_limit;
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".ram_vectors"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined(__ARMCC_VERSION)
 extern unsigned int Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern unsigned int Image$$ARM_LIB_STACK$$ZI$$Base;
 extern void __main(void);
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE] __attribute__( ( section(".bss.noinit.RESET_RAM"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined (__GNUC__)
 extern unsigned int __StackTop;
 extern uint32_t __StackLimit;
-typedef void(* ExecFuncPtrRw)(void);
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".ram_vectors"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #elif defined (__ICCARM__)
+<<<<<<< HEAD
 extern unsigned int CSTACK$$Limit;
+=======
+extern unsigned int CSTACK$$Limit;                      /* for (default) One Region model */
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 extern unsigned int CSTACK$$Base;
 extern void  __cmain();
+// IAR (and C-SPY debugger) expect that the vector table is defined as __vector_table, so alias the definition upon compilation.
+// If the alias is not done, IAR includes its own default __vector_table definition in the compilation.
+#define __ns_vector_table __vector_table
 ExecFuncPtrRw __ns_vector_table_rw[VECTORTABLE_SIZE]   __attribute__( ( section(".intvec_ram"))) __attribute__((aligned(VECTORTABLE_ALIGN)));
 #else
     #error "An unsupported toolchain"
@@ -89,17 +147,23 @@ __WEAK void cy_toolchain_init(void)
 {
 }
 
+<<<<<<< HEAD
 void cy_cache_update(void)
 {
     SCB_CleanDCache();
     SCB_InvalidateICache();
 }
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 void Cy_RuntimeInit(void)
 {
 #if defined(__llvm__) && !defined(__ARMCC_VERSION)
     __llvm_init_data();
+<<<<<<< HEAD
     cy_cache_update();
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     cy_toolchain_init();
 #endif
 
@@ -136,6 +200,7 @@ __WEAK void HardFault_Handler(void)
     );
 }
 
+<<<<<<< HEAD
 void MemManage_Handler(void)        {while(true){}}
 void BusFault_Handler(void)         {while(true){}}
 void UsageFault_Handler(void)       {while(true){}}
@@ -143,6 +208,47 @@ __WEAK void SVC_Handler(void)       {while(true){}}
 void DebugMon_Handler(void)         {while(true){}}
 __WEAK void PendSV_Handler(void)    {while(true){}}
 __WEAK void SysTick_Handler(void)   {while(true){}}
+=======
+void MemManage_Handler(void)
+{
+	__asm (
+		"MRS R0, CONTROL\n"
+		"TST R0, #2\n"
+		"ITE EQ\n"
+		"MRSEQ R0, MSP\n"
+		"MRSNE R0, PSP\n"
+		"B SysLib_FaultHandler\n"
+	);
+}
+
+void BusFault_Handler(void)
+{
+	__asm (
+		"MRS R0, CONTROL\n"
+		"TST R0, #2\n"
+		"ITE EQ\n"
+		"MRSEQ R0, MSP\n"
+		"MRSNE R0, PSP\n"
+		"B SysLib_FaultHandler\n"
+	);
+}
+void UsageFault_Handler(void)
+{
+	__asm (
+		"MRS R0, CONTROL\n"
+		"TST R0, #2\n"
+		"ITE EQ\n"
+		"MRSEQ R0, MSP\n"
+		"MRSNE R0, PSP\n"
+		"B SysLib_FaultHandler\n"
+	);
+}
+
+__WEAK void SVC_Handler(void)       {Cy_SysLib_ProcessingFault();}
+void DebugMon_Handler(void)         {Cy_SysLib_ProcessingFault();}
+__WEAK void PendSV_Handler(void)    {Cy_SysLib_ProcessingFault();}
+__WEAK void SysTick_Handler(void)   {Cy_SysLib_ProcessingFault();}
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 void InterruptHandler(void)
 {
@@ -413,47 +519,11 @@ ExecFuncPtr __ns_vector_table[] __VECTOR_TABLE_ATTRIBUTE = {
     (ExecFuncPtr)InterruptHandler
 };
 
-#define MPU_SRAM1_SHARED_MEM_REG_ID     0x1
-#define MPU_SRAM1_SHARED_MEM_ATTR_IDX   0x1
-
-#define MPU_SOCMEM_SHARED_MEM_REG_ID     0x2
-#define MPU_SOCMEM_SHARED_MEM_ATTR_IDX   0x2
-
-#define MPU_GPU_BUF_MEM_ATTR_IDX        0x3
-#define MPU_GPU_BUF_MEM_REG_ID          0x3
-void config_noncacheable_region(void)
-{
-    ARM_MPU_Disable();
-
-    /* Program MAIR0 and MAIR1 */
-    ARM_MPU_SetMemAttr  (   MPU_SRAM1_SHARED_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_SRAM1_SHARED_MEM_REG_ID,
-                            ARM_MPU_RBAR(SRAM1_NS_SAHB_SHARED_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SRAM1_NS_SAHB_SHARED_START + SRAM1_SHARED_SIZE - 1UL), MPU_SRAM1_SHARED_MEM_ATTR_IDX));
-
-    /* socmem shared mem */
-    ARM_MPU_SetMemAttr  (   MPU_SOCMEM_SHARED_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_SOCMEM_SHARED_MEM_REG_ID,
-                            ARM_MPU_RBAR(SOCMEM_NS_SAHB_SHARED_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SOCMEM_NS_SAHB_SHARED_START + SOCMEM_SHARED_MEM_SIZE - 1UL), MPU_SOCMEM_SHARED_MEM_ATTR_IDX));
-    ARM_MPU_SetMemAttr  (   MPU_GPU_BUF_MEM_ATTR_IDX,
-                            ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
-
-    ARM_MPU_SetRegion   (   MPU_GPU_BUF_MEM_REG_ID,
-                            ARM_MPU_RBAR(SOCMEM_GPUBUF_START, ARM_MPU_SH_INNER, 0UL, 1UL, 1UL),
-                            ARM_MPU_RLAR((SOCMEM_GPUBUF_START + SOCMEM_GPUBUF_SIZE - 1UL), MPU_GPU_BUF_MEM_ATTR_IDX));
-
-    ARM_MPU_Enable(4);
-}
-
 #if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 /* GCC: newlib crt0 _start executes software_init_hook.
    The cy_toolchain_init hook provided by clib-support library must execute
    after static data initialization and before static constructors. */
+<<<<<<< HEAD
 void software_init_hook(void);
 void software_init_hook(void)
 {
@@ -471,6 +541,13 @@ void __attribute__((constructor)) software_init_hook(void)
     cy_toolchain_init();
 }
 
+=======
+void software_init_hook();
+void software_init_hook()
+{
+    cy_toolchain_init();
+}
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #elif defined(__ICCARM__)
 /* Initialize data section */
 void __iar_data_init3(void);
@@ -493,14 +570,15 @@ int __low_level_init(void)
 // Reset Handler
 __WEAK void Reset_Handler(void)
 {
+<<<<<<< HEAD
 
     /* Enable EWIC block */
     uint32_t *ptr = (uint32_t *)CY_SYSINT_EWIC_CTL;
     *ptr |= (uint32_t)CY_SYSINT_EWIC_ENABLE_MSK;
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     __disable_irq();
-
-    config_noncacheable_region();
 
     for (uint32_t count = 0; count < VECTORTABLE_SIZE; count++)
     {
@@ -509,6 +587,7 @@ __WEAK void Reset_Handler(void)
 
     SCB->VTOR = (uint32_t)__ns_vector_table_rw;
     __DMB();
+<<<<<<< HEAD
 #if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
       (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
     SCB->CPACR |= SCB_NS_CPACR_CP10_CP11_ENABLE;
@@ -523,12 +602,20 @@ __WEAK void Reset_Handler(void)
     SCB_EnableICache();
     SCB_EnableDCache();
 
+=======
+
+    __set_MSPLIM((uint32_t)(&__STACK_LIMIT));
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #if defined(__ICCARM__)
     /* Initialize data section */
     __iar_data_init3();
 
+<<<<<<< HEAD
     cy_cache_update();
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     /* Initialization hook for RTOS environment  */
     cy_toolchain_init();
 

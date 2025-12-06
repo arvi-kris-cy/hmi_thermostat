@@ -1,6 +1,7 @@
 [
     {
         "asset-name": "abstraction-rtos",
+<<<<<<< HEAD
         "locked-commit": "release-v1.11.200"
     },
     {
@@ -14,6 +15,25 @@
     {
         "asset-name": "bt-fw-ifx-cyw55500a1",
         "locked-commit": "release-v2.2.0"
+=======
+        "locked-commit": "release-v1.12.0"
+    },
+    {
+        "asset-name": "async-transfer",
+        "locked-commit": "release-v1.1.0"
+    },
+    {
+        "asset-name": "aws-iot-device-sdk-port",
+        "locked-commit": "release-v2.7.0"
+    },
+    {
+        "asset-name": "bt-fw-mur-cyw55513",
+        "locked-commit": "release-v1.0.0"
+    },
+    {
+        "asset-name": "clib-support",
+        "locked-commit": "release-v1.8.0"
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     },
     {
         "asset-name": "clib-support",
@@ -21,7 +41,11 @@
     },
     {
         "asset-name": "cmsis",
-        "locked-commit": "release-v6.1.200"
+        "locked-commit": "release-v6.1.0"
+    },
+    {
+        "asset-name": "connectivity-utilities",
+        "locked-commit": "release-v4.5.2"
     },
     {
         "asset-name": "connectivity-utilities",
@@ -29,7 +53,7 @@
     },
     {
         "asset-name": "core-lib",
-        "locked-commit": "release-v1.4.200"
+        "locked-commit": "release-v1.6.0"
     },
     {
         "asset-name": "core-make",
@@ -40,10 +64,11 @@
         "locked-commit": "release-v2.7.100"
     },
     {
-        "asset-name": "device-db",
-        "locked-commit": "release-v4.5.30"
+        "asset-name": "cy-mbedtls-acceleration",
+        "locked-commit": "release-v3.0.0"
     },
     {
+<<<<<<< HEAD
         "asset-name": "freertos",
         "locked-commit": "release-v10.6.290"
     },
@@ -86,5 +111,65 @@
     {
         "asset-name": "wpa3-external-supplicant",
         "locked-commit": "release-v1.2.090"
+=======
+        "asset-name": "device-db",
+        "locked-commit": "release-v4.33.0"
+    },
+    {
+        "asset-name": "ifx-mbedtls",
+        "locked-commit": "release-v3.6.400"
+    },
+    {
+        "asset-name": "lwip-freertos-integration",
+        "locked-commit": "release-v1.2.0"
+    },
+    {
+        "asset-name": "lwip-network-interface-integration",
+        "locked-commit": "release-v1.7.0"
+    },
+    {
+        "asset-name": "mtb-dsl-pse8xxgp",
+        "locked-commit": "release-v1.1.1"
+    },
+    {
+        "asset-name": "mtb-ipc",
+        "locked-commit": "release-v1.1.0"
+    },
+    {
+        "asset-name": "mtb-srf",
+        "locked-commit": "release-v1.1.0"
+    },
+    {
+        "asset-name": "se-rt-services-utils",
+        "locked-commit": "release-v1.2.0"
+    },
+    {
+        "asset-name": "secure-sockets",
+        "locked-commit": "release-v3.12.0"
+    },
+    {
+        "asset-name": "sensor-dsp",
+        "locked-commit": "release-v1.0.0"
+    },
+    {
+        "asset-name": "whd-bsp-integration",
+        "locked-commit": "release-v2.5.0"
+    },
+    {
+        "asset-name": "wifi-connection-manager",
+        "locked-commit": "release-v4.0.1"
+    },
+    {
+        "asset-name": "wifi-host-driver",
+        "locked-commit": "release-v5.0.7"
+    },
+    {
+        "asset-name": "wifi-resources",
+        "locked-commit": "release-v3.0.0"
+    },
+    {
+        "asset-name": "wpa3-external-supplicant",
+        "locked-commit": "release-v1.3.0"
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 ]

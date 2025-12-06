@@ -7,7 +7,7 @@
 * Related Document : See README.md
 *
 *******************************************************************************
-* Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -46,6 +46,7 @@
 extern "C" {
 #endif
 
+
 /*******************************************************************************
 * Header Files
 *******************************************************************************/
@@ -59,8 +60,11 @@ extern "C" {
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#define MY_DISP_HOR_RES    (512U)
-#define MY_DISP_VER_RES    (480U)
+
+#if defined(MTB_DISPLAY_R4INCH_TFT)
+#define MY_DISP_VER_RES                              (480U)
+#define MY_DISP_HOR_RES                              (512U)
+#endif
 
 extern cy_stc_gfx_context_t gfx_context;
 extern void *frame_buffer1;
@@ -76,6 +80,7 @@ void lv_port_disp_init(void);
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
+
 
 #endif /*LV_PORT_DISP_H*/
 

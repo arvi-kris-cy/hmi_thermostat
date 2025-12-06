@@ -6,6 +6,7 @@
 #include "cy_device.h"
 #include "cy_mpc.h"
 
+<<<<<<< HEAD
 
 /** MPC region configuration structure */
 typedef struct {
@@ -25,5 +26,8 @@ typedef struct {
     uint8_t size;                               /**< Array size */
     bool response;                              /**< MPC response on access violation */
 } cy_complete_mpc_config_t;
+=======
+cy_rslt_t Cy_MPC_Init(void);
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #endif /* #ifndef CYCFG_MPC_H */

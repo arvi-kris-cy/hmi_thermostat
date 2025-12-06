@@ -24,12 +24,17 @@
 
 #ifndef PARTITION_ARMCM33_H
 #define PARTITION_ARMCM33_H
+<<<<<<< HEAD
 #include "partition_cat1d.h"
+=======
+#include "partition_edge.h"
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 */
 
 /*
+<<<<<<< HEAD
 // <e>Initialize Security Attribution Unit (SAU) CTRL register
 */
 #define SAU_INIT_CTRL          1
@@ -289,6 +294,8 @@
 #define SCB_CSR_AIRCR_INIT  1
 
 /*
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 //   <o> Deep Sleep can be enabled by
 //     <0=>Secure and Non-Secure state
 //     <1=>Secure state only
@@ -458,11 +465,17 @@
 //   <o.30> Interrupt 62  <0=> Secure state <1=> Non-Secure state
 //   <o.31> Interrupt 63  <0=> Secure state <1=> Non-Secure state
 */
+<<<<<<< HEAD
 #if  (!defined(CY_USE_RPC_CALL) || (CY_USE_RPC_CALL == 0))
 #define NVIC_INIT_ITNS1_VAL      0x9FFFFB00
 #else
 #define NVIC_INIT_ITNS1_VAL      0x9FFFBB00
 #endif
+=======
+
+#define NVIC_INIT_ITNS1_VAL      0x9FFFFB00
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*
 //   </e>
@@ -646,7 +659,11 @@
 //   <o.30> Interrupt 190 <0=> Secure state <1=> Non-Secure state
 //   <o.31> Interrupt 191 <0=> Secure state <1=> Non-Secure state
 */
+<<<<<<< HEAD
 #define NVIC_INIT_ITNS5_VAL      0x7FFFF
+=======
+#define NVIC_INIT_ITNS5_VAL      0xFFFFFFFF
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*
 //   </e>
@@ -655,7 +672,11 @@
 /*
 //   <e>Initialize ITNS 6 (Interrupts 192..223)
 */
+<<<<<<< HEAD
 #define NVIC_INIT_ITNS6    0
+=======
+#define NVIC_INIT_ITNS6    0x1
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*
 // Interrupts 192..223
@@ -692,7 +713,11 @@
 //   <o.30> Interrupt 222 <0=> Secure state <1=> Non-Secure state
 //   <o.31> Interrupt 223 <0=> Secure state <1=> Non-Secure state
 */
+<<<<<<< HEAD
 #define NVIC_INIT_ITNS6_VAL      0xFFFFFFFF
+=======
+#define NVIC_INIT_ITNS6_VAL      0x1F
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*
 //   </e>
@@ -1117,6 +1142,7 @@
 */
 
 
+<<<<<<< HEAD
 
 /*
     max 128 SAU regions.
@@ -1129,6 +1155,8 @@
     SAU->RLAR =  ((SAU_INIT_END##n)                       & SAU_RLAR_LADDR_Msk) | \
                 ((SAU_INIT_NSC##n << SAU_RLAR_NSC_Pos)  & SAU_RLAR_NSC_Msk)   | 1U
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define SCB_NS_CPACR_CP10_CP11_ENABLE      (0xFUL << 20u)
 
 
@@ -1154,6 +1182,7 @@ __STATIC_INLINE void initFPU(void)
 #endif
 
 /**
+<<<<<<< HEAD
   \brief   Setup a SAU Region
   \details Writes the region information contained in SAU_Region to the
            registers SAU_RNR, SAU_RBAR, and SAU_RLAR
@@ -1211,6 +1240,13 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
   #endif /* defined (__SAUREGION_PRESENT) && (__SAUREGION_PRESENT == 1U) */
 
   #if defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U)
+=======
+  \brief   Setup the System Control Block
+ */
+__STATIC_INLINE void SysCtrlBlk_Setup (void)
+{
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     SCB->SCR   = (SCB->SCR   & ~(SCB_SCR_SLEEPDEEPS_Msk    )) |
                    ((SCB_CSR_DEEPSLEEPS_VAL     << SCB_SCR_SLEEPDEEPS_Pos)     & SCB_SCR_SLEEPDEEPS_Msk);
 
@@ -1220,6 +1256,7 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
                    ((SCB_AIRCR_SYSRESETREQS_VAL << SCB_AIRCR_SYSRESETREQS_Pos) & SCB_AIRCR_SYSRESETREQS_Msk) |
                    ((SCB_AIRCR_PRIS_VAL         << SCB_AIRCR_PRIS_Pos)         & SCB_AIRCR_PRIS_Msk)         |
                    ((SCB_AIRCR_BFHFNMINS_VAL    << SCB_AIRCR_BFHFNMINS_Pos)    & SCB_AIRCR_BFHFNMINS_Msk);
+<<<<<<< HEAD
   #endif /* defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U) */
 
   /* Enable FPU for NS */
@@ -1227,6 +1264,15 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
       defined (TZ_FPU_NS_USAGE) && (TZ_FPU_NS_USAGE == 1U)
 
   #endif
+=======
+}
+
+/**
+  \brief   Setup the NVIC for NS interrupts
+ */
+__STATIC_INLINE void NVIC_NS_Setup (void)
+{
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
   #if defined (NVIC_INIT_ITNS0) && (NVIC_INIT_ITNS0 == 1U)
     NVIC->ITNS[0] = NVIC_INIT_ITNS0_VAL;

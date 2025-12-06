@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.2" xml:lang="en-US">
+  <compounddef id="dir_74144b140f686a996baf0cb4e86c972a" kind="dir">
+    <compoundname>COMPONENT_CM33</compoundname>
+    <innerdir refid="dir_7b0f045fd059bb07c9a8e5401806a25c">COMPONENT_NON_SECURE_DEVICE</innerdir>
+    <innerdir refid="dir_4052e9738a45fcc8a8544d82bc6d3613">COMPONENT_SECURE_DEVICE</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="output/bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/"/>
+  </compounddef>
+</doxygen>

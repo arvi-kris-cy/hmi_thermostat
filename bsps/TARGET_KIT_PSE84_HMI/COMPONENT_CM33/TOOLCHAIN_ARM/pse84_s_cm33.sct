@@ -10,6 +10,7 @@
 * input files should be mapped into the output file, and to control the memory
 * layout of the output file.
 *
+<<<<<<< HEAD
 * \note The entry point location starts at 0x14000000. The valid
 * application image should be placed there.
 *
@@ -18,6 +19,17 @@
 * defined in the linker files. In that case you may see warnings during the
 * build process. In your project, you can simply comment out or remove the
 * relevant code in the linker file.
+=======
+*
+* \note The linker files included with the PDL template projects must be
+* generic and handle all common use cases. Your project may not use every
+* section defined in the linker files. In that case you may see the warnings
+* during the build process: L6314W (no section matches pattern) and/or L6329W
+* (pattern only matches removed unused sections). In your project, you can
+* suppress the warning by passing the "--diag_suppress=L6314W,L6329W" option to
+* the linker, simply comment out or remove the relevant code in the linker
+* file.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *
 ********************************************************************************
 * \copyright
@@ -42,7 +54,11 @@
 #include "../../config/GeneratedSource/cymem_armlink_CM33_0_S.sct"
 
 /* Define the stack size for the application */
+<<<<<<< HEAD
 /* To set stack size in application add makefile ldflags: --predefine="-DAPP_MSP_STACK_SIZE=0x2000" */
+=======
+/* To set stack size in application add makefile ldflags: --predefine="-DAPP_MSP_STACK_SIZE=<CUSTOM_VALUE>" */
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #ifdef APP_MSP_STACK_SIZE
 #define __STACK_SIZE    APP_MSP_STACK_SIZE
 #else
@@ -58,6 +74,7 @@
 #define __HEAP_SIZE    (__STACK_TOP - __STACK_SIZE - __HEAP_BASE)
 
 /* Device definitions */
+<<<<<<< HEAD
 #define VECTORS_ALIGNMENT 1024
 
 /* The size of the MCU boot header area at the start of FLASH */
@@ -81,6 +98,55 @@ LR_XIP_PORT0 (CYMEM_CM33_0_S_m33s_nvm_C_S_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM
     .ANY (+RO)
     .ANY (+XO)
     EXCLUDE(*cy_smif.*, *cy_syslib.*, *cy_syslib_ext.*, *cy_smif_memslot.*, *cy_smif_sfdp.*, *cy_smif_hb_flash.*, *cyhal_qspi.*, *mtb_hal_memoryspi.*, *mtb_serial_memory.*)
+=======
+#define VECTORS_ALIGNMENT 0x400
+
+/* The size of the MCU boot header area at the start of main code region */
+#define MCUBOOT_HEADER_SIZE  0x400
+
+
+/* Serial Memory Interface block #0 memory #1, 16 MB */
+/* Start address is offset by MCUBOOT_HEADER_SIZE to let the area free for the MCU boot header */
+LR_XIP_PORT0 (CYMEM_CM33_0_S_m33s_nvm_sel_S_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM33_0_S_m33s_nvm_SIZE - MCUBOOT_HEADER_SIZE)
+{
+
+  vector_table (CYMEM_CM33_0_S_m33s_nvm_sel_S_START + MCUBOOT_HEADER_SIZE) ALIGN VECTORS_ALIGNMENT
+  {
+    *.* (RESET, +First)
+  }
+
+  app_codeNsc AlignExpr(ImageLimit(vector_table), 32) FIXED
+  {
+    *(Veneer$$CMSE)
+  }
+
+  /* The execution region is designated for the main secure (S) application code for the Cortex-M33 */
+  /* Performance-sensitive or critical functions that need to be executed in sram are manually excluded */
+  app_code_main AlignExpr(ImageLimit(app_codeNsc), 32) ALIGN 32 (CYMEM_CM33_0_S_m33s_nvm_SIZE - MCUBOOT_HEADER_SIZE - VECTORS_ALIGNMENT)
+  {
+    *(InRoot$$Sections)
+    .ANY (+RO)
+    .ANY (+XO)
+    EXCLUDE(*cy_smif.*, *cy_syslib.*, *cy_syslib_ext.*, *cy_smif_memnum.*, *cy_smif_memslot.*, *cy_smif_sfdp.*, *cy_smif_hb_flash.*, *mtb_hal_memoryspi.*, *mtb_serial_memory.*)
+  }
+
+
+  /* The execution region for performance-sensitive or critical functions that need to be executed in SRAM */
+  app_code_ram CYMEM_CM33_0_S_m33s_code_S_START ALIGN 4 CYMEM_CM33_0_S_m33s_code_SIZE
+  {
+    *(.cy_sram_code)
+    *(.cy_ramfunc)
+    *(.text.cy_os_common)
+    cy_smif.* (+RO)
+    cy_syslib.* (+RO)
+    cy_syslib_ext.* (+RO)
+    cy_smif_memnum.* (+RO)
+    cy_smif_memslot.* (+RO)
+    cy_smif_sfdp.* (+RO)
+    cy_smif_hb_flash.* (+RO)
+    mtb_hal_memoryspi.* (+RO)
+    mtb_serial_memory.* (+RO)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   }
 
   /* A region for the vector table */
@@ -95,6 +161,7 @@ LR_XIP_PORT0 (CYMEM_CM33_0_S_m33s_nvm_C_S_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM
     .ANY (+RW +ZI)
   }
 
+<<<<<<< HEAD
   /* The execution region for performance-sensitive or critical functions that need to be executed in SRAM */
   app_code_ram CYMEM_CM33_0_S_m33s_code_S_START ALIGN 4 CYMEM_CM33_0_S_m33s_code_SIZE
   {
@@ -114,10 +181,15 @@ LR_XIP_PORT0 (CYMEM_CM33_0_S_m33s_nvm_C_S_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM
 
   /* A region for secure shared RAM memory */
   cy_sharedmem_sec CYMEM_CM33_0_S_m33s_system_shared_S_START CYMEM_CM33_0_S_m33s_system_shared_SIZE
+=======
+  /* A region for secure shared RAM memory */
+  cy_sharedmem_sec CYMEM_CM33_0_S_m33s_shared_S_START CYMEM_CM33_0_S_m33s_shared_SIZE
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   {
     *(.cy_sharedmem_sec)
   }
 
+<<<<<<< HEAD
   /* A region for public shared RAM memory */
   cy_sharedmem CORE_SYSTEM_SHARED_MEM_START ALIGN 32 CORE_SYSTEM_SHARED_MEM_SIZE
   {
@@ -133,6 +205,21 @@ LR_XIP_PORT0_SG CYMEM_CM33_0_S_m33_nsc_C_S_START CYMEM_CM33_0_S_m33_nsc_SIZE
     *(Veneer$$CMSE)
   }
 }
+=======
+  /* A region for public shared RAM memory only the Cortex-M33 Secure can allocate data but all cores can access*/
+  cy_sharedmem CYMEM_CM33_0_S_m33s_allocatable_shared_S_START CYMEM_CM33_0_S_m33s_allocatable_shared_SIZE
+  {
+    *(.cy_sharedmem)
+  }
+
+  /* A reserved region for the trail space for the signature used by the bootloader - do not place any code here */
+  cy_trailer (CYMEM_CM33_0_S_m33s_trailer_sel_S_START) EMPTY CYMEM_CM33_0_S_m33s_trailer_SIZE
+  {
+  }
+
+}
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /* SRAM, 1 MB */
 /* Note. This load region must not contain any loadable data; only UNINIT or BSS execution regions are allowed */
@@ -140,7 +227,11 @@ LR_SRAM CYMEM_CM33_0_S_m33s_data_S_START CYMEM_CM33_0_S_m33s_data_SIZE
 {
 
   /* A section for non-initialized data memory */
+<<<<<<< HEAD
   bss AlignExpr(ImageLimit(app_data_main), 4) ALIGN 4 (CYMEM_CM33_0_S_m33s_data_SIZE - AlignExpr(ImageLength(ram_vectors), VECTORS_ALIGNMENT) - AlignExpr(ImageLength(app_data_main), 4))
+=======
+  bss AlignExpr(ImageLimit(app_data_main), 8) ALIGN 8 (CYMEM_CM33_0_S_m33s_data_SIZE - AlignExpr(ImageLength(ram_vectors), VECTORS_ALIGNMENT) - AlignExpr(ImageLength(app_data_main), 4))
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   {
     *(.bss)
     *(.bss.*)

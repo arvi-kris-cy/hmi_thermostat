@@ -103,7 +103,11 @@ void lv_draw_vg_lite_deinit(void)
 {
 }
 
+<<<<<<< HEAD
 static bool LV_ATTRIBUTE_FAST_MEM check_image_is_supported(const lv_draw_image_dsc_t * dsc)
+=======
+bool LV_ATTRIBUTE_FAST_MEM check_image_is_supported(const lv_draw_image_dsc_t * dsc)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 {
     lv_image_header_t header;
     lv_result_t res = lv_image_decoder_get_info(dsc->src, &header);
@@ -115,7 +119,11 @@ static bool LV_ATTRIBUTE_FAST_MEM check_image_is_supported(const lv_draw_image_d
     return lv_vg_lite_is_src_cf_supported((lv_color_format_t) header.cf);
 }
 
+<<<<<<< HEAD
 static void LV_ATTRIBUTE_FAST_MEM draw_execute(lv_draw_vg_lite_unit_t * u)
+=======
+void LV_ATTRIBUTE_FAST_MEM draw_execute(lv_draw_vg_lite_unit_t * u)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 {
     lv_draw_task_t * t = u->task_act;
     lv_draw_unit_t * draw_unit = (lv_draw_unit_t *)u;
@@ -290,3 +298,8 @@ int32_t LV_ATTRIBUTE_FAST_MEM draw_delete(lv_draw_unit_t * draw_unit)
 }
 
 #endif /*LV_USE_DRAW_VG_LITE*/
+<<<<<<< HEAD
+=======
+
+/* [] END OF FILE */
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

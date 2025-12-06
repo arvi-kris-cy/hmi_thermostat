@@ -7,6 +7,7 @@
 
 
 # Path to the current BSP
+<<<<<<< HEAD
 SEARCH_TARGET_KIT_PSE84_HMI=../bsps/TARGET_KIT_PSE84_HMI
 
 # The search paths for the included middleware
@@ -39,32 +40,101 @@ SEARCH_wifi-connection-manager=../../mtb_shared/wifi-connection-manager/release-
 SEARCH_wifi-host-driver=../../mtb_shared/wifi-host-driver/release-v4.4.0
 SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v2.0.1
 SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/release-v1.2.090
+=======
+SEARCH_TARGET_APP_KIT_PSE84_HMI=../bsps/TARGET_APP_KIT_PSE84_HMI
+
+# The search paths for the included middleware
+SEARCH_btstack-integration=../../mtb_shared/btstack-integration/latest-v6.X
+SEARCH_btstack=../../mtb_shared/btstack/latest-v4.X
+SEARCH_freertos=../../mtb_shared/freertos/latest-v10.X
+SEARCH_http-client=../../mtb_shared/http-client/latest-v1.X
+SEARCH_mqtt=../../mtb_shared/mqtt/latest-v4.X
+SEARCH_retarget-io=../../mtb_shared/retarget-io/latest-v1.X
+SEARCH_serial-memory=../../mtb_shared/serial-memory/latest-v3.X
+SEARCH_wifi-core-freertos-lwip-mbedtls=../../mtb_shared/wifi-core-freertos-lwip-mbedtls/latest-v3.X
+SEARCH_xensiv-radar-presence=../../mtb_shared/xensiv-radar-presence/latest-v1.X
+SEARCH_abstraction-rtos=../../mtb_shared/abstraction-rtos/release-v1.12.0
+SEARCH_async-transfer=../../mtb_shared/async-transfer/release-v1.1.0
+SEARCH_aws-iot-device-sdk-embedded-C=../../mtb_shared/aws-iot-device-sdk-embedded-C/202103.00
+SEARCH_aws-iot-device-sdk-port=../../mtb_shared/aws-iot-device-sdk-port/release-v2.7.0
+SEARCH_bt-fw-mur-cyw55513=../../mtb_shared/bt-fw-mur-cyw55513/release-v1.0.0
+SEARCH_clib-support=../../mtb_shared/clib-support/release-v1.8.0
+SEARCH_CMSIS-DSP=../../mtb_shared/CMSIS-DSP/v1.10.1
+SEARCH_cmsis=../../mtb_shared/cmsis/release-v6.1.0
+SEARCH_connectivity-utilities=../../mtb_shared/connectivity-utilities/release-v4.5.2
+SEARCH_core-lib=../../mtb_shared/core-lib/release-v1.6.0
+SEARCH_core-make=../../mtb_shared/core-make/release-v3.7.0
+SEARCH_cy-mbedtls-acceleration=../../mtb_shared/cy-mbedtls-acceleration/release-v3.0.0
+SEARCH_ifx-mbedtls=../../mtb_shared/ifx-mbedtls/release-v3.6.400
+SEARCH_lwip-freertos-integration=../../mtb_shared/lwip-freertos-integration/release-v1.2.0
+SEARCH_lwip-network-interface-integration=../../mtb_shared/lwip-network-interface-integration/release-v1.7.0
+SEARCH_lwip=../../mtb_shared/lwip/STABLE-2_1_2_RELEASE
+SEARCH_mtb-dsl-pse8xxgp=../../mtb_shared/mtb-dsl-pse8xxgp/release-v1.1.1
+SEARCH_mtb-ipc=../../mtb_shared/mtb-ipc/release-v1.1.0
+SEARCH_mtb-srf=../../mtb_shared/mtb-srf/release-v1.1.0
+SEARCH_se-rt-services-utils=../../mtb_shared/se-rt-services-utils/release-v1.2.0
+SEARCH_secure-sockets=../../mtb_shared/secure-sockets/release-v3.12.0
+SEARCH_sensor-dsp=../../mtb_shared/sensor-dsp/release-v1.0.0
+SEARCH_whd-bsp-integration=../../mtb_shared/whd-bsp-integration/release-v2.5.0
+SEARCH_wifi-connection-manager=../../mtb_shared/wifi-connection-manager/release-v4.0.1
+SEARCH_wifi-host-driver=../../mtb_shared/wifi-host-driver/release-v5.0.7
+SEARCH_wifi-resources=../../mtb_shared/wifi-resources/release-v3.0.0
+SEARCH_wpa3-external-supplicant=../../mtb_shared/wpa3-external-supplicant/release-v1.3.0
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Search libraries added to build
 SEARCH_MTB_MK+=$(SEARCH_btstack-integration)
 SEARCH_MTB_MK+=$(SEARCH_btstack)
+<<<<<<< HEAD
 SEARCH_MTB_MK+=$(SEARCH_cJSON)
 SEARCH_MTB_MK+=$(SEARCH_mqtt)
 SEARCH_MTB_MK+=$(SEARCH_retarget-io)
 SEARCH_MTB_MK+=$(SEARCH_wifi-core-freertos-lwip-mbedtls)
+=======
+SEARCH_MTB_MK+=$(SEARCH_freertos)
+SEARCH_MTB_MK+=$(SEARCH_http-client)
+SEARCH_MTB_MK+=$(SEARCH_mqtt)
+SEARCH_MTB_MK+=$(SEARCH_retarget-io)
+SEARCH_MTB_MK+=$(SEARCH_serial-memory)
+SEARCH_MTB_MK+=$(SEARCH_wifi-core-freertos-lwip-mbedtls)
+SEARCH_MTB_MK+=$(SEARCH_xensiv-radar-presence)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 SEARCH_MTB_MK+=$(SEARCH_abstraction-rtos)
 SEARCH_MTB_MK+=$(SEARCH_async-transfer)
 SEARCH_MTB_MK+=$(SEARCH_aws-iot-device-sdk-embedded-C)
 SEARCH_MTB_MK+=$(SEARCH_aws-iot-device-sdk-port)
+<<<<<<< HEAD
 SEARCH_MTB_MK+=$(SEARCH_bt-fw-ifx-cyw55500a1)
 SEARCH_MTB_MK+=$(SEARCH_clib-support)
+=======
+SEARCH_MTB_MK+=$(SEARCH_bt-fw-mur-cyw55513)
+SEARCH_MTB_MK+=$(SEARCH_clib-support)
+SEARCH_MTB_MK+=$(SEARCH_CMSIS-DSP)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 SEARCH_MTB_MK+=$(SEARCH_cmsis)
 SEARCH_MTB_MK+=$(SEARCH_connectivity-utilities)
 SEARCH_MTB_MK+=$(SEARCH_core-lib)
 SEARCH_MTB_MK+=$(SEARCH_core-make)
 SEARCH_MTB_MK+=$(SEARCH_cy-mbedtls-acceleration)
+<<<<<<< HEAD
 SEARCH_MTB_MK+=$(SEARCH_freertos)
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 SEARCH_MTB_MK+=$(SEARCH_ifx-mbedtls)
 SEARCH_MTB_MK+=$(SEARCH_lwip-freertos-integration)
 SEARCH_MTB_MK+=$(SEARCH_lwip-network-interface-integration)
 SEARCH_MTB_MK+=$(SEARCH_lwip)
+<<<<<<< HEAD
 SEARCH_MTB_MK+=$(SEARCH_mtb-device-support-pse8xxgp)
 SEARCH_MTB_MK+=$(SEARCH_secure-sockets)
+=======
+SEARCH_MTB_MK+=$(SEARCH_mtb-dsl-pse8xxgp)
+SEARCH_MTB_MK+=$(SEARCH_mtb-ipc)
+SEARCH_MTB_MK+=$(SEARCH_mtb-srf)
+SEARCH_MTB_MK+=$(SEARCH_se-rt-services-utils)
+SEARCH_MTB_MK+=$(SEARCH_secure-sockets)
+SEARCH_MTB_MK+=$(SEARCH_sensor-dsp)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 SEARCH_MTB_MK+=$(SEARCH_whd-bsp-integration)
 SEARCH_MTB_MK+=$(SEARCH_wifi-connection-manager)
 SEARCH_MTB_MK+=$(SEARCH_wifi-host-driver)
@@ -74,28 +144,56 @@ SEARCH_MTB_MK+=$(SEARCH_wpa3-external-supplicant)
 -include $(CY_INTERNAL_APP_PATH)/importedbsp.mk
 COMPONENTS += MW_BTSTACK_INTEGRATION
 COMPONENTS += MW_BTSTACK
+<<<<<<< HEAD
 COMPONENTS += MW_CJSON
 COMPONENTS += MW_MQTT
 COMPONENTS += MW_RETARGET_IO
 COMPONENTS += MW_WIFI_CORE_FREERTOS_LWIP_MBEDTLS
+=======
+COMPONENTS += MW_FREERTOS
+COMPONENTS += MW_HTTP_CLIENT
+COMPONENTS += MW_MQTT
+COMPONENTS += MW_RETARGET_IO
+COMPONENTS += MW_SERIAL_MEMORY
+COMPONENTS += MW_WIFI_CORE_FREERTOS_LWIP_MBEDTLS
+COMPONENTS += MW_XENSIV_RADAR_PRESENCE
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 COMPONENTS += MW_ABSTRACTION_RTOS
 COMPONENTS += MW_ASYNC_TRANSFER
 COMPONENTS += MW_AWS_IOT_DEVICE_SDK_EMBEDDED_C
 COMPONENTS += MW_AWS_IOT_DEVICE_SDK_PORT
+<<<<<<< HEAD
 COMPONENTS += MW_BT_FW_IFX_CYW55500A1
 COMPONENTS += MW_CLIB_SUPPORT
+=======
+COMPONENTS += MW_BT_FW_MUR_CYW55513
+COMPONENTS += MW_CLIB_SUPPORT
+COMPONENTS += MW_CMSIS_DSP
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 COMPONENTS += MW_CMSIS
 COMPONENTS += MW_CONNECTIVITY_UTILITIES
 COMPONENTS += MW_CORE_LIB
 COMPONENTS += MW_CORE_MAKE
 COMPONENTS += MW_CY_MBEDTLS_ACCELERATION
+<<<<<<< HEAD
 COMPONENTS += MW_FREERTOS
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 COMPONENTS += MW_IFX_MBEDTLS
 COMPONENTS += MW_LWIP_FREERTOS_INTEGRATION
 COMPONENTS += MW_LWIP_NETWORK_INTERFACE_INTEGRATION
 COMPONENTS += MW_LWIP
+<<<<<<< HEAD
 COMPONENTS += MW_MTB_DEVICE_SUPPORT_PSE8XXGP
 COMPONENTS += MW_SECURE_SOCKETS
+=======
+COMPONENTS += MW_MTB_DSL_PSE8XXGP
+COMPONENTS += MW_MTB_IPC
+COMPONENTS += MW_MTB_SRF
+COMPONENTS += MW_SE_RT_SERVICES_UTILS
+COMPONENTS += MW_SECURE_SOCKETS
+COMPONENTS += MW_SENSOR_DSP
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 COMPONENTS += MW_WHD_BSP_INTEGRATION
 COMPONENTS += MW_WIFI_CONNECTION_MANAGER
 COMPONENTS += MW_WIFI_HOST_DRIVER
@@ -103,7 +201,11 @@ COMPONENTS += MW_WIFI_RESOURCES
 COMPONENTS += MW_WPA3_EXTERNAL_SUPPLICANT
 
 # Register map file
+<<<<<<< HEAD
 DEVICE_PSE846GPS2DBZC4A_SVD=$(SEARCH_mtb-device-support-pse8xxgp)/pdl/svd/pse84.svd
+=======
+DEVICE_PSE846GPS2DBZC4A_SVD=$(SEARCH_mtb-dsl-pse8xxgp)/pdl/svd/pse84.svd
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 
 #
@@ -114,8 +216,13 @@ bsp-assistant:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bsp-assistant
 .PHONY: bsp-assistant
 
+<<<<<<< HEAD
 CY_HELP_bsp-assistant=Launches the BSP Assistant 1.40 GUI
 CY_HELP_bsp-assistant_VERBOSE=Launches the BSP Assistant 1.40 GUI. Check the BSP Assistant 1.40 User Guide for more information.
+=======
+CY_HELP_bsp-assistant=Launches the BSP Assistant 1.50 GUI
+CY_HELP_bsp-assistant_VERBOSE=Launches the BSP Assistant 1.50 GUI. Check the BSP Assistant 1.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_bsp-assistant:
 	@:
 	$(info $(MTB__SPACE)bsp-assistant       $(CY_HELP_bsp-assistant))
@@ -128,8 +235,13 @@ config_bt:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bt-configurator
 .PHONY: config_bt
 
+<<<<<<< HEAD
 CY_HELP_config_bt=Launches the Bluetooth® Configurator 3.30 GUI for the target's cybt file
 CY_HELP_config_bt_VERBOSE=Launches the Bluetooth® Configurator 3.30 GUI. Check the Bluetooth® Configurator 3.30 User Guide for more information.
+=======
+CY_HELP_config_bt=Launches the Bluetooth® Configurator 3.40 GUI for the target's cybt file
+CY_HELP_config_bt_VERBOSE=Launches the Bluetooth® Configurator 3.40 GUI. Check the Bluetooth® Configurator 3.40 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_config_bt:
 	@:
 	$(info $(MTB__SPACE)config_bt           $(CY_HELP_config_bt))
@@ -142,8 +254,13 @@ bt-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name bt-configurator
 .PHONY: bt-configurator
 
+<<<<<<< HEAD
 CY_HELP_bt-configurator=Launches the Bluetooth® Configurator 3.30 GUI for the target's cybt file
 CY_HELP_bt-configurator_VERBOSE=Launches the Bluetooth® Configurator 3.30 GUI. Check the Bluetooth® Configurator 3.30 User Guide for more information.
+=======
+CY_HELP_bt-configurator=Launches the Bluetooth® Configurator 3.40 GUI for the target's cybt file
+CY_HELP_bt-configurator_VERBOSE=Launches the Bluetooth® Configurator 3.40 GUI. Check the Bluetooth® Configurator 3.40 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_bt-configurator:
 	@:
 	$(info $(MTB__SPACE)bt-configurator     $(CY_HELP_bt-configurator))
@@ -156,8 +273,13 @@ config:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name device-configurator
 .PHONY: config
 
+<<<<<<< HEAD
 CY_HELP_config=Launches the Device Configurator 5.30 GUI for the target's modus file
 CY_HELP_config_VERBOSE=Launches the Device Configurator 5.30 GUI. Check the Device Configurator 5.30 User Guide for more information.
+=======
+CY_HELP_config=Launches the Device Configurator 5.50 GUI for the target's modus file
+CY_HELP_config_VERBOSE=Launches the Device Configurator 5.50 GUI. Check the Device Configurator 5.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_config:
 	@:
 	$(info $(MTB__SPACE)config              $(CY_HELP_config))
@@ -170,8 +292,13 @@ device-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name device-configurator
 .PHONY: device-configurator
 
+<<<<<<< HEAD
 CY_HELP_device-configurator=Launches the Device Configurator 5.30 GUI for the target's modus file
 CY_HELP_device-configurator_VERBOSE=Launches the Device Configurator 5.30 GUI. Check the Device Configurator 5.30 User Guide for more information.
+=======
+CY_HELP_device-configurator=Launches the Device Configurator 5.50 GUI for the target's modus file
+CY_HELP_device-configurator_VERBOSE=Launches the Device Configurator 5.50 GUI. Check the Device Configurator 5.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_device-configurator:
 	@:
 	$(info $(MTB__SPACE)device-configurator $(CY_HELP_device-configurator))
@@ -184,8 +311,13 @@ modlibs:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name library-manager
 .PHONY: modlibs
 
+<<<<<<< HEAD
 CY_HELP_modlibs=Launches the Library Manager 2.40 GUI
 CY_HELP_modlibs_VERBOSE=Launches the Library Manager 2.40 GUI. Check the Library Manager 2.40 User Guide for more information.
+=======
+CY_HELP_modlibs=Launches the Library Manager 2.50 GUI
+CY_HELP_modlibs_VERBOSE=Launches the Library Manager 2.50 GUI. Check the Library Manager 2.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_modlibs:
 	@:
 	$(info $(MTB__SPACE)modlibs             $(CY_HELP_modlibs))
@@ -198,8 +330,13 @@ library-manager:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name library-manager
 .PHONY: library-manager
 
+<<<<<<< HEAD
 CY_HELP_library-manager=Launches the Library Manager 2.40 GUI
 CY_HELP_library-manager_VERBOSE=Launches the Library Manager 2.40 GUI. Check the Library Manager 2.40 User Guide for more information.
+=======
+CY_HELP_library-manager=Launches the Library Manager 2.50 GUI
+CY_HELP_library-manager_VERBOSE=Launches the Library Manager 2.50 GUI. Check the Library Manager 2.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_library-manager:
 	@:
 	$(info $(MTB__SPACE)library-manager     $(CY_HELP_library-manager))
@@ -212,8 +349,13 @@ qspi-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name qspi-configurator
 .PHONY: qspi-configurator
 
+<<<<<<< HEAD
 CY_HELP_qspi-configurator=Launches the QSPI Configurator 4.50 GUI for the target's cyqspi file
 CY_HELP_qspi-configurator_VERBOSE=Launches the QSPI Configurator 4.50 GUI. Check the QSPI Configurator 4.50 User Guide for more information.
+=======
+CY_HELP_qspi-configurator=Launches the QSPI Configurator 4.60 GUI for the target's cyqspi file
+CY_HELP_qspi-configurator_VERBOSE=Launches the QSPI Configurator 4.60 GUI. Check the QSPI Configurator 4.60 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_qspi-configurator:
 	@:
 	$(info $(MTB__SPACE)qspi-configurator   $(CY_HELP_qspi-configurator))
@@ -226,8 +368,13 @@ smartio-configurator:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name smartio-configurator
 .PHONY: smartio-configurator
 
+<<<<<<< HEAD
 CY_HELP_smartio-configurator=Launches the Smart I/O Configurator 4.40 GUI for the target's modus file
 CY_HELP_smartio-configurator_VERBOSE=Launches the Smart I/O Configurator 4.40 GUI. Check the Smart I/O Configurator 4.40 User Guide for more information.
+=======
+CY_HELP_smartio-configurator=Launches the Smart I/O Configurator 4.50 GUI for the target's modus file
+CY_HELP_smartio-configurator_VERBOSE=Launches the Smart I/O Configurator 4.50 GUI. Check the Smart I/O Configurator 4.50 User Guide for more information.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 mtb_help_tool_smartio-configurator:
 	@:
 	$(info $(MTB__SPACE)smartio-configurator $(CY_HELP_smartio-configurator))
@@ -236,6 +383,7 @@ mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
 
+<<<<<<< HEAD
 config_audio-fe:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
 .PHONY: config_audio-fe
@@ -278,6 +426,8 @@ mtb_help_tools_end: mtb_help_tool_edge-protect-configurator
 mtb_help_tool_edge-protect-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_edge-protect-configurator
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 config_ml:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
 .PHONY: config_ml
@@ -306,4 +456,21 @@ mtb_help_tools_end: mtb_help_tool_ml-configurator
 mtb_help_tool_ml-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_ml-configurator
 
+<<<<<<< HEAD
+=======
+edge-protect-configurator:
+	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name edge-protect-configurator
+.PHONY: edge-protect-configurator
+
+CY_HELP_edge-protect-configurator=Launches the Edge Protect Configurator 1.20 GUI for the target's edgeprotect file
+CY_HELP_edge-protect-configurator_VERBOSE=Launches the Edge Protect Configurator 1.20 GUI. Check the Edge Protect Configurator 1.20 User Guide for more information.
+mtb_help_tool_edge-protect-configurator:
+	@:
+	$(info $(MTB__SPACE)edge-protect-configurator $(CY_HELP_edge-protect-configurator))
+
+mtb_help_tools_end: mtb_help_tool_edge-protect-configurator
+mtb_help_tool_edge-protect-configurator: mtb_help_tools_start
+.PHONY: mtb_help_tool_edge-protect-configurator
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 .PHONY: mtb_help_tools_start mtb_help_tools_end

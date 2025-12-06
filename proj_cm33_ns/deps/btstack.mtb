@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 mtb:btstack#release-v4.1.1#$$ASSET_REPO$$/btstack/release-v4.1.1
+=======
+mtb://btstack#latest-v4.X#$$ASSET_REPO$$/btstack/latest-v4.X
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

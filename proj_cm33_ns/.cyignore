@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 $(SEARCH_aws-iot-device-sdk-embedded-C)/libraries/standard/coreHTTP
 $(SEARCH_cJSON)/tests
 $(SEARCH_cJSON)/fuzzing
 $(SEARCH_cJSON)/test.c
+=======
+$(SEARCH_aws-iot-device-sdk-embedded-C)/libraries/standard/coreHTTP
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

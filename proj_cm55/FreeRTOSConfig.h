@@ -55,6 +55,8 @@
 #include "cycfg_system.h"
 #endif
 
+
+
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #if defined (__ICCARM__) || (__GNUC__)
@@ -91,7 +93,7 @@ extern uint32_t SystemCoreClock;
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         1
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   ((size_t )(50*1024))
+#define configTOTAL_HEAP_SIZE                   ((size_t )(64*1024))
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
 /* Hook function related definitions. */
@@ -102,16 +104,23 @@ extern uint32_t SystemCoreClock;
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS           0
+#define configGENERATE_RUN_TIME_STATS           1
 #define configUSE_TRACE_FACILITY                1
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
 
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
-extern void setup_run_time_stats_timer(void);
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() setup_run_time_stats_timer()
-extern uint32_t get_run_time_counter_value(void);
-#define portGET_RUN_TIME_COUNTER_VALUE() get_run_time_counter_value()
-#endif
+    #ifndef RUN_TIME_STATS_PROTOTYPES_ADDED
+    #define RUN_TIME_STATS_PROTOTYPES_ADDED
+        /* Skip C-only declarations when assembling */
+        #ifndef __IASMARM__
+            extern void setup_run_time_stats_timer(void);
+            #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() setup_run_time_stats_timer()
+            extern uint32_t get_run_time_counter_value(void);
+            #define portGET_RUN_TIME_COUNTER_VALUE() get_run_time_counter_value()
+        #endif /* __IASMARM__ */
+    #endif /* RUN_TIME_STATS_PROTOTYPES_ADDED */
+#endif /* configGENERATE_RUN_TIME_STATS */
+
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
@@ -194,6 +203,9 @@ standard names - or at least those used in the unmodified vector table. */
 /* Enable low power tickless functionality. The RTOS abstraction library
  * provides the compatible implementation of the vApplicationSleep hook:
  * https://github.com/Infineon/abstraction-rtos#freertos
+ * The Low Power Assistant library provides additional portable configuration layer
+ * for low-power features supported by the PSoC 6 devices:
+ * https://github.com/Infineon/lpa
  */
 extern void vApplicationSleep( uint32_t xExpectedIdleTime );
 #define portSUPPRESS_TICKS_AND_SLEEP( xIdleTime ) vApplicationSleep( xIdleTime )

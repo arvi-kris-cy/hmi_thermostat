@@ -2,6 +2,7 @@
 #if !defined(CYMEM_CM33_0_S_H)
 #define CYMEM_CM33_0_S_H
 
+<<<<<<< HEAD
 #define CYMEM_CM33_0_S_extended_boot_reserved_START 0x22000000u
 #define CYMEM_CM33_0_S_extended_boot_reserved_C_START 0x02000000u
 #define CYMEM_CM33_0_S_extended_boot_reserved_C_S_START 0x12000000u
@@ -20,10 +21,33 @@
 #define CYMEM_CM33_0_S_reserved_region_S_START 0x3206A000u
 #define CYMEM_CM33_0_S_reserved_region_SIZE 0x00016000u
 #define CYMEM_CM33_0_S_reserved_region_OFFSET 0x0006A000u
+=======
+#define CYMEM_CM33_0_S_m55_data_START 0x48040000u
+#define CYMEM_CM33_0_S_m55_data_S_START 0x58040000u
+#define CYMEM_CM33_0_S_m55_data_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m55_data_OFFSET 0x00000000u
+#define CYMEM_CM33_0_S_m55_code_START 0x48000000u
+#define CYMEM_CM33_0_S_m55_code_S_START 0x58000000u
+#define CYMEM_CM33_0_S_m55_code_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m55_code_OFFSET 0x00000000u
+#define CYMEM_CM33_0_S_user_programmable_START 0x22011000u
+#define CYMEM_CM33_0_S_user_programmable_C_START 0x02011000u
+#define CYMEM_CM33_0_S_user_programmable_C_S_START 0x12011000u
+#define CYMEM_CM33_0_S_user_programmable_S_START 0x32011000u
+#define CYMEM_CM33_0_S_user_programmable_SIZE 0x00019000u
+#define CYMEM_CM33_0_S_user_programmable_OFFSET 0x00011000u
+#define CYMEM_CM33_0_S_user_nvm_START 0x2202A000u
+#define CYMEM_CM33_0_S_user_nvm_C_START 0x0202A000u
+#define CYMEM_CM33_0_S_user_nvm_C_S_START 0x1202A000u
+#define CYMEM_CM33_0_S_user_nvm_S_START 0x3202A000u
+#define CYMEM_CM33_0_S_user_nvm_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_user_nvm_OFFSET 0x0002A000u
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define CYMEM_CM33_0_S_m33s_nvm_START 0x60100000u
 #define CYMEM_CM33_0_S_m33s_nvm_C_START 0x08100000u
 #define CYMEM_CM33_0_S_m33s_nvm_C_S_START 0x18100000u
 #define CYMEM_CM33_0_S_m33s_nvm_S_START 0x70100000u
+<<<<<<< HEAD
 #define CYMEM_CM33_0_S_m33s_nvm_SIZE 0x00240000u
 #define CYMEM_CM33_0_S_m33s_nvm_OFFSET 0x00100000u
 #define CYMEM_CM33_0_S_m33s_system_shared_START 0x24000000u
@@ -32,10 +56,75 @@
 #define CYMEM_CM33_0_S_m33s_system_shared_S_START 0x34000000u
 #define CYMEM_CM33_0_S_m33s_system_shared_SIZE 0x00002000u
 #define CYMEM_CM33_0_S_m33s_system_shared_OFFSET 0x00000000u
+=======
+#define CYMEM_CM33_0_S_m33s_nvm_SIZE 0x00200000u
+#define CYMEM_CM33_0_S_m33s_nvm_OFFSET 0x00100000u
+#define CYMEM_CM33_0_S_m33s_trailer_START 0x60300000u
+#define CYMEM_CM33_0_S_m33s_trailer_C_START 0x08300000u
+#define CYMEM_CM33_0_S_m33s_trailer_C_S_START 0x18300000u
+#define CYMEM_CM33_0_S_m33s_trailer_S_START 0x70300000u
+#define CYMEM_CM33_0_S_m33s_trailer_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m33s_trailer_OFFSET 0x00300000u
+#define CYMEM_CM33_0_S_m33_nvm_START 0x60340000u
+#define CYMEM_CM33_0_S_m33_nvm_C_START 0x08340000u
+#define CYMEM_CM33_0_S_m33_nvm_C_S_START 0x18340000u
+#define CYMEM_CM33_0_S_m33_nvm_S_START 0x70340000u
+#define CYMEM_CM33_0_S_m33_nvm_SIZE 0x00200000u
+#define CYMEM_CM33_0_S_m33_nvm_OFFSET 0x00340000u
+#define CYMEM_CM33_0_S_m33_trailer_START 0x60540000u
+#define CYMEM_CM33_0_S_m33_trailer_C_START 0x08540000u
+#define CYMEM_CM33_0_S_m33_trailer_C_S_START 0x18540000u
+#define CYMEM_CM33_0_S_m33_trailer_S_START 0x70540000u
+#define CYMEM_CM33_0_S_m33_trailer_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m33_trailer_OFFSET 0x00540000u
+#define CYMEM_CM33_0_S_m55_nvm_START 0x60580000u
+#define CYMEM_CM33_0_S_m55_nvm_C_START 0x08580000u
+#define CYMEM_CM33_0_S_m55_nvm_C_S_START 0x18580000u
+#define CYMEM_CM33_0_S_m55_nvm_S_START 0x70580000u
+#define CYMEM_CM33_0_S_m55_nvm_SIZE 0x00400000u
+#define CYMEM_CM33_0_S_m55_nvm_OFFSET 0x00580000u
+#define CYMEM_CM33_0_S_m55_trailer_START 0x60980000u
+#define CYMEM_CM33_0_S_m55_trailer_C_START 0x08980000u
+#define CYMEM_CM33_0_S_m55_trailer_C_S_START 0x18980000u
+#define CYMEM_CM33_0_S_m55_trailer_S_START 0x70980000u
+#define CYMEM_CM33_0_S_m55_trailer_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m55_trailer_OFFSET 0x00980000u
+#define CYMEM_CM33_0_S_m55_code_secondary_START 0x26000000u
+#define CYMEM_CM33_0_S_m55_code_secondary_C_START 0x06000000u
+#define CYMEM_CM33_0_S_m55_code_secondary_C_S_START 0x16000000u
+#define CYMEM_CM33_0_S_m55_code_secondary_S_START 0x36000000u
+#define CYMEM_CM33_0_S_m55_code_secondary_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m55_code_secondary_OFFSET 0x00000000u
+#define CYMEM_CM33_0_S_m55_data_secondary_START 0x26001000u
+#define CYMEM_CM33_0_S_m55_data_secondary_C_START 0x06001000u
+#define CYMEM_CM33_0_S_m55_data_secondary_C_S_START 0x16001000u
+#define CYMEM_CM33_0_S_m55_data_secondary_S_START 0x36001000u
+#define CYMEM_CM33_0_S_m55_data_secondary_SIZE 0x002EB000u
+#define CYMEM_CM33_0_S_m55_data_secondary_OFFSET 0x00001000u
+#define CYMEM_CM33_0_S_m33_m55_shared_START 0x262EC000u
+#define CYMEM_CM33_0_S_m33_m55_shared_C_START 0x062EC000u
+#define CYMEM_CM33_0_S_m33_m55_shared_C_S_START 0x162EC000u
+#define CYMEM_CM33_0_S_m33_m55_shared_S_START 0x362EC000u
+#define CYMEM_CM33_0_S_m33_m55_shared_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m33_m55_shared_OFFSET 0x002EC000u
+#define CYMEM_CM33_0_S_gfx_mem_START 0x262ED000u
+#define CYMEM_CM33_0_S_gfx_mem_C_START 0x062ED000u
+#define CYMEM_CM33_0_S_gfx_mem_C_S_START 0x162ED000u
+#define CYMEM_CM33_0_S_gfx_mem_S_START 0x362ED000u
+#define CYMEM_CM33_0_S_gfx_mem_SIZE 0x00213000u
+#define CYMEM_CM33_0_S_gfx_mem_OFFSET 0x002ED000u
+#define CYMEM_CM33_0_S_m33s_shared_START 0x24001000u
+#define CYMEM_CM33_0_S_m33s_shared_C_START 0x04001000u
+#define CYMEM_CM33_0_S_m33s_shared_C_S_START 0x14001000u
+#define CYMEM_CM33_0_S_m33s_shared_S_START 0x34001000u
+#define CYMEM_CM33_0_S_m33s_shared_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m33s_shared_OFFSET 0x00001000u
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define CYMEM_CM33_0_S_m33s_code_START 0x24002000u
 #define CYMEM_CM33_0_S_m33s_code_C_START 0x04002000u
 #define CYMEM_CM33_0_S_m33s_code_C_S_START 0x14002000u
 #define CYMEM_CM33_0_S_m33s_code_S_START 0x34002000u
+<<<<<<< HEAD
 #define CYMEM_CM33_0_S_m33s_code_SIZE 0x00007000u
 #define CYMEM_CM33_0_S_m33s_code_OFFSET 0x00002000u
 #define CYMEM_CM33_0_S_m33s_data_START 0x24009000u
@@ -56,5 +145,45 @@
 #define CYMEM_CM33_0_S_m33_m55_system_shared_S_START 0x340FD000u
 #define CYMEM_CM33_0_S_m33_m55_system_shared_SIZE 0x00003000u
 #define CYMEM_CM33_0_S_m33_m55_system_shared_OFFSET 0x000FD000u
+=======
+#define CYMEM_CM33_0_S_m33s_code_SIZE 0x00035000u
+#define CYMEM_CM33_0_S_m33s_code_OFFSET 0x00002000u
+#define CYMEM_CM33_0_S_m33s_data_START 0x24037000u
+#define CYMEM_CM33_0_S_m33s_data_C_START 0x04037000u
+#define CYMEM_CM33_0_S_m33s_data_C_S_START 0x14037000u
+#define CYMEM_CM33_0_S_m33s_data_S_START 0x34037000u
+#define CYMEM_CM33_0_S_m33s_data_SIZE 0x00021000u
+#define CYMEM_CM33_0_S_m33s_data_OFFSET 0x00037000u
+#define CYMEM_CM33_0_S_m33_code_START 0x24058000u
+#define CYMEM_CM33_0_S_m33_code_C_START 0x04058000u
+#define CYMEM_CM33_0_S_m33_code_C_S_START 0x14058000u
+#define CYMEM_CM33_0_S_m33_code_S_START 0x34058000u
+#define CYMEM_CM33_0_S_m33_code_SIZE 0x00065000u
+#define CYMEM_CM33_0_S_m33_code_OFFSET 0x00058000u
+#define CYMEM_CM33_0_S_m33_data_START 0x240BD000u
+#define CYMEM_CM33_0_S_m33_data_C_START 0x040BD000u
+#define CYMEM_CM33_0_S_m33_data_C_S_START 0x140BD000u
+#define CYMEM_CM33_0_S_m33_data_S_START 0x340BD000u
+#define CYMEM_CM33_0_S_m33_data_SIZE 0x00040000u
+#define CYMEM_CM33_0_S_m33_data_OFFSET 0x000BD000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_START 0x240FD000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_C_START 0x040FD000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_C_S_START 0x140FD000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_S_START 0x340FD000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m33s_allocatable_shared_OFFSET 0x000FD000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_START 0x240FE000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_C_START 0x040FE000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_C_S_START 0x140FE000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_S_START 0x340FE000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m33_allocatable_shared_OFFSET 0x000FE000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_START 0x240FF000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_C_START 0x040FF000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_C_S_START 0x140FF000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_S_START 0x340FF000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_SIZE 0x00001000u
+#define CYMEM_CM33_0_S_m55_allocatable_shared_OFFSET 0x000FF000u
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #endif /* CYMEM_CM33_0_S_H */

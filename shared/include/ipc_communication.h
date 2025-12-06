@@ -54,7 +54,11 @@
 * Macros
 *******************************************************************************/
 #define CY_IPC_MAX_ENDPOINTS            (5UL)
+<<<<<<< HEAD
 #define CY_IPC_CYPIPE_CLIENT_CNT        (8UL)
+=======
+#define CY_IPC_CYPIPE_CLIENT_CNT        (16UL)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #define CY_IPC_CHAN_CYPIPE_EP1          (4UL)
 #define CY_IPC_INTR_CYPIPE_EP1          (4UL)
@@ -64,7 +68,11 @@
 /* IPC Pipe Endpoint-1 config */
 #define CY_IPC_CYPIPE_CHAN_MASK_EP1     CY_IPC_CH_MASK(CY_IPC_CHAN_CYPIPE_EP1)
 #define CY_IPC_CYPIPE_INTR_MASK_EP1     CY_IPC_INTR_MASK(CY_IPC_INTR_CYPIPE_EP1)
+<<<<<<< HEAD
 #define CY_IPC_INTR_CYPIPE_PRIOR_EP1    (1UL)
+=======
+#define CY_IPC_INTR_CYPIPE_PRIOR_EP1    (4UL)//(1UL)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define CY_IPC_INTR_CYPIPE_MUX_EP1      (CY_IPC0_INTR_MUX(CY_IPC_INTR_CYPIPE_EP1))
 #define CM33_IPC_PIPE_EP_ADDR           (1UL)
 #define CM33_IPC_PIPE_CLIENT_ID         (3UL)
@@ -72,7 +80,11 @@
 /* IPC Pipe Endpoint-2 config */
 #define CY_IPC_CYPIPE_CHAN_MASK_EP2     CY_IPC_CH_MASK(CY_IPC_CHAN_CYPIPE_EP2)
 #define CY_IPC_CYPIPE_INTR_MASK_EP2     CY_IPC_INTR_MASK(CY_IPC_INTR_CYPIPE_EP2)
+<<<<<<< HEAD
 #define CY_IPC_INTR_CYPIPE_PRIOR_EP2    (1UL)
+=======
+#define CY_IPC_INTR_CYPIPE_PRIOR_EP2    (4UL)//(1UL)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define CY_IPC_INTR_CYPIPE_MUX_EP2      (CY_IPC0_INTR_MUX(CY_IPC_INTR_CYPIPE_EP2))
 #define CM55_IPC_PIPE_EP_ADDR           (2UL)
 #define CM55_IPC_PIPE_CLIENT_ID         (5UL)
@@ -86,6 +98,11 @@
 #define IPC_CMD_STOP                    (0x83)
 #define IPC_CMD_STATUS                  (0x41)
 
+<<<<<<< HEAD
+=======
+#define IPC_MUTEX_TIMEOUT               1000U
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /*******************************************************************************
 * Enumeration
 *******************************************************************************/
@@ -104,6 +121,12 @@ typedef struct
     	wifi_credentials_t	wifi_info;
     	ble_pairing_code_t	pairing_code;
     	char unique_id[13];		/* Unique id created using MAC addr. */
+<<<<<<< HEAD
+=======
+        DateTime datetime;
+        char fw_version[MAX_FW_VERSION_LEN];
+        char char_value[32];       /* Used for single character values */
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     };
 
 } ipc_msg_t;

@@ -44,6 +44,16 @@ CY_TOOLS_PATHS+=
 # found).
 CY_TOOLS_DIR=$(lastword $(sort $(wildcard $(CY_TOOLS_PATHS))))
 
+# Absolute path to the compiler's "bin" directory. The variable name depends on 
+# the toolchain used for the build. Refer to the ModusToolbox user guide to get 
+# the correct variable name for the toolchain used in your build.
+#
+# The default path depends on the selected TOOLCHAIN and is set in the 
+# Make recipe.
+CY_COMPILER_LLVM_ARM_DIR?=
+
+CY_COMPILER_ARM_DIR?=
+
 ifeq ($(CY_TOOLS_DIR),)
 $(error Unable to find any of the available CY_TOOLS_PATHS -- $(CY_TOOLS_PATHS))
 endif

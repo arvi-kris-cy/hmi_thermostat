@@ -5,12 +5,20 @@
 #define IFX_MEMORY_TYPE_CM55_DTCM_INTERNAL (0)
 #define IFX_MEMORY_TYPE_CM55_ITCM_INTERNAL (1)
 #define IFX_MEMORY_TYPE_RRAM (2)
+<<<<<<< HEAD
 #define IFX_MEMORY_TYPE_SMIF0MEM1 (3)
+=======
+#define IFX_MEMORY_TYPE_SMIF0MEM0 (3)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #define IFX_MEMORY_TYPE_SOCMEM_RAM (4)
 #define IFX_MEMORY_TYPE_SRAM (5)
 
 #define IS_SMIF_MEMORY(mem) ( \
+<<<<<<< HEAD
     (mem == IFX_MEMORY_TYPE_SMIF0MEM1) ? 1 : \
+=======
+    (mem == IFX_MEMORY_TYPE_SMIF0MEM0) ? 1 : \
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     0 \
 )
 

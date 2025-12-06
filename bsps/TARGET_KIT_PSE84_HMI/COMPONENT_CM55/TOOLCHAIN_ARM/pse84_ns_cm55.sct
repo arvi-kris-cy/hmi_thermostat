@@ -10,6 +10,7 @@
 * input files should be mapped into the output file, and to control the memory
 * layout of the output file.
 *
+<<<<<<< HEAD
 * \note The entry point location starts at 0x0200E000. The valid
 * application image should be placed there.
 *
@@ -18,6 +19,17 @@
 * defined in the linker files. In that case you may see warnings during the
 * build process. In your project, you can simply comment out or remove the
 * relevant code in the linker file.
+=======
+*
+* \note The linker files included with the PDL template projects must be
+* generic and handle all common use cases. Your project may not use every
+* section defined in the linker files. In that case you may see the warnings
+* during the build process: L6314W (no section matches pattern) and/or L6329W
+* (pattern only matches removed unused sections). In your project, you can
+* suppress the warning by passing the "--diag_suppress=L6314W,L6329W" option to
+* the linker, simply comment out or remove the relevant code in the linker
+* file.
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *
 ********************************************************************************
 * \copyright
@@ -42,7 +54,11 @@
 #include "../../config/GeneratedSource/cymem_armlink_CM55_0.sct"
 
 /* Define the stack size for the application */
+<<<<<<< HEAD
 /* To set stack size in application add makefile ldflags: --predefine="-DAPP_MSP_STACK_SIZE=0x2000" */
+=======
+/* To set stack size in application add makefile ldflags: --predefine="-DAPP_MSP_STACK_SIZE=<CUSTOM_VALUE>" */
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #ifdef APP_MSP_STACK_SIZE
 #define __STACK_SIZE    APP_MSP_STACK_SIZE
 #else
@@ -52,6 +68,7 @@
 /* User Stack & Heap boundary definition */
 /* Place the top of the stack at the end of the DTCM */
 #define __STACK_TOP    (CYMEM_CM55_0_m55_data_INTERNAL_START + CYMEM_CM55_0_m55_data_SIZE)
+<<<<<<< HEAD
 /* Position the beginning of the heap right after the cy_socmem_data ER, ensuring an 8-byte alignment */
 #define __HEAP_BASE    AlignExpr(ImageLimit(cy_socmem_data), 8)
 /* The heap extends to the end of SoCMEM */
@@ -75,11 +92,32 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
 {
   /* The execution region is designated for the main application code on the Cortex-M55 */
   app_code_main (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) ALIGN VECTORS_ALIGNMENT (CYMEM_CM55_0_m55_nvm_SIZE - MCUBOOT_HEADER_SIZE)
+=======
+/* Position the beginning of the heap right after the cy_socmem_data execution region, ensuring an 8-byte alignment */
+#define __HEAP_BASE    AlignExpr(ImageLimit(cy_socmem_data), 8)
+/* The heap extends to the end of SoCMEM */
+#define __HEAP_SIZE   (CYMEM_CM55_0_m55_data_secondary_START + CYMEM_CM55_0_m55_data_secondary_SIZE - __HEAP_BASE)
+
+/* Device definitions */
+#define VECTORS_ALIGNMENT 0x400
+
+/* The size of the MCU boot header area at the start of main code region */
+#define MCUBOOT_HEADER_SIZE  0x400
+
+/* Serial Memory Interface block #0 memory #1, 16 MB */
+/* Start address is offset by MCUBOOT_HEADER_SIZE to let the area free for the MCU boot header */
+LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m55_nvm_SIZE - MCUBOOT_HEADER_SIZE)
+{
+  /* The execution region is designated for the main application code for the Cortex-M55 */
+  /* Performance-sensitive or critical functions that need to be executed in sram are manually excluded */
+  app_code_main (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) ALIGN VECTORS_ALIGNMENT (CYMEM_CM55_0_m55_nvm_SIZE - MCUBOOT_HEADER_SIZE)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   {
     *.* (RESET, +First)
     *(InRoot$$Sections)
     .ANY (+RO)
     .ANY (+XO)
+<<<<<<< HEAD
     EXCLUDE(*cy_smif.*, *cy_syslib.*, *cy_syslib_ext.*, *cy_smif_memslot.*, *cy_smif_sfdp.*, *cy_smif_hb_flash.*, *cyhal_qspi.*, *mtb_hal_memoryspi.*, *mtb_serial_memory.*, *freertos/Source*.*, *clib-support*.*, *abstraction-rtos*.*, */cmsis*.*)
   }
 
@@ -89,10 +127,24 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
     *(.cy_itcm)
     *(.cy_sram1_code)
     *(.cy_ramfunc)
+=======
+    EXCLUDE(*cy_smif.*, *cy_syslib.*, *cy_syslib_ext.*, *cy_smif_memnum.*, *cy_smif_memslot.*, *cy_smif_sfdp.*, *cy_smif_hb_flash.*, *mtb_hal_memoryspi.*, *mtb_serial_memory.*, *freertos/Source*.*, *cy_clib_support*.*, *cy_mutex_pool*.*, *cy_time.*, *cyabs_*.*, *cy_worker_thread.*, *cmsis*.*)
+  }
+
+  /* The execution region for performance-sensitive or critical functions that need to be executed in SRAM */
+  /* Reserving the first 16 bytes to avoid debug symbols (that have default address 0x0) to be confused with actual code */
+  app_code_ram (CYMEM_CM55_0_m55_code_INTERNAL_START + 16) (CYMEM_CM55_0_m55_code_SIZE - 16)
+  {
+    *(.cy_itcm)
+    *(.cy_sram_code)
+    *(.cy_ramfunc)
+    *(.text.cy_os_common)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     cy_syslib.* (+RO)
     cy_syslib_ext.* (+RO)
     cy_smif.* (+RO)
     cy_smif_hb_flash.* (+RO)
+<<<<<<< HEAD
     cy_smif_memslot.* (+RO)
     cy_smif_sfdp.* (+RO)
     cyhal_qspi.* (+RO)
@@ -173,6 +225,94 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
 
   /* The execution region for less performance-sensitive or critical functions that might be executed in SOC memory */
   app_code_socmem CYMEM_CM55_0_m55_code2_START CYMEM_CM55_0_m55_code2_SIZE
+=======
+    cy_smif_memnum.* (+RO)
+    cy_smif_memslot.* (+RO)
+    cy_smif_sfdp.* (+RO)
+    mtb_hal_memoryspi.* (+RO)
+    mtb_serial_memory.* (+RO)
+    *freertos/Source*.* (+RO)
+    *cy_clib_support*.* (+RO)
+    *cy_mutex_pool*.* (+RO)
+    *cy_time.* (+RO)
+    *cyabs_*.* (+RO)
+    *cy_worker_thread.* (+RO)
+    *cmsis*.* (+RO)
+    */cmsis*.* (+RO)
+    */lvgl/src*.* (+RO)
+    *abstraction-rtos*.* (+RO)
+    
+    ; Libraries 
+    *sp_enh* (+RO, +RW, +ZI)
+    *libusbd_base_d_cm55f_armc6* (+RO, +RW, +ZI)
+    *libusbd_base_r_cm55f_armc6* (+RO, +RW, +ZI)
+    *ifx_va* (+RO, +RW, +ZI)
+    *libnlu* (+RO, +RW, +ZI)
+    *libwwd* (+RO, +RW, +ZI)
+    
+    ;Application
+    *app_voice_control* (+RO)
+
+    ; Inferencing
+    *voice_assistant* (+RO)
+
+    ; Audio Enhancement
+    *audio_enhancement* (+RO)
+    *app_afe_tuner* (+RO)
+   
+    ;Middleware, Software, Modules
+    *app_logger* (+RO)
+    *pdm_mic_interface* (+RO)
+    
+    *audio_usb_send_utils* (+RO)
+    *audio_send_task* (+RO)
+    *audio_receive_task* (+RO)
+    *audio_app* (+RO)
+    *usb_audio_interface* (+RO)
+    
+    *audio_conv_utils* (+RO)
+    
+    *app_i2s* (+RO)
+    *mtb_tlv320dac3100* (+RO)
+    
+    *profiler* (+RO)
+    
+    *cy_retarget_io* (+RO)
+    *cy_afe_audio_process* (+RO)
+    *cy_afe_audio_speech_enh* (+RO)
+    *cy_afe_audio_task* (+RO)
+    *cy_afe_audio_utils* (+RO)
+    *cy_buffer_pool* (+RO)
+    
+    *cy_afe* (+RO)
+    *cy_afe_audio_debug* (+RO)
+    *cy_afe_profiler* (+RO)
+    *cy_afe_tuner_commands* (+RO)
+    *cy_afe_tuner_task* (+RO)
+    
+    *cy_sp_enh* (+RO)
+    *cy_afe_tuner_process* (+RO)
+    *ifx_sp_enh* (+RO)
+    *ifx_sp_enh_process* (+RO)
+    *supportFunctions* (+RO)
+
+    *cy_arm_freertos* (+RO)
+    *cyhal_uart* (+RO)
+    
+    *cyhal_i2s* (+RO)
+    *usbd_config* (+RO)
+    *usbd_config_io* (+RO)
+    *usbd_os_abs_rtos* (+RO)
+    *cyhal_pdmpcm* (+RO)
+    *cy_pdm_pcm_v2* (+RO)
+    *cyhal_audio_common* (+RO)
+    
+    *(.itcm_data)
+  }
+
+  /* The execution region for less performance-sensitive or critical functions that might be executed in SOC memory */
+  app_code_socmem CYMEM_CM55_0_m55_code_secondary_START CYMEM_CM55_0_m55_code_secondary_SIZE
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   {
     *(.cy_socmem_code)
   }
@@ -180,6 +320,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
   /* A region for initialized data memory */
   app_data_main CYMEM_CM55_0_m55_data_INTERNAL_START CYMEM_CM55_0_m55_data_SIZE
   {
+<<<<<<< HEAD
     .ANY (+RW +ZI)
   }
 
@@ -187,6 +328,19 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
   cy_socmem_data CYMEM_CM55_0_m55_data2_START CYMEM_CM55_0_m55_data2_SIZE
   {
     *(.cy_socmem_data) 
+=======
+    *(.cy_dtcm)
+    .ANY (+RW +ZI)
+    . = ALIGN(4);
+    *(.dtcm_data)
+    . = ALIGN(4);
+  }
+
+  /* A section for initialized data in SOC memory */
+  cy_socmem_data CYMEM_CM55_0_m55_data_secondary_START CYMEM_CM55_0_m55_data_secondary_SIZE
+  {
+    *(.cy_socmem_data)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     *(.wwd_nlu_data0)
     *(.wwd_nlu_data1)
     *(.wwd_nlu_data2)
@@ -196,8 +350,13 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
     *(.wwd_nlu_data6)
   }
 
+<<<<<<< HEAD
   /* A region for shared RAM memory */
   cy_sharedmem CORE_SYSTEM_SHARED_MEM_START ALIGN 32 CORE_SYSTEM_SHARED_MEM_SIZE
+=======
+  /* A region for shared RAM memory where only the Cortex-M55 can allocate data but all cores can access*/
+  cy_sharedmem CYMEM_CM55_0_m55_allocatable_shared_START OVERLAY CYMEM_CM55_0_m55_allocatable_shared_SIZE
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
   {
     *(.cy_sharedmem)
   }
@@ -208,6 +367,14 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_0_m5
     *(.cy_gpu_buf)
   }
 
+<<<<<<< HEAD
+=======
+  /* A reserved region for the trail space for the signature used by the bootloader - do not place any code here */
+  cy_trailer (CYMEM_CM55_0_m55_trailer_sel_START) EMPTY CYMEM_CM55_0_m55_trailer_SIZE
+  {
+  }
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 /* ITCM, 256 KB */
@@ -247,7 +414,11 @@ LR_DTCM CYMEM_CM55_0_m55_data_INTERNAL_START CYMEM_CM55_0_m55_data_SIZE
 
 /* System SRAM (SoCMEM), 5MB */
 /* Note. This load region must not contain any loadable data; only UNINIT or BSS execution regions are allowed */
+<<<<<<< HEAD
 LR_SOCMEM CYMEM_CM55_0_m55_code2_START (CYMEM_CM55_0_m55_code2_SIZE + CYMEM_CM55_0_m33_m55_shared_SIZE + + CYMEM_CM55_0_gfx_mem_SIZE + CYMEM_CM55_0_m55_data2_SIZE)
+=======
+LR_SOCMEM CYMEM_CM55_0_m55_code_secondary_START (CYMEM_CM55_0_m55_code_secondary_SIZE + CYMEM_CM55_0_m33_m55_shared_SIZE + CYMEM_CM55_0_gfx_mem_SIZE + CYMEM_CM55_0_m55_data_secondary_SIZE)
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 {
   /* A region for the heap memory */
   ARM_LIB_HEAP __HEAP_BASE EMPTY __HEAP_SIZE

@@ -1,5 +1,6 @@
 var searchData=
 [
+<<<<<<< HEAD
   ['communication_20pins_0',['Communication Pins',['../group__group__bsp__pins__comm.html',1,'']]],
   ['cy_5fcomplete_5fmpc_5fconfig_5ft_1',['cy_complete_mpc_config_t',['../structcy__complete__mpc__config__t.html',1,'']]],
   ['cy_5fmpc_5fregions_5fconfig_5f2_5ft_2',['cy_mpc_regions_config_2_t',['../structcy__mpc__regions__config__2__t.html',1,'']]],
@@ -23,4 +24,7 @@ var searchData=
   ['cybsp_5frslt_5ferr_5fsysclk_5fpm_5fcallback_20',['CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK',['../group__group__bsp__errors.html#gaee745bd3fccec6eb2df1e83fc4c9f775',1,'cybsp.h']]],
   ['cybsp_5fwifi_5fhost_5fwake_5fgpio_5fdm_21',['CYBSP_WIFI_HOST_WAKE_GPIO_DM',['../group__group__bsp__pins__comm.html#ga8643a26f39112d7f87aa8b6ebcdcd1b0',1,'cybsp_doc.h']]],
   ['cybsp_5fwifi_5fhost_5fwake_5firq_5fevent_22',['CYBSP_WIFI_HOST_WAKE_IRQ_EVENT',['../group__group__bsp__pins__comm.html#gae4668c08493082ab2d7dca34eb8a9777',1,'cybsp_doc.h']]]
+=======
+  ['bluetooth_20configuration_20structure_0',['Bluetooth Configuration Structure',['../group__group__bsp__bt.html',1,'']]]
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 ];

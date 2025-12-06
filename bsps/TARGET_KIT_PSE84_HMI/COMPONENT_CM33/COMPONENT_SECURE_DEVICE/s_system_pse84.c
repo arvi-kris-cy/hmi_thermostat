@@ -48,6 +48,7 @@
 #define CY_CLK_SYSTEM_FREQ_HZ_DEFAULT       (50000000UL)
 #endif
 
+<<<<<<< HEAD
 /**
 * Holds the (Cortex-M33) system core clock,
 * which is the system clock frequency supplied to the SysTick timer and the
@@ -71,6 +72,10 @@ uint32_t cy_Hfclk0FreqHz  = CY_CLK_HFCLK0_FREQ_HZ_DEFAULT;
 uint32_t cy_PeriClkFreqHz = CY_CLK_PERICLK_FREQ_HZ_DEFAULT;
 
 /** Holds the AHB frequency. Updated by \ref SystemCoreClockUpdate(). */
+=======
+uint32_t SystemCoreClock = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
+
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 uint32_t cy_AhbFreqHz = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
 
 /*******************************************************************************
@@ -112,6 +117,7 @@ uint32_t cy_delayFreqMhz  = (uint8_t)((CY_CLK_SYSTEM_FREQ_HZ_DEFAULT + CY_DELAY_
 #define SCB_CPACR_CP10_CP11_ENABLE      (0xFUL << 20U)
 
 
+<<<<<<< HEAD
 #if defined(CY_DEVICE_FORCE_IP_ENABLE_IN_STARTUP)
 static void SystemInit_Enable_Clocks(void)
 {
@@ -167,6 +173,13 @@ void SystemInit(void)
     SystemInit_Enable_Peri();
 #endif /* CY_DEVICE_FORCE_IP_ENABLE_IN_STARTUP */
 
+=======
+/*******************************************************************************
+* Function Name: SystemInit
+*******************************************************************************/
+void SystemInit(void)
+{
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     Cy_SystemInit();
     /* Enable Event from CM55 */
     MXCM33->CM33_EVENT_CTL = CM55_0_CPU_EVENT;
@@ -174,10 +187,13 @@ void SystemInit(void)
 
 /*******************************************************************************
 * Function Name: Cy_SystemInit
+<<<<<<< HEAD
 ****************************************************************************//**
 *
 * The function is called during device startup.
 *
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *******************************************************************************/
 __WEAK void Cy_SystemInit(void)
 {
@@ -188,6 +204,7 @@ __WEAK void Cy_SystemInit(void)
 
 /*******************************************************************************
 * Function Name: SystemCoreClockUpdate
+<<<<<<< HEAD
 ****************************************************************************//**
 *
 * Gets core clock frequency and updates \ref SystemCoreClock, \ref
@@ -196,6 +213,8 @@ __WEAK void Cy_SystemInit(void)
 * Updates global variables used by the \ref Cy_SysLib_Delay(), \ref
 * Cy_SysLib_DelayUs(), and \ref Cy_SysLib_DelayCycles().
 *
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *******************************************************************************/
 void SystemCoreClockUpdate (void)
 {
@@ -209,6 +228,7 @@ void SystemCoreClockUpdate (void)
 
     SystemCoreClock = pathFreqHz;
 
+<<<<<<< HEAD
     cy_Hfclk0FreqHz = SystemCoreClock;
 
     /* Get frequency for the high-frequency clock # 2 , which is used for PERI PCLK*/
@@ -218,6 +238,8 @@ void SystemCoreClockUpdate (void)
 
     cy_PeriClkFreqHz = pathFreqHz;
 
+=======
+>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     /* Sets clock frequency for Delay API */
     cy_delayFreqHz = SystemCoreClock;
     cy_delayFreqMhz = (uint32_t)((cy_delayFreqHz + CY_DELAY_1M_MINUS_1_THRESHOLD) / CY_DELAY_1M_THRESHOLD);
