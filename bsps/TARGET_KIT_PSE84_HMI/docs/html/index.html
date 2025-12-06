@@ -89,18 +89,12 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p ><a class="anchor" id="md_output_bsps_TARGET_KIT_PSE84_EVAL_EPC2_README"></a> </p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Overview</h1>
-<<<<<<< HEAD
-<p >To use code from the BSP, simply include a reference to <code>cybsp.h</code>.</p>
-<h1><a class="anchor" id="autotoc_md2"></a>
-Features</h1>
-=======
 <p >The PSOC™ Edge E84 Evaluation Kit (KIT_PSE84_EVAL) is based on the PSOC™ Edge family of devices. It enables the evaluation and development of applications for the PSOC™ Edge E84 EPC2 MCU.</p>
 <p >To use code from the BSP, simply include a reference to <code>cybsp.h</code>.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Features</h1>
 <p >This evaluation kit carries a PSOC™ E84 EPC2 MCU (PSE846GPS2DBZC4A) on a SODIMM based detachable SOM board connected to the base-board. The MCU SOM also has 128 Mb QSPI flash, 1 Gb Octal flash, 128 Mb Octal RAM, PSOC™ 4000T as CAPSENSE™ co-processor and on-board AIROC™ Wi-Fi &amp; Bluetooth® combo (CYW55513IUBG).</p>
 <p >The base-board has M.2 interface connectors for interfacing external radio modules based on AIROC™ Wi-Fi &amp; Bluetooth® combos and external memory interfaces. The base-board features an on-board programmer/debugger(KitProg3), ETM/JTAG/SWD debug headers, custom display capacitive touch panel connector, R-Pi compatible MIPI-DSI and MIPI-DSI custom display, Analog and PDM microphones, Headphone connector, Speaker, USB Host Type-A and USB device Type-C connectors, RJ45 Ethernet connector, M.2 (B-key) memory interface and M.2 (E-key) radio interface, Infineon’s Shield2Go interface, Mikroelektronika's mikroBUS compatible headers, 6-Axis IMU sensor, 3-axis Magnetometer, microSD cardholder, CAPSENSE™ buttons and slider, user LEDs and user buttons. The MCU power domain supports following operating voltages - 2.7 V, 3.3 V, 4.2 V and the peripheral power domain supports operating voltages - 1.8 V and 3.3 V.</p>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 <h1><a class="anchor" id="autotoc_md3"></a>
 BSP Configuration</h1>
 <p >The BSP has a few hooks that allow its behavior to be configured. Some of these items are enabled by default while others must be explicitly enabled. Items enabled by default are specified in the KIT_PSE84_EVAL_EPC2.mk file. The items that are enabled can be changed by creating a custom BSP or by editing the application makefile.</p>
@@ -113,37 +107,6 @@ BSP Configuration</h1>
 Clock Configuration</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<<<<<<< HEAD
-<th class="markdownTableHeadNone">Clock   </th><th class="markdownTableHeadNone">Source   </th><th class="markdownTableHeadNone">Output Frequency    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF0   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF1   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">399 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF2   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF3   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF4   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">399 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF5   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF6   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF7   </td><td class="markdownTableBodyNone">CLK_PATH1   </td><td class="markdownTableBodyNone">49 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF8   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">50 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF9   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">80 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF10   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">100 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF11   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">200 MHz    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">CLK_HF12   </td><td class="markdownTableBodyNone">CLK_PATH4   </td><td class="markdownTableBodyNone">24 MHz    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">CLK_HF13   </td><td class="markdownTableBodyNone">CLK_PATH0   </td><td class="markdownTableBodyNone">100 MHz   </td></tr>
-=======
 <th class="markdownTableHeadCenter">Clock   </th><th class="markdownTableHeadCenter">Source   </th><th class="markdownTableHeadCenter">Output Frequency    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">CLK_HF0   </td><td class="markdownTableBodyCenter">CLK_PATH0   </td><td class="markdownTableBodyCenter">200 MHz    </td></tr>
@@ -173,7 +136,6 @@ Clock Configuration</h2>
 <td class="markdownTableBodyCenter">CLK_HF12   </td><td class="markdownTableBodyCenter">CLK_PATH4   </td><td class="markdownTableBodyCenter">24 MHz    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyCenter">CLK_HF13   </td><td class="markdownTableBodyCenter">CLK_PATH0   </td><td class="markdownTableBodyCenter">100 MHz   </td></tr>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 </table>
 <h2><a class="anchor" id="autotoc_md5"></a>
 Power Configuration</h2>
@@ -185,12 +147,6 @@ Power Configuration</h2>
 </ul>
 <p >See the <a href="md_bsp_settings.html">BSP Setttings</a> for additional board specific configuration settings.</p>
 <h1><a class="anchor" id="autotoc_md6"></a>
-<<<<<<< HEAD
-API Reference Manual</h1>
-<p >The KIT_PSE84_EVAL_EPC2 Board Support Package provides a set of APIs to configure, initialize and use the board resources.</p>
-<p >See the <a href="modules.html">BSP API Reference Manual</a> for the complete list of the provided interfaces.</p>
-<h1><a class="anchor" id="autotoc_md7"></a>
-=======
 Default linker scripts</h1>
 <p >The default linker scripts define a lot of different regions so this document is intended to explain their purposes. The analysis will be done per memory area.</p>
 <h2><a class="anchor" id="autotoc_md7"></a>
@@ -266,7 +222,6 @@ API Reference Manual</h1>
 <p >The KIT_PSE84_EVAL_EPC2 Board Support Package provides a set of APIs to configure, initialize and use the board resources.</p>
 <p >See the <a href="modules.html">BSP API Reference Manual</a> for the complete list of the provided interfaces.</p>
 <h1><a class="anchor" id="autotoc_md16"></a>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 More information</h1>
 <ul>
 <li><a href="modules.html">KIT_PSE84_EVAL_EPC2 BSP API Reference Manual</a></li>
@@ -276,11 +231,7 @@ More information</h1>
 <li><a href="https://www.cypress.com/products/modustoolbox-software-environment">ModusToolbox™</a></li>
 </ul>
 <hr  />
-<<<<<<< HEAD
-<p> © Cypress Semiconductor Corporation (an Infineon company) or an affiliate of Cypress Semiconductor Corporation, 2019-2024. </p>
-=======
 <p> © Cypress Semiconductor Corporation (an Infineon company) or an affiliate of Cypress Semiconductor Corporation, 2019-2025. </p>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

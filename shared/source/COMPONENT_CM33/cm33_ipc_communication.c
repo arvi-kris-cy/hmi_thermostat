@@ -41,23 +41,17 @@
 
 #include "ipc_communication.h"
 
-<<<<<<< HEAD
-=======
 #include "cyabs_rtos_impl.h"
 #include "cyabs_rtos.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Global Variable(s)
 *******************************************************************************/
-<<<<<<< HEAD
-=======
 static cy_mutex_t cm33_ipc_mutex;
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* Create an array of endpoint structures */
 static cy_stc_ipc_pipe_ep_t cm33_ipc_pipe_ep_array[CY_IPC_MAX_ENDPOINTS];
 
@@ -137,11 +131,8 @@ void cm33_ipc_communication_setup(void)
     .userPipeIsrHandler            = &cm33_ipc_pipe_isr
     };
 
-<<<<<<< HEAD
-=======
     cy_rtos_mutex_init(&cm33_ipc_mutex, false);
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     Cy_IPC_Sema_Init(IPC0_SEMA_CH_NUM, CY_IPC_SEMA_COUNT, ipc_sema_array);
 
     Cy_IPC_Pipe_Config(cm33_ipc_pipe_ep_array);
@@ -151,26 +142,6 @@ void cm33_ipc_communication_setup(void)
 
 int cm33_send_msg_cm55(ipc_msg_t *msg)
 {
-<<<<<<< HEAD
-	if(NULL != msg)
-	{
-		cy_en_ipc_pipe_status_t pipeStatus = CY_IPC_PIPE_SUCCESS;
-
-		msg->client_id = CM55_IPC_PIPE_CLIENT_ID;
-		pipeStatus = Cy_IPC_Pipe_SendMessage(CM55_IPC_PIPE_EP_ADDR, CM33_IPC_PIPE_EP_ADDR, \
-											 (void *)msg, 0);
-		if(CY_IPC_PIPE_SUCCESS != pipeStatus)
-		{
-			return -1;
-		}
-	}
-	else
-	{
-		return -1;
-	}
-
-    return 0;
-=======
 	int ret = -1;
 
 	if(CY_RSLT_SUCCESS == cy_rtos_mutex_get(&cm33_ipc_mutex, IPC_MUTEX_TIMEOUT))
@@ -202,5 +173,4 @@ int cm33_send_msg_cm55(ipc_msg_t *msg)
 	}
 
 	return ret;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }

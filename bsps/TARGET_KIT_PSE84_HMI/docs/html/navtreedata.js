@@ -31,10 +31,6 @@ var NAVTREE =
       [ "Clock Configuration", "index.html#autotoc_md4", null ],
       [ "Power Configuration", "index.html#autotoc_md5", null ]
     ] ],
-<<<<<<< HEAD
-    [ "API Reference Manual", "index.html#autotoc_md6", null ],
-    [ "More information", "index.html#autotoc_md7", null ],
-=======
     [ "Default linker scripts", "index.html#autotoc_md6", [
       [ "ITCM", "index.html#autotoc_md7", null ],
       [ "DTCM", "index.html#autotoc_md8", null ],
@@ -47,7 +43,6 @@ var NAVTREE =
     [ "Note on memory aliases", "index.html#autotoc_md14", null ],
     [ "API Reference Manual", "index.html#autotoc_md15", null ],
     [ "More information", "index.html#autotoc_md16", null ],
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     [ "BSP Overview", "md_source_bsps_mt_bsp_user_guide.html", null ],
     [ "BSP Settings", "md_bsp_settings.html", null ],
     [ "BSP API Reference", "modules.html", "modules" ]

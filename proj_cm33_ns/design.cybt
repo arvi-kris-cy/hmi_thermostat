@@ -101,8 +101,6 @@
                                     </Permission>
                                     <Descriptors/>
                                 </Characteristic>
-<<<<<<< HEAD
-=======
                                 <Characteristic type="org.bluetooth.characteristic.gap.peripheral_preferred_connection_parameters">
                                     <Fields>
                                         <Field>
@@ -152,7 +150,6 @@
                                     </Permission>
                                     <Descriptors/>
                                 </Characteristic>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                             </Characteristics>
                         </Service>
                         <Service type="org.bluetooth.service.generic_attribute" version="0.0.0">
@@ -234,20 +231,12 @@
                                     </Properties>
                                     <Permission>
                                         <Property id="Read" value="true"/>
-<<<<<<< HEAD
-                                        <Property id="ReadAuthenticated" value="true"/>
-=======
                                         <Property id="ReadAuthenticated" value="false"/>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                                         <Property id="VariableLength" value="true"/>
                                         <Property id="Write" value="true"/>
                                         <Property id="WriteNoResponse" value="true"/>
                                         <Property id="WriteReliable" value="true"/>
-<<<<<<< HEAD
-                                        <Property id="WriteAuthenticated" value="true"/>
-=======
                                         <Property id="WriteAuthenticated" value="false"/>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                                     </Permission>
                                     <Descriptors>
                                         <Descriptor type="org.bluetooth.descriptor.gatt.characteristic_user_description">
@@ -353,13 +342,8 @@
                                         <Property id="VariableLength" value="true"/>
                                         <Property id="Write" value="true"/>
                                         <Property id="WriteNoResponse" value="true"/>
-<<<<<<< HEAD
-                                        <Property id="WriteReliable" value="false"/>
-                                        <Property id="WriteAuthenticated" value="true"/>
-=======
                                         <Property id="WriteReliable" value="true"/>
                                         <Property id="WriteAuthenticated" value="false"/>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                                     </Permission>
                                     <Descriptors>
                                         <Descriptor type="org.bluetooth.descriptor.gatt.characteristic_user_description">
@@ -607,13 +591,8 @@
                                         <Property id="VariableLength" value="false"/>
                                         <Property id="Write" value="true"/>
                                         <Property id="WriteNoResponse" value="true"/>
-<<<<<<< HEAD
-                                        <Property id="WriteReliable" value="false"/>
-                                        <Property id="WriteAuthenticated" value="true"/>
-=======
                                         <Property id="WriteReliable" value="true"/>
                                         <Property id="WriteAuthenticated" value="false"/>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                                     </Permission>
                                     <Descriptors>
                                         <Descriptor type="org.bluetooth.descriptor.gatt.characteristic_user_description">
@@ -687,8 +666,6 @@
                                         </Descriptor>
                                     </Descriptors>
                                 </Characteristic>
-<<<<<<< HEAD
-=======
                                 <Characteristic type="org.bluetooth.characteristic.custom">
                                     <CharacteristicProperties>
                                         <Property id="DisplayName" value="THERMOSTAT DATA"/>
@@ -832,7 +809,6 @@
                                         </Descriptor>
                                     </Descriptors>
                                 </Characteristic>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                             </Characteristics>
                         </Service>
                     </Services>
@@ -858,16 +834,9 @@
                     <Property id="HostHighAdvIntervalMax" value="20"/>
                     <Property id="HostHighAdvTimeoutEnabled" value="true"/>
                     <Property id="HostHighAdvTimeout" value="120"/>
-<<<<<<< HEAD
-                    <Property id="HostLowAdvIntervalMin" value="1280"/>
-                    <Property id="HostLowAdvIntervalMax" value="1280"/>
-                    <Property id="HostLowAdvTimeoutEnabled" value="true"/>
-                    <Property id="HostLowAdvTimeout" value="5"/>
-=======
                     <Property id="HostLowAdvIntervalMin" value="512"/>
                     <Property id="HostLowAdvIntervalMax" value="512"/>
                     <Property id="HostLowAdvTimeoutEnabled" value="false"/>
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
                     <Property id="HostHighDirAdvIntervalMin" value="250"/>
                     <Property id="HostHighDirAdvIntervalMax" value="500"/>
                     <Property id="HostLowDirAdvIntervalMin" value="30"/>

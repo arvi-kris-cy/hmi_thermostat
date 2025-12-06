@@ -1,8 +1,5 @@
 var searchData=
 [
-<<<<<<< HEAD
-  ['cybsp_5finit_0',['cybsp_init',['../group__group__bsp__functions.html#gab989986b285e127f78f61c29f6ccbbfa',1,'cybsp_init(void):&#160;cybsp.c'],['../group__group__bsp__functions.html#gab989986b285e127f78f61c29f6ccbbfa',1,'cybsp_init(void):&#160;cybsp.c']]]
-=======
   ['cy_5fahbremapaddr_0',['cy_AhbRemapAddr',['../group__group__system__config__cm33__functions__edge.html#ga6004d48d31cfd458ce78d807803c2f5a',1,'system_edge.h']]],
   ['cy_5fcbusremapaddr_1',['cy_CbusRemapAddr',['../group__group__system__config__cm33__functions__edge.html#gaa9fe7771438fdc28c0a4daaf8c0efd24',1,'system_edge.h']]],
   ['cy_5fsysdisablecm55_2',['Cy_SysDisableCM55',['../group__group__system__config__cm55__functions__edge.html#ga00b9f8f981078573e33ea3bc8dfe3953',1,'Cy_SysDisableCM55(void):&#160;system_edge.c'],['../group__group__system__config__cm55__functions__edge.html#ga00b9f8f981078573e33ea3bc8dfe3953',1,'Cy_SysDisableCM55(void):&#160;system_edge.c']]],
@@ -19,5 +16,4 @@ var searchData=
   ['cy_5fsystem_5fsetcm55dbgport_13',['Cy_System_SetCM55DbgPort',['../group__group__system__config__cm55__functions__edge.html#gab32c0053958b3a603bd537ee02f08384',1,'Cy_System_SetCM55DbgPort(cy_app_cpu_dbg_port_type_t dbgMode):&#160;system_edge.c'],['../group__group__system__config__cm55__functions__edge.html#gab32c0053958b3a603bd537ee02f08384',1,'Cy_System_SetCM55DbgPort(cy_app_cpu_dbg_port_type_t dbgMode):&#160;system_edge.c']]],
   ['cy_5fsysteminit_14',['Cy_SystemInit',['../group__group__system__config__functions__edge.html#ga70ad2d6aad9d042677abbbbc571f9d68',1,'Cy_SystemInit(void):&#160;ns_system_pse84.c'],['../group__group__system__config__functions__edge.html#ga70ad2d6aad9d042677abbbbc571f9d68',1,'Cy_SystemInit(void):&#160;s_system_pse84.c'],['../group__group__system__config__functions__edge.html#ga70ad2d6aad9d042677abbbbc571f9d68',1,'Cy_SystemInit(void):&#160;ns_system_pse84.c'],['../group__group__system__config__functions__edge.html#ga70ad2d6aad9d042677abbbbc571f9d68',1,'Cy_SystemInit(void):&#160;ns_system_pse84.c']]],
   ['cybsp_5finit_15',['cybsp_init',['../group__group__bsp__functions.html#gab989986b285e127f78f61c29f6ccbbfa',1,'cybsp_init(void):&#160;cybsp.c'],['../group__group__bsp__functions.html#gab989986b285e127f78f61c29f6ccbbfa',1,'cybsp_init(void):&#160;cybsp.c']]]
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 ];

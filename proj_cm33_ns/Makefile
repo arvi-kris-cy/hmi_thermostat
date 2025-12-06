@@ -53,14 +53,10 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-<<<<<<< HEAD
-COMPONENTS+=FREERTOS LWIP MBEDTLS WCM SECURE_SOCKETS WICED_BLE
-=======
 COMPONENTS += FREERTOS RTOS_AWARE  
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS= 
+DISABLE_COMPONENTS=
 
 CORE=CM33
 CORE_NAME=CM33_0
@@ -71,44 +67,22 @@ CORE_NAME=CM33_0
 # by default, or otherwise not found by the build system.
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
 SOURCES+=$(wildcard ../shared/source/*.c)
-<<<<<<< HEAD
-=======
 SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/core_http_client.c
 SOURCES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 SEARCH+=../components
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
 INCLUDES+=../shared/include
-<<<<<<< HEAD
-=======
 INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/include
 INCLUDES += ${SEARCH_aws-iot-device-sdk-embedded-C}/libraries/standard/coreHTTP/source/dependency/3rdparty/http_parser
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Custom configuration of mbedtls library.
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-<<<<<<< HEAD
-DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
-
-# Default configuration of mbedtls library.
-DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
-# PSA configuration of mbedtls library.
-DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
-
-ifeq ($(TOOLCHAIN),LLVM_ARM)
-DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=5*1024
-endif
-
-# Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT=
-=======
 DEFINES += CY_RETARGET_IO_CONVERT_LF_TO_CRLF
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Additional / custom C compiler flags.
 #
@@ -132,24 +106,13 @@ ASFLAGS+=
 LDFLAGS+=
 
 # Additional / custom libraries to link in to the application.
-LDLIBS=
+LDLIBS+=
 
 # Path to the linker script to use (if empty, use the default linker script).
 LINKER_SCRIPT=
 # Custom pre-build commands to run.
 PREBUILD+=
 
-<<<<<<< HEAD
-# IAR/ARM compiler uses the C-AHB address for compilation. C-AHB address is  
-# read-only. Relocate to S-AHB address for programming the image. 
-# (This step is only required for CM33 core) 
-ifneq (,$(filter $(TOOLCHAIN),ARM IAR))
-APP_START=0x60340400
-POSTBUILD=$(CY_TOOL_edgeprotecttools_EXE_ABS) bin2hex \
-        --image $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).bin \
-        --output $(MTB_TOOLS__OUTPUT_CONFIG_DIR)/$(APPNAME).hex \
-        --offset $(APP_START)
-=======
 # Custom post-build commands to run.
 POSTBUILD+=
 
@@ -175,7 +138,6 @@ DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
 
 ifeq ($(TOOLCHAIN),LLVM_ARM)
 DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 endif
 
 DEFINES += HTTP_DO_NOT_USE_CUSTOM_CONFIG

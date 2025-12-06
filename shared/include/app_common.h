@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-/*
- * app_common.h
- *
- *  Created on: 06-Jun-2025
- *      Author: Tejas.Patel */
-=======
 /*******************************************************************************
  * File Name:   app_common.h
  *
@@ -42,21 +35,15 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-<<<<<<< HEAD
-#include "ipc_communication.h"
-#include "cy_device.h"
-=======
 #include "app_config.h"
 #include "ipc_communication.h"
 #include "cy_device.h"
 #include "cy_log.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #ifndef SHARED_INCLUDE_APP_COMMON_H_
 #define SHARED_INCLUDE_APP_COMMON_H_
@@ -64,17 +51,11 @@
 /*******************************************************************************
  *                                Macros
  *******************************************************************************/
-<<<<<<< HEAD
-#define APP_BOOTUP_DELAY	4000U
-=======
 #define APP_BOOTUP_DELAY	2500U
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #define APP_RRAM_NVM_MAIN_NS_START        0x22000000
 #define APP_NVM_DEVICE_SETTINGS_OFFSET	  0x00002000
 
-<<<<<<< HEAD
-=======
 #define MAX_FW_VERSION_LEN                  (10U)
 
 #define UNUSED_PARAM(x) (void)(x)
@@ -92,7 +73,6 @@
     cy_log_msg(tag, CY_LOG_DEBUG, msg, ##__VA_ARGS__)
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /*******************************************************************************
  *                                Data Types
  *******************************************************************************/
@@ -180,12 +160,6 @@ typedef enum {
 typedef enum {
     DEV_ST_CLOUD_CONNECTED,
     DEV_ST_CLOUD_CONNECTING,
-<<<<<<< HEAD
-    DEV_ST_WIFI_CONNECTING,
-    DEV_ST_WIFI_DISCONNECTED,
-    DEV_ST_CLOUD_DISCONNECTED,
-    DEV_ST_BLE_ADVERTISING,
-=======
     DEV_ST_CLOUD_CONNECTION_CANCEL,
     DEV_ST_WIFI_CONNECTING,
     DEV_ST_WIFI_CONNECTION_CANCEL,
@@ -193,17 +167,10 @@ typedef enum {
     DEV_ST_CLOUD_DISCONNECTED,
     DEV_ST_BLE_ADVERTISING,
     DEV_ST_BLE_ADVERTISEMENT_CANCEL,
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 	DEV_ST_BLE_PAIRING,
     DEV_ST_UNPROVISIONED,
 	DEV_ST_PROVISIONED,
     DEV_ST_WIFI_CONNECTED,
-<<<<<<< HEAD
-    DEV_ST_BLE_CONNECTED
-} device_connection_state_t;
-
-typedef enum {
-=======
     DEV_ST_BLE_CONNECTED,
     DEV_ST_SWITCH_WIFI,
     DEV_ST_SWITCH_BLE,
@@ -238,48 +205,34 @@ typedef enum {
 } presence_status_t ;
 
 typedef enum {
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     IPC_CMD_CURRENT_EVENT = 0,              //Send a current event to UI
 
 	IPC_CMD_GET_UID,						//Request UID
 	IPC_CMD_SET_UID,						//Response of UID
 
 	IPC_CMD_UPDATE_CONN_STATE,
-<<<<<<< HEAD
-=======
 	IPC_CMD_UPDATE_CONN_RETRIES,            //Connection retries
 
 	IPC_CMD_UPDATE_PROVISION_STATE,
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
     // Wi-Fi
     IPC_CMD_SET_WIFI_SSID,                  // Set SSID string
     IPC_CMD_SET_WIFI_PASSWORD,              // Set Wi-Fi password
 	IPC_CMD_SET_WIFI_SSID_PASS,              // Set Wi-Fi password
 	IPC_CMD_RESET_WIFI_SSID_PASS,              // Erase Wi-Fi password
-<<<<<<< HEAD
-
-=======
 	IPC_CMD_UPDATE_PRESENCE_STATUS,                   //Update presence detection
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
     // Environmental data
     IPC_CMD_GET_CURRENT_TEMP,                // Get current temperature
     IPC_CMD_GET_CURRENT_HUMIDITY,           // Get current humidity
     IPC_CMD_GET_CURRENT_CO2_LEVEL,          // Get current CO2 reading
-<<<<<<< HEAD
-=======
     IPC_CMD_SET_CURRENT_CO2_LEVEL,          // Set current CO2 reading
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     IPC_CMD_SET_TARGET_TEMP,                // Set user-defined target temperature
 	IPC_CMD_SET_CURRENT_TEMP,                // Set current temperature
 	IPC_CMD_SET_TEMPERATURE_DATA,			//Set Current,Target and remaing time data
 
-<<<<<<< HEAD
-=======
     IPC_CMD_DEVICE_CONFIG,                 	// Device Config
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 	//TIME
 	IPC_CMD_SET_REMAINING_TIME,               // Set remainig time to reach target temp.
 
@@ -299,17 +252,6 @@ typedef enum {
     IPC_CMD_GET_AUDIO_LEVEL,                // Get audio output level
 
     // OTA
-<<<<<<< HEAD
-    IPC_CMD_TRIGGER_OTA_START,              // Start OTA update
-    IPC_CMD_OTA_PROGRESS,               	// Query OTA progress
-    IPC_CMD_OTA_STATUS,                  	// Query OTA active status (in progress or not)
-
-    IPC_CMD_DEVICE_CONFIG,                 	// Device Config
-
-    IPC_CMD_MAX
-} ipc_command_e;
-
-=======
     IPC_CMD_OTA_VERSION,                    // OTA version
     IPC_CMD_TRIGGER_OTA_START,              // Start OTA update
 	IPC_CMD_ABORT_OTA,                      //OTA Abort
@@ -349,7 +291,6 @@ typedef struct {
 } DateTime;
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 typedef enum  {
     AUDIO_OFF = 0,
 	AUDIO_LOW,
@@ -358,14 +299,6 @@ typedef enum  {
 }audio_level_t;
 
 typedef enum {
-<<<<<<< HEAD
-	UNIT_DEG_C = 0,
-	UNIT_DEG_F,
-} system_unit_t;
-
-typedef enum {
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 	TIMEOUT_3S = 0,
 	TIMEOUT_5S,
 	TIMEOUT_10S,
@@ -381,8 +314,6 @@ typedef enum  {
 	TEMP_UNIT_MAX,
 }temp_unit_t;
 
-<<<<<<< HEAD
-=======
 typedef enum
 {
     CONNECTIVITY_NONE       = 0,        // No active connectivity
@@ -391,7 +322,6 @@ typedef enum
 } connectivity_medium_t;
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* Structure to hold WiFi details */
 typedef struct {
     char ssid[33];     // SSID max length 32 + null

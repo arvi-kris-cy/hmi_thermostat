@@ -43,10 +43,7 @@
 * Header Files
 *******************************************************************************/
 #include "retarget_io_init.h"
-<<<<<<< HEAD
-=======
 #include "FreeRTOSConfig.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Global Variables
@@ -122,12 +119,8 @@ void init_retarget_io(void)
     /* UART initialization failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-<<<<<<< HEAD
-        handle_app_error();
-=======
 //        handle_app_error();
         APP_ERROR(result);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
     /* Enable the SCB UART */
@@ -140,12 +133,8 @@ void init_retarget_io(void)
     /* UART setup failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-<<<<<<< HEAD
-        handle_app_error();
-=======
 //        handle_app_error();
         APP_ERROR(result);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
     /* Initialize retarget-io to use the debug UART port. */
@@ -154,12 +143,8 @@ void init_retarget_io(void)
     /* retarget-io initialization failed. Stop program execution. */
     if (CY_RSLT_SUCCESS != result)
     {
-<<<<<<< HEAD
-        handle_app_error();
-=======
 //        handle_app_error();
         APP_ERROR(result);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
 #if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
@@ -168,8 +153,6 @@ void init_retarget_io(void)
 #endif /* (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP) */
 }
 
-<<<<<<< HEAD
-=======
 
 /**
  * @brief Application error macro that automatically injects file and line info.
@@ -230,5 +213,4 @@ void app_error_handler(uint32_t error_code, const char *file, int line)
 
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* [] END OF FILE */

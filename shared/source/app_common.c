@@ -16,11 +16,7 @@ uint32_t get_timeout_ms(idle_timeout_t timeout)
         case TIMEOUT_20S:    return 20000;
         case TIMEOUT_30S:    return 30000;
         case TIMEOUT_NEVER:  return 0; // Or 0 or some sentinel value
-<<<<<<< HEAD
-        default:             return 0;
-=======
         default:             return 10000;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 }
 
@@ -124,26 +120,6 @@ void handle_ipc_command(ipc_msg_t *msg, device_state_t *state)
 				break;
 			}
 
-<<<<<<< HEAD
-			// OTA
-		case IPC_CMD_TRIGGER_OTA_START:
-			{
-				state->ota.ota_available = (uint8_t)msg->data;
-				break;
-			}
-		case IPC_CMD_OTA_PROGRESS:
-			{
-				state->ota.ota_progress = (uint8_t)msg->data;
-				break;
-			}
-		case IPC_CMD_OTA_STATUS:
-			{
-				state->ota.ota_final_status = (uint8_t)msg->data;
-				break;
-			}
-
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 		default:
 			{
 				//handle error

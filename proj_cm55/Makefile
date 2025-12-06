@@ -68,33 +68,17 @@ CORE_NAME=CM55_0
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-<<<<<<< HEAD
-SOURCES+=
-# By default the build system automatically looks in the Makefile's directory
-# tree for source code and builds it. The SOURCES variable can be used to
-# manually add source code to the build process from a location not searched
-# by default, or otherwise not found by the build system.
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
 SOURCES+=$(wildcard ../shared/source/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-<<<<<<< HEAD
-
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 INCLUDES+=../shared/include
 INCLUDES+=app/include
 INCLUDES+=app_i2s
 
 # Add additional defines to the build process (without a leading -D).
-<<<<<<< HEAD
-DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF _BAREMETAL=0 LV_USE_QRCODE
-=======
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #DEFINES += FLASH_BOOT
 
@@ -105,9 +89,6 @@ VFP_SELECT = hardfp
 #
 # NOTE: Includes and defines should use the INCLUDES and DEFINES variable
 # above.
-<<<<<<< HEAD
-CFLAGS+=-Wno-implicit-function-declaration
-=======
 CFLAGS+= -flax-vector-conversions -Wno-nan-infinity-disabled -Wno-implicit-function-declaration
 ifeq ($(TOOLCHAIN),LLVM_ARM)
     CFLAGS+= -fdata-sections -ffunction-sections
@@ -120,7 +101,6 @@ ifeq ($(TOOLCHAIN),LLVM_ARM)
 else
     CFLAGS+=
 endif 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 # Additional / custom C++ compiler flags.
 #

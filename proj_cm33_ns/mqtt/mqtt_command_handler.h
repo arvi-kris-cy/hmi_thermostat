@@ -50,10 +50,7 @@
 #include <stdint.h>
 #include <cJSON.h>
 #include "app_common.h"
-<<<<<<< HEAD
-=======
 #include "wireless_manager.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /**
  * Global Declaration
@@ -78,12 +75,9 @@ typedef enum mqtt_commandId
 	TIME_REMAINING				= 15,
 	TEMP_UNIT					= 16,
 	GET_DEVICE_CONFIGURATION    = 17,
-<<<<<<< HEAD
-=======
 	DEVICE_SWITCH_TO_BLE        = 18,
 	SET_DATE_TIME               = 19,
 	DEVICE_SWITCH_TO_WIFI       = 20,
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 	MAX_COMMAND_ID
 } mqtt_commandId_e;
@@ -131,22 +125,13 @@ extern device_state_t device_status;
 /**
  * @brief Parses the incoming MQTT message and extracts the command ID and associated parameters.
  *
-<<<<<<< HEAD
- * @param message       Pointer to the raw JSON-formatted MQTT message.
- * @param message_len   Length of the message in bytes.
-=======
  * @param message           Pointer to the raw JSON-formatted MQTT message.
  * @param message_len       Length of the message in bytes.
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
  *
  * @return mqtt_parser_errors_e Returns a status code indicating success or the type of parsing error encountered,
  *                              such as invalid format, missing fields, or unsupported command ID.
  */
-<<<<<<< HEAD
-mqtt_parser_errors_e parse_mqtt_command(const char *message, size_t message_len);
-=======
 mqtt_parser_errors_e parse_received_command(const char *message, size_t message_len);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /**
  * @brief Sends a response back over MQTT with the specified command, type, and response value.
@@ -158,8 +143,6 @@ void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t
  */
 void handle_pairingremove_command(bool only_wifi);
 
-<<<<<<< HEAD
-=======
 /**
  * @brief used to update the current interface that will used for communication with mobile APP.
  */
@@ -171,5 +154,4 @@ void send_device_config_info(void);
  * @brief Processes the FIRMWARE_UPDATE_PROGRESS command to send update progress details.
  */
 void handle_firmwareupdateprogress_command(uint8_t per);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #endif /* MQTT_MQTT_COMMAND_HANDLER_H_ */

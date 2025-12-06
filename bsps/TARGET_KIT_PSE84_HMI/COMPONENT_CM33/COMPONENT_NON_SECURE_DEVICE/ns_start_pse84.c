@@ -1,19 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-<<<<<<< HEAD
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
-#include "cy_device_headers.h"
-#include "startup_cat1d.h"
-#include "system_cat1d.h"
-========
-#include "startup_edge.h"
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
-=======
 #include "cy_device_headers.h"
 #include "startup_edge.h"
 #include "system_edge.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #include "cy_sysint.h"
 #include "cy_syspm.h"
 #include "cy_syslib.h"
@@ -42,15 +32,6 @@ extern uint32_t Region$$Table$$Limit;
 typedef  void(*pGenericFunction)(uint8_t *pSrc, uint8_t* pDst, uint32_t len);     /* typedef for the generic function pointers */
 #endif
 
-<<<<<<< HEAD
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
-========
-#define CY_SYSINT_EWIC_CTL            (0xE0047000U)	  /**< EWIC control register */
-#define CY_SYSINT_EWIC_ENABLE_MSK     (0x1U) 		  /**< EWIC enable mask */
-
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_start_pse84.c
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 __WEAK void Reset_Handler(void);
 void MemManage_Handler(void);
 void BusFault_Handler(void);

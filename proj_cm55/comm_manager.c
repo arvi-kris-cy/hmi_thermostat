@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-#include "comm_manager.h"
-#include "ipc_communication.h"
-
-CY_SECTION_SHAREDMEM static ipc_msg_t cm55_msg_data;
-
-=======
 /*******************************************************************************
  * File Name:  comm_manager.c
  *
@@ -73,7 +66,6 @@ CY_SECTION_SHAREDMEM static ipc_msg_t cm55_msg_data;
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 void update_fan_speed_ipc(fan_speed_t value)
 {
 	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
@@ -146,11 +138,7 @@ void update_temperature_data_ipc(device_state_t *data)
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
-<<<<<<< HEAD
-void update_system_unit_ipc(system_unit_t unit)
-=======
 void update_system_unit_ipc(temp_unit_t unit)
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 {
 	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
 	cm55_msg_data.intr_mask = CY_IPC_CYPIPE_INTR_MASK_EP2;
@@ -194,12 +182,6 @@ void update_wifi_cred_ipc(const char *ssid, const char *passwd)
 	strncpy(cm55_msg_data.wifi_info.password, passwd, sizeof(cm55_msg_data.wifi_info.password) - 1);
 	cm55_msg_data.wifi_info.password[sizeof(cm55_msg_data.wifi_info.password) - 1] = '\0';
 
-<<<<<<< HEAD
-
-	cm55_send_msg_cm33(&cm55_msg_data);
-}
-
-=======
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
@@ -212,7 +194,6 @@ void update_switch_wifi_ipc(void)
     cm55_send_msg_cm33(&cm55_msg_data);
 }
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 void request_uid_ipc(void)
 {
 	cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
@@ -233,8 +214,6 @@ void request_wifi_delete_ipc(void)
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
 
-<<<<<<< HEAD
-=======
 void update_connection_retries_ipc(connection_retries_t state)
 {
     cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
@@ -254,7 +233,6 @@ void update_connection_state_ipc(device_connection_state_t state)
 
     cm55_send_msg_cm33(&cm55_msg_data);
 }
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 void send_device_config(device_state_t config)
 {
@@ -266,8 +244,6 @@ void send_device_config(device_state_t config)
 
 	cm55_send_msg_cm33(&cm55_msg_data);
 }
-<<<<<<< HEAD
-=======
 
 
 void send_switch_to_ble_cmd(void)
@@ -300,4 +276,3 @@ void get_latest_OTA_version(void)
     cm55_send_msg_cm33(&cm55_msg_data);
 }
 /* [] END OF FILE */
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

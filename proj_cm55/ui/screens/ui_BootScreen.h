@@ -11,14 +11,9 @@ extern "C" {
 #endif
 
 // SCREEN: ui_Screen1
-<<<<<<< HEAD
-extern void ui_Screen1_screen_init(void);
-extern void ui_Screen1_screen_destroy(void);
-=======
 void ui_BootScreen_screen_init(void);
 void ui_BootScreen_screen_destroy(void);
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 extern lv_obj_t * ui_BootScreen;
 extern lv_obj_t * ui_bootcontainer1;
 extern lv_obj_t * ui_bootupimg;

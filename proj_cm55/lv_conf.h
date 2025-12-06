@@ -94,7 +94,7 @@
  *====================*/
 
 /*Default display refresh, input device read and animation step period.*/
-#define LV_DEF_REFR_PERIOD   16//20      /*[ms]*/
+#define LV_DEF_REFR_PERIOD  20      /*[ms]*/
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
@@ -883,12 +883,7 @@
      * Requires `LV_USE_SYSMON = 1`*/
     #define LV_USE_PERF_MONITOR 1
     #if LV_USE_PERF_MONITOR
-<<<<<<< HEAD
-//        #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_RIGHT
-        #define LV_USE_PERF_MONITOR_POS LV_ALIGN_LEFT_MID
-=======
         #define LV_USE_PERF_MONITOR_POS LV_ALIGN_TOP_MID
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
         /*0: Displays performance data on the screen, 1: Prints performance data using log.*/
         #define LV_USE_PERF_MONITOR_LOG_MODE 0

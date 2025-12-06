@@ -62,19 +62,13 @@
 #define SYSPM_SKIP_MODE         (0U)
 #define SYSPM_CALLBACK_ORDER    (1U)
 
-<<<<<<< HEAD
-=======
 #define APP_ERROR(error_code) app_error_handler(error_code, __FILE__, __LINE__)
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Function prototypes
 *******************************************************************************/
 void init_retarget_io(void);
-<<<<<<< HEAD
-=======
 void app_error_handler(uint32_t error_code, const char *file, int line);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Function Name: handle_app_error
@@ -91,18 +85,6 @@ void app_error_handler(uint32_t error_code, const char *file, int line);
 *******************************************************************************/
 __STATIC_INLINE void handle_app_error(void)
 {
-<<<<<<< HEAD
-    /* Disable all interrupts. */
-    __disable_irq();
-
-    CY_ASSERT(0);
-
-    /* Infinite loop */
-    while(true);
-
-}
-
-=======
    /* Disable all interrupts. */
    __disable_irq();
    printf("handle_app_error\n");
@@ -115,7 +97,6 @@ __STATIC_INLINE void handle_app_error(void)
 }
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #endif /* _RETARGET_IO_INIT_H_ */
 
 /* [] END OF FILE */

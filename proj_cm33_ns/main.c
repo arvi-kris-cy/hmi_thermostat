@@ -41,10 +41,7 @@
 /* Header file includes */
 #include <inttypes.h>
 #include "cybsp.h"
-<<<<<<< HEAD
-=======
 #include "retarget_io_init.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #include "mqtt_task.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -55,20 +52,13 @@
 #include "ipc_communication.h"
 #include "app_common.h"
 #include "app_ui_receiver.h"
-<<<<<<< HEAD
-=======
 #include "app_radar.h"
 #include "app_common.h"
 #include "secure_http_client.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /******************************************************************************
  * Macros
  ******************************************************************************/
-<<<<<<< HEAD
-/* The timeout value in microsecond used to wait for core to be booted */
-#define CM55_BOOT_WAIT_TIME_US            (10U)
-=======
 #define HTTPS_TASK_NAME                             ("HTTPS Client")
 #define HTTPS_CLIENT_TASK_STACK_SIZE                (1024U * 2U)
 #define HTTPS_CLIENT_TASK_PRIORITY                  (4U)
@@ -78,7 +68,6 @@
 /* App boot address for CM55 project */
 #define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
                                         CYBSP_MCUBOOT_HEADER_SIZE)
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -93,15 +82,6 @@
  ******************************************************************************/
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
-<<<<<<< HEAD
-typedef mtb_hal_rtc_t rtc_type;
-
-/* Task Handle for WiFi Task */
-extern TaskHandle_t wifi_task_handle;
-
-volatile bool cm33_pipe2_msg_received = false;
-
-=======
 
 /* RTC HAL object */
 static mtb_hal_rtc_t rtc_obj;
@@ -110,7 +90,6 @@ static mtb_hal_rtc_t rtc_obj;
 extern TaskHandle_t wifi_task_handle;
 
 char current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 ipc_msg_t *ipc_recv_msg;
 
 /*****************************************************************************
@@ -132,25 +111,14 @@ ipc_msg_t *ipc_recv_msg;
 *******************************************************************************/
 void cm33_msg_callback(uint32_t * msg_data)
 {
-<<<<<<< HEAD
-=======
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xStatus;
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     if (msg_data != NULL)
     {
         /* Cast the message received to the IPC structure */
         ipc_recv_msg = (ipc_msg_t *) msg_data;
 
-<<<<<<< HEAD
-        /* Extract the command to be processed in the UI_Rx loop */
-        msg_val = ipc_recv_msg->data;
-        msg_cmd = ipc_recv_msg->cmd;
-    }
-
-    cm33_pipe2_msg_received = true;
-=======
         /* Queue the IPC message to be processed later */
         xStatus = xQueueSendFromISR(xUiRxQueue, ipc_recv_msg, &xHigherPriorityTaskWoken);
         if (xStatus != pdPASS)
@@ -161,7 +129,6 @@ void cm33_msg_callback(uint32_t * msg_data)
         /* Perform context switch if High priority task unblocked */
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 /*******************************************************************************
@@ -217,146 +184,12 @@ static void setup_tickless_idle_timer(void)
     /* LPTimer interrupt initialization failed. Stop program execution. */
     if(CY_SYSINT_SUCCESS != interrupt_init_status)
     {
-<<<<<<< HEAD
-        handle_app_error();
-=======
 //        handle_app_error();
         APP_ERROR(interrupt_init_status);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
     /* Enable NVIC interrupt. */
     NVIC_EnableIRQ(lptimer_intr_cfg.intrSrc);
-<<<<<<< HEAD
-
-    /* Initialize the MCWDT block */
-    cy_en_mcwdt_status_t mcwdt_init_status =
-                                    Cy_MCWDT_Init(CYBSP_CM33_LPTIMER_0_HW,
-                                                &CYBSP_CM33_LPTIMER_0_config);
-
-    /* MCWDT initialization failed. Stop program execution. */
-    if(CY_MCWDT_SUCCESS != mcwdt_init_status)
-    {
-        handle_app_error();
-    }
-
-    /* Enable MCWDT instance */
-    Cy_MCWDT_Enable(CYBSP_CM33_LPTIMER_0_HW,
-                    CY_MCWDT_CTR_Msk,
-                    LPTIMER_0_WAIT_TIME_USEC);
-
-    /* Setup LPTimer using the HAL object and desired configuration as defined
-     * in the device configurator. */
-    cy_rslt_t result = mtb_hal_lptimer_setup(&lptimer_obj,
-                                            &CYBSP_CM33_LPTIMER_0_hal_config);
-
-    /* LPTimer setup failed. Stop program execution. */
-    if(CY_RSLT_SUCCESS != result)
-    {
-        handle_app_error();
-    }
-
-    /* Pass the LPTimer object to abstraction RTOS library that implements
-     * tickless idle mode
-     */
-    cyabs_rtos_set_lptimer(&lptimer_obj);
-}
-
-/******************************************************************************
- * Function Name: main
- ******************************************************************************
- * Summary:
- *  System entrance point. This function initializes retarget IO, RTC, sets up 
- *  the MQTT client task, enables CM55 and then starts the RTOS scheduler.
- *
- * Parameters:
- *  void
- *
- * Return:
- *  int
- *
- ******************************************************************************/
-
-int main(void)
-{
-    cy_rslt_t result;
-    cy_en_ipc_pipe_status_t pipeStatus;
-    rtc_type obj;
-    /* Initialize the board support package. */
-    
-    result = cybsp_init();
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
-
-    /* To avoid compiler warnings. */
-    CY_UNUSED_PARAMETER(result);
-
-    /* Enable global interrupts. */
-    __enable_irq();
-
-    /* Setup IPC communication for CM33 */
-    cm33_ipc_communication_setup();
-
-    Cy_SysLib_Delay(50);
-
-    /* Register a callback function to handle events on the CM33 IPC pipe */
-    pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM33_IPC_PIPE_EP_ADDR, &cm33_msg_callback,
-                                              (uint32_t)CM33_IPC_PIPE_CLIENT_ID);
-
-    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
-    {
-        handle_app_error();
-    }
-
-
-    /* Setup the LPTimer instance for CM33 CPU. */
-    setup_tickless_idle_timer();
-
-    /* Initialize retarget-io middleware */
-    init_retarget_io();
-
-    /* Initialize rtc */
-    Cy_RTC_Init(&CYBSP_RTC_config);
-    Cy_RTC_SetDateAndTime(&CYBSP_RTC_config);
-    
-    /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
-    printf("\x1b[2J\x1b[;H");
-    printf("===============================================================\n");
-    printf("Thermostat Application Started!\n");
-    printf("===============================================================\n\n");
-
-    /* Initialize the CLIB support library */
-    mtb_clib_support_init(&obj);
-
-    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
-    Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
-
-    Cy_SysLib_Delay(APP_BOOTUP_DELAY);
-
-    ui_rx_thread_init();
-
-    /* Initialize WiFi Tasks */
-    if(xTaskCreate(wifi_task, "WiFi-Task", WIFI_TASK_STACK_SIZE, NULL,
-                WIFI_TASK_PRIORITY, &wifi_task_handle) != pdPASS)
-    {
-        handle_app_error();
-    }
-
-    /* Create the MQTT Client task. */
-    result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
-                NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
-
-    if( pdPASS == result )
-    {
-        /* Start the FreeRTOS scheduler. */
-        vTaskStartScheduler();
-        
-        /* Should never get here. */
-        handle_app_error();
-    }
-    else
-    {
-        handle_app_error();
-=======
 
     /* Initialize the MCWDT block */
     cy_en_mcwdt_status_t mcwdt_init_status =
@@ -368,7 +201,6 @@ int main(void)
     {
 //        handle_app_error();
         APP_ERROR(mcwdt_init_status);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
     /* Enable MCWDT instance */

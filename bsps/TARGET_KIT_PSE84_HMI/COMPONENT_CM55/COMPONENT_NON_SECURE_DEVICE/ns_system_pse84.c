@@ -36,17 +36,10 @@
 *******************************************************************************/
 
 /** Default HFClk frequency in Hz */
-<<<<<<< HEAD
 #define CY_CLK_HFCLK0_FREQ_HZ_DEFAULT       (8000000UL)
 
 /** Default PeriClk frequency in Hz */
 #define CY_CLK_PERICLK_FREQ_HZ_DEFAULT      (8000000UL)
-=======
-#define CY_CLK_HFCLK0_FREQ_HZ_DEFAULT       (50000000UL)
-
-/** Default PeriClk frequency in Hz */
-#define CY_CLK_PERICLK_FREQ_HZ_DEFAULT      (50000000UL)
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /** Default system core frequency in Hz */
 #ifdef PSE84_PSVP
@@ -55,7 +48,6 @@
 #define CY_CLK_SYSTEM_FREQ_HZ_DEFAULT       (50000000UL)
 #endif
 
-<<<<<<< HEAD
 /** IMO frequency in Hz */
 #define CY_CLK_IMO_FREQ_HZ                  (8000000UL)
 
@@ -71,10 +63,6 @@
 /** ALTLF frequency in Hz */
 #define CY_CLK_ALTLF_FREQ_HZ                (32768UL)
 
-uint32_t SystemCoreClock = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
-
-=======
-#define RRAM_NVM_PROTECTED_BLOCKS_TO_CONFIG 32 // 128KB/4KB  4KB block size
 
 /**
 * Holds the (Cortex-M33) system core clock,
@@ -92,19 +80,6 @@ uint32_t SystemCoreClock = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
 * to be physically present in memory so that it can be examined to configure the debugger. */
 uint32_t SystemCoreClock = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
 
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
-/** Holds the HFClk0 clock frequency. Updated by \ref SystemCoreClockUpdate(). */
-uint32_t cy_Hfclk0FreqHz  = CY_CLK_HFCLK0_FREQ_HZ_DEFAULT;
-
-/** Holds the PeriClk clock frequency. Updated by \ref SystemCoreClockUpdate(). */
-uint32_t cy_PeriClkFreqHz = CY_CLK_PERICLK_FREQ_HZ_DEFAULT;
-
-/** Holds the AHB frequency. Updated by \ref SystemCoreClockUpdate(). */
-uint32_t cy_AhbFreqHz = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
-
-========
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /*******************************************************************************
 * SystemCoreClockUpdate (void)
 *******************************************************************************/
@@ -123,11 +98,8 @@ uint32_t cy_delayFreqKhz  = (CY_CLK_SYSTEM_FREQ_HZ_DEFAULT + CY_DELAY_1K_MINUS_1
 uint32_t cy_delayFreqMhz  = (uint8_t)((CY_CLK_SYSTEM_FREQ_HZ_DEFAULT + CY_DELAY_1M_MINUS_1_THRESHOLD) /
                             CY_DELAY_1M_THRESHOLD);
 
-<<<<<<< HEAD
 /** Holds the AHB frequency. Updated by \ref SystemCoreClockUpdate(). */
 uint32_t cy_AhbFreqHz = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 #define CY_ROOT_PATH_SRC_IMO                (0UL)
 #define CY_ROOT_PATH_SRC_EXT                (1UL)
@@ -147,11 +119,6 @@ uint32_t cy_AhbFreqHz = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
     #define CY_ROOT_PATH_SRC_DSI_MUX_PILO   (19UL)
 #endif /* (SRSS_PILO_PRESENT == 1U) */
 
-<<<<<<< HEAD
-/*******************************************************************************
-* Function Name: SystemInit
-=======
-
 /*******************************************************************************
 * Function Name: SystemInit
 ****************************************************************************//**
@@ -162,53 +129,25 @@ uint32_t cy_AhbFreqHz = CY_CLK_SYSTEM_FREQ_HZ_DEFAULT;
 * - Calls Cy_PDL_Init() function to define the driver library.
 * - Calls the Cy_SystemInit() function.
 * \endcond
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *******************************************************************************/
 void SystemInit(void)
 {
     Cy_PDL_Init(CY_DEVICE_CFG);
     Cy_SystemInit();
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
-
-#ifdef CY_DEVICE_FORCE_IP_ENABLE_IN_STARTUP
-    (void)Cy_SysClk_PeriGroupSetSlaveCtl(PERI_1_GROUP_2, CY_SYSCLK_PERI_GROUP_SL_CTL, 0x3U);
-#endif
-#if  (!defined(CY_USE_FULL_PROTECTION) || (CY_USE_FULL_PROTECTION == 0))
-    SystemCoreClockUpdate();
-#endif
-========
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 /*******************************************************************************
 * Function Name: Cy_SystemInit
-<<<<<<< HEAD
-=======
 ****************************************************************************//**
 *
 * The function is called during device startup.
 *
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *******************************************************************************/
 __WEAK void Cy_SystemInit(void)
 {
      /* Empty weak function.
      */
 }
-
-<<<<<<< HEAD
-/*******************************************************************************
-* Function Name: SystemCoreClockUpdate
-*******************************************************************************/
-void SystemCoreClockUpdate (void)
-{
-    uint32_t pathFreqHz;
-    uint32_t clkHfPath;
-
-=======
 
 /*******************************************************************************
 * Function Name: SystemCoreClockUpdate
@@ -223,13 +162,9 @@ void SystemCoreClockUpdate (void)
 *******************************************************************************/
 void SystemCoreClockUpdate (void)
 {
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
-#if (!defined(CY_USE_FULL_PROTECTION) || (CY_USE_FULL_PROTECTION == 0)) || defined (COMPONENT_SECURE_DEVICE)
-========
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
     uint32_t pathFreqHz;
     uint32_t clkHfPath;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
+
     /* Get frequency for the high-frequency clock # 0 */
     clkHfPath = CY_SYSCLK_CLK_CORE_HF_PATH_NUM;
 
@@ -246,24 +181,6 @@ void SystemCoreClockUpdate (void)
     cy_AhbFreqHz = Cy_SysClk_ClkHfGetFrequency(0UL);
 }
 
-<<<<<<< HEAD
-/*******************************************************************************
-* Function Name: SystemCoreClockSetup
-=======
-<<<<<<<< HEAD:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM33/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
-    if (rpcOutputArgs.argc == 4)
-    {
-      SystemCoreClock = rpcOutputArgs.argv[1];
-      cy_PeriClkFreqHz = rpcOutputArgs.argv[2];
-      /* Sets clock frequency for Delay API */
-      cy_delayFreqHz = SystemCoreClock;
-      cy_delayFreqMhz = (uint32_t)((cy_delayFreqHz + CY_DELAY_1M_MINUS_1_THRESHOLD) / CY_DELAY_1M_THRESHOLD);
-      cy_delayFreqKhz = (cy_delayFreqHz + CY_DELAY_1K_MINUS_1_THRESHOLD) / CY_DELAY_1K_THRESHOLD;
-      /* Get the frequency of AHB source, CLK HF0 is the source for AHB*/
-      cy_AhbFreqHz = rpcOutputArgs.argv[3];
-    }
-#endif
-========
 /*******************************************************************************
 * Function Name: SystemCoreClockSetup
 ****************************************************************************//**
@@ -281,7 +198,6 @@ void SystemCoreClockUpdate (void)
 * Should any updates occur, \ref SystemCoreClockUpdate must be called afterwards
 * on the CM33_NS and CM55.
 *
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 *******************************************************************************/
 void SystemCoreClockSetup (uint32_t systemCoreClk_freq_hz, uint32_t ahb_freq_hz)
 {
@@ -293,11 +209,6 @@ void SystemCoreClockSetup (uint32_t systemCoreClk_freq_hz, uint32_t ahb_freq_hz)
     cy_delayFreqKhz = (cy_delayFreqHz + CY_DELAY_1K_MINUS_1_THRESHOLD) / CY_DELAY_1K_THRESHOLD;
 
     cy_AhbFreqHz = ahb_freq_hz;
-<<<<<<< HEAD
 }
 
-=======
->>>>>>>> e976160882b41277609efcbb0f01c52860d8cd97:bsps/TARGET_KIT_PSE84_HMI/COMPONENT_CM55/COMPONENT_NON_SECURE_DEVICE/ns_system_pse84.c
-}
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* [] END OF FILE */

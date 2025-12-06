@@ -49,15 +49,9 @@
 #define BLOCKING_WRITE                   (1U)
 #define REDUNDANT_COPY                   (1U)
 #define WEAR_LEVELLING_FACTOR            (2U)
-<<<<<<< HEAD
-#define SIMPLE_MODE                      (0U)
-#define CY_EM_EEPROM_NVM_SIZEOF_ROW      (16U)
-
-=======
 #define SIMPLE_MODE                      (1U)
 #define CY_EM_EEPROM_NVM_SIZEOF_ROW      (16U)
 #define CY_RRAM_MAIN_NVM_NS_OFFSET 0x0002A000
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 /* Set the macro NVM_REGION_TO_USE to either USER_NVM or
  * EMULATED_EEPROM_NVM to specify the region of the NVM used for
  * emulated EEPROM.
@@ -122,11 +116,6 @@ extern bool eeprom_wr_setting;
 
 
 /*******************************************************************************
-<<<<<<< HEAD
-* Function Prototypes
-********************************************************************************/
-void app_eeprom_init(void);
-=======
  *                                FUNCTION PROTOTYPES
  *******************************************************************************/
 
@@ -151,7 +140,6 @@ uint32_t app_eeprom_init(void);
  *
  * @return uint32_t Returns the result of the EEPROM write operation.
  */
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 uint32_t app_eeprom_write(device_settings_t *settings);
 uint32_t app_eeprom_read(device_settings_t *settings);
 

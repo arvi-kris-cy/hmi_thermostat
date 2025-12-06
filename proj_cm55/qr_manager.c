@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /*******************************************************************************
  * File Name:  qr_manager.c
  *
@@ -44,13 +42,10 @@
 /*******************************************************************************
  *                                INCLUDES
  ******************************************************************************/
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 #include "qr_manager.h"
 #include <stdio.h>
 #include <string.h>
 
-<<<<<<< HEAD
-=======
 /*******************************************************************************
  *                              CONSTANTS
  ******************************************************************************/
@@ -71,7 +66,6 @@
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 void qr_manager_init(qr_manager_t * manager, lv_obj_t * parent_container, uint16_t size)
 {
     if (!manager) return;
@@ -87,16 +81,9 @@ void qr_manager_init(qr_manager_t * manager, lv_obj_t * parent_container, uint16
     }
 
     lv_qrcode_set_size(manager->qr_obj, size);
-<<<<<<< HEAD
-    lv_qrcode_set_dark_color(manager->qr_obj, lv_color_white());  // White modules
-    lv_qrcode_set_light_color(manager->qr_obj, lv_color_black()); // Black background
-
-    // Optional: center inside parent
-=======
     lv_qrcode_set_dark_color(manager->qr_obj, lv_color_white());
     lv_qrcode_set_light_color(manager->qr_obj, lv_color_black());
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     lv_obj_center(manager->qr_obj);
 }
 
@@ -109,11 +96,6 @@ void qr_manager_update(qr_manager_t * manager, const char * data)
     {
         printf("QR Manager: Failed to update QR code\n");
     }
-<<<<<<< HEAD
-
-//    lv_obj_set_pos(manager->qr_obj, 6, -28);
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 void qr_manager_deinit(qr_manager_t * manager)
@@ -123,9 +105,6 @@ void qr_manager_deinit(qr_manager_t * manager)
     lv_obj_del(manager->qr_obj);
     manager->qr_obj = NULL;
 }
-<<<<<<< HEAD
-=======
 
 
 /* [] END OF FILE */
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

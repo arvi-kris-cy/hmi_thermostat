@@ -40,12 +40,8 @@
 * Header Files
 *******************************************************************************/
 #include "app_i2s.h"
-<<<<<<< HEAD
-#include "wave.h"
-=======
 #include "error_wav.h"
 #include "success_wav.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /*******************************************************************************
 * Global Variables
@@ -74,12 +70,8 @@ uint32_t i2s_txcount = 0;
 bool audio_playback_ended = false;
 
 /* Pointer to the audio data */
-<<<<<<< HEAD
-uint16_t *wave_data = (uint16_t*)&hex_array[0];
-=======
 uint16_t *wave_data = (uint16_t*)&success_wav[0];
 unsigned int wave_data_size =  success_wav_size;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 uint16_t zeros_data[HW_FIFO_HALF_SIZE/2] = {0};
 
 /*******************************************************************************
@@ -104,12 +96,8 @@ void app_i2s_init(void)
     cy_en_tdm_status_t result = Cy_AudioTDM_Init(TDM_STRUCT0, &CYBSP_TDM_CONTROLLER_0_config);
     if (result != CY_RSLT_SUCCESS)
     {
-<<<<<<< HEAD
-    	handle_app_error();
-=======
 //    	handle_app_error();
         APP_ERROR(1);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 }
 
@@ -133,12 +121,8 @@ void app_tlv_codec_init(void)
     /* TLV codec (TLV320DAC3100) library */
     mtb_tlv320dac3100_init(&MW_I2C_hal_obj);
     /* Configure internal clock dividers to achieve desired sample rate */
-<<<<<<< HEAD
-    mtb_tlv320dac3100_configure_clocking(MCLK_HZ, SAMPLE_RATE_HZ, I2S_WORD_LENGTH);
-=======
     mtb_tlv320dac3100_configure_clocking(MCLK_HZ, SAMPLE_RATE_HZ, I2S_WORD_LENGTH, TLV320DAC3100_SPK_AUDIO_OUTPUT);
     
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     /* Activate TLV codec (TLV320DAC3100) */
     mtb_tlv320dac3100_activate();
 }
@@ -169,11 +153,7 @@ void i2s_tx_interrupt_handler(void)
             Cy_AudioTDM_WriteTxData(TDM_STRUCT0_TX, (uint32_t) (wave_data[i2s_txcount++]));
 
             /* If the end of the wave data is reached, reset i2s_txcount and set end of playback */
-<<<<<<< HEAD
-            if (i2s_txcount >= hex_array_size/2)
-=======
             if (i2s_txcount >= wave_data_size/2)
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             {
                 i2s_txcount = 0;
                 /* End of Playback */
@@ -279,22 +259,6 @@ void tlv_codec_i2c_init(void)
     cy_rslt_t hal_result;
 
     /* Initialize and enable the I2C in controller mode. */
-<<<<<<< HEAD
-    result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_0_HW, &CYBSP_I2C_CONTROLLER_0_config, &MW_I2C_context);
-    if (result != CY_RSLT_SUCCESS)
-    {
-    	handle_app_error();
-    }
-
-    /* Enable I2C hardware. */
-    Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_0_HW);
-
-    /* I2C HAL init */
-    hal_result = mtb_hal_i2c_setup(&MW_I2C_hal_obj, &CYBSP_I2C_CONTROLLER_0_hal_config, &MW_I2C_context, NULL);
-    if (hal_result != CY_RSLT_SUCCESS)
-    {
-    	handle_app_error();
-=======
     result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW, &CYBSP_I2C_CONTROLLER_config, &MW_I2C_context);
     if (result != CY_RSLT_SUCCESS)
     {
@@ -312,19 +276,14 @@ void tlv_codec_i2c_init(void)
     {
         APP_ERROR(hal_result);
 //    	handle_app_error();
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 
     /* Configure the I2C block. Controller/Target specific functions only work when the block is configured to desired mode */
     hal_result = mtb_hal_i2c_configure(&MW_I2C_hal_obj, &i2c_config);
     if (hal_result != CY_RSLT_SUCCESS)
     {
-<<<<<<< HEAD
-    	handle_app_error();
-=======
 //    	handle_app_error();
         APP_ERROR(hal_result);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
     }
 }
 

@@ -43,15 +43,9 @@
 #include "mqtt_command_handler.h"
 #include "publisher_task.h"
 #include "subscriber_task.h"
-<<<<<<< HEAD
-#include "wireless_manager.h"
-#include "comm_manager.h"
-#include "mqtt_task.h"
-=======
 #include "comm_manager.h"
 #include "mqtt_task.h"
 #include "wireless_manager.h"
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 /**
  * Macros
@@ -71,13 +65,9 @@ extern QueueHandle_t mqtt_task_q;
 publisher_data_t publisher_q_data;
 
 device_state_t device_status;
-<<<<<<< HEAD
-extern bool device_provisioned;
-=======
 extern char current_OTA_version[MAX_FW_VERSION_LEN];
 
 static connectivity_medium_t current_interface = CONNECTIVITY_NONE;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
 const unsigned int common_get_command = SHIFT_LEFT(DEVICE_STATUS) | SHIFT_LEFT(TARGETED_TEMP) |
 									SHIFT_LEFT(GETDEVICE_CURRENT_HUMIDITY) | SHIFT_LEFT(GETDEVICE_CURRENT_CO2LEVEL) |
@@ -100,8 +90,6 @@ typedef struct
 static double json_parsenumeric(const char *message, const char *token);
 
 /**
-<<<<<<< HEAD
-=======
  * @brief Parses a JSON string to extract a string value.
  *
  * This function takes a JSON message and a token (key) as input. It attempts
@@ -117,14 +105,11 @@ static double json_parsenumeric(const char *message, const char *token);
 static char* json_parsestring(const char *message, const char *token);
 
 /**
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
  * @brief Handles the DEVICE_STATUS command and responds with the current status of the device.
  */
 static void handle_devicestatus_command(void);
 
 /**
-<<<<<<< HEAD
-=======
  * @brief Handles the Set date time command and responds with the status.
  */
 static void handle_datetime_command(char *value);
@@ -141,7 +126,6 @@ static void handle_current_FW_version_command(char *FW_version);
 static void handle_mqtt_command_str(mqtt_commandId_e command, operation_type_e type, char *value);
 
 /**
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
  * @brief Handles the DEVICE_MODE command to set or get the current device mode.
  */
 static void handle_devicemode_command(operation_type_e type, thermostat_mode_t mode);
@@ -187,14 +171,6 @@ static void handle_deviceaudio_command(operation_type_e type, uint8_t level);
 static void handle_triggerfirmwareupdate_command(void);
 
 /**
-<<<<<<< HEAD
- * @brief Processes the FIRMWARE_UPDATE_PROGRESS command to send update progress details.
- */
-static void handle_firmwareupdateprogress_command(void);
-
-/**
-=======
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
  * @brief Sends the final status of the firmware update process (success/failure).
  */
 static void handle_firmwareupdatefinalstatus_command(void);
@@ -230,8 +206,6 @@ static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type,
 void send_response_String(mqtt_commandId_e cmd, operation_type_e type, char *string_data);
 
 /**
-<<<<<<< HEAD
-=======
  * @brief Parses a date and time string into a DateTime structure.
  *
  * This function takes a string in "YYYY-MM-DD HH:MM:SS" format and
@@ -244,7 +218,6 @@ void send_response_String(mqtt_commandId_e cmd, operation_type_e type, char *str
 static bool parse_datetime_string(const char *datetime_str, DateTime *parsed_time);
 
 /**
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
  * @brief Creates a JSON-formatted response string for the given command, type, and value.
  * @return Pointer to a dynamically allocated JSON response string. Caller must free.
  */
@@ -257,18 +230,6 @@ static double json_parsenumeric(const char *message, const char *tokan)
 {
 	double number = -1;
     // Example: Parse JSON payload from MQTT message
-<<<<<<< HEAD
-    cJSON *json = cJSON_Parse(message);
-    if (json) {
-    	number = cJSON_GetObjectItem(json, tokan)->valuedouble;
-        printf("Parsed value: %g for tokan %s\n", number, tokan);
-        cJSON_Delete(json);
-    } else {
-        printf("Failed to parse incoming json message for tokan: %s.\n", tokan);
-    }
-
-    return number;
-=======
    
 		cJSON *json = cJSON_Parse(message);
 		if (json) {
@@ -326,7 +287,6 @@ static char* json_parsestring(const char *message, const char *token)
     cJSON_Delete(json);
   
     return result;
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 static void handle_devicestatus_command(void)
@@ -334,8 +294,6 @@ static void handle_devicestatus_command(void)
 	send_response_numeric(DEVICE_STATUS, OPERATION_READ, (uint32_t)1);
 }
 
-<<<<<<< HEAD
-=======
 static bool parse_datetime_string(const char *datetime_str, DateTime *parsed_time)
 {
     if (datetime_str == NULL || parsed_time == NULL) {
@@ -407,7 +365,6 @@ static void handle_mqtt_command_str(mqtt_commandId_e command, operation_type_e t
 }
 
 
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 static void handle_devicemode_command(operation_type_e type, thermostat_mode_t mode)
 {
 
@@ -502,11 +459,7 @@ void handle_getcurrentpara_command(mqtt_commandId_e cmd)
 
 		default:
 		{
-<<<<<<< HEAD
-			printf("Unknown parameter!");
-=======
 		    LOG_ERROR(CYLF_DEF, "Unknown parameter!");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 			break;
 		}
 	}
@@ -550,21 +503,13 @@ void mqtt_ota_task(void *arg)
 	{
 		device_status.ota.ota_progress+=10;
 		send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
-<<<<<<< HEAD
-		printf("Updating FW Progress\n");
-=======
 		LOG_INFO(CYLF_DEF, "Updating FW Progress\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 		vTaskDelay(1000);
 		if(device_status.ota.ota_progress >= 100)
 		{
 			device_status.ota.ota_final_status = 0;
 			send_response_numeric(FIRMWARE_UPDATE_STATUS, OPERATION_READ, (uint32_t)device_status.ota.ota_final_status);
-<<<<<<< HEAD
-			printf("OTA Task Deleted\n");
-=======
 			LOG_INFO(CYLF_DEF, "OTA Task Deleted\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 			vTaskDelete(NULL);
 		}
 	}
@@ -580,11 +525,6 @@ static void handle_triggerfirmwareupdate_command(void)
 	}
 	else
 	{
-<<<<<<< HEAD
-		xTaskCreate(mqtt_ota_task, "OTA task", 512,
-					NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
-		send_response_numeric(DEVICE_FIRMWARE_UPDATE, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_SUCCESS);
-=======
 		if(get_device_provision_state())
 		{
 			OTA_Tigger_On_ui();
@@ -595,18 +535,10 @@ static void handle_triggerfirmwareupdate_command(void)
 			no_internet_connected_send_to_ui();
 			send_response_numeric(DEVICE_FIRMWARE_UPDATE, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_UNKNOWN_ERROR);
 		}
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 	}
 
 }
 
-<<<<<<< HEAD
-static void handle_firmwareupdateprogress_command(void)
-{
-	//Call get firmware update progress API
-
-	send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
-=======
 void handle_firmwareupdateprogress_command(uint8_t per)
 {
 	if(per != device_status.ota.ota_progress)
@@ -614,7 +546,6 @@ void handle_firmwareupdateprogress_command(uint8_t per)
 		device_status.ota.ota_progress = per;
 		send_response_numeric(FIRMWARE_UPDATE_PROGRESS, OPERATION_READ, (uint32_t)device_status.ota.ota_progress);
 	}
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 static void handle_firmwareupdatefinalstatus_command(void)
@@ -626,11 +557,7 @@ static void handle_firmwareupdatefinalstatus_command(void)
 
 static void handle_currentfirmwareversion_command(void)
 {
-<<<<<<< HEAD
-	send_response_String(CURRENT_FIRMWARE_VERSION, OPERATION_READ, "V1.0.0");
-=======
 	send_response_String(CURRENT_FIRMWARE_VERSION, OPERATION_READ, current_OTA_version);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 void handle_pairingremove_command(bool only_wifi)
@@ -644,16 +571,10 @@ void handle_pairingremove_command(bool only_wifi)
 		send_response_numeric(DEVICE_PAIRING_DISCONECT, OPERATION_RESPONSE, (uint32_t)MQTT_PARSER_SUCCESS);
 	}
 
-<<<<<<< HEAD
-	mqtt_task_cmd_t mqtt_task_cmd = HANDLE_MANUAL_DISCONNECTION;
-	xQueueSend(mqtt_task_q, &mqtt_task_cmd, portMAX_DELAY);
-	device_provisioned = false;
-=======
 	vTaskDelay(500);
 
 	mqtt_task_cmd_t mqtt_task_cmd = HANDLE_DEPROVISIONING;
 	xQueueSend(mqtt_task_q, &mqtt_task_cmd, portMAX_DELAY);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 static void handle_timerremaining_command(void)
@@ -664,76 +585,6 @@ static void handle_timerremaining_command(void)
 static void handle_getdeviceconfig_command(void)
 {
 	char temp[5] = {0};
-<<<<<<< HEAD
-	cJSON *json = cJSON_CreateObject();
-
-	if(NULL != json)
-	{
-		snprintf(temp, sizeof(temp), "%d",DEVICE_STATUS);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)true))
-		{
-			//Can display error to user
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",CURRENT_TEMP);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.environment.current_temp))
-		{
-			//Can display error to user
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",TARGETED_TEMP);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.environment.target_temp))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",GETDEVICE_CURRENT_CO2LEVEL);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.environment.current_co2_level))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",GETDEVICE_CURRENT_HUMIDITY);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.environment.current_humidity))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",DEVICE_MODE);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.thermostat_settings.mode))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",FAN_SPEED);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.thermostat_settings.fan_speed))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",DEVICE_BRIGHTNESS);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.preferences.display_brightness))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",DEVICE_AUDIO);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.preferences.audio_level))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",TEMP_UNIT);
-		if(NULL == cJSON_AddNumberToObject(json, (const char *)temp, (uint32_t)device_status.thermostat_settings.temp_unit))
-		{
-			return;
-		}
-
-		snprintf(temp, sizeof(temp), "%d",CURRENT_FIRMWARE_VERSION);
-		if(NULL == cJSON_AddStringToObject(json, (const char *)temp, "V1.0.0"))
-=======
 	
 		cJSON *json = cJSON_CreateObject();
 		char *json_data = NULL;
@@ -804,24 +655,10 @@ static void handle_getdeviceconfig_command(void)
 
 		snprintf(temp, sizeof(temp), "%d",CURRENT_FIRMWARE_VERSION);
 		if(NULL == cJSON_AddStringToObject(json, (const char *)temp, current_OTA_version))
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 		{
 			return;
 		}
 
-<<<<<<< HEAD
-		if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
-		{
-			printf("Cloud not connected\n");
-			return;
-		}
-
-		publisher_q_data.cmd = PUBLISH_MQTT_MSG;
-		publisher_q_data.data = cJSON_Print(json);
-		cJSON_Delete(json);
-
-		xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-=======
 			json_data = cJSON_Print(json);
 			cJSON_Delete(json);
 
@@ -853,7 +690,6 @@ static void handle_getdeviceconfig_command(void)
 		{
 		    LOG_INFO(CYLF_DEF, "Unable to create a JSON string!\n");
 		}
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 	}
 }
 
@@ -875,22 +711,6 @@ void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t
 {
 	jsonpyload_t pyload;
 	pyload.is_numeric = true;
-<<<<<<< HEAD
-
-	if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
-	{
-		printf("Cloud not connected\n");
-		return;
-	}
-	publisher_q_data.cmd = PUBLISH_MQTT_MSG;
-
-	pyload.command = cmd;
-	pyload.type = type;
-	pyload.value = (double)response;
-	publisher_q_data.data = json_create_response(pyload);
-
-	xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-=======
 	pyload.command = cmd;
 	pyload.type = type;
 	pyload.value = (double)response;
@@ -926,29 +746,12 @@ void send_response_numeric(mqtt_commandId_e cmd, operation_type_e type, uint32_t
         /* Release Mutex */
         xSemaphoreGive(uplink_mutex);
     }
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 void send_response_String(mqtt_commandId_e cmd, operation_type_e type, char *string_data)
 {
 	jsonpyload_t pyload;
 	pyload.is_numeric = false;
-<<<<<<< HEAD
-
-	if(!(get_mqtt_status() & FLAG_MQTT_CONNECTION_SUCCESS))
-	{
-		printf("Cloud not connected\n");
-		return;
-	}
-	publisher_q_data.cmd = PUBLISH_MQTT_MSG;
-
-	pyload.command = cmd;
-	pyload.type = type;
-	pyload.buff = string_data;
-	publisher_q_data.data = json_create_response(pyload);
-
-	xQueueSend(publisher_task_q, &publisher_q_data, portMAX_DELAY);
-=======
 	pyload.command = cmd;
 	pyload.type = type;
 	pyload.buff = string_data;
@@ -981,7 +784,6 @@ void send_response_String(mqtt_commandId_e cmd, operation_type_e type, char *str
 	{
 	    LOG_INFO(CYLF_DEF, "Unable to create a Json string!\n");
 	}
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 }
 
 static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type, uint32_t value)
@@ -995,174 +797,97 @@ static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type,
 
     switch (command) {
         case DEVICE_STATUS:
-<<<<<<< HEAD
-            printf("Handling DEVICE_STATUS...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_STATUS...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 			handle_devicestatus_command();
             break;
 
         case DEVICE_MODE:
-<<<<<<< HEAD
-            printf("Handling DEVICE_MODE...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_MODE...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_devicemode_command(type, value);
             break;
 
         case TARGETED_TEMP:
-<<<<<<< HEAD
-            printf("Handling TARGETED_TEMP...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling TARGETED_TEMP...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_gettergettemp_command();
             break;
 
         case SETDEVICE_TEMP_UPDOWN:
-<<<<<<< HEAD
-            printf("Handling SETDEVICE_TEMP_UPDOWN...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling SETDEVICE_TEMP_UPDOWN...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_settempupdown_command(value);//handle up or down
             break;
 
         case FAN_SPEED:
-<<<<<<< HEAD
-            printf("Handling FAN_SPEED...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling FAN_SPEED...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_fanspeed_command(type, value);
             break;
 
         case CURRENT_TEMP:
-<<<<<<< HEAD
-            printf("Handling GETDEVICE_CURRENT_TEMP...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_TEMP...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_currenttemp_command(type, value);
             break;
 
         case GETDEVICE_CURRENT_HUMIDITY:
-<<<<<<< HEAD
-            printf("Handling GETDEVICE_CURRENT_HUMIDITY...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_HUMIDITY...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_getcurrentpara_command(command);
             break;
 
         case GETDEVICE_CURRENT_CO2LEVEL:
-<<<<<<< HEAD
-            printf("Handling GETDEVICE_CURRENT_CO2LEVEL...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling GETDEVICE_CURRENT_CO2LEVEL...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_getcurrentpara_command(command);
             break;
 
         case DEVICE_BRIGHTNESS:
-<<<<<<< HEAD
-            printf("Handling DEVICE_BRIGHTNESS...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_BRIGHTNESS...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_brightness_command(type, value);
             break;
 
         case DEVICE_AUDIO:
-<<<<<<< HEAD
-            printf("Handling DEVICE_AUDIO...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_AUDIO...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_deviceaudio_command(type, value);
             break;
 
         case DEVICE_FIRMWARE_UPDATE:
-<<<<<<< HEAD
-            printf("Handling DEVICE_FIRMWARE_UPDATE...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_FIRMWARE_UPDATE...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_triggerfirmwareupdate_command();
             break;
 
         case FIRMWARE_UPDATE_PROGRESS:
-<<<<<<< HEAD
-            printf("Handling FIRMWARE_UPDATE_PROGRESS...\n");
-            handle_firmwareupdateprogress_command();
-            break;
-
-        case FIRMWARE_UPDATE_STATUS:
-            printf("Handling FIRMWARE_UPDATE_STATUS...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling FIRMWARE_UPDATE_PROGRESS...\n");
             handle_firmwareupdateprogress_command((uint8_t)device_status.ota.ota_progress);
             break;
 
         case FIRMWARE_UPDATE_STATUS:
             LOG_INFO(CYLF_DEF, "Handling FIRMWARE_UPDATE_STATUS...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_firmwareupdatefinalstatus_command();
             break;
 
         case DEVICE_PAIRING_DISCONECT:
-<<<<<<< HEAD
-            printf("Handling DEVICE_PAIRING_DISCONNECT...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling DEVICE_PAIRING_DISCONNECT...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_pairingremove_command(false);
             break;
 
         case TIME_REMAINING:
-<<<<<<< HEAD
-            printf("Handling TIME_REMAINING...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling TIME_REMAINING...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_timerremaining_command();
         	break;
 
         case CURRENT_FIRMWARE_VERSION:
-<<<<<<< HEAD
-            printf("Handling CURRENT_FIRMWARE_VERSION...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling CURRENT_FIRMWARE_VERSION...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_currentfirmwareversion_command();
         	break;
 
         case TEMP_UNIT:
-<<<<<<< HEAD
-        	printf("Handling TEMP_UNIT...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling TEMP_UNIT...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	handle_tempunit_command(type, value);
         	break;
 
         case GET_DEVICE_CONFIGURATION:
-<<<<<<< HEAD
-            printf("Handling GET_DEVICE_CONFIGURATION...\n");
-=======
             LOG_INFO(CYLF_DEF, "Handling GET_DEVICE_CONFIGURATION...\n");
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             handle_getdeviceconfig_command();
         	break;
 
         default:
-<<<<<<< HEAD
-            printf("Unknown MQTT command received: %d\n", command);
-=======
             LOG_INFO(CYLF_DEF, "Unknown MQTT command received: %d\n", command);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
             break;
     }
 }
@@ -1170,34 +895,6 @@ static void handle_mqtt_command(mqtt_commandId_e command, operation_type_e type,
 /**
  * Functions Definitions
  */
-<<<<<<< HEAD
-mqtt_parser_errors_e parse_mqtt_command(const char *message, size_t message_len)
-{
-	double type, cmdId, value = 0;
-	type = json_parsenumeric(message, JSON_KEY_FOR_TYPEOFOPERATION);
-	if(type < 0)
-	{
-		return MQTT_PARSER_JSON_PARSE_ERROR;
-	}
-	cmdId = json_parsenumeric(message, JSON_KEY_FOR_COMMAND);
-	if(cmdId < 0)
-	{
-		return MQTT_PARSER_JSON_PARSE_ERROR;
-	}
-	value = json_parsenumeric(message, JSON_KEY_FOR_VALUE);
-	if(value < 0)
-	{
-		return MQTT_PARSER_JSON_PARSE_ERROR;
-	}
-
-	handle_mqtt_command(cmdId, type, (uint32_t)value);
-	return MQTT_PARSER_SUCCESS;
-}
-
-static char *json_create_response(jsonpyload_t payload)
-{
-    cJSON *json = cJSON_CreateObject();
-=======
 mqtt_parser_errors_e parse_received_command(const char *message, size_t message_len)
 {
     double type, cmdId, value = 0;
@@ -1243,25 +940,18 @@ mqtt_parser_errors_e parse_received_command(const char *message, size_t message_
 static char *json_create_response(jsonpyload_t payload)
 {
 		cJSON *json = cJSON_CreateObject();
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 
     if(NULL != json)
     {
         if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_TYPEOFOPERATION, payload.type))
         {
-<<<<<<< HEAD
-=======
         	cJSON_Delete(json);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	return NULL;
         }
 
         if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_COMMAND, payload.command))
         {
-<<<<<<< HEAD
-=======
         	cJSON_Delete(json);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
         	return NULL;
         }
 
@@ -1269,10 +959,7 @@ static char *json_create_response(jsonpyload_t payload)
         {
 			if(NULL == cJSON_AddNumberToObject(json, JSON_KEY_FOR_VALUE, payload.value))
 			{
-<<<<<<< HEAD
-=======
 				cJSON_Delete(json);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 				return NULL;
 			}
         }
@@ -1280,10 +967,7 @@ static char *json_create_response(jsonpyload_t payload)
         {
 			if(NULL == cJSON_AddStringToObject(json, JSON_KEY_FOR_VALUE, payload.buff))
 			{
-<<<<<<< HEAD
-=======
 				cJSON_Delete(json);
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 				return NULL;
 			}
         }
@@ -1294,13 +978,6 @@ static char *json_create_response(jsonpyload_t payload)
     }
     else
     {
-<<<<<<< HEAD
-    	printf("Unable to generate response for %d command\n", (int)payload.command);
-    }
-
-	return NULL;
-}
-=======
         LOG_INFO(CYLF_DEF, "Unable to generate response for %d command\n", (int)payload.command);
     }
    
@@ -1320,4 +997,3 @@ void send_device_config_info(void)
 {
     handle_getdeviceconfig_command();
 }
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97

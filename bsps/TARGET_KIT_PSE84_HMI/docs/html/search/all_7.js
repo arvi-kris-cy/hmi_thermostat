@@ -1,8 +1,5 @@
 var searchData=
 [
-<<<<<<< HEAD
-  ['ns_5fmask_0',['ns_mask',['../structcy__mpc__regions__config__2__t.html#a559b206010eca5c26b33075bf0c58f7a',1,'cy_mpc_regions_config_2_t']]]
-=======
   ['macros_0',['Macros',['../group__group__system__config__macro__edge.html',1,'']]],
   ['modustoolbox™_20board_20support_20package_20_28bsp_29_20overview_1',['ModusToolbox™ Board Support Package (BSP) Overview',['../md_ci_src_docs_mt_bsp_user_guide.html',1,'']]],
   ['mtb_20ipc_20configuration_2',['MTB IPC Configuration',['../group__group__mtb__ipc__config.html',1,'']]],
@@ -20,5 +17,4 @@ var searchData=
   ['mtb_5fsrf_5fmodule_5fuser_14',['MTB_SRF_MODULE_USER',['../group__group__mtb__srf__config.html#gab41e47ced9cd3a8ccf3064eb69298831',1,'mtb_srf_config.h']]],
   ['mtb_5fsrf_5fpool_5fsize_15',['MTB_SRF_POOL_SIZE',['../group__group__mtb__srf__config.html#ga589067eb1e3af68adab2b2caaf8435d5',1,'mtb_srf_config.h']]],
   ['mtb_5fsrf_5fsecure_5farg_5fbuffer_5flen_16',['MTB_SRF_SECURE_ARG_BUFFER_LEN',['../group__group__mtb__srf__config.html#ga840535b930f09b3d78ca7406454bc51a',1,'mtb_srf_config.h']]]
->>>>>>> e976160882b41277609efcbb0f01c52860d8cd97
 ];

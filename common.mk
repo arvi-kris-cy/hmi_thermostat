@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,13 +31,14 @@ MTB_TYPE=PROJECT
 # Eclipse IDE launch configurations.
 TARGET=APP_KIT_PSE84_HMI
 
+MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
 # Name of toolchain to use. Options include:
 #
 # ARM     	-- ARM Compiler (must be installed separately)
 # LLVM_ARM	-- LLVM Embedded Toolchain (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
-TOOLCHAIN=ARM
+TOOLCHAIN=LLVM_ARM
 
 # Default build configuration. Options include:
 #
@@ -45,11 +46,9 @@ TOOLCHAIN=ARM
 # Release -- build with full optimizations
 # Custom -- build with custom configuration, set the optimization flag in CFLAGS
 # 
-# If CONFIG is manually edited, ensure to update or regenerate  
+# If CONFIG is manually edited, ensure to update or regenerate 
 # launch configurations for your IDE.
 CONFIG=Debug
-
-MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
 
 # Config file for postbuild sign and merge operations.
 # NOTE: Check the JSON file for the command parameters
