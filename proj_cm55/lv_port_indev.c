@@ -46,6 +46,10 @@
 #include "lv_indev_private.h"
 #include "cy_utils.h"
 
+// TEMP: use Display-P
+#undef MTB_CTP_FT5446
+#define MTB_CTP_P4100TP
+
 #if defined(MTB_CTP_FT5446)
 #include "mtb_ctp_ft5446.h"
 #elif defined(MTB_CTP_P4100TP)

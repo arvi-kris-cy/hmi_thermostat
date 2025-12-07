@@ -465,7 +465,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_add_event_cb(ui_timeoutdropdown, ui_event_timeoutdropdown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_VolumeDrodown, ui_event_VolumeDrodown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_tempunitswitch, ui_event_tempunitswitch, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_BGswitch, ui_event_BGswitch, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_BGswitch, ui_event_BGswitch, LV_EVENT_ALL, NULL); // TODO - restore function after figuring out LVGL socmem split
     lv_obj_add_event_cb(ui_ResetButton, ui_event_ResetButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_UpdateButton, ui_event_UpdateButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homeimg2, ui_event_homeimg2, LV_EVENT_ALL, NULL);

@@ -2684,12 +2684,12 @@ void set_background(lv_event_t * e){
     bool is_checked = lv_obj_has_state(ui_BGswitch, LV_STATE_CHECKED);
     if(!is_checked){
         lv_obj_add_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        //lv_obj_clear_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, &ui_temp_arc, LV_PART_MAIN | LV_STATE_DEFAULT); 
     }
     else{
         lv_obj_clear_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        //lv_obj_add_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, NULL, LV_PART_MAIN | LV_STATE_DEFAULT); 
     }
 }

@@ -8,6 +8,8 @@
 #define LV_ATTRIBUTE_UI_IMG_BACKGROUND_6_PNG
 #endif
 
+#if 0 // TODO cleanup unused images
+
 CY_SECTION(".cy_gpu_buf")
 LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_UI_IMG_BACKGROUND_6_PNG
 uint8_t ui_img_background_6_png_map[] = {
@@ -510,3 +512,4 @@ const lv_image_dsc_t ui_img_background_6_png = {
   .reserved = NULL,
 };
 
+#endif // 0 // TODO cleanup unused images

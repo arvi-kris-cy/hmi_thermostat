@@ -230,34 +230,6 @@ mtb_help_tools_end: mtb_help_tool_smartio-configurator
 mtb_help_tool_smartio-configurator: mtb_help_tools_start
 .PHONY: mtb_help_tool_smartio-configurator
 
-config_ml:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: config_ml
-
-CY_HELP_config_ml=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_config_ml_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_config_ml:
-	@:
-	$(info $(MTB__SPACE)config_ml           $(CY_HELP_config_ml))
-
-mtb_help_tools_end: mtb_help_tool_config_ml
-mtb_help_tool_config_ml: mtb_help_tools_start
-.PHONY: mtb_help_tool_config_ml
-
-ml-configurator:
-	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name ml-configurator
-.PHONY: ml-configurator
-
-CY_HELP_ml-configurator=Launches the ML Configurator 3.0 GUI for the target's mtbml file
-CY_HELP_ml-configurator_VERBOSE=Launches the ML Configurator 3.0 GUI. Check the ML Configurator 3.0 User Guide for more information.
-mtb_help_tool_ml-configurator:
-	@:
-	$(info $(MTB__SPACE)ml-configurator     $(CY_HELP_ml-configurator))
-
-mtb_help_tools_end: mtb_help_tool_ml-configurator
-mtb_help_tool_ml-configurator: mtb_help_tools_start
-.PHONY: mtb_help_tool_ml-configurator
-
 config_audio-fe:
 	$(CY_TOOL_mtblaunch_EXE_ABS) --project . --short-name audio-fe-configurator
 .PHONY: config_audio-fe

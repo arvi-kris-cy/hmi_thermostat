@@ -156,19 +156,24 @@ int cm33_send_msg_cm55(ipc_msg_t *msg)
 			if(CY_IPC_PIPE_SUCCESS != pipeStatus)
 			{
 				ret = -1;
-	            printf("cm33_send_msg_cm55 error\n");
+	            printf("[IPC] cm33_send_msg_cm55 error: pipeStatus=%d (cmd=0x%02X)\r\n", pipeStatus, msg->cmd);
+			}
+			else
+			{
+				ret = 0;
 			}
 		}
 		else
 		{
+			printf("[IPC] cm33_send_msg_cm55 error: msg is NULL\r\n");
 			ret = -1;
 		}
 
-		ret = 0;
 		cy_rtos_mutex_set(&cm33_ipc_mutex);
 	}
 	else
 	{
+		printf("[IPC] cm33_send_msg_cm55 error: mutex timeout (CM55 may not be running)\r\n");
 		ret = -1;
 	}
 

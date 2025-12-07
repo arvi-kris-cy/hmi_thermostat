@@ -1,0 +1,69 @@
+#2
+Voice assistant task disabled
+Main BG img disabled
+Re-build
+>>> Result: 
+
+Memory region         Used Size  Region Size  %age Used
+m55_data_INTERNAL:      115600 B       256 KB     44.10%
+m55_code_INTERNAL:      144120 B       256 KB     54.98%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     3509640 B         8 MB     41.84%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB         4 KB      0.00%
+m55_data_secondary:       2560 KB      2560 KB    100.00%
+         gfx_mem:     1708672 B      2552 KB     65.38%
+  m33_m55_shared:          4 KB         4 KB    100.00%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+m55_data_INTERNAL:      115600 B       256 KB     44.10%
+m55_code_INTERNAL:      144120 B       256 KB     54.98%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     3509640 B         8 MB     41.84%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB         4 KB      0.00%
+m55_data_secondary:       2560 KB      2560 KB    100.00%
+         gfx_mem:     1708672 B      2552 KB     65.38%
+  m33_m55_shared:          4 KB         4 KB    100.00%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+-------------------------------------------------------------
+
+#1
+Voice assistant task enabled
+Main BG img disabled
+>>> Result: program doesn't boot
+
+Memory region         Used Size  Region Size  %age Used
+m55_data_INTERNAL:      126240 B       256 KB     48.16%
+m55_code_INTERNAL:      247544 B       256 KB     94.43%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     3697608 B         8 MB     44.08%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB         4 KB      0.00%
+m55_data_secondary:       2560 KB      2560 KB    100.00%
+         gfx_mem:     1708672 B      2552 KB     65.38%
+  m33_m55_shared:          4 KB         4 KB    100.00%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+m55_data_INTERNAL:      126240 B       256 KB     48.16%
+m55_code_INTERNAL:      247544 B       256 KB     94.43%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     3697608 B         8 MB     44.08%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB         4 KB      0.00%
+m55_data_secondary:       2560 KB      2560 KB    100.00%
+         gfx_mem:     1708672 B      2552 KB     65.38%
+  m33_m55_shared:          4 KB         4 KB    100.00%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+
+-------------------------------------------------------------

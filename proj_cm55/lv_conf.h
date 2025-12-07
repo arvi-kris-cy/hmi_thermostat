@@ -156,7 +156,7 @@
      * - gradients use RGB888
      * - bitmaps with transparency may use ARGB8888
      */
-
+    //TODO review:
     #define LV_DRAW_SW_SUPPORT_RGB565       1
     #define LV_DRAW_SW_SUPPORT_RGB565A8     1
     #define LV_DRAW_SW_SUPPORT_RGB888       1

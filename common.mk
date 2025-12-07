@@ -31,7 +31,6 @@ MTB_TYPE=PROJECT
 # Eclipse IDE launch configurations.
 TARGET=APP_KIT_PSE84_HMI
 
-MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
 # Name of toolchain to use. Options include:
 #
 # ARM     	-- ARM Compiler (must be installed separately)
@@ -49,6 +48,8 @@ TOOLCHAIN=LLVM_ARM
 # If CONFIG is manually edited, ensure to update or regenerate 
 # launch configurations for your IDE.
 CONFIG=Debug
+
+MTB_SUPPORTED_TOOLCHAINS?=LLVM_ARM ARM
 
 # Config file for postbuild sign and merge operations.
 # NOTE: Check the JSON file for the command parameters
