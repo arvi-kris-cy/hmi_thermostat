@@ -144,8 +144,12 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_y(ui_BrightnessSlider, 110);
     lv_obj_set_align(ui_BrightnessSlider, LV_ALIGN_CENTER);
 
-    lv_obj_set_style_bg_color(ui_BrightnessSlider, lv_color_hex(0x3EB15B), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_BrightnessSlider, lv_color_hex(0x06A366), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_BrightnessSlider, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_BrightnessSlider, lv_color_hex(0x50FC7C), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_main_stop(ui_BrightnessSlider, 0, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_stop(ui_BrightnessSlider, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_BrightnessSlider, LV_GRAD_DIR_VER, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
     lv_obj_set_style_bg_color(ui_BrightnessSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_BrightnessSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
@@ -179,8 +183,12 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_timeoutdropdown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_timeoutdropdown, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui_timeoutdropdown, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_timeoutdropdown, lv_color_hex(0x3EB15B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_timeoutdropdown, lv_color_hex(0x0BCBAC), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_timeoutdropdown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_timeoutdropdown, lv_color_hex(0x0D9A30), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_main_stop(ui_timeoutdropdown, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_stop(ui_timeoutdropdown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_timeoutdropdown, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_timeoutdropdown, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_VolumeDrodown = lv_dropdown_create(ui_SettingsScreen);
@@ -196,8 +204,12 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_VolumeDrodown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_VolumeDrodown, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui_VolumeDrodown, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_VolumeDrodown, lv_color_hex(0x3EB15B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_VolumeDrodown, lv_color_hex(0x0BCBAC), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_VolumeDrodown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_VolumeDrodown, lv_color_hex(0x0D9A30), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_main_stop(ui_VolumeDrodown, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_stop(ui_VolumeDrodown, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_VolumeDrodown, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_VolumeDrodown, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Timeoutlbl = lv_label_create(ui_SettingsScreen);

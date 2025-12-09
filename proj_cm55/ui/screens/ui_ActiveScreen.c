@@ -155,6 +155,7 @@ void ui_event_ActiveScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+        
         LeftPanelAnim_Animation(ui_LeftPanel, 0);
         RightPanelAnim_Animation(ui_RightPanel, 0);
     }
@@ -1997,20 +1998,9 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_remove_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_image_src(ui_voicecmdcontainer, &ui_img_conn_bg_img1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_cmdlistheader = lv_label_create(ui_voicecmdcontainer);
-    lv_obj_set_width(ui_cmdlistheader, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_cmdlistheader, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_cmdlistheader, -1);
-    lv_obj_set_y(ui_cmdlistheader, -128);
-    lv_obj_set_align(ui_cmdlistheader, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_cmdlistheader, "Voice Command List");
-    lv_obj_set_style_text_color(ui_cmdlistheader, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_cmdlistheader, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_cmdlistheader, &ui_font_sans24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_voicecmdlistpanel = lv_obj_create(ui_voicecmdcontainer);
     lv_obj_set_width(ui_voicecmdlistpanel, 445);
-    lv_obj_set_height(ui_voicecmdlistpanel, 280);
+    lv_obj_set_height(ui_voicecmdlistpanel, 240);
     lv_obj_set_x(ui_voicecmdlistpanel, -2);
     lv_obj_set_y(ui_voicecmdlistpanel, 7);
     lv_obj_set_align(ui_voicecmdlistpanel, LV_ALIGN_CENTER);
@@ -2023,12 +2013,25 @@ void ui_ActiveScreen_screen_init(void)
     ui_Commandlistlabel = lv_label_create(ui_voicecmdlistpanel);
     lv_obj_set_width(ui_Commandlistlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Commandlistlabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Commandlistlabel, 7);
+    lv_obj_set_y(ui_Commandlistlabel, 37);
     lv_obj_set_align(ui_Commandlistlabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Commandlistlabel,
-                      "Set temperature to <14 - 30>\n\nIncrease / Decrease temperature\n\nIncrease / Decrease brightness\n\nGo to setting\n\nMute / Unmute volume");
+                      "Set temperature to <14 - 30>\n\nIncrease / Decrease temperature\n\nIncrease / Decrease brightness\n\n[Increase/Decrease] fan speed\n\nSet mode to [Eco/Rapid/Auto]\n\nTurn [ON/OFF] [heating/cooling]\n\nGo to settings\n\nMute / Unmute volume");
     lv_obj_set_style_text_color(ui_Commandlistlabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Commandlistlabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Commandlistlabel, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Commandlistlabel, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_cmdlistheader = lv_label_create(ui_voicecmdcontainer);
+    lv_obj_set_width(ui_cmdlistheader, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_cmdlistheader, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_cmdlistheader, -2);
+    lv_obj_set_y(ui_cmdlistheader, -126);
+    lv_obj_set_align(ui_cmdlistheader, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_cmdlistheader, "Voice Command List");
+    lv_obj_set_style_text_color(ui_cmdlistheader, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_cmdlistheader, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_cmdlistheader, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_notification = lv_obj_create(ui_ActiveScreen);
     lv_obj_remove_style_all(ui_notification);
