@@ -109,6 +109,8 @@ LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
 LV_IMG_DECLARE(ui_img_background_6_png);
+//TEST
+LV_IMG_DECLARE(ui_img_background_6_test);
 
 
 // FONTS

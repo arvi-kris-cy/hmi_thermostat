@@ -1,3 +1,31 @@
+Memory region         Used Size  Region Size  %age Used
+m55_data_INTERNAL:       90096 B       256 KB     34.37%
+m55_code_INTERNAL:      144120 B       256 KB     54.98%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     5477400 B         8 MB     65.30%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB        24 KB      0.00%
+m55_data_secondary:       2496 KB      2496 KB    100.00%
+  m33_m55_shared:         40 KB        40 KB    100.00%
+         gfx_mem:       1208 KB      2560 KB     47.19%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+m55_data_INTERNAL:       90096 B       256 KB     34.37%
+m55_code_INTERNAL:      144120 B       256 KB     54.98%
+      user_nvm_C:          0 GB       256 KB      0.00%
+         m55_nvm:     5477400 B         8 MB     65.30%
+     m55_trailer:          0 GB       256 KB      0.00%
+m55_code_secondary:          0 GB        24 KB      0.00%
+m55_data_secondary:       2496 KB      2496 KB    100.00%
+  m33_m55_shared:         40 KB        40 KB    100.00%
+         gfx_mem:       1208 KB      2560 KB     47.19%
+        m33_data:          0 GB       256 KB      0.00%
+m33s_allocatable_shared:          0 GB         4 KB      0.00%
+m33_allocatable_shared:          0 GB         4 KB      0.00%
+m55_allocatable_shared:        1248 B         4 KB     30.47%
+
 #2
 Voice assistant task disabled
 Main BG img disabled

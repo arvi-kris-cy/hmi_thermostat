@@ -606,13 +606,13 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_activeBGImg = lv_image_create(ui_ActiveScreen);
-    lv_image_set_src(ui_activeBGImg, &ui_img_background_6_png);
+    lv_image_set_src(ui_activeBGImg, &ui_img_background_6_test); // &ui_img_background_6_png); //ui_temp_arc); 
     lv_obj_set_width(ui_activeBGImg, LV_SIZE_CONTENT);   /// 480
     lv_obj_set_height(ui_activeBGImg, LV_SIZE_CONTENT);    /// 480
     lv_obj_set_x(ui_activeBGImg, -14);
     lv_obj_set_y(ui_activeBGImg, 0);
     lv_obj_set_align(ui_activeBGImg, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_activeBGImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_add_flag(ui_activeBGImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags);
     lv_obj_remove_flag(ui_activeBGImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_activeCO2text = lv_label_create(ui_ActiveScreen);
