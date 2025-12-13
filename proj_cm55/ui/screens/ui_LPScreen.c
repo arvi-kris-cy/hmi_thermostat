@@ -24,8 +24,8 @@ void ui_event_changescreenLP(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
+         app_state = APP_ST_ACTIVE;
         _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_ActiveScreen_screen_init);
-        app_state = APP_ST_ACTIVE;
         start_inactivity_timer();
 
         /* Set sensor sampling interval to Active state */

@@ -1293,9 +1293,9 @@ void update_device_connection_state(device_connection_state_t state)
     lv_obj_add_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homecloudconnimg, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_qrcodebtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_wifideletebtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_qrcodebtn, LV_OBJ_FLAG_HIDDEN);
@@ -1350,9 +1350,9 @@ void update_device_connection_state(device_connection_state_t state)
             lv_obj_clear_flag(ui_wifideletebtn, LV_OBJ_FLAG_HIDDEN);
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_homecloudconnimg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homecloudconnected, 255, 0);
+            lv_obj_set_style_opa(ui_homecloudconnimg, 255, 0);
 
             /* Add Cloud connected status in notification queue */
             enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS, DEV_ST_CLOUD_CONNECTED);
@@ -1383,8 +1383,8 @@ void update_device_connection_state(device_connection_state_t state)
             state_text = "Cloud Connecting . . .";
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
+            lv_obj_clear_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_opa(ui_homewifidisconnimg, 255, 0);
             cloud_conn_state = false;
             break;
 
@@ -1444,9 +1444,9 @@ void update_device_connection_state(device_connection_state_t state)
             state_text = "Cloud Disconnected";
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_bleswitchbtn, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
+            lv_obj_set_style_opa(ui_homewifidisconnimg, 255, 0);
 
             /* Add Cloud disconnected status in notification queue */
             enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_FAIL, DEV_ST_CLOUD_DISCONNECTED);
@@ -1555,8 +1555,8 @@ void update_device_connection_state(device_connection_state_t state)
             state_text = "Wi-Fi Connected";
 
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
+            lv_obj_clear_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_opa(ui_homewifidisconnimg, 255, 0);
 
             /* Add Wi-Fi connected status in notification queue */
             enqueue_notification(NOTIFY_NETWORK_STATUS, NOTIF_SUCCESS, DEV_ST_WIFI_CONNECTED);
@@ -2684,12 +2684,12 @@ void set_background(lv_event_t * e){
     bool is_checked = lv_obj_has_state(ui_BGswitch, LV_STATE_CHECKED);
     if(!is_checked){
         lv_obj_add_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
+        //lv_obj_clear_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, &ui_temp_arc, LV_PART_MAIN | LV_STATE_DEFAULT); 
     }
     else{
         lv_obj_clear_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
+        //lv_obj_add_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, NULL, LV_PART_MAIN | LV_STATE_DEFAULT); 
     }
 }
@@ -3512,9 +3512,9 @@ void stop_homescreen_connectivity_state(void)
     lv_obj_add_flag(ui_wifi, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homebleconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_bleconnected50, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_homecloudconnected, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_homecloudconnimg, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_qrcodebtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_wifideletebtn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_qrcodebtn, LV_OBJ_FLAG_HIDDEN);
@@ -3546,8 +3546,8 @@ void stop_homescreen_connectivity_state(void)
     {
         case DEV_ST_CLOUD_CONNECTING:
             /* Update icon on home screen */
-            lv_obj_clear_flag(ui_homeclouddisconnected, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_opa(ui_homeclouddisconnected, 255, 0);
+            lv_obj_clear_flag(ui_homewifidisconnimg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_opa(ui_homewifidisconnimg, 255, 0);
             break;
 
         case DEV_ST_UNPROVISIONED:

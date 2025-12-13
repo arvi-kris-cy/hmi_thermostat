@@ -1,0 +1,35 @@
+12-Dec
+
+CURRENT
+try to build and work GFX + VA with LLVM
+fix GFX assets showing up white with LLVM 
+
+TODO 
+- [DONE] check and revert memory config in _ui >> give enough m55_data_secondary to avoid core fault due to insufficient data/heap
+- Check and revert LLVM linker changes, done by comparing with voice CE
+
+Review
+
+BSP:
+- S28HS01GT : use Octal DDR Hybrid at Bottom 25 MHz ?
+- Security / Memory
+security_mpu 
+SOCMEM_SRAM_MPC0 - difference in old vs new BSP?
+mtb_srf_protection_range_s_t
+
+
+
+Display config
+- all gfxss config : hbp, hfp, hsync, max_per_lane_Mbps, no_of_dsi_lines,etc.
+
+
+xensiv_radar_presence_config_t 
+	macro_threshold 16 to 15
+	max_range_bin 16 to 15
+
+review
+ce_mains_local_voice\templates\TARGET_KIT_PSE84_EVAL_EPC2\COMPONENT_CM55\TOOLCHAIN_ARM\pse84_ns_cm55.sct
+*(.itcm_data)
+*(.bss)
+
+

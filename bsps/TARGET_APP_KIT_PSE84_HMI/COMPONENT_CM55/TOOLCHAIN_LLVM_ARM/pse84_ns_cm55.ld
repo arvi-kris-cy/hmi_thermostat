@@ -480,14 +480,14 @@ SECTIONS
         KEEP(*(.cy_dtcm))
 
         . = ALIGN(4);
+        . = ALIGN(4);
 
         KEEP(*(.dtcm_data))
 
         . = ALIGN(4);
 
-        KEEP(*(.itcm_data))
-
-        . = ALIGN(4);
+        /* KEEP(*(.itcm_data)) */
+        /* . = ALIGN(4); */
                 
         __data_end__ = .;
     } > m55_data_INTERNAL AT > m55_nvm_sel
@@ -563,7 +563,7 @@ SECTIONS
     {
         __bss_start__ = .;
 
-        *(.bss*)
+        /**(.bss*)*/
         *(COMMON)
 
         . = ALIGN(4);
@@ -599,6 +599,8 @@ SECTIONS
         *(.wwd_nlu_data4)
         *(.wwd_nlu_data5)
         *(.wwd_nlu_data6)
+        *(.bss*)
+
 
         . = ALIGN(4);
     }  > m55_data_secondary AT > m55_nvm_sel
