@@ -8,7 +8,7 @@
 #define LV_ATTRIBUTE_UI_IMG_BACKGROUND_6_PNG
 #endif
 
-// CY_SECTION(".cy_gpu_buf")
+// LV_ATTRIBUTE_LARGE_RAM_ARRAY
 // LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_UI_IMG_BACKGROUND_6_PNG
 // uint8_t ui_img_background_6_png_map[] = {
 const LV_ATTRIBUTE_MEM_ALIGN uint8_t ui_img_background_6_png_map[] = {
