@@ -297,7 +297,7 @@ lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_time(&PropertyAnimation_0, 1000);
     lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
-    lv_anim_set_values(&PropertyAnimation_0, -100, 0);
+    lv_anim_set_values(&PropertyAnimation_0, -116, -16);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_overshoot);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
@@ -305,8 +305,7 @@ lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_x);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
     out_anim = lv_anim_start(&PropertyAnimation_0);
 
     return out_anim;
@@ -322,7 +321,7 @@ lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_time(&PropertyAnimation_0, 1000);
     lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
-    lv_anim_set_values(&PropertyAnimation_0, 100, 0);
+    lv_anim_set_values(&PropertyAnimation_0, 84, -16);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_overshoot);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
@@ -330,8 +329,7 @@ lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_x);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
     out_anim = lv_anim_start(&PropertyAnimation_0);
 
     return out_anim;

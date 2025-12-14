@@ -15,7 +15,6 @@ extern void ui_ActiveScreen_screen_init(void);
 extern void ui_ActiveScreen_screen_destroy(void);
 extern void ui_event_ActiveScreen(lv_event_t * e);
 extern lv_obj_t * ui_ActiveScreen;
-extern lv_obj_t * ui_TopPanel;
 extern lv_obj_t * ui_activeCO2text;
 extern lv_obj_t * ui_activeCO2;
 extern lv_obj_t * ui_ArcCO2;
