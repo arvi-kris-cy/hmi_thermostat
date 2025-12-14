@@ -638,6 +638,7 @@ int main(void)
     /* Start sensor task */
     app_sensor_task_init();
 
+    LOG_INFO(CYLF_DEF, "[main] Creating CM55 GFX task\r\n");
     /* Start GFX task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
                               GFX_TASK_STACK_SIZE, NULL,
@@ -645,11 +646,14 @@ int main(void)
     
     if (pdPASS != task_return)
     {
-        printf("Error: Failed to create cm55_gfx_task.\r\n");
+        LOG_ERROR(CYLF_DEF, "[main] Error: Failed to create cm55_gfx_task. Return code: %d\r\n", task_return);
         APP_ERROR(1);
     }
+    LOG_INFO(CYLF_DEF, "[main] GFX task created successfully\r\n");
 
     /* Start Voice Assistant task */
+    #if defined(USE_VOICE_ASSISTANT) // TODO define macro
+    LOG_INFO(CYLF_DEF, "[main] Creating voice assistant task\r\n");
     task_return = xTaskCreate(voice_assistant_task,
                             	VOICE_ASSISTANT_TASK_NAME,
                             	VOICE_ASSISTANT_TASK_STACK_SIZE, NULL,
@@ -657,9 +661,11 @@ int main(void)
   	
   	if (pdPASS != task_return)
     {
-        printf("Error: Failed to create voice_assistant_task.\r\n");
+        LOG_ERROR(CYLF_DEF, "[main] Error: Failed to create voice_assistant_task. Return code: %d\r\n", task_return);
         APP_ERROR(1);
     }
+    LOG_INFO(CYLF_DEF, "[main] Voice assistant task created successfully\r\n");
+    #endif /* USE_VOICE_ASSISTANT */
 
 	printf("****************** "
            "PSOC Edge MCU: HMI Thermostat Demo "

@@ -287,5 +287,5 @@ CY_IGNORE += ${CY_SOD_PATH}
 #LVGL_PATH = ./source/modules/use_case/COMPONENT_MUSICPLAYER/COMPONENT_LVGL
 CY_IGNORE += $(SEARCH_lvgl)/src/others/vg_lite_tvg $(SEARCH_lvgl)/src/libs/thorvg $(SEARCH_lvgl)/tests $(SEARCH_lvgl)/draw/nxp $(SEARCH_lvgl)/draw/renesas $(SEARCH_lvgl)/examples $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_vg_lite_utils.c $(SEARCH_lvgl)/src/draw/vg_lite/lv_draw_vg_lite_img.c
 CY_IGNORE += $(SEARCH_lvgl)/src/draw/sw/blend/helium $(SEARCH_lvgl)/src/draw/sw/blend/neon $(SEARCH_lvgl)/demos/music $(SEARCH_lvgl)/src/core/lv_refr.c#TODO ignore 
-
+CY_IGNORE += ./ui/design/
 include $(CY_TOOLS_DIR)/make/start.mk

@@ -92,9 +92,11 @@
 #define TEMPERATURE_ARC_END_ANGLE   420U
 #define TEMPERATURE_ARC_ANGLE_PER_STEP 18U
 
-/* CO2 level threshold */
-#define CO2_LEVEL_THRESHOLD_GOOD	1000U
-#define CO2_LEVEL_THRESHOLD_POOR	1500U
+/* CO2 level thresholds */
+#define CO2_LEVEL_THRESHOLD_1_GOOD	    1000U
+#define CO2_LEVEL_THRESHOLD_2_MODERATE	2000U
+#define CO2_LEVEL_THRESHOLD_3_POOR	    5000U
+
 
 /*******************************************************************************
  *                             GLOBAL VARIABLES
@@ -3636,29 +3638,25 @@ void stop_active_state_timer(void)
     }
 }
 
-void update_co2_arc_color(uint32_t co2_val)
+void update_co2_aqi_indicator(uint32_t co2_val)
 {
-	uint32_t color_code = CO2_LVL_DANGER;
-
 	/* Update color code based on CO2 value */
-	if (co2_val < CO2_LEVEL_THRESHOLD_GOOD)
+	if (co2_val < CO2_LEVEL_THRESHOLD_1_GOOD)
 	{
-		color_code = CO2_LVL_GOOD;
-		lv_arc_set_bg_angles(ui_ArcCO2, 135, 165);
+		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_1_png);
 	}
-	else if (co2_val > CO2_LEVEL_THRESHOLD_POOR)
+	else if (co2_val < CO2_LEVEL_THRESHOLD_2_MODERATE)
 	{
-		color_code = CO2_LVL_DANGER;
-		lv_arc_set_bg_angles(ui_ArcCO2, 135, 225);
+		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_2_png);
+	}
+    else if (co2_val < CO2_LEVEL_THRESHOLD_3_POOR)
+	{
+		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_3_png);
 	}
 	else
 	{
-		color_code = CO2_LVL_CAUTION;
-		lv_arc_set_bg_angles(ui_ArcCO2, 135, 195);
+		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_4_png);
 	}
-
-	/* Update color code */
-	lv_obj_set_style_arc_color(ui_ArcCO2, lv_color_hex(color_code), LV_PART_INDICATOR | LV_STATE_DEFAULT);
 }
 
 

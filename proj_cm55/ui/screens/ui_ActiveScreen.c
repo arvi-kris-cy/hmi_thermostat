@@ -11,12 +11,11 @@ lv_obj_t * ui_activeBGImg = NULL;
 
 lv_obj_t * ui_activeCO2text = NULL;
 lv_obj_t * ui_activeCO2 = NULL;
-lv_obj_t * ui_ArcCO2 = NULL;
+lv_obj_t * ui_CO2LevelsImg = NULL;
 lv_obj_t * ui_weathercontainer = NULL;
 lv_obj_t * ui_LocationLabel = NULL;
 lv_obj_t * ui_OutdoorTempLabel = NULL;
 lv_obj_t * ui_WeatherIcon = NULL;
-lv_obj_t * ui_TopPanel = NULL;
 lv_obj_t * ui_presencelbl = NULL;
 lv_obj_t * ui_commandlbl = NULL;
 lv_obj_t * ui_FPSarrow = NULL;
@@ -155,9 +154,9 @@ void ui_event_ActiveScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        
         LeftPanelAnim_Animation(ui_LeftPanel, 0);
         RightPanelAnim_Animation(ui_RightPanel, 0);
+        co2levelsloop_Animation(ui_CO2LevelsImg, 600);
     }
 }
 
@@ -606,7 +605,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_ActiveScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_activeBGImg = lv_image_create(ui_ActiveScreen);
-    lv_image_set_src(ui_activeBGImg, &ui_img_background_6_png);
+    lv_image_set_src(ui_activeBGImg, &ui_img_background_7_png);
     lv_obj_set_width(ui_activeBGImg, LV_SIZE_CONTENT);   /// 480
     lv_obj_set_height(ui_activeBGImg, LV_SIZE_CONTENT);    /// 480
     lv_obj_set_x(ui_activeBGImg, -14);
@@ -618,8 +617,8 @@ void ui_ActiveScreen_screen_init(void)
     ui_activeCO2text = lv_label_create(ui_ActiveScreen);
     lv_obj_set_width(ui_activeCO2text, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_activeCO2text, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_activeCO2text, 81);
-    lv_obj_set_y(ui_activeCO2text, -180);
+    lv_obj_set_x(ui_activeCO2text, 77);
+    lv_obj_set_y(ui_activeCO2text, -185);
     lv_obj_set_align(ui_activeCO2text, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_activeCO2text, "CO2");
     lv_obj_set_style_text_color(ui_activeCO2text, lv_color_hex(0xFAFAFA), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -629,37 +628,23 @@ void ui_ActiveScreen_screen_init(void)
     ui_activeCO2 = lv_label_create(ui_ActiveScreen);
     lv_obj_set_width(ui_activeCO2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_activeCO2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_activeCO2, 78);
-    lv_obj_set_y(ui_activeCO2, -209);
+    lv_obj_set_x(ui_activeCO2, 76);
+    lv_obj_set_y(ui_activeCO2, -213);
     lv_obj_set_align(ui_activeCO2, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_activeCO2, "2000");
+    lv_label_set_text(ui_activeCO2, "----");
     lv_obj_set_style_text_color(ui_activeCO2, lv_color_hex(0xFAF8F8), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_activeCO2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_activeCO2, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ArcCO2 = lv_arc_create(ui_ActiveScreen);
-    lv_obj_set_width(ui_ArcCO2, 160);
-    lv_obj_set_height(ui_ArcCO2, 160);
-    lv_obj_set_x(ui_ArcCO2, 6);
-    lv_obj_set_y(ui_ArcCO2, -196);
-    lv_obj_set_align(ui_ArcCO2, LV_ALIGN_LEFT_MID);
-    lv_arc_set_range(ui_ArcCO2, 15, 35);
-    lv_arc_set_value(ui_ArcCO2, 35);
-    lv_arc_set_bg_angles(ui_ArcCO2, 135, 225);
-    lv_obj_set_style_pad_left(ui_ArcCO2, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_ArcCO2, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_ArcCO2, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_ArcCO2, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_color(ui_ArcCO2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_ArcCO2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_arc_color(ui_ArcCO2, lv_color_hex(0xFF5A5A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_ArcCO2, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_ArcCO2, 8, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_ArcCO2, false, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_bg_color(ui_ArcCO2, lv_color_hex(0x000000), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ArcCO2, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    ui_CO2LevelsImg = lv_image_create(ui_ActiveScreen);
+    lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_1_png);
+    lv_obj_set_width(ui_CO2LevelsImg, 34);
+    lv_obj_set_height(ui_CO2LevelsImg, 60);
+    lv_obj_set_x(ui_CO2LevelsImg, -200);
+    lv_obj_set_y(ui_CO2LevelsImg, -201);
+    lv_obj_set_align(ui_CO2LevelsImg, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_CO2LevelsImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_CO2LevelsImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_weathercontainer = lv_obj_create(ui_ActiveScreen);
     lv_obj_remove_style_all(ui_weathercontainer);
@@ -767,22 +752,6 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_add_flag(ui_Fog, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_remove_flag(ui_Fog, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_image_set_scale(ui_Fog, 200);
-
-
-    ui_TopPanel = lv_obj_create(ui_ActiveScreen);
-    lv_obj_set_width(ui_TopPanel, 435);
-    lv_obj_set_height(ui_TopPanel, 81);
-    lv_obj_set_x(ui_TopPanel, -14);
-    lv_obj_set_y(ui_TopPanel, -198);
-    lv_obj_set_align(ui_TopPanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_TopPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_TopPanel, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_TopPanel, lv_color_hex(0x9BBA43), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_TopPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_TopPanel, lv_color_hex(0x9BBA43), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_TopPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_TopPanel, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_TopPanel, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_presencelbl = lv_label_create(ui_ActiveScreen);
     lv_obj_set_width(ui_presencelbl, LV_SIZE_CONTENT);   /// 1
@@ -2198,8 +2167,7 @@ void ui_ActiveScreen_screen_destroy(void)
     ui_activeBGImg = NULL;
     ui_activeCO2text = NULL;
     ui_activeCO2 = NULL;
-    ui_ArcCO2 = NULL;
-    ui_TopPanel = NULL;
+    ui_CO2LevelsImg = NULL;
     ui_ActivescreenContainer = NULL;
     ui_MainModeLabel = NULL;
     ui_homebleadv = NULL;

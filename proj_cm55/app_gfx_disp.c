@@ -391,7 +391,7 @@ static void handle_sensor_update(void)
         update_co2_data_ui(read_ppm);
         
         /* Update CO2 arc color */
-        update_co2_arc_color(read_ppm);
+        update_co2_aqi_indicator(read_ppm);
         
         /* Update sensor data if device is connected */
         if (true == is_device_connected)
@@ -1143,12 +1143,7 @@ void cm55_gfx_task(void *arg)
         /* Enable GFX GPU interrupt in NVIC. */
         NVIC_EnableIRQ(GFXSS_GPU_IRQ);
 
-
-	    if(CY_RSLT_SUCCESS != i2c_result)
-	    {
-	        printf("I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
-	        handle_app_error();
-	    }
+        LOG_INFO(CYLF_DEF, "[cm55_gfx_task] GFX subsystem initialized, configuring I2C\r\n");
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
         /* Enable the I2C */
@@ -1158,25 +1153,26 @@ void cm55_gfx_task(void *arg)
         Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
 #endif
 
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(500)); // TODO check and optimize delay
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
 		/* Initialize the R4INCH display */
 		mipi_status =  mtb_display_st7701s_init(GFXSS_GFXSS_MIPIDSI,&st7701s_pin_cfg);
         if(CY_MIPIDSI_SUCCESS != mipi_status)
         {
-            printf("st7701s 4-inch display init failed with status = %d\r\n", mipi_status);
+            LOG_ERROR(CYLF_DEF, "[cm55_gfx_task] st7701s 4-inch display init failed with status = %d\r\n", mipi_status);
             CY_ASSERT(0);
         }
 
         if (CY_TCPWM_SUCCESS != mtb_display_st7701s_backlight_init(&st7701s_pwm_cfg))
         {
             /* Handle possible errors */
-            printf("failed pwm init");
+            LOG_ERROR(CYLF_DEF, "[cm55_gfx_task] failed pwm init\r\n");
             CY_ASSERT(0);
         }
         mtb_display_st7701s_set_brightness(brightness_level);
 #endif
+        LOG_INFO(CYLF_DEF, "[cm55_gfx_task] Initializing VGLite\r\n");
         /* Allocate memory for VGLite from the vglite_heap_base */
         vg_module_parameters_t vg_params;
         vg_params.register_mem_base = (uint32_t)GFXSS_GFXSS_GPU_GCNANO;
@@ -1195,12 +1191,14 @@ void cm55_gfx_task(void *arg)
 
         if (VG_LITE_SUCCESS == vglite_status)
         {
+            LOG_INFO(CYLF_DEF, "[cm55_gfx_task] VGLite initialized, initializing LVGL\r\n");
             /* Initialize LVGL library */
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
             ui_demo_init();
             ui_timer_init();
+            LOG_INFO(CYLF_DEF, "[cm55_gfx_task] LVGL initialized successfully, entering main loop\r\n");
         }
         else
         {
@@ -1216,6 +1214,8 @@ void cm55_gfx_task(void *arg)
         LOG_ERROR(CYLF_DEF, "Graphics subsystem init failed, status: %d\r\n", gfx_status);
         CY_ASSERT(0);
     }
+
+    LOG_INFO(CYLF_DEF, "[cm55_gfx_task] Entering main event loop\r\n");
 
     for (;;)
     {

@@ -151,3 +151,7 @@ Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 [Dd]esktop.ini
+.github/
+!/build/
+/build/*
+!/build/app_combined.hex

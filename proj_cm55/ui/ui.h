@@ -43,6 +43,7 @@ extern lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fpsdrag_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fpsdown_Animation(lv_obj_t * TargetObject, int delay);
+extern lv_anim_t * co2levelsloop_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
@@ -108,8 +109,13 @@ LV_IMG_DECLARE(ui_img_bootimg_cmp_png);
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
-LV_IMG_DECLARE(ui_img_background_6_png);
-
+// LV_IMG_DECLARE(ui_img_background_6_png); // TODO cleanup assets
+//TEST
+LV_IMG_DECLARE(ui_img_background_7_png);
+LV_IMG_DECLARE(ui_img_aqilevel_1_png);    // assets/AQIlevel_1.png
+LV_IMG_DECLARE(ui_img_aqilevel_2_png);    // assets/AQIlevel_2.png
+LV_IMG_DECLARE(ui_img_aqilevel_3_png);    // assets/AQIlevel_3.png
+LV_IMG_DECLARE(ui_img_aqilevel_4_png);    // assets/AQIlevel_4.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Roboto80);
