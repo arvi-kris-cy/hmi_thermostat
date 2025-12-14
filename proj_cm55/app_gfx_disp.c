@@ -391,7 +391,7 @@ static void handle_sensor_update(void)
         update_co2_data_ui(read_ppm);
         
         /* Update CO2 arc color */
-        update_co2_arc_color(read_ppm);
+        update_co2_aqi_indicator(read_ppm);
         
         /* Update sensor data if device is connected */
         if (true == is_device_connected)

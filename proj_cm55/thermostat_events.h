@@ -744,22 +744,18 @@ void ui_timer_start(void);
  */
 void hide_connectivity_screen(void);
 
-/*
- * @brief Updates the color of the CO2 level indicator arc based on the current CO2 value.
- *
- * This function applies conditional styling to the ::ui_ArcCO2 object's indicator 
- * part to visually represent air quality status using three predefined levels: 
- * Good, Caution, and Danger.
- *
- * The logic follows these thresholds:
- * - Below 1000 ppm: Color set to ::CO2_LVL_GOOD.
- * - Above 1500 ppm: Color set to ::CO2_LVL_DANGER.
- * - Between 1000 ppm and 1500 ppm (inclusive): Color set to ::CO2_LVL_CAUTION.
- *
- * @param[in] co2_val The current CO2 concentration value in parts per million (ppm).
+/**
+ * @brief Updates the CO2 AQI indicator based on the provided CO2 value.
+ * 
+ * This function processes the given CO2 concentration value and updates
+ * the air quality index (AQI) indicator accordingly. The indicator is
+ * displayed on the thermostat UI to reflect current indoor air quality status.
+ * 
+ * @param[in] co2_val The CO2 concentration value in parts per million (ppm).
+ * 
  * @return void
  */
-void update_co2_arc_color(uint32_t co2_val);
+void update_co2_aqi_indicator(uint32_t co2_val);
 
 #endif /* THERMOSTAT_EVENTS_H */
 

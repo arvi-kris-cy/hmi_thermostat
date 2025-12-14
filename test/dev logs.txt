@@ -5,10 +5,11 @@ try to build and work GFX + VA with LLVM
 fix GFX assets showing up white with LLVM >> reprod with CE, stopped debug
 
 TODO 
-- [DONE] check and revert memory config in _ui >> give enough m55_data_secondary to avoid core fault due to insufficient data/heap
-- Check and revert LLVM linker changes, done by comparing with voice CE
 
-[DONE] get rid of screen flickering > trying bg img formats > 
+- Check and revert00 LLVM linker changes, done by comparing with voice CE
+- [DONE] implement change in AQI indicator colors based on CO2 levels
+- [DONE] check and revert memory config in _ui >> give enough m55_data_secondary to avoid core fault due to insufficient data/heap
+- [DONE] get rid of screen flickering > trying bg img formats > 
 	ARGB8565 - bg img not rendered (not good)
 	RGB565A8 - no flickering (good)
 				(python LVGLImage.py --ofmt C --cf RGB565A8 --premultiply --align 64)
