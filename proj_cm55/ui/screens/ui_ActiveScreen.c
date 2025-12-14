@@ -1127,7 +1127,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_x(ui_TemperatureArcBgPanel, 0);
     lv_obj_set_y(ui_TemperatureArcBgPanel, 7);
     lv_obj_set_align(ui_TemperatureArcBgPanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_TemperatureArcBgPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_TemperatureArcBgPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     //lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, &ui_temp_arc, LV_PART_MAIN | LV_STATE_DEFAULT);    
@@ -1157,14 +1157,16 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_DegreeLbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_DegreeLbl, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ArcTempIndicator = lv_arc_create(ui_ArcGroup);
-    lv_obj_set_width(ui_ArcTempIndicator, 290);
+    ui_ArcTempIndicator = lv_arc_create(ui_TemperatureArcBgPanel);
+    lv_obj_set_width(ui_ArcTempIndicator, 293);
     lv_obj_set_height(ui_ArcTempIndicator, 290);
+    lv_obj_set_x(ui_ArcTempIndicator, 0);
+    lv_obj_set_y(ui_ArcTempIndicator, -7);
     lv_obj_set_align(ui_ArcTempIndicator, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_ArcTempIndicator, LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_arc_set_range(ui_ArcTempIndicator, 15, 35);
-    lv_arc_set_value(ui_ArcTempIndicator, 35);
+    lv_arc_set_value(ui_ArcTempIndicator, 15);
     lv_obj_add_flag(ui_ArcTempIndicator, LV_OBJ_FLAG_HIDDEN);
-    lv_arc_set_bg_angles(ui_ArcTempIndicator, 140, 203);
     lv_obj_set_style_pad_left(ui_ArcTempIndicator, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_ArcTempIndicator, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(ui_ArcTempIndicator, 45, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1172,7 +1174,6 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_arc_color(ui_ArcTempIndicator, lv_color_hex(0x008CFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_arc_opa(ui_ArcTempIndicator, 200, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_arc_width(ui_ArcTempIndicator, 24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     lv_obj_set_style_arc_color(ui_ArcTempIndicator, lv_color_hex(0xFF5A5A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_arc_opa(ui_ArcTempIndicator, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_arc_width(ui_ArcTempIndicator, 24, LV_PART_INDICATOR | LV_STATE_DEFAULT);
@@ -1180,9 +1181,11 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_bg_color(ui_ArcTempIndicator, lv_color_hex(0x000000), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ArcTempIndicator, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 
-    ui_ArcTempControl = lv_arc_create(ui_ArcGroup);
-    lv_obj_set_width(ui_ArcTempControl, 290);
+    ui_ArcTempControl = lv_arc_create(ui_TemperatureArcBgPanel);
+    lv_obj_set_width(ui_ArcTempControl, 293);
     lv_obj_set_height(ui_ArcTempControl, 290);
+    lv_obj_set_x(ui_ArcTempControl, 0);
+    lv_obj_set_y(ui_ArcTempControl, -7);
     lv_obj_set_align(ui_ArcTempControl, LV_ALIGN_CENTER);
     lv_arc_set_range(ui_ArcTempControl, 15, 35);
     lv_arc_set_value(ui_ArcTempControl, 20);
@@ -1200,7 +1203,6 @@ void ui_ActiveScreen_screen_init(void)
 
     lv_obj_set_style_bg_color(ui_ArcTempControl, lv_color_hex(0x8D8786), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ArcTempControl, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
-
     ui_currenttemp = lv_label_create(ui_ArcGroup);
     lv_obj_set_width(ui_currenttemp, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_currenttemp, LV_SIZE_CONTENT);    /// 1

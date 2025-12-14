@@ -136,6 +136,7 @@ void hide_presence_icon(void);
 void update_presence_detection(uint8_t presence_count);
 void mic_icon_click_handler(lv_event_t * e);
 void display_presence_detection_status(void);
+static inline int clip_angle(int angle);
 /**
  * @brief Starts BLE advertising for provisioning.
  *

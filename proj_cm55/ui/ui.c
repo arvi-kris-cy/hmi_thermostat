@@ -467,14 +467,14 @@ void ui_demo_init(void)
     lv_disp_set_theme(dispp, theme);
 
     // Initialize all screens
-    ui_BootScreen_screen_init();
+    //ui_BootScreen_screen_init();
     ui_ActiveScreen_screen_init();
     ui_LPScreen_screen_init();
     ui_SettingsScreen_screen_init();
     ui_FWUpdateScreen_screen_init();
 
     // Show the boot screen first
-    lv_disp_load_scr(ui_BootScreen);
+    lv_disp_load_scr(ui_ActiveScreen);
 
     // Create a timer to switch to LP screen after boot
     lv_timer_create(switch_to_LPScreen_cb, APP_BOOTUP_DELAY, NULL);

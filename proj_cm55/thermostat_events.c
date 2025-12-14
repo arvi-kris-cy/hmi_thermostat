@@ -189,7 +189,7 @@ static lv_timer_t *notif_timer = NULL;
 static int hour = 0;
 static int minute = 0;
 static int second = 0;
-
+int angle;
 /* Device current and previous connection state */
 device_connection_state_t dev_current_conn_state = DEV_ST_UNPROVISIONED;
 device_connection_state_t dev_last_conn_state = DEV_ST_UNPROVISIONED;
@@ -989,15 +989,6 @@ static void decrease_temp_step(lv_timer_t *timer)
     }
 }
 
-// void weather_change(lv_event_t *e)
-// {
-//     static int index = 0;
-
-//     // Hide all containers
-//     lv_obj_add_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
-//     lv_obj_clear_flag(ui_weathercontainer2, LV_OBJ_FLAG_HIDDEN);
-
-// }
 
 void update_fan_mode(fan_speed_t mode)
 {
@@ -2146,12 +2137,14 @@ static int temp_to_heating_arc_angle(int temperature)
         angle_per_Step = 300/(temp_max-temp_min);
         if (temperature < temp_min) temperature = temp_min;
         if (temperature > temp_max) temperature = temp_max;
-        return TEMPERATURE_ARC_START_ANGLE + (temperature - temp_min) * angle_per_Step;
+        angle = TEMPERATURE_ARC_START_ANGLE + (temperature - temp_min) * angle_per_Step;
+        return clip_angle(angle);
     }
     else{
         if (temperature < TEMP_MIN) temperature = TEMP_MIN;
         if (temperature > TEMP_MAX) temperature = TEMP_MAX;
-        return TEMPERATURE_ARC_START_ANGLE + (temperature - TEMP_MIN) * TEMPERATURE_ARC_ANGLE_PER_STEP;
+        angle = TEMPERATURE_ARC_START_ANGLE + (temperature - TEMP_MIN) * TEMPERATURE_ARC_ANGLE_PER_STEP;
+        return clip_angle(angle);
     }
 }
 
@@ -2164,15 +2157,25 @@ static int temp_to_cooling_arc_angle(int temperature)
         angle_per_Step = 300/(temp_max-temp_min);
         if (temperature < temp_min) temperature = temp_min;
         if (temperature > temp_max) temperature = temp_max;
-        return TEMPERATURE_ARC_END_ANGLE - (temp_max - temperature) * angle_per_Step;
+        angle = TEMPERATURE_ARC_END_ANGLE - (temp_max - temperature) * angle_per_Step;
+        return clip_angle(angle);
     }
     else{
         if (temperature < TEMP_MIN) temperature = TEMP_MIN;
         if (temperature > TEMP_MAX) temperature = TEMP_MAX;
-        return TEMPERATURE_ARC_END_ANGLE - ((TEMP_MAX - temperature) * TEMPERATURE_ARC_ANGLE_PER_STEP);
+        angle = TEMPERATURE_ARC_END_ANGLE - ((TEMP_MAX - temperature) * TEMPERATURE_ARC_ANGLE_PER_STEP);
+        return clip_angle(angle);
     }
 }
 
+static inline int clip_angle(int angle){
+    int ARC_ANGLE_MAX = 405;
+    int ARC_ANGLE_MIN = 130;
+
+    if (angle > ARC_ANGLE_MAX ) return ARC_ANGLE_MAX;
+    if (angle < ARC_ANGLE_MIN ) return ARC_ANGLE_MIN;
+    return angle;
+}
 void update_device_temp(uint8_t temp)
 {
 	if((temp < current_min_temp) || (temp > current_max_temp) || (temp == current_temp))

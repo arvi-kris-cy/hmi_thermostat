@@ -102,7 +102,7 @@ void ui_event_homeimg2(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 50, 0, &ui_ActiveScreen_screen_init);
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 50, 100, &ui_ActiveScreen_screen_init);
     }
 }
 
@@ -251,6 +251,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_y(ui_BGswitch, 201);
     lv_obj_set_align(ui_BGswitch, LV_ALIGN_CENTER);
     lv_obj_add_state(ui_BGswitch, LV_STATE_CHECKED);       /// States
+    lv_obj_add_flag(ui_BGswitch,LV_OBJ_FLAG_HIDDEN);
 
     ui_templabel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_templabel, LV_SIZE_CONTENT);   /// 1
@@ -273,6 +274,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_set_style_text_color(ui_BGlabel, lv_color_hex(0xF8F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_BGlabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_BGlabel, &ui_font_sans28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_flag(ui_BGlabel,LV_OBJ_FLAG_HIDDEN);
 
     ui_ResetButton = lv_button_create(ui_SettingsScreen);
     lv_obj_set_width(ui_ResetButton, 77);

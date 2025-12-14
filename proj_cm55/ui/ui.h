@@ -102,14 +102,12 @@ LV_IMG_DECLARE(ui_img_info_png);    // assets/info.png
 LV_IMG_DECLARE(ui_img_icn_home_png);    // assets/icn_home.png
 LV_IMG_DECLARE(ui_img_brightness_png);    // assets/brightness.png
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
-LV_IMG_DECLARE(ui_img_temp_arc_bg_2_png);
 LV_IMG_DECLARE(ui_img_conn_bg_img1_png);    // assets/conn_bg_img1.png
 LV_IMG_DECLARE(ui_img_344061264);
 LV_IMG_DECLARE(ui_img_bootimg_cmp_png);
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
-// LV_IMG_DECLARE(ui_img_background_6_png); // TODO cleanup assets
 //TEST
 LV_IMG_DECLARE(ui_img_background_7_png);
 LV_IMG_DECLARE(ui_img_aqilevel_1_png);    // assets/AQIlevel_1.png
