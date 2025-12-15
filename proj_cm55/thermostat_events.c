@@ -1164,7 +1164,7 @@ void show_presence_icon_and_update_label(uint8_t person_count)
 void update_presence_detection(uint8_t presence_count)
 {
     stop_active_state_timer();
-    LOG_INFO(CYLF_DEF, "Presence : %d\n", presence_count);
+    //LOG_INFO(CYLF_DEF, "Presence : %d\n", presence_count);
     if (presence_count == 0)
     {
         person_detected = false;
@@ -3638,7 +3638,7 @@ void stop_active_state_timer(void)
     {
         lv_timer_pause(app_timer);
         lv_timer_reset(app_timer);
-        printf("Active state timer stopped.\n");
+        //printf("Active state timer stopped.\n");
     }
 }
 
