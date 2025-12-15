@@ -56,7 +56,7 @@
  *                                MACROS
  *******************************************************************************/
 #define SENSOR_TASK_NAME                ("SensorTask")
-#define SENSOR_TASK_STACK_SIZE          (configMINIMAL_STACK_SIZE * 1)
+#define SENSOR_TASK_STACK_SIZE          (256U)
 #define SENSOR_TASK_PRIORITY            (2U)
 
 #define WAIT_SENSOR_RDY_MS              (1000)

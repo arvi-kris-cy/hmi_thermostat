@@ -198,8 +198,8 @@ rtc_time_t now;
 
 uint32_t idle_percent = 0;
 
-bool is_device_provisioned;
-char new_FW_version[MAX_FW_VERSION_LEN];
+extern bool is_device_provisioned;
+extern char new_FW_version[MAX_FW_VERSION_LEN];
 
 extern bool cm55_pipe2_msg_received;
 extern ipc_msg_t *ipc_recv_msg;

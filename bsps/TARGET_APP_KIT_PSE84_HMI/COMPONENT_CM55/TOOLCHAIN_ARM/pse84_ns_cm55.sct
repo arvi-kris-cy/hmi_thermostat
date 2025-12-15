@@ -117,11 +117,9 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *ifx_va*,
             *libnlu*,
             *libwwd*,
-            *mtb_wwd*,
-            *mtb_nlu*,
             *app_voice_control*,
             *app_gfx_disp*,
-            *lv_port*,
+            *lv_port_indev*,
             *app_sensor*,
             *voice_assistant*,
             *audio_enhancement*,
@@ -214,13 +212,11 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *ifx_va* (+RO, +RW, +ZI)
     *libnlu* (+RO, +RW, +ZI)
     *libwwd* (+RO, +RW, +ZI)
-    *mtb_wwd* (+RO)
-    *mtb_nlu* (+RO)
     
-    ;Application
+    ; Application
     *app_voice_control* (+RO)
     *app_gfx_disp* (+RO)
-    *lv_port* (+RO)
+    *lv_port_indev* (+RO)
     *app_sensor* (+RO)
 
     ; Inferencing

@@ -56,8 +56,8 @@
     "usb": {
         "channel_0": "Input[0]",
         "channel_1": "Input[1]",
-        "channel_2": "Output",
-        "channel_3": "BF_Out"
+        "channel_2": "DR_Out",
+        "channel_3": "Output"
     },
     "usb_output": {
         "outputchannel_0": "Speaker",

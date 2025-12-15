@@ -139,8 +139,7 @@ cy_stc_sysint_t i2c_scb_irq_cfg =
 mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
 
 extern device_state_t dev_info;
-char m55_current_OTA_version[MAX_FW_VERSION_LEN] = "-.-.-";
-static bool is_need_to_reboot = 0;
+extern char m55_current_OTA_version[MAX_FW_VERSION_LEN];
 /****************************************************************************
  *                              FUNCTION DECLARATIONS
  ***************************************************************************/
