@@ -81,8 +81,8 @@
 int16_t non_interleaved_audio[2*PDM_MIC_SAMPLES_COUNT] = {0};
 #endif
 
-extern bool handle_ww_for_ui;
-extern bool handle_command_for_ui;
+bool handle_ww_for_ui = false;
+bool handle_command_for_ui = false;
 
 extern int intent_value;
 extern uint8_t brightness_level;
@@ -152,7 +152,26 @@ void increase_screen_brightness()
 
 void go_to_setting()
 {
-    _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_FADE_ON, 230, 0, &ui_SettingsScreen_screen_init);
+    lv_obj_t *current_screen = lv_scr_act();
+
+    if(current_screen != ui_SettingsScreen)
+    {
+        lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
+
+        _ui_screen_change(&ui_SettingsScreen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_SettingsScreen_screen_init);
+    }
+}
+
+void go_to_active_screen()
+{
+    lv_obj_t *current_screen = lv_scr_act();
+
+    if(current_screen != ui_ActiveScreen)
+    {
+        lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
+
+        _ui_screen_change(&ui_ActiveScreen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, &ui_ActiveScreen_screen_init);
+    }
 }
 
 void disable_fanmode()
@@ -402,12 +421,18 @@ va_rslt_t intent_to_ui(const char *command)
             return VA_RSLT_INVALID_ARGUMENT;  // Return immediately for invalid input
         }
 
-        /** Switch to Active screen */
-        switch_to_active_screen(); 
-        lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
-        display_fan_anim(); 
         // Map the command string to an enum value
         va_detect_cmd_t cmd = va_command_to_id(command);
+
+        if((cmd != INCREASESCREENBRIGHTNESS) &&
+            (cmd != DECREASESCREENBRIGHTNESS) &&
+            (cmd != MUTEVOLUME) &&
+            (cmd != UNMUTEVOLUME))
+        {
+            /* Switch to Active screen */
+            go_to_active_screen();
+            display_fan_anim(); 
+        }
 
         // Handle the command using a switch statement
         switch (cmd) 
@@ -451,14 +476,28 @@ va_rslt_t intent_to_ui(const char *command)
                 printf("Handling DECREASETEMPERATURE command.\n");
                 break;
             }
+            case MAKEITWARMER:
+            {
+                update_device_temp((uint8_t)(get_current_temperature() + 2));
+                printf("Handling MAKEITWARMER command.\n");
+                break;
+            }
+            case MAKEITCOOLER:
+            {
+                update_device_temp((uint8_t)(get_current_temperature() - 2));
+                printf("Handling MAKEITCOOLER command.\n");
+                break;
+            }
             case INCREASESCREENBRIGHTNESS:
             {
+                go_to_setting();
                 increase_screen_brightness();
                 printf("Handling INCREASESCREENBRIGHTNESS command.\n");
                 break;
             }
             case DECREASESCREENBRIGHTNESS:
             {
+                go_to_setting();
                 decrease_screen_brightness();
                 printf("Handling DECREASESCREENBRIGHTNESS command.\n");
                 break;
@@ -524,7 +563,7 @@ va_rslt_t intent_to_ui(const char *command)
             case TURNONCMD:
             {
                 thermostat_mode_t current_mode = get_current_device_mode();
-				
+
                 if(intent_value)
                 {	
                     if(current_mode == MODE_OFF)
@@ -626,12 +665,14 @@ va_rslt_t intent_to_ui(const char *command)
             }
             case MUTEVOLUME:
             {
+                go_to_setting();
                 update_thermostat_volume(AUDIO_OFF);
                 printf("Handling MUTEVOLUME command.\n");
                 break;
             }
             case UNMUTEVOLUME:
             {
+                go_to_setting();
                 update_thermostat_volume(AUDIO_MED);
                 printf("Handling UNMUTEVOLUME command.\n");
                 break;
@@ -789,6 +830,12 @@ void voice_assistant_task(void * arg)
     cy_profiler_init();
     cy_afe_profile(AFE_PROFILE_CMD_ENABLE,NULL);
 #endif /* AE_APP_PROFILE */ 
+#ifdef AE_TUNING_MODE
+    /* Enable USB interface*/
+    app_log_print("Initializing USB interface \r\n");
+    usb_audio_interface_init();
+    usb_send_out_dbg_init_channels();
+#endif
 
     ae_result = audio_enhancement_init(AFE_INPUT_NUMBER_CHANNELS);
     if (ae_result != AE_RSLT_SUCCESS)
@@ -800,17 +847,7 @@ void voice_assistant_task(void * arg)
     {
         printf("Audio Enhancement initialized!\r\n");
     }
-
-#ifdef AE_TUNING_MODE
-    /* Enable USB interface*/
-    app_log_print("Initializing USB interface \r\n");
-    usb_audio_interface_init();
-    usb_send_out_dbg_init_channels();
-#endif
 #endif /* USE_AUDIO_ENHANCEMENT */
-
-    /* Initialize the PDM microphone */
-    pdm_mic_init(); 
 
     /* Initialize the voice assistant */
     va_result = voice_assistant_init(RUNNING_MODE);
@@ -824,6 +861,9 @@ void voice_assistant_task(void * arg)
     {
         printf("Voice Assistant initialized!\r\n\r\n");
     }
+
+    /* Initialize the PDM microphone */
+    pdm_mic_init(); 
     
     for (;;)
     {

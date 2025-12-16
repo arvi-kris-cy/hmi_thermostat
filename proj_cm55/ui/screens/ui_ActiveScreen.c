@@ -167,6 +167,7 @@ void ui_event_commandlbl(lv_event_t * e)
     if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         stop_fan_anim();
+        mic_icon_click_handler(e);
     }
 }
 

@@ -451,6 +451,14 @@ va_detect_cmd_t va_command_to_id(const char *command)
     {
         return DECREASETEMPERATURE;
     }
+    else if (strcmp(command, "MAKEITWARMER") == 0)
+    {
+        return MAKEITWARMER;
+    }
+    else if (strcmp(command, "MAKEITCOOLER") == 0)
+    {
+        return MAKEITCOOLER;
+    }
     else if (strcmp(command, "INCREASESCREENBRIGHTNESS") == 0)
     {
         return INCREASESCREENBRIGHTNESS;

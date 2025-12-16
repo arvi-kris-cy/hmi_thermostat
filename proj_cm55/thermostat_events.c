@@ -3466,8 +3466,12 @@ void start_check_fw_update_timer(void)
 
 void display_fan_anim(void)
 {
-    /* Update the fan animation based on the global fan mode variable. */
-    update_fan_mode(dev_fan_mode);
+    if (lv_screen_active() == ui_ActiveScreen)
+    {
+        lv_obj_add_flag(ui_voicecmdcontainer, LV_OBJ_FLAG_HIDDEN);
+        /* Update the fan animation based on the global fan mode variable. */
+        update_fan_mode(dev_fan_mode);
+    }
 }
 
 void stop_fan_anim(void)
@@ -3663,5 +3667,9 @@ void update_co2_aqi_indicator(uint32_t co2_val)
 	}
 }
 
+void mic_icon_click_handler(lv_event_t * e)
+{
+	is_mic_clicked = true;
+}
 
 /* [] END OF FILE */

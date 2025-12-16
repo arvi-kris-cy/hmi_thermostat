@@ -108,7 +108,6 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *lv_font.*,
             *lv_layout.*,
             *lv_sysmon.*,
-            //*lv_vg_lite*.*,
             *touch-ctp*.*,
             *COMPONENT_AUDIO_MW*.*,
             *sp_enh*,
@@ -120,7 +119,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *app_voice_control*,
             *app_gfx_disp*,
             *lv_port_indev*,
-            *app_sensor*,
+            ;*app_sensor*,
             *voice_assistant*,
             *audio_enhancement*,
             *app_afe_tuner*,
@@ -131,9 +130,9 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *audio_receive_task*,
             *audio_app*,
             *usb_audio_interface*,
-            *audio_conv_utils*,
-            *app_i2s*,
-            *mtb_tlv320dac3100*,
+            ;*audio_conv_utils*,
+            ;*app_i2s*,
+            ;*mtb_tlv320dac3100*,
             *profiler*,
             *cy_retarget_io*,
             *cy_afe_audio_process*,
@@ -153,7 +152,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
             *supportFunctions*,
             *cy_arm_freertos*,
             *cyhal_uart*,
-            *cyhal_i2s*,
+            ;*cyhal_i2s*,
             *usbd_config*,
             *usbd_config_io*,
             *usbd_os_abs_rtos*,
@@ -203,7 +202,6 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *lv_font.* (+RO, +RW, +ZI)
     *lv_layout.* (+RO, +RW, +ZI)
     *lv_sysmon.* (+RO, +RW, +ZI)
-    //*lv_vg_lite*.* (+RO, +RW, +ZI)
     *touch-ctp*.* (+RO, +RW, +ZI)
     *COMPONENT_AUDIO_MW*.* (+RO, +RW, +ZI)
     *sp_enh* (+RO, +RW, +ZI)
@@ -217,7 +215,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *app_voice_control* (+RO)
     *app_gfx_disp* (+RO)
     *lv_port_indev* (+RO)
-    *app_sensor* (+RO)
+    ;*app_sensor* (+RO)
 
     ; Inferencing
     *voice_assistant* (+RO)
@@ -236,10 +234,10 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *audio_app* (+RO)
     *usb_audio_interface* (+RO)
     
-    *audio_conv_utils* (+RO)
+    ;*audio_conv_utils* (+RO)
     
-    *app_i2s* (+RO)
-    *mtb_tlv320dac3100* (+RO)
+    ;*app_i2s* (+RO)
+    ;*mtb_tlv320dac3100* (+RO)
     
     *profiler* (+RO)
     
@@ -265,7 +263,7 @@ LR_XIP_PORT0 (CYMEM_CM55_0_m55_nvm_sel_START + MCUBOOT_HEADER_SIZE) (CYMEM_CM55_
     *cy_arm_freertos* (+RO)
     *cyhal_uart* (+RO)
     
-    *cyhal_i2s* (+RO)
+    ;*cyhal_i2s* (+RO)
     *usbd_config* (+RO)
     *usbd_config_io* (+RO)
     *usbd_os_abs_rtos* (+RO)

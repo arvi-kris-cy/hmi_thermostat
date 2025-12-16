@@ -2113,7 +2113,7 @@
                     <Block location="m55appcpuss[0].cm55[0].mpu_ns[0]" locked="true"/>
                     <Parameters>
                         <Param id="base_addr1" value="0x240FD000"/>
-                        <Param id="base_addr2" value="0x00270000"/>
+                        <Param id="base_addr2" value="0x26270000"/>
                         <Param id="base_addr3" value="0x26271000"/>
                         <Param id="cacheable0" value="4"/>
                         <Param id="cacheable1" value="4"/>

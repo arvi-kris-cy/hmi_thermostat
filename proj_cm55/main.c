@@ -73,7 +73,7 @@
 #define GFX_TASK_PRIORITY                   (3U)
 
 #define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
-#define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 4)
+#define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 2)
 #define VOICE_ASSISTANT_TASK_PRIORITY           (4U)
 
 #define I2C_CONTROLLER_IRQ_PRIORITY         (2UL)

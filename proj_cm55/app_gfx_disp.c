@@ -179,9 +179,6 @@ extern TaskHandle_t rtos_cm55_gfx_task_handle;
 /* VA Variables */
 char *intent_text;
 
-bool handle_ww_for_ui = false;
-bool handle_command_for_ui = false;
-
 /* Location and time variables */
 char weather_sync_value[32] = "11";
 char location_sync_value[32];
@@ -1131,6 +1128,10 @@ void cm55_gfx_task(void *arg)
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
     vg_lite_error_t vglite_status = VG_LITE_SUCCESS;
+    
+#ifdef WEATHER_CODE_ICON
+    static uint8_t current_weather_code = 1;
+#endif
 
 #if defined(MTB_DISPLAY_WS7P0DSI_RPI)
     cy_rslt_t status = CY_RSLT_SUCCESS;
@@ -1262,9 +1263,7 @@ void cm55_gfx_task(void *arg)
         CY_ASSERT(0);
     }
 
-#ifdef WEATHER_CODE_ICON
-    static uint8_t current_weather_code = 1;
-#endif
+    LOG_INFO(CYLF_DEF, "[cm55_gfx_task] Entering main event loop\r\n");
 
     for (;;)
     {
