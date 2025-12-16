@@ -124,7 +124,7 @@
 
 #define TARGET_NUM_FRAMES                   (45U)
 
-
+#define WEATHER_CODE_ICON                (1U)
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -560,6 +560,53 @@ void update_weather_info_via_http()
             break;  // Unknown weather code
     }
 }
+
+#ifdef WEATHER_CODE_ICON
+void check_weather_code_icons(int weathercode)
+{
+    switch (weathercode) 
+    {
+        case 1: printf("Clear Sky\n");          show_clear_icon();        break;
+        case 2: printf("Partly Cloudy\n");      show_partlycloud_icon();  break;
+        case 3: printf("Fog\n");                show_fog_icon();          break;
+        case 4: printf("Rain\n");               show_rain_icon();         break;
+        case 5: printf("Snowflake\n");          show_snow_icon();         break;
+        case 6: printf("Rain With Thunder\n");  show_thunder_icon();      break;
+        default: printf("UNKNOWN WEATHER CODE!\n");                       break;
+    }
+}
+
+bool check_weather_check_button_pressed(void)
+{
+    static bool last_pressed = false;
+    static uint32_t debounce_ticks = 0;
+    const uint32_t debounce_ms = 30;
+
+    // Read raw
+    bool raw_pressed = (Cy_GPIO_Read(CYBSP_USER_BTN2_PORT, CYBSP_USER_BTN2_NUM) == 0);
+
+    uint32_t now_ms = xTaskGetTickCount(); // or xTaskGetTickCount()*portTICK_PERIOD_MS
+    static bool candidate_state = false;
+    static uint32_t last_change_ms = 0;
+
+    if (raw_pressed != candidate_state) {
+        candidate_state = raw_pressed;
+        last_change_ms = now_ms;
+    }
+
+    // Stable long enough?
+    if ((now_ms - last_change_ms) >= debounce_ms) {
+        // Debounced state is candidate_state
+        if (candidate_state && !last_pressed) {
+            last_pressed = true;
+            return true; // one event per press
+        } else if (!candidate_state && last_pressed) {
+            last_pressed = false;
+        }
+    }
+    return false;
+}
+#endif
 
 /* Helper function to encapsulate all system event handling */
 static void handle_system_event(void)
@@ -1215,7 +1262,9 @@ void cm55_gfx_task(void *arg)
         CY_ASSERT(0);
     }
 
-    LOG_INFO(CYLF_DEF, "[cm55_gfx_task] Entering main event loop\r\n");
+#ifdef WEATHER_CODE_ICON
+    static uint8_t current_weather_code = 1;
+#endif
 
     for (;;)
     {
@@ -1249,6 +1298,14 @@ void cm55_gfx_task(void *arg)
             cur_voice_active = true;
             voice_assistant_change_state(VA_RUN_CMD);
         }
+
+#ifdef WEATHER_CODE_ICON
+        if (check_weather_check_button_pressed()) {
+            current_weather_code++;
+            if (current_weather_code > 6) current_weather_code = 1;
+            check_weather_code_icons(current_weather_code); // reuse your function
+        }
+#endif
 
         ww_to_ui();
         intent_to_ui(intent_text);
