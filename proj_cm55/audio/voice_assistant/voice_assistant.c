@@ -50,6 +50,8 @@
 #include "voice_assistant.h"
 #include "profiler.h"
 
+#include "lvgl.h"
+
 #ifdef PROFILER_ENABLE
 #include "cy_afe_profiler.h"
 #include "cy_profiler.h"
@@ -96,9 +98,53 @@ extern bool handle_command_for_ui;
 int intent_value;
 extern char *intent_text;
 
+/* Timer pointers for LED flashing */
+static lv_timer_t *red_led_timer = NULL;
+static lv_timer_t *green_led_timer = NULL;
+
 /*******************************************************************************
 * Function Definitions
 *******************************************************************************/
+
+/*******************************************************************************
+ * Function Name: red_led_flash_timeout_cb
+ *******************************************************************************
+ * Summary:
+ * Callback function to turn off the red LED after flashing.
+ *
+ * Parameters:
+ *  timer: Pointer to the timer that triggered this callback.
+ *
+ * Return:
+ *  void
+ *
+ *******************************************************************************/
+static void red_led_flash_timeout_cb(lv_timer_t *timer)
+{
+    Cy_GPIO_Clr(CYBSP_LED_RED_PORT, CYBSP_LED_RED_NUM);
+    lv_timer_del(red_led_timer);
+    red_led_timer = NULL;
+}
+
+/*******************************************************************************
+ * Function Name: green_led_flash_timeout_cb
+ *******************************************************************************
+ * Summary:
+ * Callback function to turn off the green LED after flashing.
+ *
+ * Parameters:
+ *  timer: Pointer to the timer that triggered this callback.
+ *
+ * Return:
+ *  void
+ *
+ *******************************************************************************/
+static void green_led_flash_timeout_cb(lv_timer_t *timer)
+{
+    Cy_GPIO_Clr(CYBSP_LED_GREEN_PORT, CYBSP_LED_GREEN_NUM);
+    lv_timer_del(green_led_timer);
+    green_led_timer = NULL;
+}
 
 /*******************************************************************************
  * Function Name: voice_assistant_init
@@ -582,6 +628,16 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
             printf("Command Timeout!\r\n");
             Cy_GPIO_Clr(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_NUM);
             cur_voice_active = false;
+            /* Flash red LED for 300ms */
+            Cy_GPIO_Set(CYBSP_LED_RED_PORT, CYBSP_LED_RED_NUM);
+            if (red_led_timer == NULL)
+            {
+                red_led_timer = lv_timer_create(red_led_flash_timeout_cb, 300, NULL);
+            }
+            else
+            {
+                lv_timer_reset(red_led_timer);
+            }
         }
         else if ( event == VA_EVENT_CMD_SILENCE_TIMEOUT )
         {
@@ -646,6 +702,16 @@ static void print_voice_assistant_status(cy_rslt_t result, va_event_t event, va_
             handle_command_for_ui = true;
 
             Cy_GPIO_Clr(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_NUM);
+            /* Flash green LED for 300ms */
+            Cy_GPIO_Set(CYBSP_LED_GREEN_PORT, CYBSP_LED_GREEN_NUM);
+            if (green_led_timer == NULL)
+            {
+                green_led_timer = lv_timer_create(green_led_flash_timeout_cb, 300, NULL);
+            }
+            else
+            {
+                lv_timer_reset(green_led_timer);
+            }
         }
     }
 }

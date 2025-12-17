@@ -417,7 +417,7 @@ static void processing_task(void *pvParameters)
         .micro_movement_validity_ms        = 250,          //4000
         .macro_movement_confirmations      = 0,
         .macro_trigger_range               = 1,
-        .mode                              = XENSIV_RADAR_PRESENCE_MODE_MACRO_ONLY,
+        .mode                              = XENSIV_RADAR_PRESENCE_MODE_MICRO_IF_MACRO, // TODO: test and refine, earlier was XENSIV_RADAR_PRESENCE_MODE_MACRO_ONLY,
         .macro_fft_bandpass_filter_enabled = false,
         .micro_movement_compare_idx       = 5
     };

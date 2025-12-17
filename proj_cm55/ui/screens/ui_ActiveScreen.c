@@ -151,13 +151,21 @@ lv_obj_t * ui_homebleconnected = NULL;
 // event funtions
 void ui_event_ActiveScreen(lv_event_t * e)
 {
-    lv_event_code_t event_code = lv_event_get_code(e);
+	static bool first_load = true;
+	lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+	if (event_code == LV_EVENT_SCREEN_LOAD_START) 
+    {
         LeftPanelAnim_Animation(ui_LeftPanel, 0);
         RightPanelAnim_Animation(ui_RightPanel, 0);
-        co2levelsloop_Animation(ui_CO2LevelsImg, 600);
+        if (first_load == true)
+        {
+            // Show CO2 levels animation only on first load
+            first_load = false;
+            co2levelsloop_Animation(ui_CO2LevelsImg, 600);
+        }
     }
+    
 }
 
 void ui_event_commandlbl(lv_event_t * e)
