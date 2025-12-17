@@ -124,7 +124,7 @@
 
 #define TARGET_NUM_FRAMES                   (45U)
 
-#define WEATHER_CODE_ICON                (1U)
+#define WEATHER_CODE_ICON                   (0U)
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
@@ -1305,10 +1305,10 @@ void cm55_gfx_task(void *arg)
             check_weather_code_icons(current_weather_code); // reuse your function
         }
 #endif
-
+#if defined(USE_VOICE_ASSISTANT) // TODO define macro
         ww_to_ui();
         intent_to_ui(intent_text);
-        
+#endif
     	if(boot_config)
     	{
     		load_thermostat_config(current_settings.thermostat_setting.mode);

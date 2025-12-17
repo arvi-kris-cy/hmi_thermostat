@@ -104,35 +104,11 @@ typedef enum
  * @param command The input string command to map.
  * @return The corresponding va_detect_cmd_t value, or -1 if the command is unknown.
  */
-#if 0
-typedef enum
-{
-    SLEEPMODE=0,
-    DECREASESCREENBRIGHTNESS,
-    INCREASESCREENBRIGHTNESS,
-    DECREASETEMPERATURE,
-    INCREASETEMPERATURE,
-    SETTEMPERATURE,
-    COOLINGMODE,
-    HEATINGOFFMODE,
-    HEATINGONMODE,
-    SCREENOFF,
-    SCREENON,
-    FANENABLEMODE,
-    FANDISABLEMODE,
-    TEMPERATURESTATUS,
-    WIFISTATUS,
-    SYSTEMSTATUS,
-    CONNECTTOWIFI,
-    UNMUTEVOLUME,
-    MUTEVOLUME,
-    SETTINGMODE,
-} va_detect_cmd_t;
-#endif
 
 typedef enum
 {
-    SETTEMPERATURE,
+    UNKNOWNCMD = -1,
+    SETTEMPERATURE = 0,
     INCREASETEMPERATURE,
     DECREASETEMPERATURE,
     MAKEITWARMER,
