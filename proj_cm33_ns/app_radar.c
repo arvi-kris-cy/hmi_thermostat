@@ -373,7 +373,7 @@ static void presence_detection_cb(xensiv_radar_presence_handle_t handle,
             break;
 
         case XENSIV_RADAR_PRESENCE_STATE_ABSENCE:
-            LOG_INFO(CYLF_DEF, "[INFO] absence %" PRIu32 "\n\r", event->timestamp);
+            //LOG_INFO(CYLF_DEF, "[INFO] absence %" PRIu32 "\n\r", event->timestamp);
             status = ABSENCE_DETECTED;
             break;
 
@@ -408,16 +408,16 @@ static void processing_task(void *pvParameters)
         .num_samples_per_chirp             = XENSIV_BGT60TRXX_CONF_NUM_SAMPLES_PER_CHIRP,
         .micro_fft_decimation_enabled      = false,
         .micro_fft_size                    = 128,
-        .macro_threshold                   = 0.5f,
+        .macro_threshold                   = 0.8f,
         .micro_threshold                   = 12.5f,
         .min_range_bin                     = 1,
-        .max_range_bin                     = 15,
+        .max_range_bin                     = 7,
         .macro_compare_interval_ms         = 25,       //250
         .macro_movement_validity_ms        = 100,          //1000
         .micro_movement_validity_ms        = 250,          //4000
         .macro_movement_confirmations      = 0,
         .macro_trigger_range               = 1,
-        .mode                              = XENSIV_RADAR_PRESENCE_MODE_MICRO_IF_MACRO, // TODO: test and refine, earlier was XENSIV_RADAR_PRESENCE_MODE_MACRO_ONLY,
+        .mode                              = XENSIV_RADAR_PRESENCE_MODE_MACRO_ONLY, // TODO: test and refine, earlier was XENSIV_RADAR_PRESENCE_MODE_MACRO_ONLY,
         .macro_fft_bandpass_filter_enabled = false,
         .micro_movement_compare_idx       = 5
     };

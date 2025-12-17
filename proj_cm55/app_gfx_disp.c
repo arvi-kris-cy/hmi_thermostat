@@ -328,7 +328,7 @@ static void handle_time_update(void)
         char date_str[20];
 
         /** Update the hour labels for the main screen and low-power screen. */
-        snprintf(time_str, sizeof(time_str), "%02u", ui_current_time.hour);
+        snprintf(time_str, sizeof(time_str), "%02u :", ui_current_time.hour);
         lv_label_set_text(ui_TimeHactive, time_str);
 
         snprintf(time_str, sizeof(time_str), "%02u :", ui_current_time.hour);
@@ -387,9 +387,7 @@ static void handle_sensor_update(void)
         /** Update CO2 level on the UI. */
         update_co2_data_ui(read_ppm);
         
-        /* Update CO2 arc color */
-        update_co2_aqi_indicator(read_ppm);
-        
+
         /* Update sensor data if device is connected */
         if (true == is_device_connected)
         {
@@ -558,7 +556,7 @@ void update_weather_info_via_http()
     }
 }
 
-#ifdef WEATHER_CODE_ICON
+#if WEATHER_CODE_ICON
 void check_weather_code_icons(int weathercode)
 {
     switch (weathercode) 
@@ -1129,7 +1127,7 @@ void cm55_gfx_task(void *arg)
     cy_en_gfx_status_t gfx_status = CY_GFX_SUCCESS;
     vg_lite_error_t vglite_status = VG_LITE_SUCCESS;
     
-#ifdef WEATHER_CODE_ICON
+#if WEATHER_CODE_ICON
     static uint8_t current_weather_code = 1;
 #endif
 
@@ -1244,7 +1242,7 @@ void cm55_gfx_task(void *arg)
             lv_init();
             lv_port_disp_init();
             lv_port_indev_init();
-            ui_demo_init();
+            ui_init();
             ui_timer_init();
             LOG_INFO(CYLF_DEF, "[cm55_gfx_task] LVGL initialized successfully, entering main loop\r\n");
         }
@@ -1298,7 +1296,7 @@ void cm55_gfx_task(void *arg)
             voice_assistant_change_state(VA_RUN_CMD);
         }
 
-#ifdef WEATHER_CODE_ICON
+#if WEATHER_CODE_ICON
         if (check_weather_check_button_pressed()) {
             current_weather_code++;
             if (current_weather_code > 6) current_weather_code = 1;

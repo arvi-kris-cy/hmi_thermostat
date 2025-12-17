@@ -738,6 +738,7 @@ void increase_temp(lv_event_t *e)
             }
             temp_timer = lv_timer_create(increase_temp_step, deg2sec, NULL);
             lv_label_set_text_fmt(ui_MainModeLabel, ". . . Heating . . .");
+            lv_label_set_text_fmt(ui_LPModelabel, ". . . Heating . . .");
 
             dev_info.environment.target_temp = target_temp;
             /* Update sensor data if device is connected */
@@ -793,6 +794,7 @@ void decrease_temp(lv_event_t *e)
             }
             temp_timer = lv_timer_create(decrease_temp_step, deg2sec, NULL);
             lv_label_set_text_fmt(ui_MainModeLabel, ". . . Cooling . . .");
+            lv_label_set_text_fmt(ui_LPModelabel, ". . . Cooling . . .");
             dev_info.environment.target_temp = target_temp;
             /* Update sensor data if device is connected */
             if (true == is_device_connected)
@@ -837,6 +839,8 @@ static void increase_temp_step(lv_timer_t *timer)
             }
 
             lv_label_set_text_fmt(ui_MainModeLabel, ". . . Heating . . .");
+            lv_label_set_text_fmt(ui_LPModelabel, ". . . Heating . . .");
+
             generate_thermostat_time_str(dev_current_mode, current_temp, target_temp, subinfo, sizeof(subinfo));
             //lv_label_set_text(ui_homescreensubmsg, subinfo);
             //lv_obj_clear_flag(ui_homescreensubmsg, LV_OBJ_FLAG_HIDDEN);
@@ -916,6 +920,7 @@ static void decrease_temp_step(lv_timer_t *timer)
         {
             current_temp--;
             lv_label_set_text_fmt(ui_MainModeLabel, ". . . Cooling . . .");
+            lv_label_set_text_fmt(ui_LPModelabel, ". . . Cooling . . .");
 
             if (dev_unit == TEMP_UNIT_CELSIUS)
             {
@@ -1164,7 +1169,7 @@ void show_presence_icon_and_update_label(uint8_t person_count)
 void update_presence_detection(uint8_t presence_count)
 {
     stop_active_state_timer();
-    //LOG_INFO(CYLF_DEF, "Presence : %d\n", presence_count);
+    LOG_INFO(CYLF_DEF, "Presence : %d\n", presence_count);
     if (presence_count == 0)
     {
         person_detected = false;
@@ -2053,18 +2058,22 @@ static void update_mode_label(thermostat_mode_t mode)
     {
         case MODE_ECO:
             lv_label_set_text_fmt(ui_MainModeLabel, "ECO");
+            lv_label_set_text_fmt(ui_LPModelabel, "ECO");
             break;
 
         case MODE_RAPID:
             lv_label_set_text_fmt(ui_MainModeLabel, "RAPID");
+            lv_label_set_text_fmt(ui_LPModelabel, "RAPID");
             break;
 
         case MODE_AUTO:
             lv_label_set_text_fmt(ui_MainModeLabel, "AUTO");
+            lv_label_set_text_fmt(ui_LPModelabel, "AUTO");
             break;
 
         case MODE_OFF:
             lv_label_set_text_fmt(ui_MainModeLabel, "OFF");
+            lv_label_set_text_fmt(ui_LPModelabel, "OFF");
             break;
         default:
             break;
@@ -2078,27 +2087,21 @@ void update_thermostat_mode(thermostat_mode_t mode)
     switch (mode)
     {
         case MODE_ECO:
-            //lv_img_set_src(ui_ModeButton, &ui_img_eco_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_eco_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            //lv_img_set_src(ui_ecoLP, &ui_img_eco_png);
             deg2sec = ECO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_LOW);
             LOG_INFO(CYLF_DEF, "Mode set to ECO\n");
             break;
 
         case MODE_RAPID:
-            //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_rapid_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_rapid_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_rapid_png);
             deg2sec = RAPID_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_HIGH);
             LOG_INFO(CYLF_DEF, "Mode set to RAPID\n");
             break;
 
         case MODE_AUTO:
-            //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_auto_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_auto_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_auto_png);
             deg2sec = AUTO_MODE_TEMP_TIMER_TIMEOUT;
             update_fan_mode(FAN_MED);
             LOG_INFO(CYLF_DEF, "Mode set to AUTO\n");
@@ -2113,9 +2116,7 @@ void update_thermostat_mode(thermostat_mode_t mode)
             break;
 
         case MODE_OFF:
-            //lv_img_set_src(ui_ModeButton, &ui_img_mode_select_fan_png);
             lv_obj_set_style_bg_image_src(ui_ModeButton, &ui_img_mode_select_fan_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-            //lv_img_set_src(ui_ecoLP, &ui_img_mode_select_fan_png);
             update_fan_mode(FAN_OFF);
             LOG_INFO(CYLF_DEF, "Mode set to FAN\n");
             break;
@@ -2429,9 +2430,9 @@ void load_thermostat_config(thermostat_mode_t mode)
     /* Update UI based on the received thermostat mode */
     switch (mode)
     {
-        case MODE_ECO: break;
-        case MODE_RAPID: break;
-        case MODE_AUTO: break;
+        case MODE_ECO: 
+        case MODE_RAPID: 
+        case MODE_AUTO: 
         case MODE_OFF:
             update_thermostat_mode(mode);
             lv_arc_set_value(ui_ArcTempControl, current_temp);
@@ -2683,22 +2684,6 @@ void set_system_unit(lv_event_t *e)
     update_current_device_setting();
 }
 
-void set_background(lv_event_t * e){
-    UNUSED_PARAM(e);
-
-    /* Read temperature unit switch (enabled or not) */
-    bool is_checked = lv_obj_has_state(ui_BGswitch, LV_STATE_CHECKED);
-    if(!is_checked){
-        lv_obj_add_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        //lv_obj_clear_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, &ui_temp_arc, LV_PART_MAIN | LV_STATE_DEFAULT); 
-    }
-    else{
-        lv_obj_clear_flag(ui_activeBGImg, LV_OBJ_FLAG_HIDDEN);
-        //lv_obj_add_flag(ui_TemperatureArcBgPanel, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_set_style_bg_image_src(ui_TemperatureArcBgPanel, NULL, LV_PART_MAIN | LV_STATE_DEFAULT); 
-    }
-}
 
 void update_system_unit(temp_unit_t unit)
 {
@@ -3101,11 +3086,11 @@ void update_co2_data_ui(uint16_t ppm)
 {
     char ppm_str[6];
     snprintf(ppm_str, sizeof(ppm_str), "%u", ppm);
-    lv_label_set_text(ui_activeCO2, ppm_str);
+    //lv_label_set_text(ui_activeCO2, ppm_str);
 
     char ppm_lp_str[10];
     snprintf(ppm_lp_str, sizeof(ppm_lp_str), "%u ppm", ppm);
-    lv_label_set_text(ui_Co2LP, ppm_lp_str);
+    //lv_label_set_text(ui_Co2LP, ppm_lp_str);
 }
 
 void switch_to_active_screen(void)
@@ -3136,89 +3121,6 @@ void switch_to_ble(lv_event_t *e)
     is_device_connected = false;
 }
 
-// static void update_time_labels(void)
-// {
-//     char buf[3];    // Enough for "00\0"
-
-//     /* Update hour */
-//     snprintf(buf, sizeof(buf), "%02d", hour);
-//     lv_label_set_text(ui_htext, buf);
-
-//     /* Update minute */
-//     snprintf(buf, sizeof(buf), "%02d", minute);
-//     lv_label_set_text(ui_mtext, buf);
-
-//     /* Update second */
-//     snprintf(buf, sizeof(buf), "%02d", second);
-//     lv_label_set_text(ui_stext, buf);
-// }
-
-// void inc_thour(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_htext), "%d", &hour);
-//     hour = (hour + 1) % 24;   // Wrap around 0-23
-
-//     char buf[3];   // Enough for "00\0"
-//     snprintf(buf, sizeof(buf), "%02d", hour);
-//     lv_label_set_text(ui_htext, buf);
-// }
-
-// void inc_tmin(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_mtext), "%d", &minute);
-//     minute = (minute + 1) % 60;   // Wrap around 0-59
-
-//     char buf[3];   // Enough for "00\0"
-//     snprintf(buf, sizeof(buf), "%02d", minute);
-//     lv_label_set_text(ui_mtext, buf);
-// }
-
-// void inc_tsec(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_stext), "%d", &second);
-//     second = (second + 1) % 60;   // Wrap around 0-59
-
-//     char buf[3];   // Enough for "00\0"
-//      snprintf(buf, sizeof(buf), "%02d", second);
-//      lv_label_set_text(ui_stext, buf);
-//  }
-
-// void dec_thour(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_htext), "%d", &hour);
-//     hour = (hour == 0) ? 23 : hour - 1;   // Wrap around backwards
-
-//     char buf[3];   // Enough for "00\0"
-//     snprintf(buf, sizeof(buf), "%02d", hour);
-//     lv_label_set_text(ui_htext, buf);
-// }
-
-// void dec_tmin(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_mtext), "%d", &minute);
-//     minute = (minute == 0) ? 59 : minute - 1;
-
-//     char buf[3];   // Enough for "00\0"
-//     snprintf(buf, sizeof(buf), "%02d", minute);
-//     lv_label_set_text(ui_mtext, buf);
-// }
-
-// void dec_tsec(lv_event_t * e)
-// {
-//     LV_UNUSED(e);
-//     sscanf(lv_label_get_text(ui_stext), "%d", &second);
-//     second = (second == 0) ? 59 : second - 1;
-
-//     char buf[3];   // Enough for "00\0"
-//      snprintf(buf, sizeof(buf), "%02d", second);
-//      lv_label_set_text(ui_stext, buf);
-// }
-
 
 void update_date_time_rtc(lv_event_t * e)
 {
@@ -3236,20 +3138,6 @@ void update_date_time_rtc(lv_event_t * e)
     /* Get current RTC config. */
     Cy_RTC_GetDateAndTime(&new_time);
 
-    // // Read the selected date from the calendar
-    // lv_calendar_date_t sel_date;
-    // if (lv_calendar_get_pressed_date(ui_dtCalendar, &sel_date))
-    // {
-    //     new_time.date = sel_date.day;
-    //     new_time.month = sel_date.month;
-    //     new_time.year = sel_date.year - RTC_CENTURY; // Using RTC_CENTURY macro
-    // }
-
-    // // Read values from the LVGL labels for time
-    // // You should use lv_textarea_get_text if they are text areas
-    // sscanf(lv_label_get_text(ui_htext), "%2d", &new_time.hour);
-    // sscanf(lv_label_get_text(ui_mtext), "%2d", &new_time.min);
-    // sscanf(lv_label_get_text(ui_stext), "%2d", &new_time.sec);
 
     // Calculate the day of the week from the date
     struct tm time_info = {
@@ -3299,31 +3187,7 @@ void update_date_time_rtc(lv_event_t * e)
         start_minute_sync_timer();
 
     }
-    else
-    {
-        // Handle invalid time input
-        // Example: display_notification("Invalid time entered!");
-    }
 }
-
-// void update_calendar_date(lv_event_t * e)
-// {
-//     /* Get the selected date from calendar */
-//     lv_obj_t * cal = ui_dtCalendar;
-//     lv_calendar_date_t sel_date;
-//     bool valid = lv_calendar_get_pressed_date(cal, &sel_date);
-
-//     if(valid) {
-//         char buf[16];  // Enough for "DD/MM/YYYY"
-//         snprintf(buf, sizeof(buf), "%02d/%02d/%04d",
-//                  sel_date.day,
-//                  sel_date.month,
-//                  sel_date.year);
-
-//         /* Set to your text area */
-//         lv_textarea_set_text(ui_datetimetextarea, buf);
-//     }
-// }
 
 static void update_firmware_label(lv_timer_t *timer)
 {
@@ -3644,27 +3508,6 @@ void stop_active_state_timer(void)
         lv_timer_reset(app_timer);
         //printf("Active state timer stopped.\n");
     }
-}
-
-void update_co2_aqi_indicator(uint32_t co2_val)
-{
-	/* Update color code based on CO2 value */
-	if (co2_val < CO2_LEVEL_THRESHOLD_1_GOOD)
-	{
-		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_1_png);
-	}
-	else if (co2_val < CO2_LEVEL_THRESHOLD_2_MODERATE)
-	{
-		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_2_png);
-	}
-    else if (co2_val < CO2_LEVEL_THRESHOLD_3_POOR)
-	{
-		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_3_png);
-	}
-	else
-	{
-		lv_image_set_src(ui_CO2LevelsImg, &ui_img_aqilevel_4_png);
-	}
 }
 
 void mic_icon_click_handler(lv_event_t * e)

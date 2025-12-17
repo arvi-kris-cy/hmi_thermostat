@@ -10,11 +10,12 @@
 lv_obj_t * ui_LPScreen = NULL;
 lv_obj_t * ui_LPscreenContainer = NULL;
 lv_obj_t * ui_MainTemptextLP = NULL;
+lv_obj_t * ui_DegreeLbl2 = NULL;
 lv_obj_t * ui_TimeHLP = NULL;
 lv_obj_t * ui_DateLP = NULL;
 lv_obj_t * ui_TimeMLP = NULL;
 lv_obj_t * ui_TimeSLP = NULL;
-lv_obj_t * ui_Co2LP = NULL;
+lv_obj_t * ui_LPModelabel = NULL;
 lv_obj_t * ui_changescreenLP = NULL;
 extern volatile application_state_t app_state;
 
@@ -57,12 +58,23 @@ void ui_LPScreen_screen_init(void)
     lv_obj_set_width(ui_MainTemptextLP, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_MainTemptextLP, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_MainTemptextLP, 5);
-    lv_obj_set_y(ui_MainTemptextLP, -17);
+    lv_obj_set_y(ui_MainTemptextLP, -1);
     lv_obj_set_align(ui_MainTemptextLP, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_MainTemptextLP, "24");
+    lv_label_set_text(ui_MainTemptextLP, "27");
     lv_obj_set_style_text_color(ui_MainTemptextLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_MainTemptextLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_MainTemptextLP, &ui_font_Roboto80, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_DegreeLbl2 = lv_label_create(ui_LPscreenContainer);
+    lv_obj_set_width(ui_DegreeLbl2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DegreeLbl2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_DegreeLbl2, 58);
+    lv_obj_set_y(ui_DegreeLbl2, -18);
+    lv_obj_set_align(ui_DegreeLbl2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DegreeLbl2, "°");
+    lv_obj_set_style_text_color(ui_DegreeLbl2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_DegreeLbl2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_DegreeLbl2, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TimeHLP = lv_label_create(ui_LPscreenContainer);
     lv_obj_set_width(ui_TimeHLP, LV_SIZE_CONTENT);   /// 1
@@ -73,6 +85,7 @@ void ui_LPScreen_screen_init(void)
     lv_label_set_text(ui_TimeHLP, "09");
     lv_obj_set_style_text_color(ui_TimeHLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeHLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_TimeHLP, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_TimeHLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_DateLP = lv_label_create(ui_LPscreenContainer);
@@ -95,6 +108,7 @@ void ui_LPScreen_screen_init(void)
     lv_label_set_text(ui_TimeMLP, "10");
     lv_obj_set_style_text_color(ui_TimeMLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeMLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_TimeMLP, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_TimeMLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TimeSLP = lv_label_create(ui_LPscreenContainer);
@@ -106,18 +120,19 @@ void ui_LPScreen_screen_init(void)
     lv_label_set_text(ui_TimeSLP, "11");
     lv_obj_set_style_text_color(ui_TimeSLP, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_TimeSLP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_TimeSLP, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_TimeSLP, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Co2LP = lv_label_create(ui_LPscreenContainer);
-    lv_obj_set_width(ui_Co2LP, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Co2LP, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Co2LP, 7);
-    lv_obj_set_y(ui_Co2LP, 135);
-    lv_obj_set_align(ui_Co2LP, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Co2LP, "2000 ppm");
-    lv_obj_set_style_text_color(ui_Co2LP, lv_color_hex(0xFDFCFC), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Co2LP, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Co2LP, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_LPModelabel = lv_label_create(ui_LPscreenContainer);
+    lv_obj_set_width(ui_LPModelabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LPModelabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LPModelabel, 4);
+    lv_obj_set_y(ui_LPModelabel, 128);
+    lv_obj_set_align(ui_LPModelabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LPModelabel, "ECO");
+    lv_obj_set_style_text_color(ui_LPModelabel, lv_color_hex(0xFDFCFC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_LPModelabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LPModelabel, &ui_font_sans32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_changescreenLP = lv_button_create(ui_LPScreen);
     lv_obj_set_width(ui_changescreenLP, 453);
@@ -144,11 +159,12 @@ void ui_LPScreen_screen_destroy(void)
     ui_LPScreen = NULL;
     ui_LPscreenContainer = NULL;
     ui_MainTemptextLP = NULL;
+    ui_DegreeLbl2 = NULL;
     ui_TimeHLP = NULL;
     ui_DateLP = NULL;
     ui_TimeMLP = NULL;
     ui_TimeSLP = NULL;
-    ui_Co2LP = NULL;
+    ui_LPModelabel = NULL;
     ui_changescreenLP = NULL;
 
 }

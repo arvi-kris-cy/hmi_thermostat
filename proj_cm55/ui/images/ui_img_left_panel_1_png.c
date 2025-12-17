@@ -260,7 +260,7 @@ uint8_t ui_img_left_panel_1_map[] = {
 
 };
 
-const lv_image_dsc_t ui_img_left_panel_1 = {
+const lv_image_dsc_t ui_img_left_panel_1_png = {
   .header = {
     .magic = LV_IMAGE_HEADER_MAGIC,
     .cf = LV_COLOR_FORMAT_ARGB8888,

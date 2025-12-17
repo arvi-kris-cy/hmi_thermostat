@@ -24,6 +24,7 @@ extern "C" {
 #include "screens/ui_BootScreen.h"
 #include "screens/ui_FWUpdateScreen.h"
 #include "screens/ui_AboutScreen.h"
+#include "screens/ui_InfoScreen.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -43,7 +44,6 @@ extern lv_anim_t * LeftPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * RightPanelAnim_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fpsdrag_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_anim_t * fpsdown_Animation(lv_obj_t * TargetObject, int delay);
-extern lv_anim_t * co2levelsloop_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
@@ -51,8 +51,8 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_temp_arc);    // assets/background_4.png
-LV_IMG_DECLARE(ui_img_left_panel_1);    // assets/background_4.png
-LV_IMG_DECLARE(ui_img_right_panel_1);    // assets/background_4.png
+LV_IMG_DECLARE(ui_img_left_panel_1_png);    // assets/background_4.png
+LV_IMG_DECLARE(ui_img_right_panel_1_png);    // assets/background_4.png
 LV_IMG_DECLARE(ui_img_bleadv50_png);    // assets/bleadv50.png
 LV_IMG_DECLARE(ui_img_clouddisconnected50_png);    // assets/clouddisconnected50.png
 LV_IMG_DECLARE(ui_img_cloudconnected50_png);    // assets/cloudconnected50.png
@@ -108,12 +108,8 @@ LV_IMG_DECLARE(ui_img_bootimg_cmp_png);
 LV_IMG_DECLARE(ble_connected_home_icon);
 LV_IMG_DECLARE(ui_img_ble_connected_50_png);
 LV_IMG_DECLARE(ui_img_mode_select_auto_png);
-//TEST
 LV_IMG_DECLARE(ui_img_background_7_png);
-LV_IMG_DECLARE(ui_img_aqilevel_1_png);    // assets/AQIlevel_1.png
-LV_IMG_DECLARE(ui_img_aqilevel_2_png);    // assets/AQIlevel_2.png
-LV_IMG_DECLARE(ui_img_aqilevel_3_png);    // assets/AQIlevel_3.png
-LV_IMG_DECLARE(ui_img_aqilevel_4_png);    // assets/AQIlevel_4.png
+LV_IMG_DECLARE(ui_img_drop_png);
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Roboto80);
