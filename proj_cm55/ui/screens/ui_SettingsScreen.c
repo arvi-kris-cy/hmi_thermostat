@@ -29,6 +29,15 @@ lv_obj_t * ui_cancelbtnlabel = NULL;
 lv_obj_t * ui_BottomPanel2 = NULL;
 lv_obj_t * ui_FPSlabel2 = NULL;
 // event funtions
+void ui_event_SettingsScreen(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        handle_settings_screen_loaded(e);
+    }
+}
+
 void ui_event_BrightnessSlider(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -463,6 +472,7 @@ void ui_SettingsScreen_screen_init(void)
     lv_obj_add_event_cb(ui_homeimg2, ui_event_homeimg2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_confirmbtnlabel, ui_event_confirmbtnlabel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_cancelbtnlabel, ui_event_cancelbtnlabel, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SettingsScreen, ui_event_SettingsScreen, LV_EVENT_ALL, NULL);
     uic_ResetButton = ui_ResetButton;
 
 }

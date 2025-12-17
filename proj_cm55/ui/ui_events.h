@@ -26,6 +26,8 @@ void change_volume(lv_event_t * e);
 void set_system_unit(lv_event_t * e);
 void set_background(lv_event_t * e);
 void device_factory_reset(lv_event_t * e);
+void handle_active_screen_loaded(lv_event_t * e);
+void handle_settings_screen_loaded(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

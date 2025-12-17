@@ -152,9 +152,9 @@ lv_obj_t * ui_homebleconnected = NULL;
 void ui_event_ActiveScreen(lv_event_t * e)
 {
 	static bool first_load = true;
-	lv_event_code_t event_code = lv_event_get_code(e);
+    lv_event_code_t event_code = lv_event_get_code(e);
 
-	if (event_code == LV_EVENT_SCREEN_LOAD_START) 
+    if(event_code == LV_EVENT_SCREEN_LOADED) 
     {
         LeftPanelAnim_Animation(ui_LeftPanel, 0);
         RightPanelAnim_Animation(ui_RightPanel, 0);
@@ -164,8 +164,9 @@ void ui_event_ActiveScreen(lv_event_t * e)
             first_load = false;
             co2levelsloop_Animation(ui_CO2LevelsImg, 600);
         }
+
+        handle_active_screen_loaded(e);
     }
-    
 }
 
 void ui_event_commandlbl(lv_event_t * e)

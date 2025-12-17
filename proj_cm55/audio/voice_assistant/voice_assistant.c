@@ -389,98 +389,6 @@ va_rslt_t voice_assistant_get_command(char *text)
     return result;
 }
 
-#if 0
-va_detect_cmd_t va_command_to_id(const char *command)
-{
-	printf("%s\r\n", command);
-
-    if (strcmp(command, "SLEEPMODE") == 0)
-    {
-        return SLEEPMODE;
-    } 
-    else if (strcmp(command, "DECREASESCREENBRIGHTNESS") == 0)
-    {
-        return DECREASESCREENBRIGHTNESS;
-    }
-    else if (strcmp(command, "INCREASESCREENBRIGHTNESS") == 0)
-    {
-        return INCREASESCREENBRIGHTNESS;
-    }
-    else if (strcmp(command, "DECREASETEMPERATURE") == 0)
-    {
-        return DECREASETEMPERATURE;
-    }
-    else if (strcmp(command, "INCREASETEMPERATURE") == 0)
-    {
-        return INCREASETEMPERATURE;
-    }
-    else if (strcmp(command, "SETTEMPERATURE") == 0)
-    {
-        return SETTEMPERATURE;
-    }
-    else if (strcmp(command, "COOLINGMODE") == 0)
-    {
-        return COOLINGMODE;
-    }
-    else if (strcmp(command, "HEATINGOFFMODE") == 0)
-    {
-        return HEATINGOFFMODE;
-    }
-    else if (strcmp(command, "HEATINGONMODE") == 0)
-    {
-        return HEATINGONMODE;
-    }
-    else if (strcmp(command, "SCREENOFF") == 0)
-    {
-        return SCREENOFF;
-    }
-    else if (strcmp(command, "SCREENON") == 0)
-    {
-        return SCREENON;
-    }
-    else if (strcmp(command, "FANENABLEMODE") == 0)
-    {
-        return FANENABLEMODE;
-    }
-    else if (strcmp(command, "FANDISABLEMODE") == 0)
-    {
-        return FANDISABLEMODE;
-    }
-    else if (strcmp(command, "TEMPERATURESTATUS") == 0)
-    {
-        return TEMPERATURESTATUS;
-    }
-    else if (strcmp(command, "WIFISTATUS") == 0)
-    {
-        return WIFISTATUS;
-    }
-    else if (strcmp(command, "SYSTEMSTATUS") == 0)
-    {
-        return SYSTEMSTATUS;
-    }
-    else if (strcmp(command, "CONNECTTOWIFI") == 0)
-    {
-        return CONNECTTOWIFI;
-    }
-    else if (strcmp(command, "UNMUTEVOLUME") == 0)
-    {
-        return UNMUTEVOLUME;
-    }
-    else if (strcmp(command, "MUTEVOLUME") == 0)
-    {
-        return MUTEVOLUME;
-    }
-    else if (strcmp(command, "SETTINGMODE") == 0)
-    {
-        return SETTINGMODE; 
-    }
-    else
-    {
-        return -1;  // Unknown command
-    }
-}
-#endif
-
 va_detect_cmd_t va_command_to_id(const char *command)
 {
 	printf("%s\r\n", command);
@@ -551,7 +459,7 @@ va_detect_cmd_t va_command_to_id(const char *command)
     }
     else
     {
-        return -1;  // Unknown command
+        return UNKNOWNCMD;  // Unknown command
     }
 }
 

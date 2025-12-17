@@ -13,6 +13,7 @@ extern "C" {
 // SCREEN: ui_SettingsScreen
 extern void ui_SettingsScreen_screen_init(void);
 extern void ui_SettingsScreen_screen_destroy(void);
+extern void ui_event_SettingsScreen(lv_event_t * e);
 extern lv_obj_t * ui_SettingsScreen;
 extern void ui_event_BrightnessSlider(lv_event_t * e);
 extern lv_obj_t * ui_BrightnessSlider;
