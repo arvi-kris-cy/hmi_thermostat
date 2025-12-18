@@ -651,7 +651,7 @@ int main(void)
     LOG_INFO(CYLF_DEF, "[main] GFX task created successfully\r\n");
 
     /* Start Voice Assistant task */
-    #if defined(USE_VOICE_ASSISTANT) // TODO define macro
+#if defined(USE_VOICE_ASSISTANT)
     LOG_INFO(CYLF_DEF, "[main] Creating voice assistant task\r\n");
     task_return = xTaskCreate(voice_assistant_task,
                             	VOICE_ASSISTANT_TASK_NAME,
@@ -664,7 +664,7 @@ int main(void)
         APP_ERROR(1);
     }
     LOG_INFO(CYLF_DEF, "[main] Voice assistant task created successfully\r\n");
-    #endif /* USE_VOICE_ASSISTANT */
+#endif /* USE_VOICE_ASSISTANT */
 
 	printf("****************** "
            "PSOC Edge MCU: HMI Thermostat Demo "

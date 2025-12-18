@@ -1281,7 +1281,7 @@ void cm55_gfx_task(void *arg)
          */
         time_till_next = lv_timer_handler();
         vTaskDelay(pdMS_TO_TICKS(time_till_next));
-
+#if defined(USE_VOICE_ASSISTANT)
         /* Read the user button state */
         if (check_button_pressed() || is_mic_clicked)
         {
@@ -1296,16 +1296,15 @@ void cm55_gfx_task(void *arg)
             voice_assistant_change_state(VA_RUN_CMD);
         }
 
+        ww_to_ui();
+        intent_to_ui(intent_text);
+#endif
 #if WEATHER_CODE_ICON
         if (check_weather_check_button_pressed()) {
             current_weather_code++;
             if (current_weather_code > 6) current_weather_code = 1;
             check_weather_code_icons(current_weather_code); // reuse your function
         }
-#endif
-#if defined(USE_VOICE_ASSISTANT) // TODO define macro
-        ww_to_ui();
-        intent_to_ui(intent_text);
 #endif
     	if(boot_config)
     	{

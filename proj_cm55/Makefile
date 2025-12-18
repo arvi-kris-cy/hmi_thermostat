@@ -149,7 +149,7 @@ DEFINES+=_BAREMETAL=0 LV_USE_QRCODE
 COMPONENTS += SHT40 CO2
 
 ifeq ($(CONFIG_DISPLAY), R4INCH_DISP)
-DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_FT5446 USE_VOICE_ASSISTANT
+DEFINES += MTB_DISPLAY_R4INCH_TFT MTB_CTP_FT5446
 # Ignore unused 10.1-inch display and touch driver files from compilation
 CY_IGNORE += $(SEARCH_display-tft-ek79007ad3)
 CY_IGNORE += $(SEARCH_touch-ctp-ili2511)
@@ -277,9 +277,9 @@ CY_COMPILER_PATH?=
 CY_AVC_PATH=$(SEARCH_audio-voice-core)
 CY_AFE_PATH=$(SEARCH_audio-front-end)
 CY_SOD_PATH=$(SEARCH_speech-onset-detection)
+CY_VA_PATH=$(SEARCH_voice_assistant)
 
-CY_IGNORE += ${CY_AVC_PATH}
-CY_IGNORE += ${CY_AFE_PATH}
+
 CY_IGNORE += ${CY_SOD_PATH}
 
 # Ignore unused LVGL middleware files from compilation
