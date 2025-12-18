@@ -617,7 +617,7 @@ static void handle_system_event(void)
                 {
                     /** Switch to Active screen and display presence status. */
                     switch_to_active_screen();
-                    update_presence_detection(1); // TODO get actual person count
+                    update_presence_detection(1);
                     lv_obj_set_style_bg_image_opa(ui_presencelbl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 else if ((presence_status_t) msg_val == ABSENCE_DETECTED)
@@ -1138,6 +1138,7 @@ void cm55_gfx_task(void *arg)
 #endif
 
     cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
+    (void) i2c_result;
 
     /* GFXSS init */
     /* MIPI-DSI Display specific configs */
@@ -1199,7 +1200,7 @@ void cm55_gfx_task(void *arg)
         Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
 #endif
 
-        vTaskDelay(pdMS_TO_TICKS(500)); // TODO check and optimize delay
+        vTaskDelay(pdMS_TO_TICKS(500));
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
 		/* Initialize the R4INCH display */

@@ -1157,7 +1157,6 @@ void show_presence_icon_and_update_label(uint8_t person_count)
      * presence label if count is >1 */
     lv_obj_set_style_opa(ui_presencelbl, LV_OPA_COVER, 0);
 
-    // TODO: update presence count label only for first couple of seconds after detection
     if (person_count > 1)
     {
         show_presence_icon_bubble();
@@ -2883,7 +2882,6 @@ void start_inactivity_timer(void)
     }
 }
 
-// TODO - this is temp, idle transition should be done on completion of absence UI update
 void start_inactivity_timer_addn(uint32_t additional_timeout_ms)
 {
     /* If configured timeout is set to never, do nothing */

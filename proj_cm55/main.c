@@ -2,8 +2,9 @@
 * File Name        : main.c
 *
 * Description      : This source file contains the main routine for 
-*                    application running on CM55 CPU.
-*
+*                    application running on CM55 CPU which handles 
+*                    graphics display, touch input, voice assistant and
+*                    environmental sensors.
 * Related Document : See README.md
 *
 ********************************************************************************
@@ -43,7 +44,6 @@
 * Header Files
 *******************************************************************************/
 #include "cybsp.h"
-
 #include "retarget_io_init.h"
 
 /* RTOS includes */
@@ -61,20 +61,20 @@
 #include "app_sensor.h"
 
 /* Application related includes */
+#include "app_gfx_disp.h"
 #include "app_voice_control.h"
 #include "voice_assistant.h"
-#include "app_gfx_disp.h"
 
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#define GFX_TASK_NAME                       ("CM55 Gfx Task")
+#define GFX_TASK_NAME                       ("CM55_GfxTask")
 #define GFX_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE * 12)
 #define GFX_TASK_PRIORITY                   (3U)
 
-#define VOICE_ASSISTANT_TASK_NAME               ("VoiceTask")
-#define VOICE_ASSISTANT_TASK_STACK_SIZE         (configMINIMAL_STACK_SIZE * 2)
-#define VOICE_ASSISTANT_TASK_PRIORITY           (4U)
+#define VOICE_ASSISTANT_TASK_NAME           ("CM55_VoiceTask")
+#define VOICE_ASSISTANT_TASK_STACK_SIZE     (configMINIMAL_STACK_SIZE * 2)
+#define VOICE_ASSISTANT_TASK_PRIORITY       (4U)
 
 #define I2C_CONTROLLER_IRQ_PRIORITY         (2UL)
 
@@ -94,16 +94,22 @@
 /*******************************************************************************
 * Global Variables
 *******************************************************************************/
+// IPC communication variables
 bool cm55_pipe2_msg_received = false;
 ipc_msg_t *ipc_recv_msg;
-
 volatile uint32_t msg_val = RESET_VAL;
 volatile uint32_t msg_cmd = RESET_VAL;
 
+/*******************************************************************************
+* FreeRTOS Task Handles
+*******************************************************************************/
 TaskHandle_t rtos_cm55_gfx_task_handle = NULL;
 TaskHandle_t rtos_cm55_voice_task_handle = NULL;
 TaskHandle_t rtos_cm55_sensor_task_handle = NULL;
 
+/*******************************************************************************
+* I2C and Hardware Communication
+*******************************************************************************/
 cy_stc_scb_i2c_context_t disp_touch_i2c_controller_context;
 
 #if defined(MTB_DISPLAY_R4INCH_TFT)
@@ -120,31 +126,25 @@ cy_stc_sysint_t disp_touch_i2c_controller_irq_cfg =
 };
 #endif
 
+/* Mutex to guard the I2C instance for Sensor/Touchpad */
+SemaphoreHandle_t i2c_mutex = NULL;
+
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
 
 /* RTC HAL object */
 static mtb_hal_rtc_t rtc_obj;
 
-/* Mutex to guard the I2C instance for Sensor/Touchpad */
-SemaphoreHandle_t i2c_mutex = NULL;
-
-/* SCB - I2C IRQ configuration */
-cy_stc_sysint_t i2c_scb_irq_cfg =
-{
-    .intrSrc        = CYBSP_I2C_CONTROLLER_IRQ,
-    .intrPriority   = 2U
-};
-
 mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
 
 extern device_state_t dev_info;
 extern char m55_current_OTA_version[MAX_FW_VERSION_LEN];
-/****************************************************************************
- *                              FUNCTION DECLARATIONS
- ***************************************************************************/
 
+/*******************************************************************************
+* Function Prototypes
+*******************************************************************************/
 uint32_t get_time_ms(void);
+
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
  ******************************************************************************/
@@ -231,15 +231,14 @@ CY_SECTION(".cy_itcm") uint32_t calculate_idle_percentage(void)
 
     time_diff = currentTick - previousTick;
 
-    if((currentIdleTime >= previousIdleTime) && (currentTick > previousTick))
+    if ((currentIdleTime >= previousIdleTime) && (currentTick > previousTick))
     {
-        idle_percent = ((currentIdleTime - previousIdleTime) * 100)/time_diff;
+        idle_percent = ((currentIdleTime - previousIdleTime) * 100) / time_diff;
     }
     else if ((currentIdleTime >= previousIdleTime) && (currentTick < previousTick))
     {
         time_diff = 10000 - previousTick + currentTick;
-        idle_percent = ((currentIdleTime - previousIdleTime) * 100)/time_diff;
-      
+        idle_percent = ((currentIdleTime - previousIdleTime) * 100) / time_diff;
     }
     previousIdleTime = ulTaskGetIdleRunTimeCounter();
     previousTick = portGET_RUN_TIME_COUNTER_VALUE();
@@ -328,9 +327,8 @@ static void setup_tickless_idle_timer(void)
                                                     lptimer_interrupt_handler);
 
     /* LPTimer interrupt initialization failed. Stop program execution. */
-    if(CY_SYSINT_SUCCESS != interrupt_init_status)
+    if (CY_SYSINT_SUCCESS != interrupt_init_status)
     {
-//        handle_app_error();
         APP_ERROR(1);
     }
 
@@ -343,9 +341,8 @@ static void setup_tickless_idle_timer(void)
                                                 &CYBSP_CM55_LPTIMER_1_config);
 
     /* MCWDT initialization failed. Stop program execution. */
-    if(CY_MCWDT_SUCCESS != mcwdt_init_status)
+    if (CY_MCWDT_SUCCESS != mcwdt_init_status)
     {
-//        handle_app_error();
         APP_ERROR(mcwdt_init_status);
     }
 
@@ -360,15 +357,13 @@ static void setup_tickless_idle_timer(void)
                                             &CYBSP_CM55_LPTIMER_1_hal_config);
 
     /* LPTimer setup failed. Stop program execution. */
-    if(CY_RSLT_SUCCESS != result)
+    if (CY_RSLT_SUCCESS != result)
     {
-//        handle_app_error();
         APP_ERROR(result);
     }
 
     /* Pass the LPTimer object to abstraction RTOS library that implements
-     * tickless idle mode
-     */
+     * tickless idle mode */
     cyabs_rtos_set_lptimer(&lptimer_obj);
 }
 
@@ -391,86 +386,68 @@ CY_SECTION(".cy_itcm") static void disp_touch_i2c_controller_interrupt(void)
 #if defined(MTB_DISPLAY_R4INCH_TFT)
     Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_2_HW, &disp_touch_i2c_controller_context);
 #else
-	Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_HW, &disp_touch_i2c_controller_context);
+    Cy_SCB_I2C_Interrupt(CYBSP_I2C_CONTROLLER_HW, &disp_touch_i2c_controller_context);
 #endif
 }
 
-static void init_i2c_controller()
+static void init_i2c_controller(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
     cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
     cy_en_sysint_status_t sysint_status = CY_SYSINT_SUCCESS;
 
     i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_2_HW,
-                    &CYBSP_I2C_CONTROLLER_2_config, &disp_touch_i2c_controller_context);
+                                &CYBSP_I2C_CONTROLLER_2_config,
+                                &disp_touch_i2c_controller_context);
 
     if (CY_SCB_I2C_SUCCESS != i2c_result)
     {
-        LOG_ERROR(CYLF_DEF, "I2C controller initialization failed !!\n");
-        CY_ASSERT(0);
+        LOG_ERROR(CYLF_DEF, "I2C controller initialization failed\r\n");
+        APP_ERROR(1);
     }
 
     /* Initialize the I2C interrupt */
     sysint_status = Cy_SysInt_Init(&disp_touch_i2c_controller_irq_cfg,
-                                       &disp_touch_i2c_controller_interrupt);
+                                   &disp_touch_i2c_controller_interrupt);
 
     if (CY_SYSINT_SUCCESS != sysint_status)
     {
         LOG_ERROR(CYLF_DEF, "I2C controller interrupt initialization failed\r\n");
-        CY_ASSERT(0);
+        APP_ERROR(1);
     }
 
-    /* Enable the I2C interrupts. */
+    /* Enable the I2C interrupts */
     NVIC_EnableIRQ((IRQn_Type)disp_touch_i2c_controller_irq_cfg.intrSrc);
 
     /* Enable the I2C */
     Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_2_HW);
 
-
     i2c_result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_2_hal_obj,
-                                    &CYBSP_I2C_CONTROLLER_2_hal_config,
-                                        &disp_touch_i2c_controller_context,
-                                            NULL);
+                                   &CYBSP_I2C_CONTROLLER_2_hal_config,
+                                   &disp_touch_i2c_controller_context,
+                                   NULL);
 
-    if(CY_RSLT_SUCCESS != result)
+    if (CY_SCB_I2C_SUCCESS != i2c_result)
     {
-        LOG_ERROR(CYLF_DEF, "I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)result);
-//        handle_app_error();
-        APP_ERROR(result);
+        LOG_ERROR(CYLF_DEF, "I2C HAL setup failed with error code: 0x%08X\r\n", (unsigned int)i2c_result);
+        APP_ERROR(i2c_result);
     }
 }
 
-static void init_i2c_rtc_controller()
+static void init_i2c_rtc_controller(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
-    cy_en_scb_i2c_status_t i2c_result = CY_SCB_I2C_SUCCESS;
-
-    cy_stc_scb_i2c_context_t CYBSP_I2C_CONTROLLER_context;
-
-    // i2c_result = Cy_SCB_I2C_Init(CYBSP_I2C_CONTROLLER_HW,
-    //         &CYBSP_I2C_CONTROLLER_config,
-    //         &CYBSP_I2C_CONTROLLER_context);
-
-    // if(CY_SCB_I2C_SUCCESS != i2c_result)
-    // {
-    //     printf(" Error : I2C initialization failed !!\r\n");
-    //     handle_app_error();
-    // }
-
-    // NVIC_EnableIRQ((IRQn_Type)i2c_scb_irq_cfg.intrSrc);
-
-    // Cy_SCB_I2C_Enable(CYBSP_I2C_CONTROLLER_HW);
 
     /* Configure the I2C master interface with the desired clock frequency */
     result = mtb_hal_i2c_setup(&CYBSP_I2C_CONTROLLER_hal_obj,
-            &CYBSP_I2C_CONTROLLER_hal_config,
-            &disp_touch_i2c_controller_context,
-            NULL);
+                              &CYBSP_I2C_CONTROLLER_hal_config,
+                              &disp_touch_i2c_controller_context,
+                              NULL);
 
-    if(CY_RSLT_SUCCESS != result)
+    if (CY_RSLT_SUCCESS != result)
     {
-        printf(" Error : I2C setup failed !!\r\n");
-        handle_app_error();
+        LOG_ERROR(CYLF_DEF, "I2C setup failed with error code: 0x%08X\r\n", (unsigned int)result);
+        APP_ERROR(result);
     }
 
     rtc_boot_once();
@@ -573,20 +550,20 @@ int main(void)
 
     /* Initialize RTC */
     app_rtc_init();
-    
+
     /* Update FW version variable */
     sprintf(m55_current_OTA_version, "%d.%d.%d", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_BUILD);
-	
-    /* Setup IPC communication for CM55*/
+
+    /* Setup IPC communication for CM55 */
     cm55_ipc_communication_setup();
 
     Cy_SysLib_Delay(50);
 
     /* Register a callback function to handle events on the CM55 IPC pipe */
     pipeStatus = Cy_IPC_Pipe_RegisterCallback(CM55_IPC_PIPE_EP_ADDR, &cm55_msg_callback,
-                                                      (uint32_t)CM55_IPC_PIPE_CLIENT_ID);
+                                             (uint32_t)CM55_IPC_PIPE_CLIENT_ID);
 
-    if(CY_IPC_PIPE_SUCCESS != pipeStatus)
+    if (CY_IPC_PIPE_SUCCESS != pipeStatus)
     {
         APP_ERROR(pipeStatus);
     }
@@ -597,12 +574,13 @@ int main(void)
     /* Initialize I2C SCB */
     init_i2c_rtc_controller();
     
-    /* Create a binary semaphore to act as a I2C mutex
-     * guarding touchpad and sensor. */
+    /* Create a binary semaphore to act as an I2C mutex
+     * guarding touchpad and sensor */
     i2c_mutex = xSemaphoreCreateMutex();
-    if (i2c_mutex == NULL) {
-        LOG_INFO(CYLF_DEF, "I2C mutex creation error.\n");
-        CY_ASSERT(0);
+    if (i2c_mutex == NULL)
+    {
+        LOG_ERROR(CYLF_DEF, "I2C mutex creation failed\r\n");
+        APP_ERROR(1);
     }
     xSemaphoreGive(i2c_mutex);
 
@@ -616,19 +594,20 @@ int main(void)
     device_settings_t rd_settings = {0};
     app_eeprom_read(&rd_settings);
 
-    if(rd_settings.is_available != true) {
-
+    if (rd_settings.is_available != true)
+    {
         device_settings_t settings = {0};
 
-    	/* Load default configuration */
+        /* Load default configuration */
         get_default_device_setting(&settings);
         settings.is_available = true;
 
         app_eeprom_write(&settings);
-    	set_current_device_setting(&rd_settings);
-
-    } else {
-    	set_current_device_setting(&rd_settings);
+        set_current_device_setting(&rd_settings);
+    }
+    else
+    {
+        set_current_device_setting(&rd_settings);
     }
 
     dev_info.environment.target_temp = dev_info.environment.current_temp;
@@ -640,9 +619,9 @@ int main(void)
     LOG_INFO(CYLF_DEF, "[main] Creating CM55 GFX task\r\n");
     /* Start GFX task */
     task_return = xTaskCreate(cm55_gfx_task, GFX_TASK_NAME,
-                              GFX_TASK_STACK_SIZE, NULL,
-                              GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
-    
+                             GFX_TASK_STACK_SIZE, NULL,
+                             GFX_TASK_PRIORITY, &rtos_cm55_gfx_task_handle);
+
     if (pdPASS != task_return)
     {
         LOG_ERROR(CYLF_DEF, "[main] Error: Failed to create cm55_gfx_task. Return code: %d\r\n", task_return);
@@ -654,11 +633,11 @@ int main(void)
 #if defined(USE_VOICE_ASSISTANT)
     LOG_INFO(CYLF_DEF, "[main] Creating voice assistant task\r\n");
     task_return = xTaskCreate(voice_assistant_task,
-                            	VOICE_ASSISTANT_TASK_NAME,
-                            	VOICE_ASSISTANT_TASK_STACK_SIZE, NULL,
-                            	VOICE_ASSISTANT_TASK_PRIORITY, &rtos_cm55_voice_task_handle);
-  	
-  	if (pdPASS != task_return)
+                             VOICE_ASSISTANT_TASK_NAME,
+                             VOICE_ASSISTANT_TASK_STACK_SIZE, NULL,
+                             VOICE_ASSISTANT_TASK_PRIORITY, &rtos_cm55_voice_task_handle);
+
+    if (pdPASS != task_return)
     {
         LOG_ERROR(CYLF_DEF, "[main] Error: Failed to create voice_assistant_task. Return code: %d\r\n", task_return);
         APP_ERROR(1);
@@ -666,9 +645,7 @@ int main(void)
     LOG_INFO(CYLF_DEF, "[main] Voice assistant task created successfully\r\n");
 #endif /* USE_VOICE_ASSISTANT */
 
-	printf("****************** "
-           "PSOC Edge MCU: HMI Thermostat Demo "
-           "****************** \r\n\n");
+    LOG_INFO(CYLF_DEF, "Thermostat Application Started Version: %s\r\n", m55_current_OTA_version);
 
     /* Start the RTOS Scheduler */
     vTaskStartScheduler();
@@ -676,6 +653,5 @@ int main(void)
     /* Should never get here! */
     handle_app_error();
 }
-
 
 /* [] END OF FILE */

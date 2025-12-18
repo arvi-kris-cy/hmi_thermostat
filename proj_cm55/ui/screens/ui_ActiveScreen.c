@@ -150,7 +150,6 @@ lv_obj_t * ui_homebleconnected = NULL;
 // event funtions
 void ui_event_ActiveScreen(lv_event_t * e)
 {
-	static bool first_load = true;
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_SCREEN_LOADED) 
@@ -278,6 +277,7 @@ void ui_event_ArcTempControl(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
+    (void) target;
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         //_ui_arc_set_text_value(ui_TemperatureCurrValueLbl, target, "", "°C");
